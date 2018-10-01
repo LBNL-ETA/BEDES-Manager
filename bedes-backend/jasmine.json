@@ -1,0 +1,8 @@
+{
+  "spec_files": [
+    "src/**/*.spec.ts",
+    "src/epb-common/**/*.spec.ts"
+  ],
+  "stopSpecOnExpectationFailure": false,
+  "random": false
+}
