@@ -1,0 +1,4 @@
+**/postgres_data
+set_env.sh
+**/.env
+**/logs
