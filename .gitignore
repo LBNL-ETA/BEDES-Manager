@@ -3,3 +3,5 @@ set_env.sh
 **/.env
 **/logs
 **/node_modules
+.vscode
+~*.xlsx
