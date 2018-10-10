@@ -54,13 +54,13 @@ export class BedesUnitManager {
             }
             // no record found, so create the record in the db
             // create the new BedesUnit if it doesn't exist in the db
-            return await bedesQuery.unitQuery.newRecord({_id: undefined, _name: unitName})
+            return await bedesQuery.units.newRecord({_id: undefined, _name: unitName})
 
         // });
     }
 
     public async getDbItemByName(unitName: string): Promise<any> {
-            return await bedesQuery.unitQuery.getRecordByName(unitName);
+            return await bedesQuery.units.getRecordByName(unitName);
 
             // .then(
             //     (results: BedesUnit) => {

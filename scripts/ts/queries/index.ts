@@ -1,10 +1,13 @@
 import { BedesUnitQuery } from "./bedes-unit";
+import { BedesDataTypeQuery } from "./bedes-data-type";
 
 class BedesQuery {
-    public unitQuery: BedesUnitQuery;
+    public units: BedesUnitQuery;
+    public dataType: BedesDataTypeQuery;
 
     constructor() {
-        this.unitQuery = new BedesUnitQuery();
+        this.units = new BedesUnitQuery();
+        this.dataType = new BedesDataTypeQuery();
     }
 }
 

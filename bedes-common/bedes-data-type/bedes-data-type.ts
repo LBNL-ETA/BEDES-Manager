@@ -1,14 +1,13 @@
-import { IBedesUnit } from "./bedes-unit.template";
+import { IBedesDataType } from './bedes-data-type.interface';
 
-export class BedesUnit {
-    private _id: number | null | undefined;
-    private _name: string;
+export class BedesDataType {
+    _id: number | null | undefined;
+    _name: string;
 
-    constructor(data: IBedesUnit) {
+    constructor(data: IBedesDataType) {
         this._id = data._id;
         this._name = data._name;
     }
-
     
     public get id(): number | null | undefined {
         return this._id;

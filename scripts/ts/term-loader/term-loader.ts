@@ -12,6 +12,8 @@ import { BedesTerm, BedesConstrainedList, IBedesTermConstrainedList, IBedesTerm}
 import { WorksheetRow, IWorksheetRow } from '../worksheet-row';
 import { BedesTermOption } from "../../../bedes-common/bedes-term-option/bedes-term-option";
 import { IBedesTermOption } from "../../../bedes-common/bedes-term-option/bedes-term-option.interface";
+import { BedesDataTypeManager } from "../data-type-manager";
+import { BedesDataType } from "../../../bedes-common/bedes-data-type";
 
 /**
  * Load's the BEDES terms from the BEDES V2.1_0.xlsx file.
@@ -20,6 +22,7 @@ export class TermLoader {
     private filePath: string;
     private fileName: string;
     private unitManager: BedesUnitManager;
+    private dataTypeManager: BedesDataTypeManager;
 
     private book!: XLSX.WorkBook;
 
@@ -28,6 +31,7 @@ export class TermLoader {
         this.filePath = filePath;
         this.fileName = fileName;
         this.unitManager = new BedesUnitManager();
+        this.dataTypeManager = new BedesDataTypeManager();
     }
 
     /**
@@ -94,18 +98,22 @@ export class TermLoader {
                 else {
                     // A reguar BedesTerm, not a ConstrainedList
                     inConstrainedList = false;
+                    if (!rowItem.dataType) {
+                        throw new Error('Missing data type');
+                    }
+                    else if (!rowItem.unit) {
+                        throw new Error('Missing unit');
+                    }
+                    let dataType = await this.getBedesDataType(rowItem.dataType);
+                    let unit = await this.getBedesUnit(rowItem.unit);
                     const params = <IBedesTerm>{
                         _termTypeId: TermType.Global,
                         _name: rowItem.term,
                         _description: rowItem.definition,
-                        _dataTypeId: 1
+                        _dataTypeId: dataType.id,
+                        _unitId: unit.id
                     }
                     currentTerm = new BedesTerm(params);
-                    if (rowItem.dataType) {
-                        let bedesUnit = await this.getBedesUnit(rowItem.dataType);
-                        console.log(`bedes unit for ${rowItem.dataType}`);
-                        console.log(util.inspect(bedesUnit));
-                    }
                     logger.debug('created regular BedesTerm');
                     logger.debug(currentTerm);
                 }
@@ -141,18 +149,18 @@ export class TermLoader {
     /**
      * Get the BedesUnit object for the given name.
      * If the name doesn't exist it should be created.
-     * @param unitName 
+     * @param name 
      * @returns bedes unit 
      */
-    private async getBedesUnit(unitName: string): Promise<BedesUnit> {
+    private async getBedesUnit(name: string): Promise<BedesUnit> {
         let bedesUnit: BedesUnit | undefined;
         try {
-            let item = await this.unitManager.getOrCreateItem(unitName);
+            let item = await this.unitManager.getOrCreateItem(name);
             if (item) {
                 return item;
             }
             else {
-                throw new Error(`Unable to get the bedes unit ${unitName}`);
+                throw new Error(`Unable to get the bedes unit ${name}`);
             }
         }
         catch (error) {
@@ -162,6 +170,26 @@ export class TermLoader {
         }
         logger.debug('found bedesUnit');
         logger.debug(util.inspect(bedesUnit));
+    }
+
+    private async getBedesDataType(name: string): Promise<BedesDataType> {
+        let bedesDataType: BedesDataType | undefined;
+        try {
+            let item = await this.dataTypeManager.getOrCreateItem(name);
+            if (item) {
+                return item;
+            }
+            else {
+                throw new Error(`Unable to get the bedes data type ${name}`);
+            }
+        }
+        catch (error) {
+            logger.error('Error retrieving BedesDataType record');
+            logger.error(util.inspect(error));
+            throw error;
+        }
+        logger.debug('found bedesDataType');
+        logger.debug(util.inspect(bedesDataType));
     }
 
     /**

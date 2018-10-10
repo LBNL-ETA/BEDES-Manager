@@ -6,7 +6,7 @@ export class BedesTerm {
     private _name: string;
     private _description: string;
     private _dataTypeId: number;
-    private _unitOfMeasureId: number | null | undefined;
+    private _unitId: number | null | undefined;
     private _definitionSourceId: number | null | undefined;
 
     constructor(data: IBedesTerm) {
@@ -15,7 +15,7 @@ export class BedesTerm {
         this._name = data._name;
         this._description = data._description;
         this._dataTypeId = data._dataTypeId;
-        this._unitOfMeasureId = data._unitOfMeasureId;
+        this._unitId = data._unitId;
         this._definitionSourceId = data._definitionSourceId;
     }
 }
