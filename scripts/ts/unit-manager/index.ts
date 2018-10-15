@@ -15,52 +15,63 @@ export class BedesUnitManager {
 
     /**
      * Gets a BedesUnit by name.
-     * @param unitName 
+     * @param name 
      * @returns item by name 
      */
-    public getItemByName(unitName: string): BedesUnit | undefined {
-        return this.items.find((d) => d.name === unitName);
+    public getItemByName(name: string): BedesUnit | undefined {
+        return this.items.find((d) => d.name === name);
     }
 
     /**
      * Returns an existing BedesUnit object,
      * or creates a new entry for the given unit name in the database,
      * and returns the newly created object.
-     * @param unitName 
+     * @param name 
      * @returns item or create 
      */
-    public async getOrCreateItem(unitName: string): Promise<BedesUnit | undefined> {
+    public async getOrCreateItem(name: string): Promise<BedesUnit | undefined> {
         // return new Promise((resolve, reject) => {
             // make sure there's a name passed in
-            if (!unitName) {
+            if (!name) {
                 throw new Error('Invalid parameters.');
             }
             let item: BedesUnit | undefined;
             // first try and find an existing BedesUnit
             // resolve it if one exists
-            item = this.getItemByName(unitName);
+            item = this.getItemByName(name);
             if (item) {
                 // resolve the promise and exit if found
                 return item;
             }
             // next check if the data is in the database
-            item = await this.getDbItemByName(unitName);
-            if (item) {
-                logger.debug('found record');
-                logger.debug(util.inspect(item));
-                // add the object to the local cache
-                this.items.push(item);
-                return item;
+            try {
+                item = await this.getDbItemByName(name);
+                if (item) {
+                    logger.debug('found record');
+                    logger.debug(util.inspect(item));
+                    // add the object to the local cache
+                    this.items.push(item);
+                    return item;
+                }
+            }
+            catch (error) {
+                // item not in the database
+                console.log('error');
+                console.log(error);
             }
             // no record found, so create the record in the db
             // create the new BedesUnit if it doesn't exist in the db
-            return await bedesQuery.units.newRecord({_id: undefined, _name: unitName})
+            let iitem = await bedesQuery.units.newRecord({_id: undefined, _name: name})
+            let bedesUnit = new BedesUnit(iitem);
+            this.items.push(bedesUnit);
+            return bedesUnit;
 
         // });
     }
 
     public async getDbItemByName(unitName: string): Promise<any> {
-            return await bedesQuery.units.getRecordByName(unitName);
+            let iitem = await bedesQuery.units.getRecordByName(unitName);
+            return new BedesUnit(iitem);
 
             // .then(
             //     (results: BedesUnit) => {

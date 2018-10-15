@@ -8,7 +8,6 @@ export class BedesUnit {
         this._id = data._id;
         this._name = data._name;
     }
-
     
     public get id(): number | null | undefined {
         return this._id;

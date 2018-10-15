@@ -1,10 +1,10 @@
-import { IBedesDataType } from './bedes-data-type.interface';
+import { IBedesDefinitionSource } from "./bedes-definition-source.interface";
 
-export class BedesDataType {
+export class BedesDefinitionSource {
     private _id: number | null | undefined;
     private _name: string;
 
-    constructor(data: IBedesDataType) {
+    constructor(data: IBedesDefinitionSource) {
         this._id = data._id;
         this._name = data._name;
     }

@@ -14,6 +14,8 @@ import { BedesTermOption } from "../../../bedes-common/bedes-term-option/bedes-t
 import { IBedesTermOption } from "../../../bedes-common/bedes-term-option/bedes-term-option.interface";
 import { BedesDataTypeManager } from "../data-type-manager";
 import { BedesDataType } from "../../../bedes-common/bedes-data-type";
+import { BedesTermManager } from "../bedes-term-manager/bedes-term-manager";
+import { BedesDefinitionSourceManager } from "../definition-source-manager";
 
 /**
  * Load's the BEDES terms from the BEDES V2.1_0.xlsx file.
@@ -23,6 +25,8 @@ export class TermLoader {
     private fileName: string;
     private unitManager: BedesUnitManager;
     private dataTypeManager: BedesDataTypeManager;
+    private termManager: BedesTermManager;
+    private definitionSourceManager: BedesDefinitionSourceManager;
 
     private book!: XLSX.WorkBook;
 
@@ -32,6 +36,8 @@ export class TermLoader {
         this.fileName = fileName;
         this.unitManager = new BedesUnitManager();
         this.dataTypeManager = new BedesDataTypeManager();
+        this.termManager = new BedesTermManager();
+        this.definitionSourceManager = new BedesDefinitionSourceManager();
     }
 
     /**
@@ -76,20 +82,44 @@ export class TermLoader {
             logger.debug(util.inspect(rowItem));
             // check if we need to process a new constrained list
             if (rowItem.isStartOfDefinition()) {
-                if (currentTerm) {
-                    logger.debug('current term');
-                    logger.debug(util.inspect(currentTerm));
+                if (currentTerm instanceof BedesConstrainedList) {
+                    // if at the start of a new definition, and currentTerm
+                    // is a BedesConstrainedList, need to save it
+                    try {
+                        let item = await this.termManager.getRecordByName(currentTerm.name);
+                    }
+                    catch {
+                        // if we get here then the record doesn't exist, so write it
+                        let results = await this.termManager.writeConstrainedList(currentTerm);
+                        logger.debug('saved constrained list');
+                        logger.debug(util.inspect(currentTerm));
+                        logger.debug(results);
+                    }
+                    currentTerm = undefined;
                 }
                 // start of a new term, do we create a regular BedesTerm or ConstrainedList
                 if (rowItem.dataType && rowItem.dataType.match(/constrained list/i)) {
                     // start of a constrained list definition
                     inConstrainedList = true;
+                    // get the unit_id, set to n/a if empty
+                    if (!rowItem.unit) {
+                        rowItem.unit = "n/a";
+                    }
+                    if (!rowItem.dataType) {
+                        throw new Error('Missing data type');
+                    }
+                    else if (!rowItem.unit) {
+                        throw new Error('Missing unit');
+                    }
+                    let dataType = await this.getBedesDataType(rowItem.dataType);
+                    let unit = await this.getBedesUnit(rowItem.unit);
                     const params = <IBedesTermConstrainedList>{
                         _id: null,
                         _termTypeId: TermType.Global,
                         _name: rowItem.term,
                         _description: rowItem.definition,
-                        _dataTypeId: 1
+                        _unitId: unit.id,
+                        _dataTypeId: dataType.id
                     }
                     currentTerm = new BedesConstrainedList(params);
                     logger.debug('created constrained list');
@@ -106,24 +136,58 @@ export class TermLoader {
                     }
                     let dataType = await this.getBedesDataType(rowItem.dataType);
                     let unit = await this.getBedesUnit(rowItem.unit);
+                    let definitionSourceId: number | undefined | null;
+                    if (rowItem.definitionSource) {
+                        let definitionSource = await this.definitionSourceManager.getOrCreateItem(rowItem.definitionSource);
+                        if (!definitionSource) {
+                            logger.error('Unable to get/create defintion source record');
+                            throw new Error('Unable to get/create definition source record');
+                        }
+                        definitionSourceId = definitionSource.id;
+                    }
                     const params = <IBedesTerm>{
                         _termTypeId: TermType.Global,
                         _name: rowItem.term,
                         _description: rowItem.definition,
                         _dataTypeId: dataType.id,
-                        _unitId: unit.id
+                        _unitId: unit.id,
+                        _definitionSourceId: definitionSourceId
                     }
                     currentTerm = new BedesTerm(params);
-                    logger.debug('created regular BedesTerm');
-                    logger.debug(currentTerm);
+                    try {
+                        let existing = await this.termManager.getRecordByName(currentTerm.name);
+                        if (!existing) {
+                            let results = await this.termManager.writeTerm(currentTerm);
+                            logger.debug('created regular BedesTerm');
+                            logger.debug(currentTerm);
+                            logger.debug(results);
+                        }
+                        else {
+                            logger.debug('term already exists');
+                            logger.debug(util.inspect(currentTerm));
+                        }
+                        // term has been saved or already exists
+                        currentTerm = undefined;
+                    }
+                    catch(error) {
+                        logger.error('error writing term');
+                        logger.error(util.inspect(currentTerm));
+                        util.inspect(error);
+                        throw error;
+                    }
                 }
             }
             else if (currentTerm instanceof BedesConstrainedList) {
                 // if currentTerm is already a BedesConstrainedList,
                 // then must be a List Option.
+                if (!rowItem.unit) {
+                    rowItem.unit = "n/a";
+                }
+                let unit = await this.getBedesUnit(rowItem.unit);
                 const params = <IBedesTermOption>{
                     _name: rowItem.dataType,
-                    _description: rowItem.definition
+                    _description: rowItem.definition,
+                    _unitId: unit.id
                 };
                 currentTerm.addOption(new BedesTermOption(params));
             }
@@ -141,6 +205,16 @@ export class TermLoader {
                 throw new Error(`${this.constructor.name}: Invalid state parsing BedesTerms`);
             }
             rowItem = this.getRowItem(sheet, row++);
+        }
+
+        if (currentTerm instanceof BedesConstrainedList) {
+            // if at the start of a new definition, and currentTerm
+            // is a BedesConstrainedList, need to save it
+            let results = await this.termManager.writeConstrainedList(currentTerm);
+            logger.debug('saved constrained list');
+            logger.debug(util.inspect(currentTerm));
+            logger.debug(results);
+            currentTerm = undefined;
         }
         // });
         logger.debug('done parsing terms');

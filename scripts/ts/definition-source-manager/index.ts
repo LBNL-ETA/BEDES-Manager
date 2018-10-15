@@ -1,41 +1,41 @@
-import { BedesDataType } from "../../../bedes-common/bedes-data-type";
+import { BedesDefinitionSource } from "../../../bedes-common/bedes-definition-source";
 import { bedesQuery } from "../queries";
 import { logger } from "../../../bedes-backend/src/logging";
 import * as util from 'util';
 
 /**
- * 
+ * Bedes data type manager.
  */
-export class BedesDataTypeManager {
-    private items: Array<BedesDataType>;
+export class BedesDefinitionSourceManager {
+    private items: Array<BedesDefinitionSource>;
 
     constructor() {
-        this.items = new Array<BedesDataType>();
+        this.items = new Array<BedesDefinitionSource>();
     }
 
     /**
-     * Gets a BedesDataType by name.
+     * Gets a BedesDefinitionSource by name.
      * @param name 
      * @returns item by name 
      */
-    public getItemByName(name: string): BedesDataType | undefined {
+    public getItemByName(name: string): BedesDefinitionSource | undefined {
         return this.items.find((d) => d.name === name);
     }
 
     /**
-     * Returns an existing BedesDataType object,
+     * Returns an existing BedesDefinitionSource object,
      * or creates a new entry for the given unit name in the database,
      * and returns the newly created object.
      * @param name 
      * @returns item or create 
      */
-    public async getOrCreateItem(name: string): Promise<BedesDataType | undefined> {
+    public async getOrCreateItem(name: string): Promise<BedesDefinitionSource | undefined> {
         // make sure there's a name passed in
         if (!name) {
             throw new Error('Invalid parameters.');
         }
-        let item: BedesDataType | undefined;
-        // first try and find an existing BedesDataType
+        let item: BedesDefinitionSource | undefined;
+        // first try and find an existing BedesDefinitionSource
         // resolve it if one exists
         item = this.getItemByName(name);
         if (item) {
@@ -48,24 +48,22 @@ export class BedesDataTypeManager {
             if (item) {
                 logger.debug('found record');
                 logger.debug(util.inspect(item));
-                // add the object to the local cache
-                this.items.push(item);
                 return item;
             }
         }
-        catch (error) {
+        catch {
         }
         // no record found, so create the record in the db
-        // create the new BedesDataType if it doesn't exist in the db
-        let iDataType = await bedesQuery.dataType.newRecord({ _id: undefined, _name: name });
-        let dataType = new BedesDataType(iDataType);
-        this.items.push(dataType);
-        return dataType;
+        // create the new BedesDefinitionSource if it doesn't exist in the db
+        let iItem = await bedesQuery.definitionSource.newRecord({_id: undefined, _name: name});
+        let definitionSource = new BedesDefinitionSource(iItem);
+        this.items.push(definitionSource);
+        return definitionSource;
     }
 
     public async getDbItemByName(name: string): Promise<any> {
-        let iitem = await bedesQuery.dataType.getRecordByName(name);
-        return new BedesDataType(iitem);
+            let iitem = await bedesQuery.definitionSource.getRecordByName(name);
+            return new BedesDefinitionSource(iitem);
     }
 
 }
