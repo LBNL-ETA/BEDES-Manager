@@ -1,5 +1,5 @@
 import { IWorksheetRow } from "./worksheet-row.interface";
-import { logger } from '../logging';
+import { logger } from '../../logging';
 
 /**
  * Represents a row of data from the BEDES V2.1_0.xlsx file.

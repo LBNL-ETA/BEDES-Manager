@@ -1,6 +1,6 @@
-import { BedesTerm, IBedesTerm, BedesConstrainedList } from "../../../bedes-common/bedes-term";
-import { bedesQuery } from "../queries";
-import { logger } from "../logging";
+import { BedesTerm, IBedesTerm, BedesConstrainedList } from "../../../../bedes-common/bedes-term";
+import { bedesQuery } from "../../queries";
+import { logger } from "../../logging";
 
 export class BedesTermManager {
     constructor() {

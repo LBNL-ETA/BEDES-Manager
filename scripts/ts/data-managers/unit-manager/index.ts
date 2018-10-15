@@ -1,6 +1,6 @@
-import { BedesUnit } from "../../../bedes-common/bedes-unit";
-import { bedesQuery } from "../queries";
-import { logger } from "../../../bedes-backend/src/logging";
+import { BedesUnit } from "../../../../bedes-common/bedes-unit";
+import { bedesQuery } from "../../queries";
+import { logger } from "../../../../bedes-backend/src/logging";
 import * as util from 'util';
 
 /**
