@@ -5,7 +5,7 @@ create table public.term_type (
 );
 
 insert into public.term_type (name) values
-    ('Global'),
+    ('Global Terms'),
     ('Premises'),
     ('Contact'),
     ('Measures'),
@@ -46,9 +46,12 @@ create table public.bedes_term (
 create table public.bedes_term_list_option (
     id serial primary key,
     term_id int references public.bedes_term (id) on delete cascade not null,
-    name varchar(200) not null,
-    description varchar(200) not null,
+    name varchar(150) not null,
+    description text not null,
     unit_id int references public.unit (id) not null,
-    source_id int references public.definition_source (id),
-    unique (term_id, name)
+    definition_source_id int references public.definition_source (id)
 );
+-- Want to ensure uniqueness, but some terms have the same name and different descriptions
+-- Use an md5 hash of the text field instead of using the actual text as the unique constraint.
+-- e.g. Premises - Assessment Level
+create unique index on public.bedes_term_list_option (term_id, name, md5(description));

@@ -5,14 +5,14 @@ export class BedesTermOption {
     private _name: string;
     private _description: string;
     protected _unitId: number | null | undefined;
-    private _definitionSource: string | null | undefined;
+    private _definitionSourceId: number | null | undefined;
 
     constructor(data: IBedesTermOption) {
         this._id = data._id;
         this._name = data._name;
         this._description = data._description;
         this._unitId = data._unitId;
-        this._definitionSource = data._definitionSource;
+        this._definitionSourceId = data._definitionSourceId;
     }
     
     public get id() : number | null | undefined {
@@ -39,11 +39,11 @@ export class BedesTermOption {
     set unitId(value: number | null | undefined) {
         this._unitId = value;
     }
-    public get definitionSource() : string | null | undefined {
-        return this._definitionSource;
+    public get definitionSourceId() : number | null | undefined {
+        return this._definitionSourceId;
     }
-    public set definitionSource(value: string | null | undefined) {
-        this._definitionSource = value;
+    public set definitionSource(value: number | null | undefined) {
+        this._definitionSourceId = value;
     }
     
 }
