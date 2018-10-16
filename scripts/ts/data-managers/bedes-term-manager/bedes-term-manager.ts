@@ -5,7 +5,8 @@ import {
     IBedesTermConstrainedList
 } from "../../../../bedes-common/bedes-term";
 import { bedesQuery } from "../../queries";
-import { logger } from "../../logging";
+import { createLogger } from "../../logging";
+const logger = createLogger(module);
 import { BedesTermOption } from "../../../../bedes-common/bedes-term-option/bedes-term-option";
 import * as util from 'util';
 import { IBedesTermOption } from "../../../../bedes-common/bedes-term-option";

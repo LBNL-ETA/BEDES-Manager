@@ -1,4 +1,5 @@
-import { logger } from "../logging";
+import { createLogger }  from "../logging";
+const logger = createLogger(module);
 import * as path from 'path';
 import * as fs from 'fs';
 import appRoot from 'app-root-path';
