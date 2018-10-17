@@ -4,7 +4,7 @@ import * as db from '../../../../../bedes-backend/src/db';
 import sql_loader from '../../../../../bedes-backend/src/db/sql_loader';
 import { createLogger }  from '../../logging';
 const logger = createLogger(module);
-import { IBedesTerm, BedesTerm } from '../../../../../bedes-common/bedes-term';
+import { IBedesTerm, BedesTerm } from '@bedes-common/bedes-term';
 
 export class BedesTermQuery {
     private sqlGetByName!: QueryFile;

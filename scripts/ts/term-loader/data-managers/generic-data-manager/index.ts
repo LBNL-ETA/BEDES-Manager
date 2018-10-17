@@ -1,4 +1,4 @@
-import { IHasNameProperty } from '../../../../../bedes-common/interfaces/has-name-property';
+import { IHasNameProperty } from '@bedes-common/interfaces/has-name-property';
 import { createLogger }  from '../../logging';
 const logger = createLogger(module);
 

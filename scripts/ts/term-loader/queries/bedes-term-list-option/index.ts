@@ -5,8 +5,8 @@ import sql_loader from '../../../../../bedes-backend/src/db/sql_loader';
 import { createLogger }  from '../../logging';
 const logger = createLogger(module);
 import * as util from 'util';
-import { IBedesTerm } from '../../../../../bedes-common/bedes-term';
-import { BedesTermOption, IBedesTermOption } from '../../../../../bedes-common/bedes-term-option';
+import { IBedesTerm } from '@bedes-common/bedes-term';
+import { BedesTermOption, IBedesTermOption } from '@bedes-common/bedes-term-option';
 
 export class BedesTermListOptionQuery {
     private sqlGetByName!: QueryFile;

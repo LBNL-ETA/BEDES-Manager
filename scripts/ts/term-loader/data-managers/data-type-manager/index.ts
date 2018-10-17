@@ -1,4 +1,4 @@
-import { BedesDataType } from "../../../../../bedes-common/bedes-data-type";
+import { BedesDataType } from "@bedes-common/bedes-data-type";
 import { bedesQuery } from "../../queries";
 import { GenericDataManager } from "../../data-managers/generic-data-manager";
 

@@ -1,3 +1,4 @@
+require('module-alias/register');
 import { TermLoader } from './term-loader';
 
 const filePath = '../../bedes-mappings';

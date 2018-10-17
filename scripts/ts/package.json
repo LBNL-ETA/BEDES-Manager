@@ -12,6 +12,7 @@
   "dependencies": {
     "@types/xlsx": "0.0.36",
     "app-root-path": "^2.1.0",
+    "module-alias": "^2.1.0",
     "path": "^0.12.7",
     "pg-promise": "^8.4.6",
     "ts-node": "^7.0.1",
@@ -21,8 +22,12 @@
   },
   "devDependencies": {
     "@types/app-root-path": "^1.2.4",
+    "@types/module-alias": "^2.0.0",
     "@types/node": "^10.11.3",
     "@types/pg-promise": "^5.4.3",
     "@types/winston": "^2.4.4"
+  },
+  "_moduleAliases": {
+    "@bedes-common" : "../../bedes-common"
   }
 }

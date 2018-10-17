@@ -1,4 +1,4 @@
-import { BedesDefinitionSource } from "../../../../../bedes-common/bedes-definition-source";
+import { BedesDefinitionSource } from "@bedes-common/bedes-definition-source";
 import { bedesQuery } from "../../queries";
 import { GenericDataManager } from "../../data-managers/generic-data-manager";
 

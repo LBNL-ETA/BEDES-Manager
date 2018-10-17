@@ -4,7 +4,7 @@ import * as db from '../../../../../bedes-backend/src/db';
 import sql_loader from '../../../../../bedes-backend/src/db/sql_loader';
 import { createLogger }  from '../../logging';
 const logger = createLogger(module);
-import { IBedesDefinitionSource } from '../../../../../bedes-common/bedes-definition-source';
+import { IBedesDefinitionSource } from '@bedes-common/bedes-definition-source';
 
 class BedesDefinitionSourceQuery {
     private sqlGetByName!: QueryFile;
