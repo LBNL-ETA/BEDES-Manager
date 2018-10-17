@@ -1,8 +1,8 @@
 import { QueryFile } from 'pg-promise';
 import * as path from 'path';
-import * as db from '../../../../../bedes-backend/src/db';
-import sql_loader from '../../../../../bedes-backend/src/db/sql_loader';
-import { createLogger }  from '../../logging';
+import * as db from '@bedes-backend/db';
+import sql_loader from '@bedes-backend/db/sql_loader';
+import { createLogger }  from '@app-root/logging';
 const logger = createLogger(module);
 import * as util from 'util';
 import { IBedesTerm } from '@bedes-common/bedes-term';

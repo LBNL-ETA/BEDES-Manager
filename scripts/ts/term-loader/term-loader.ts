@@ -12,7 +12,7 @@ import { BedesTermOption } from "@bedes-common/bedes-term-option/bedes-term-opti
 import { IBedesTermOption } from "@bedes-common/bedes-term-option/bedes-term-option.interface";
 import { BedesDataTypeManager } from "./data-managers/data-type-manager";
 import { BedesDataType } from "@bedes-common/bedes-data-type";
-import { BedesTermManager } from "./data-managers/bedes-term-manager/bedes-term-manager";
+import { BedesTermManager } from "./data-managers/bedes-term-manager";
 import { BedesDefinitionSourceManager } from "./data-managers/definition-source-manager";
 import { BedesTermTypeManager } from "./data-managers/term-type-manager";
 import { BedesTermType } from "@bedes-common/bedes-term-type";

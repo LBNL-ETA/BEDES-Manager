@@ -1,6 +1,6 @@
 import { BedesTermType } from "@bedes-common/bedes-term-type";
-import { bedesQuery } from "../../queries";
-import { GenericDataManager } from "../../data-managers/generic-data-manager";
+import { bedesQuery } from "@app-root/queries";
+import { GenericDataManager } from "../generic-data-manager";
 
 /**
  * Bedes data type manager.

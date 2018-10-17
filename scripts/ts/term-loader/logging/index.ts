@@ -1,6 +1,6 @@
 import * as winston from "winston";
 import path from 'path';
-import { blue, cyan } from 'colors';
+import { cyan } from 'colors';
 
 const myFormat = winston.format.printf(info => {
     return `${info.timestamp} [${info.label}] ${info.level}: ${info.message}`;

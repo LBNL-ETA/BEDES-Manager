@@ -28,6 +28,8 @@
     "@types/winston": "^2.4.4"
   },
   "_moduleAliases": {
-    "@bedes-common" : "../../bedes-common"
+    "@bedes-common" : "../../bedes-common",
+    "@app-root" : "./term-loader",
+    "@bedes-backend": "../../bedes-backend/src"
   }
 }
