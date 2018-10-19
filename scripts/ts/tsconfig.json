@@ -39,6 +39,7 @@
     // "paths": {},                           /* A series of entries which re-map imports to lookup locations relative to the 'baseUrl'. */
     "paths": {
       "@app-root/*": ["./term-loader/*"],
+      "@script-common/*": ["./script-common/*"],
       "@bedes-common/*": ["../../bedes-common/*"],
       "@bedes-backend/*": ["../../bedes-backend/src/*"]
     },

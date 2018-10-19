@@ -30,6 +30,7 @@
   "_moduleAliases": {
     "@bedes-common" : "../../bedes-common",
     "@app-root" : "./term-loader",
+    "@script-common" : "./script-common",
     "@bedes-backend": "../../bedes-backend/src"
   }
 }

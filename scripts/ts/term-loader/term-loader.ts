@@ -1,4 +1,4 @@
-import { createLogger }  from "./logging";
+import { createLogger }  from "@script-common/logging";
 const logger = createLogger(module);
 import * as path from 'path';
 import * as XLSX from 'xlsx';

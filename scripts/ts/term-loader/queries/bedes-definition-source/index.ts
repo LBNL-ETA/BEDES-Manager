@@ -2,7 +2,7 @@ import { QueryFile } from 'pg-promise';
 import * as path from 'path';
 import * as db from '@bedes-backend/db';
 import sql_loader from '@bedes-backend/db/sql_loader';
-import { createLogger }  from '@app-root/logging';
+import { createLogger }  from '@script-common/logging';
 const logger = createLogger(module);
 import { IBedesDefinitionSource } from '@bedes-common/bedes-definition-source';
 

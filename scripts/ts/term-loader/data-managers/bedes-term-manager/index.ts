@@ -4,7 +4,7 @@ import {
     BedesConstrainedList
 } from "@bedes-common/bedes-term";
 import { bedesQuery } from "@app-root/queries";
-import { createLogger } from "@app-root/logging";
+import { createLogger } from '@script-common/logging';
 const logger = createLogger(module);
 import { BedesTermOption } from "@bedes-common/bedes-term-option/bedes-term-option";
 import * as util from 'util';

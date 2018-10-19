@@ -1,5 +1,5 @@
 import { IWorksheetRow } from "./worksheet-row.interface";
-import { createLogger }  from '@app-root/logging';
+import { createLogger }  from '@script-common/logging';
 const logger = createLogger(module);
 
 /**
