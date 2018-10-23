@@ -55,3 +55,41 @@ create table public.bedes_term_list_option (
 -- Use an md5 hash of the text field instead of using the actual text as the unique constraint.
 -- e.g. Premises - Assessment Level
 create unique index on public.bedes_term_list_option (term_id, name, md5(description));
+
+create table public.app (
+    id serial primary key,
+    name varchar(100) not null unique
+);
+
+create table public.app_field (
+    id int primary key,
+    name varchar(100) unique not null,
+    description varchar(250)
+);
+
+insert into public.app_field (id, name) values
+    (1, 'Field Name'),
+    (2, 'Data Type'),
+    (3, 'Units'),
+    (4, 'Source'),
+    (5, 'Description'),
+    (6, 'Table'),
+    (7, 'Group'),
+    (8, 'Notes'),
+    (9, 'Field Code')
+;
+
+create table public.app_term (
+    id serial primary key,
+    app_id int references public.app (id) not null,
+    app_field_id int references app_field (id) not null,
+    value varchar(250),
+    unique (app_id, app_field_id)
+);
+
+create table public.enumerated_values (
+    id serial primary key,
+    app_term_id int references public.app_term (id),
+    value varchar(100) not null
+);
+create unique index on public.enumerated_values (app_term_id, md5(value));
