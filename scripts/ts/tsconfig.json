@@ -40,6 +40,7 @@
     "paths": {
       "@app-root/*": ["./term-loader/*"],
       "@script-common/*": ["./script-common/*"],
+      "@script-mapping/*": ["./script-mapping/*"],
       "@bedes-common/*": ["../../bedes-common/*"],
       "@bedes-backend/*": ["../../bedes-backend/src/*"]
     },
