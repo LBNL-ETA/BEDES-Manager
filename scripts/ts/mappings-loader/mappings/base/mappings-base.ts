@@ -41,7 +41,7 @@ export abstract class BedesMappingBase {
         try {
             const runFunction = async (transaction: any) => {
                 this.transaction = transaction;
-                logger.debug(`Begin loading mappings for ${this.applicationName}`);
+                logger.info(`Begin loading mappings for ${this.applicationName}`);
                 logger.debug('open the workbook');
                 // set the application_id for the class
                 // id must be set to link the terms in the database,

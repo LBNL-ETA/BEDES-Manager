@@ -9,6 +9,7 @@ import { IBedesTerm, IBedesConstrainedList } from '@bedes-common/bedes-term';
 import { AppTerm, IAppTerm, IAppTermAdditionalInfo } from '@bedes-common/app-term';
 import { bedesQuery } from '@script-common/queries';
 import { AppField } from '@bedes-common/enums';
+import { IMappedTerm, IAppTermMap, IBedesTermMap } from '@bedes-common/mapped-term';
 const logger = createLogger(module);
 
 export class BedesMappingLabel {
@@ -47,7 +48,7 @@ export class HpxmlLoader extends BedesMappingBase {
      */
     protected async processWorksheet(sheetName: string): Promise<any> {
         try {
-            logger.debug(`${this.constructor.name}: process ${sheetName}`);
+            logger.info(`${this.constructor.name}: process ${sheetName}`);
             // get the worksheet form the base class function
             const sheet = this.getWorksheet(sheetName);
             if (!sheet) {
@@ -155,7 +156,17 @@ export class HpxmlLoader extends BedesMappingBase {
             logger.debug(util.inspect(appRows));
             logger.debug(util.inspect(bedesRows));
             let bedesTerms = await this.getBedesTerms(bedesRows);
+            if (!bedesTerms.length) {
+                logger.warn('bedes terms not found for appRow:');
+                logger.warn(util.inspect(appRows));
+                return;
+            }
             let appTerms = this.buildAppTerms(appRows);
+            if (!appTerms.length) {
+                logger.warn('app terms not found for appRow:');
+                logger.warn(util.inspect(appRows));
+                return;
+            }
             let savedAppTerms = await this.saveAppTerms(appTerms);
             logger.debug('app terms');
             logger.debug(util.inspect(bedesTerms));
@@ -247,7 +258,38 @@ export class HpxmlLoader extends BedesMappingBase {
      * @returns linked terms 
      */
     private async saveLinkedTerms(appTerms: Array<IAppTerm>, bedesTerms: Array<IBedesTerm>): Promise<any> {
-        logger.debug('saved linked terms');
+        try {
+            // create a new MappedTerm object
+            let mappedTerm = <IMappedTerm>{
+                _appId: this.appId,
+                _appTerms: new Array<IAppTermMap>(),
+                _bedesTerms: new Array<IBedesTermMap>()
+            };
+            // add the app terms, and set the name
+            for (let appTerm of appTerms) {
+                mappedTerm._appTerms.push(<IAppTermMap>{
+                    _appTermId: appTerm._id,
+                    _mappedTermId: undefined
+                });
+            }
+            // add the bedes term, and set the bedes term name
+            for (let bedesTerm of bedesTerms) {
+                mappedTerm._bedesTerms.push(<IBedesTermMap>{
+                    _bedesTermId: bedesTerm._id,
+                    _mappedTermId: undefined
+                });
+            }
+            let result = await bedesQuery.mappedTerm.newMappedTerm(mappedTerm, this.transaction);
+            logger.debug('created mapped term');
+            logger.debug(util.inspect(result));
+        }
+        catch (error) {
+            logger.error(`${this.constructor.name}: Error in saveLinkedTerms`);
+            logger.error(util.inspect(error));
+            logger.error(util.inspect(appTerms));
+            logger.error(util.inspect(bedesTerms));
+            throw error;
+        }
     }
 
     /**

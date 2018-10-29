@@ -27,7 +27,7 @@ export function createLogger(callingModule: NodeModule) {
             myFormat
         ),
         transports: [new winston.transports.Console({
-            level: 'debug'
+            level: process.env.BACKEND_DEBUG ? 'debug' : 'info'
         })]
     });
 };

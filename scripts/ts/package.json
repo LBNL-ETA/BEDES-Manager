@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "load-terms": "ts-node term-loader",
-    "load-mappings": "ts-node mappings-loader"
+    "load-mappings": "ts-node mappings-loader",
+    "load-mappings-debug": "BACKEND_DEBUG=1 ts-node mappings-loader"
   },
   "author": "",
   "license": "ISC",
