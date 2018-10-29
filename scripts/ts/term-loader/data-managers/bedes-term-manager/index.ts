@@ -1,9 +1,10 @@
 import {
     BedesTerm,
     IBedesTerm,
-    BedesConstrainedList
+    BedesConstrainedList,
+    IBedesConstrainedList
 } from "@bedes-common/bedes-term";
-import { bedesQuery } from "@app-root/queries";
+import { bedesQuery } from "@script-common/queries";
 import { createLogger } from '@script-common/logging';
 const logger = createLogger(module);
 import { BedesTermOption } from "@bedes-common/bedes-term-option/bedes-term-option";
@@ -11,54 +12,27 @@ import * as util from 'util';
 import { IBedesTermOption } from "@bedes-common/bedes-term-option";
 
 export class BedesTermManager {
-    constructor() {
+
+    public async writeTerm(term: BedesTerm): Promise<BedesTerm> {
+        let data = await bedesQuery.terms.newRecord(term.toInterface());
+        return new BedesTerm(data);
     }
 
-    public async writeTerm(term: BedesTerm): Promise<any> {
-        if (term instanceof BedesConstrainedList) {
-        }
-        else {
-            return await bedesQuery.terms.newRecord(term);
-        }
-    }
-
-    public async writeConstrainedList(term: BedesConstrainedList): Promise<any> {
-        let termData: IBedesTerm;
+    public async writeConstrainedList(term: BedesConstrainedList): Promise<BedesConstrainedList> {
         try {
-            termData = await bedesQuery.terms.newRecord(term);
-        }
-        catch (error) {
-            logger.error(`${this.constructor.name}: error`);
+            let data = await bedesQuery.terms.newConstrainedList(term.toInterface());
+            return new BedesConstrainedList(data);
+        } catch (error) {
+            logger.error(`${this.constructor.name}: Error writing constrained list`);
+            logger.error(util.inspect(error));
             logger.error(util.inspect(term));
-            logger.error(`${error}`);
-            throw new Error('Unable to write the BedesConstrainedListTerm');
+            throw error;
         }
-        let newTerm = new BedesTerm(termData);
-        if (!newTerm.id) {
-            logger.debug('constrained list term not written');
-            logger.debug(util.inspect(term));
-            throw new Error('ConstrainedList Term not written');
-        }
-        for (let option of term.options) {
-            let results: IBedesTermOption;
-            try {
-                results = await this.writeConstrainedListOption(newTerm.id, option);
-                // logger.debug('successfully finished writing list option');
-                // logger.debug(util.inspect(results));
-            }
-            catch (error) {
-                logger.debug('Error writing term option');
-                logger.debug(util.inspect(option));
-                // TODO: throw error? or continue
-                // caused by duplicate list definitions
-            }
-        }
-        return newTerm;
     }
 
-    public async writeConstrainedListOption(termId: number, termOption: BedesTermOption): Promise<any> {
-        return bedesQuery.termListOption.newRecord(termId, termOption);
-    }
+    // public async writeConstrainedListOption(termId: number, termOption: BedesTermOption): Promise<any> {
+    //     return bedesQuery.termListOption.newRecord(termId, termOption);
+    // }
 
     public async getRecordByName(name: string): Promise<BedesTerm | undefined> {
         try {

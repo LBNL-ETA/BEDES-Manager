@@ -1,11 +1,11 @@
 import { BedesTerm } from "./bedes-term";
-import { IBedesTermConstrainedList } from "./bedes-constrained-list.interface";
+import { IBedesConstrainedList } from "./bedes-constrained-list.interface";
 import { BedesTermOption } from "../bedes-term-option/bedes-term-option";
 import { IBedesTermOption } from "../bedes-term-option/bedes-term-option.interface";
 
 export class BedesConstrainedList extends BedesTerm {
     private _options: Array<BedesTermOption>;
-    constructor(data: IBedesTermConstrainedList) {
+    constructor(data: IBedesConstrainedList) {
         super(data);
         this._options = new Array<BedesTermOption>();
         if (data._options && data._options.length) {
@@ -35,4 +35,11 @@ export class BedesConstrainedList extends BedesTerm {
         this._options.push(termOption);
     }
 
+    public toInterface(): IBedesConstrainedList {
+        let iterm = super.toInterface();
+        return <IBedesConstrainedList>{
+            ...iterm,
+            _options: this._options.map((d) => d.toInterface())
+        }
+    }
 }

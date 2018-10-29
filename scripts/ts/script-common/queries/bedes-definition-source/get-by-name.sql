@@ -4,5 +4,5 @@ select
 from
     public.definition_source as d
 where
-    d.name = ${_name}
+    trim(lower(d.name)) = trim(lower(${_name}))
 ;

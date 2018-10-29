@@ -3,11 +3,16 @@ const logger = createLogger(module);
 import * as path from 'path';
 import * as XLSX from 'xlsx';
 import * as util from 'util';
+import { bedesQuery } from "@script-common/queries";
+import { IApp } from "@bedes-common/app";
+import * as db from '@bedes-backend/db';
 
 /**
  * Base class for loading a bedes mapping workbook into the database.
  */
 export abstract class BedesMappingBase {
+    // The current database transaction context
+    protected transaction: any;
     protected book!: XLSX.WorkBook;
     // Excel workbook path and location
     private filePath: string;
@@ -20,6 +25,8 @@ export abstract class BedesMappingBase {
     protected abstract processWorksheet(sheetName: string): Promise<any>;
     // function to load the names of the worksheets to process.
     protected abstract loadSheetNames(): void;
+    //
+    protected appId: number | null | undefined;;
 
     constructor(filePath: string, fileName: string, applicationName: string) {
         this.filePath = filePath;
@@ -31,26 +38,66 @@ export abstract class BedesMappingBase {
      * Run the mapping loader.
      */
     public async run(): Promise<any> {
-        logger.debug(`Begin loading mappings for ${this.applicationName}`);
-        logger.debug('open the workbook');
-        this.openWorkbook();
-        logger.debug(`opened workbook ${this.fileName}`);
         try {
-            this.loadSheetNames();
-        }
-        catch (error) {
-            logger.debug('Error loading sheet names');
+            const runFunction = async (transaction: any) => {
+                this.transaction = transaction;
+                logger.debug(`Begin loading mappings for ${this.applicationName}`);
+                logger.debug('open the workbook');
+                // set the application_id for the class
+                // id must be set to link the terms in the database,
+                // so wait for the promise to resolve
+                await this.setAppId();
+                this.openWorkbook();
+                logger.debug(`opened workbook ${this.fileName}`);
+                this.loadSheetNames();
+                logger.debug(util.inspect(this.sheetNames));
+                if (!this.sheetNames.length) {
+                    // throw an error if sheet names haven't been set
+                    throw new Error('Sheet names have not been set. Set sheetNames[] with names of worksheets to process');
+                }
+                for (let sheetName of this.sheetNames) {
+                    logger.debug(`${this.constructor.name}: Process worksheet ${sheetName}`);
+                    await this.processWorksheet(sheetName);
+                    logger.debug('done with transaction');
+                }
+
+            }
+            return db.tx('bedes-trans', runFunction);
+        } catch (error) {
+            logger.error(`${this.constructor.name}: Error in run`);
             logger.error(util.inspect(error));
             throw error;
         }
-        logger.debug(util.inspect(this.sheetNames));
-        if (!this.sheetNames.length) {
-            throw new Error('Sheet names have not been set. Set sheetNames[] with names of worksheets to process');
-        }
-        for (let sheetName of this.sheetNames) {
-            logger.debug(`${this.constructor.name}: Process worksheet ${sheetName}`);
-            await this.processWorksheet(sheetName);
-            break;
+    }
+
+    /**
+     * Sets the AppId for the given application.
+     * Retrieves the id column from the table for the
+     * subclassed application, creates a record if it doesn't
+     * exist.
+     */
+    private async setAppId(): Promise<any> {
+        try {
+            let item: IApp;
+            try {
+                item = await bedesQuery.app.getRecord(this.applicationName);
+                logger.debug('found existing app record');
+                logger.debug(util.inspect(item));
+            }
+            catch {
+                item = await bedesQuery.app.newRecord(<IApp>{_name: this.applicationName}, this.transaction);
+            }
+            if (item) {
+                this.appId = item._id;
+            }
+            else {
+                logger.error(`Unable to set appid for ${this.applicationName}`);
+                throw new Error(`Unable to set appid for ${this.applicationName}`);
+            }
+        } catch (error) {
+            logger.error(`${this.constructor.name}: Error in setAppId`);
+            logger.error(util.inspect(error));
+            throw error;
         }
     }
 
@@ -65,7 +112,6 @@ export abstract class BedesMappingBase {
             logger.error('Error opening workbook in BedesMappingBase.run.');
             logger.error(util.inspect(error));
             throw error;
-
         }
     }
 
@@ -75,13 +121,12 @@ export abstract class BedesMappingBase {
      * @returns XLSX.Worksheet
      */
     protected getWorksheet(sheetName: string): XLSX.WorkSheet | undefined {
-        let sheet: XLSX.WorkSheet;
         try {
-            sheet = this.book.Sheets[sheetName];
-            return sheet;
-        }
-        catch (error) {
-            logger.error(`Worksheet ${sheetName} doesn't exist.`);
+            return this.book.Sheets[sheetName];
+        } catch (error) {
+            logger.error(`${this.constructor.name}: Error in getWorksheet`);
+            logger.error(util.inspect(error));
+            throw error;
         }
     }
 }

@@ -1,5 +1,5 @@
 insert into
-    public.data_type (name)
+    public.app (name)
 values
     (${_name})
 returning

@@ -12,10 +12,12 @@ export class MappingsLoader {
      * Run the mapping loader for each of the defined applications.
      * See mappers array from './mappings/index.ts'
      */
-    public run(): void {
+    public async run(): Promise<any> {
         logger.debug(util.inspect(mappers))
         try {
-            mappers.map((app) => app.run());
+            for (let app of mappers) {
+                await app.run();
+            }
         }
         catch (error) {
             logger.error('An error occured mapping Bedes applicatoin');

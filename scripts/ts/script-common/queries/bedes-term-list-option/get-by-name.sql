@@ -7,5 +7,5 @@ select
 from
     public.bedes_term_list_option as d
 where
-    d.name = ${_name}
+    trim(lower(d.name)) = trim(lower((${_name}))
 ;

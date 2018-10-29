@@ -12,4 +12,16 @@ export class AppRow extends RowItem {
     ) {
         super();
     }
+
+    public isSectionHeader(): boolean {
+        if (
+            this.appCode && !this.dataElement && !this.definition && !this.units
+            && !this.dataType && !this.enumeration && !this.notes
+        ) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
 }

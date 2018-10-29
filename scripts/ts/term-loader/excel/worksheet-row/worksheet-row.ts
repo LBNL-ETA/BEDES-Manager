@@ -71,7 +71,7 @@ export class WorksheetRow implements IWorksheetRow {
      * @returns true if of definition 
      */
     public isStartOfDefinition(): boolean {
-        if (this.term && this.definition && this.dataType) {
+        if (this.term && this.dataType) {
             return true;
         }
         else {

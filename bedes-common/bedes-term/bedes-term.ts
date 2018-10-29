@@ -61,4 +61,20 @@ export class BedesTerm {
     set definitionSourceId(value: number | null | undefined) {
         this._definitionSourceId = value;
     }
+
+    /**
+     * Build the interface data from this object.
+     * @returns interface 
+     */
+    public toInterface(): IBedesTerm {
+        return <IBedesTerm>{
+            _id: this._id,
+            _name: this._name,
+            _description: this._description,
+            _dataTypeId: this._dataTypeId,
+            _definitionSourceId: this._definitionSourceId,
+            _termTypeId: this._termTypeId,
+            _unitId: this._unitId
+        }
+    }
 }

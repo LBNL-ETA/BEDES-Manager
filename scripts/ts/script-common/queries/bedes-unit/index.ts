@@ -4,9 +4,10 @@ import * as db from '@bedes-backend/db';
 import sql_loader from '@bedes-backend/db/sql_loader';
 import { createLogger }  from '@script-common/logging';
 const logger = createLogger(module);
+import * as util from 'util';
 import { IBedesUnit } from '@bedes-common/bedes-unit';
 
-class BedesUnitQuery {
+export class BedesUnitQuery {
     private sqlGetByName!: QueryFile;
     private sqlInsert!: QueryFile;
 
@@ -14,26 +15,31 @@ class BedesUnitQuery {
         this.initSql();
     }
 
-    /**
-     * Load the SQL queries.
-     *
-     * @private
-     * @memberof User
-     */
     private initSql(): void {
         this.sqlGetByName = sql_loader(path.join(__dirname, 'get-by-name.sql'));
         this.sqlInsert = sql_loader(path.join(__dirname, 'insert.sql'))
     }
 
-    public newRecord(item: IBedesUnit): Promise<any> {
-        if (!item._name) {
-            logger.error(`${this.constructor.name}: Missing unitName in BedesUnit-newRecord`);
-            throw new Error('Missing required parameters.');
+    public newRecord(item: IBedesUnit, transaction?: any): Promise<IBedesUnit> {
+        try {
+            if (!item._name) {
+                logger.error(`${this.constructor.name}: Missing unitName in BedesUnit-newRecord`);
+                throw new Error('Missing required parameters.');
+            }
+            const params = {
+                _name: item._name
+            };
+            if (transaction) {
+                return transaction.one(this.sqlInsert, params);
+            }
+            else {
+                return db.one(this.sqlInsert, params);
+            }
+        } catch (error) {
+            logger.error(`${this.constructor.name}: Error in newRecord`);
+            logger.error(util.inspect(error));
+            throw error;
         }
-        const params = {
-            _name: item._name
-        };
-        return db.one(this.sqlInsert, params);
     }
 
     /**
@@ -41,47 +47,26 @@ class BedesUnitQuery {
      * @param unitName 
      * @returns record by name 
      */
-    public getRecordByName(unitName: string): Promise<any> {
-        if (!unitName) {
-            logger.error(`${this.constructor.name}: Missing unitName in BedesUnit-getRecordByName`);
-            throw new Error('Missing required parameters.');
+    public getRecordByName(unitName: string, transaction?: any): Promise<IBedesUnit> {
+        try {
+            if (!unitName) {
+                logger.error(`${this.constructor.name}: Missing unitName in BedesUnit-getRecordByName`);
+                throw new Error('Missing required parameters.');
+            }
+            const params = {
+                _name: unitName
+            };
+            if (transaction) {
+                return transaction.one(this.sqlGetByName, params);
+            }
+            else {
+                return db.one(this.sqlGetByName, params);
+            }
+        } catch (error) {
+            logger.error(`${this.constructor.name}: Error in getRecordByName`);
+            logger.error(util.inspect(error));
+            throw error;
         }
-        const params = {
-            _name: unitName
-        };
-        return db.oneOrNone(this.sqlGetByName, params);
     }
 
-    // public updateRecord(item: BedesUnit): Promise<number> {
-    //     if (!item._id) {
-    //         logger.error(`updateImplementationPercentage: missing parameter _id - ${util.inspect(item)}`);
-    //         throw new Error('Invalid parameters.');
-    //     }
-    //     const params = {
-    //         _id: item._id,
-    //         _design: item._design,
-    //         _projectManagement: item._projectManagement,
-    //         _performanceBonds: item._performanceBonds,
-    //         _commissioningTraining: item._commissioningTraining,
-    //         _overhead: item._overhead,
-    //         _profit: item._profit
-    //     };
-    //     if (transaction) {
-    //         return transaction.result(
-    //             this.sqlGetByName,
-    //             params,
-    //             (r: any) => r.rowCount
-    //         );
-    //     }
-    //     else {
-    //         return db.result(
-    //             this.sqlUpdate,
-    //             params,
-    //             (r: any) => r.rowCount
-    //         );
-    //     }
-    // }
-
 }
-
-export { BedesUnitQuery };

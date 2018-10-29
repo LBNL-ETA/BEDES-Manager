@@ -1,5 +1,6 @@
 select
     d.id as "_id",
+    d.field_code as "_fieldCode",
     d.name as "_name",
     d.term_type_id as "_termTypeId",
     d.data_type_id as "_dataTypeId",

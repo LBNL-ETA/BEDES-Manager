@@ -11,9 +11,9 @@ with
 		join
 			public.bedes_term_list_option o on o.term_id = b.id
         where
-            lower(trim(b.name)) = lower(trim(${_termName}))
+            b.name = ${_termName}
         and
-            lower(trim(o.name)) = lower(trim(${_optionName}))
+            o.name = ${_optionName}
 	)
 select
 	b.id as "_id",
@@ -28,7 +28,7 @@ from
 cross join
     term_options o
 where
-    lower(trim(b.name)) = lower(trim(${_termName}))
+    b.name = ${_termName}
 group by
     b.id, b.name, b.term_type_id, b.data_type_id, b.source_id, b.unit_id
 ;

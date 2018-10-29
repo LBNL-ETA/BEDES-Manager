@@ -64,32 +64,56 @@ create table public.app (
 create table public.app_field (
     id int primary key,
     name varchar(100) unique not null,
-    description varchar(250)
+    description text 
 );
 
 insert into public.app_field (id, name) values
-    (1, 'Field Name'),
-    (2, 'Data Type'),
-    (3, 'Units'),
-    (4, 'Source'),
-    (5, 'Description'),
-    (6, 'Table'),
-    (7, 'Group'),
-    (8, 'Notes'),
-    (9, 'Field Code')
+    (1, 'Data Type'),
+    (2, 'Units'),
+    (3, 'Source'),
+    (4, 'Table'),
+    (5, 'Group'),
+    (6, 'Notes'),
+    (7, 'Field Code'),
+    (8, 'EnumeratedValue')
 ;
 
 create table public.app_term (
     id serial primary key,
-    app_id int references public.app (id) not null,
-    app_field_id int references app_field (id) not null,
-    value varchar(250),
-    unique (app_id, app_field_id)
+    app_id int references public.app (id) on delete cascade not null,
+    field_code text not null unique,
+    name varchar(100) not null,
+    description text
 );
 
-create table public.enumerated_values (
+create table public.app_term_additional_data (
     id serial primary key,
-    app_term_id int references public.app_term (id),
-    value varchar(100) not null
+    app_term_id int references public.app_term (id) on delete cascade not null,
+    app_field_id int references app_field (id) not null,
+    value text,
+    unique(app_term_id, app_field_id)
 );
-create unique index on public.enumerated_values (app_term_id, md5(value));
+
+-- create table public.app_enumerated_values (
+--     id serial primary key,
+--     app_term_id int references public.app_term (id),
+--     value text not null
+-- );
+-- create unique index on public.app_enumerated_values (app_term_id, md5(value));
+
+create table public.mapped_terms (
+    id serial primary key,
+    app_id int references public.app (id) on delete cascade not null
+);
+
+create table public.app_term_maps (
+    id serial primary key,
+    mapped_term_id int not null references public.mapped_terms (id) on delete cascade,
+    app_term_id int not null references public.app_term (id) on delete cascade
+);
+
+create table public.bedes_term_maps (
+    id serial primary key,
+    mapped_term_id int not null references public.mapped_terms (id) on delete cascade,
+    bedes_term_id int not null references public.bedes_term (id) on delete cascade
+);

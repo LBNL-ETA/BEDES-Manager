@@ -4,26 +4,32 @@ import * as db from '@bedes-backend/db';
 import sql_loader from '@bedes-backend/db/sql_loader';
 import { createLogger }  from '@script-common/logging';
 const logger = createLogger(module);
-import { IBedesDefinitionSource } from '@bedes-common/bedes-definition-source';
+import { IApp } from '@bedes-common/app';
 import * as util from 'util';
 
-export class BedesDefinitionSourceQuery {
-    private sqlGetByName!: QueryFile;
+export class AppQuery {
+    private sqlGet!: QueryFile;
     private sqlInsert!: QueryFile;
 
     constructor() { 
         this.initSql();
     }
 
+    /**
+     * Load the SQL queries.
+     *
+     * @private
+     * @memberof User
+     */
     private initSql(): void {
-        this.sqlGetByName = sql_loader(path.join(__dirname, 'get-by-name.sql'));
+        this.sqlGet = sql_loader(path.join(__dirname, 'get.sql'));
         this.sqlInsert = sql_loader(path.join(__dirname, 'insert.sql'))
     }
 
-    public newRecord(item: IBedesDefinitionSource, transaction?: any): Promise<IBedesDefinitionSource> {
+    public newRecord(item: IApp, transaction?: any): Promise<IApp> {
         try {
             if (!item._name) {
-                logger.error(`${this.constructor.name}: Missing unitName in BedesUnit-newRecord`);
+                logger.error(`${this.constructor.name}: Missing name in newRecord`);
                 throw new Error('Missing required parameters.');
             }
             const params = {
@@ -42,28 +48,23 @@ export class BedesDefinitionSourceQuery {
         }
     }
 
-    /**
-     * Gets BedesUnit record given a unit name.
-     * @param name 
-     * @returns record by name 
-     */
-    public getRecordByName(name: string, transaction?: any): Promise<IBedesDefinitionSource> {
+    public getRecord(name: string, transaction?: any): Promise<IApp> {
         try {
             if (!name) {
-                logger.error(`${this.constructor.name}: Missing unitName in BedesUnit-getRecordByName`);
+                logger.error(`${this.constructor.name}: Missing name in getRecord`);
                 throw new Error('Missing required parameters.');
             }
             const params = {
                 _name: name
             };
             if (transaction) {
-                return transaction.one(this.sqlGetByName, params);
+                return transaction.one(this.sqlGet, params);
             }
             else {
-                return db.one(this.sqlGetByName, params);
+                return db.one(this.sqlGet, params);
             }
         } catch (error) {
-            logger.error(`${this.constructor.name}: Error in getRecordByName`);
+            logger.error(`${this.constructor.name}: Error in newRecord`);
             logger.error(util.inspect(error));
             throw error;
         }

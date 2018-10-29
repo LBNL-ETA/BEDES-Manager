@@ -1,5 +1,5 @@
 import { BedesDataType } from "@bedes-common/bedes-data-type";
-import { bedesQuery } from "@app-root/queries";
+import { bedesQuery } from "@script-common/queries";
 import { GenericDataManager } from "../generic-data-manager";
 
 /**
@@ -16,11 +16,12 @@ export class BedesDataTypeManager extends GenericDataManager<BedesDataType> {
     }
 
     public async getRecordFromDatabase(name: string): Promise<BedesDataType | undefined> {
-        let iData = await bedesQuery.dataType.getRecordByName(name);
-        if (iData) {
+        try {
+            let iData = await bedesQuery.dataType.getRecordByName(name);
             return new BedesDataType(iData);
-        }
-        else {
+        } catch {
+            // the record doesn't exist in the database
+            // ignore and return undefined
             return undefined;
         }
     }

@@ -17,4 +17,14 @@ export class BedesRow extends RowItem {
     public isStartOfNewTerm(): boolean {
         return this.bedesTerm ? true : false;
     }
+
+    /**
+     * Determines if the current row in the spreadsheet contains
+     * more than 1 term
+     * (mapping text can have linefeeds that separte terms)
+     * @returns true if multiple terms 
+     */
+    public containsMultipleTerms(): boolean {
+        return this.bedesMapping && this.bedesMapping.match(/\n/) ? true : false
+    }
 } 

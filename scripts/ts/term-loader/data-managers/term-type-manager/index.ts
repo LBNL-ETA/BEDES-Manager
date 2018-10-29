@@ -1,5 +1,5 @@
 import { BedesTermType } from "@bedes-common/bedes-term-type";
-import { bedesQuery } from "@app-root/queries";
+import { bedesQuery } from "@script-common/queries";
 import { GenericDataManager } from "../generic-data-manager";
 
 /**
@@ -16,11 +16,10 @@ export class BedesTermTypeManager extends GenericDataManager<BedesTermType> {
     }
 
     public async getRecordFromDatabase(name: string): Promise<any> {
-        let iData = await bedesQuery.termType.getRecordByName(name);
-        if (iData) {
+        try {
+            let iData = await bedesQuery.termType.getRecordByName(name);
             return new BedesTermType(iData);
-        }
-        else {
+        } catch {
             return undefined;
         }
     }

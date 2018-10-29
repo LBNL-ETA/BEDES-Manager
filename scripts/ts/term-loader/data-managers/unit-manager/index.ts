@@ -1,5 +1,5 @@
 import { BedesUnit } from "@bedes-common/bedes-unit";
-import { bedesQuery } from "@app-root/queries";
+import { bedesQuery } from "@script-common/queries";
 import { GenericDataManager } from "../generic-data-manager";
 
 export class BedesUnitManager extends GenericDataManager<BedesUnit> {
@@ -13,11 +13,11 @@ export class BedesUnitManager extends GenericDataManager<BedesUnit> {
     }
 
     public async getRecordFromDatabase(name: string): Promise<BedesUnit | undefined> {
-        let iData = await bedesQuery.units.getRecordByName(name);
-        if (iData) {
+        try {
+            let iData = await bedesQuery.units.getRecordByName(name);
             return new BedesUnit(iData);
         }
-        else {
+        catch {
             return undefined;
         }
     }

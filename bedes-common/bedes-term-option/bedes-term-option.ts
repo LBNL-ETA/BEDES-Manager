@@ -46,4 +46,13 @@ export class BedesTermOption {
         this._definitionSourceId = value;
     }
     
+    public toInterface(): IBedesTermOption {
+        return <IBedesTermOption>{
+            _id: this._id,
+            _name: this._name,
+            _description: this._description,
+            _unitId: this._unitId,
+            _definitionSourceId: this._definitionSourceId
+        };
+    }
 }

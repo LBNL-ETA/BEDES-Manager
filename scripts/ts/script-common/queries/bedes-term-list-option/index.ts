@@ -16,36 +16,43 @@ export class BedesTermListOptionQuery {
         this.initSql();
     }
 
-    /**
-     * Load the SQL queries.
-     *
-     * @private
-     * @memberof User
-     */
     private initSql(): void {
         this.sqlGetByName = sql_loader(path.join(__dirname, 'get-by-name.sql'));
         this.sqlInsert = sql_loader(path.join(__dirname, 'insert.sql'))
     }
 
-    public newRecord(termId: number, item: BedesTermOption): Promise<IBedesTermOption> {
-        if (!item.name) {
-            logger.error(`${this.constructor.name}: Missing name`);
-            throw new Error('Missing required parameters.');
+    /**
+     * Writes a new IBedesTermOption to the database,
+     * links to BedesTerm._termId.
+     * @param termId 
+     * @param item 
+     * @param [transaction] 
+     * @returns record 
+     */
+    public newRecord(termId: number, item: IBedesTermOption, transaction?: any): Promise<IBedesTermOption> {
+        try {
+            if (!item._name) {
+                logger.error(`${this.constructor.name}: Missing name`);
+                throw new Error('Missing required parameters.');
+            }
+            const params = {
+                _termId: termId,
+                _name: item._name,
+                _description: item._description,
+                _unitId: item._unitId,
+                _definitionSourceId: item._definitionSourceId
+            };
+            if (transaction) {
+                return transaction.one(this.sqlInsert, params);
+            }
+            else {
+                return db.one(this.sqlInsert, params);
+            }
+        } catch (error) {
+            logger.error(`${this.constructor.name}: Error in newRecord`);
+            logger.error(util.inspect(error));
+            throw error;
         }
-        const params = {
-            _termId: termId,
-            _name: item.name,
-            _description: item.description,
-            _unitId: item.unitId,
-            _definitionSourceId: item.definitionSourceId
-        };
-        return db.one(this.sqlInsert, params)
-            .catch((error: Error) => {
-                logger.error(`Error creating new bedes list option for term ${termId}`);
-                logger.error(util.inspect(item));
-                logger.error(util.inspect(error));
-                throw error;
-            });
     }
 
     /**
@@ -53,15 +60,26 @@ export class BedesTermListOptionQuery {
      * @param name 
      * @returns record by name 
      */
-    public getRecordByName(name: string): Promise<IBedesTerm> {
-        if (!name) {
-            logger.error(`${this.constructor.name}: Missing name`);
-            throw new Error('Missing required parameters.');
+    public getRecordByName(name: string, transaction?: any): Promise<IBedesTermOption> {
+        try {
+            if (!name) {
+                logger.error(`${this.constructor.name}: Missing name`);
+                throw new Error('Missing required parameters.');
+            }
+            const params = {
+                _name: name
+            };
+            if (transaction) {
+                return transaction.one(this.sqlGetByName, params);
+            }
+            else {
+                return db.one(this.sqlGetByName, params);
+            }
+        } catch (error) {
+            logger.error(`${this.constructor.name}: Error in getRecordByName`);
+            logger.error(util.inspect(error));
+            throw error;
         }
-        const params = {
-            _name: name
-        };
-        return db.oneOrNone(this.sqlGetByName, params);
     }
 
 }
