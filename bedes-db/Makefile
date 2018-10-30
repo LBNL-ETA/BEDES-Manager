@@ -21,7 +21,7 @@ run:
 		-e POSTGRES_PASSWORD=${POSTGRES_PASSWORD} \
 		-e PGDATA=/var/lib/postgresql/data/pgdata \
 		-v ${PWD}/postgres_data:/var/lib/postgresql/data/pgdata \
-		-p ${PG_PORT}:5432 \
+		-p ${DB_PORT}:5432 \
 		-d ${DB_IMAGE}
 
 stop:

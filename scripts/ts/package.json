@@ -5,9 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "load-terms": "ts-node term-loader",
-    "load-mappings": "ts-node mappings-loader",
-    "load-mappings-debug": "BACKEND_DEBUG=1 ts-node mappings-loader"
+    "load-terms": "(set -a && . ../../.env && set +a && ts-node term-loader --color=true)",
+    "load-mappings": "(set -a && . ../../.env && set +a && ts-node mappings-loader)",
+    "load-mappings-debug": "(set -a && . ../../.env && set +a && BACKEND_DEBUG=1 ts-node mappings-loader)"
   },
   "author": "",
   "license": "ISC",
