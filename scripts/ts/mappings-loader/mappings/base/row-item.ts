@@ -1,3 +1,6 @@
+/**
+ * Base class for AppRow and BedesRow objects.
+ */
 export class RowItem {
     public isEmpty(): boolean {
         for (let prop in this) {

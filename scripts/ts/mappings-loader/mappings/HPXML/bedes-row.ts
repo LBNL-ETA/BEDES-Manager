@@ -1,5 +1,8 @@
 import { RowItem } from "../base/row-item";
 
+/**
+ * Represents a row of data from the Bedes Term columns
+ */
 export class BedesRow extends RowItem {
     constructor(
         public bedesTerm: string,
@@ -26,5 +29,30 @@ export class BedesRow extends RowItem {
      */
     public containsMultipleTerms(): boolean {
         return this.bedesMapping && this.bedesMapping.match(/\n/) ? true : false
+    }
+
+    /**
+     * Determines if the BedesRow is a valid mapping.
+     * The BedesRow could be a BedesTerm, BedesTermConstrainedList,
+     * or a Constrained List Option.
+     * @returns true if valid bedes term 
+     */
+    public isValidBedesObject(): boolean {
+        if (
+            !this.isEmpty()
+            && (
+                !this.bedesTerm
+                || (
+                    this.bedesTerm
+                    && 
+                    !this.bedesTerm.match(/no mapping/i)
+                )
+            )
+        ) {
+            return true;
+        }
+        else {
+            return false;
+        }
     }
 } 
