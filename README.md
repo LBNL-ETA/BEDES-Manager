@@ -11,6 +11,17 @@ Copy `/sample.env` to `.env`, and set the passwords.  Do the same thing with the
 
 ### Building the Database
 
+#### Install Command
+A Makefile in the app root provides a quick method of building the database and install the npm packages:
+
+        $ make install
+
+This command will:
+
+1. Run the PostgreSQL Docker image
+2. Build the database objects.
+3. Install the npm packages
+
 #### PostgreSQL 10.5
 
 The BEDES Mapping Manager uses PostgreSQL 10.5, which can be running locally or remotely.
