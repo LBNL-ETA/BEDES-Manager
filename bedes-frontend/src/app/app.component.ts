@@ -3,8 +3,8 @@ import { Component } from '@angular/core';
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
-  styles: []
+  styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
-  title = 'bedes-app';
+  title = 'Bedes-App';
 }
