@@ -3,10 +3,13 @@ import morgan from 'morgan';
 import * as bodyParser from 'body-parser';
 import { mountRoutes } from './routes';
 import session from 'express-session';
-import { logger } from './logging';
+import * as swaggerUi from 'swagger-ui-express';
+import swaggerJsDoc = require('swagger-jsdoc');
+import { createLogger } from './logging';
+const logger = createLogger(module);
 
 /**
- * Entry point for the ePB backend app.
+ * Entry point for the Bedes Manager backend app.
  *
  * @class App
  */
@@ -51,8 +54,32 @@ class App {
             next();
         });
         // mount the routes
-        this.mountRoutes()
+        this.mountRoutes();
+        // setup swagger
+        this.swaggerInit();
         logger.info(`Server starting ${new Date()}...`);
+    }
+
+    /**
+     * Setup swagger-ui-express.
+     */
+    private swaggerInit(): void {
+        // setup swagger
+        const options = {
+            definition: {
+                info: {
+                  title: 'Bedes Manager',
+                  version: '0.1.0',
+                },
+              },
+              apis: ['./src/**/routes.ts'],
+              host: `localhost:3000`
+        }
+        const swaggerSpec = swaggerJsDoc(options);
+        const swaggerOptions = {
+            explorer : true
+          };
+        this.express.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, swaggerOptions));
     }
 
     /**

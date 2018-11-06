@@ -1,3 +1,4 @@
+require('module-alias/register');
 import app from './App'
 
 const port = process.env.PORT || 3000
