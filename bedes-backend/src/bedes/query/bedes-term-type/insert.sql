@@ -1,5 +1,5 @@
 insert into
-    public.data_type (name)
+    public.term_type (name)
 values
     (${_name})
 returning

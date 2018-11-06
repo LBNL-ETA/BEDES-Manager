@@ -4,5 +4,5 @@ select
 from
     public.data_type as d
 where
-    d.name = ${_name}
+    trim(lower(d.name)) = trim(lower(${_name}))
 ;

@@ -4,14 +4,22 @@ import { BedesTermQuery } from "./bedes-term";
 import { BedesDefinitionSourceQuery } from "./bedes-definition-source";
 import { BedesTermTypeQuery } from "./bedes-term-type";
 import { BedesTermListOptionQuery } from "./bedes-term-list-option";
+import { AppQuery } from "./app";
+import { AppTermQuery } from "./app-term";
+import { MappedTermQuery } from "./mapped-term";
+import { BedesTermSearchQuery } from "./bedes-term-search";
 
 class BedesQuery {
     public units: BedesUnitQuery;
     public dataType: BedesDataTypeQuery;
     public terms: BedesTermQuery;
     public termListOption: BedesTermListOptionQuery;
-    public definitionSource: BedesDefinitionSourceQuery
-    public termType: BedesTermTypeQuery
+    public definitionSource: BedesDefinitionSourceQuery;
+    public termType: BedesTermTypeQuery;
+    public app: AppQuery;
+    public appTerm: AppTermQuery;
+    public mappedTerm: MappedTermQuery;
+    public bedesTermSearch: BedesTermSearchQuery;
 
     constructor() {
         this.units = new BedesUnitQuery();
@@ -20,6 +28,10 @@ class BedesQuery {
         this.termListOption = new BedesTermListOptionQuery();
         this.definitionSource = new BedesDefinitionSourceQuery();
         this.termType = new BedesTermTypeQuery();
+        this.app = new AppQuery();
+        this.appTerm = new AppTermQuery();
+        this.mappedTerm = new MappedTermQuery();
+        this.bedesTermSearch = new BedesTermSearchQuery();
     }
 }
 

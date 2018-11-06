@@ -1,34 +1,38 @@
 import * as winston from "winston";
-import appRoot from 'app-root-path';
+import path from 'path';
+import { cyan } from 'colors';
 
-var options = {
-    file: {
-      level: 'info',
-      filename: `${appRoot}/logs/app.log`,
-      handleExceptions: true,
-      json: true,
-      maxsize: 5242880, // 5MB
-      maxFiles: 5,
-      colorize: false,
-    },
-    console: {
-      level: 'debug',
-      handleExceptions: true,
-      json: false,
-      colorize: true,
-    },
-  };
+const myFormat = winston.format.printf(info => {
+    return `${info.timestamp} [${info.label}] ${info.level}: ${info.message}`;
+});
 
-  const logger = winston.createLogger({
-    transports: [
-      new winston.transports.File(options.file),
-      new winston.transports.Console(options.console)
-    ],
-    exitOnError: false, // do not exit on handled exceptions
-  });
+// Return the last folder name in the path and the calling
+// module's filename.
+function getLabel (callingModule: NodeModule): string {
+    var parts = callingModule.filename.split(path.sep);
+    if (parts && parts.length >= 2) {
+        return path.join(parts[parts.length - 2], parts[parts.length - 1]);
+    }
+    else {
+        return '';
+    }
+};
 
-  function errorToString(error: Error): string {
-      return `name: ${error.name}, message: ${error.message}, stack: ${error.stack ? error.stack.replace(",", "\n") : ""}`;
-  }
-
-  export { logger, errorToString }
+/**
+ * Builds a logger for a specific module.
+ * @param callingModule 
+ * @returns  
+ */
+export function createLogger(callingModule: NodeModule) {
+    return winston.createLogger({
+        format: winston.format.combine(
+            winston.format.timestamp(),
+            winston.format.label({ label: cyan(getLabel(callingModule))}),
+            winston.format.colorize(),
+            myFormat
+        ),
+        transports: [new winston.transports.Console({
+            level: process.env.LOG_LEVEL_CONSOLE ? process.env.LOG_LEVEL_CONSOLE : 'debug'
+        })]
+    });
+};
