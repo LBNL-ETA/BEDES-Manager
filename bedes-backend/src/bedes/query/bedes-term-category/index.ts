@@ -10,6 +10,7 @@ import { IBedesTermCategory } from '@bedes-common/models/bedes-term-category';
 export class BedesTermCategoryQuery {
     private sqlGetByName!: QueryFile;
     private sqlInsert!: QueryFile;
+    private sqlGetAllRecords!: QueryFile
 
     constructor() { 
         this.initSql();
@@ -18,6 +19,7 @@ export class BedesTermCategoryQuery {
     private initSql(): void {
         this.sqlGetByName = sql_loader(path.join(__dirname, 'get-by-name.sql'));
         this.sqlInsert = sql_loader(path.join(__dirname, 'insert.sql'))
+        this.sqlGetAllRecords = sql_loader(path.join(__dirname, 'get-all-records.sql'))
     }
 
     public newRecord(item: IBedesTermCategory, transaction?: any): Promise<IBedesTermCategory> {
@@ -64,6 +66,26 @@ export class BedesTermCategoryQuery {
             }
         } catch (error) {
             logger.error(`${this.constructor.name}: Error in getRecordByName`);
+            logger.error(util.inspect(error));
+            throw error;
+        }
+    }
+
+    /**
+     * Get the list of all term categories
+     * @param [transaction] 
+     * @returns all records 
+     */
+    public getAllRecords(transaction?: any): Promise<Array<IBedesTermCategory>> {
+        try {
+            if (transaction) {
+                return transaction.many(this.sqlGetAllRecords);
+            }
+            else {
+                return db.many(this.sqlGetAllRecords);
+            }
+        } catch (error) {
+            logger.error(`${this.constructor.name}: Error in getAllRecords`);
             logger.error(util.inspect(error));
             throw error;
         }
