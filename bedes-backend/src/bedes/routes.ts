@@ -30,6 +30,7 @@ function mountRoutes(router: Router) {
      * 
      */
     router.get('/search-terms', handlers.searchBedesTermHandler);
+    router.get('/data-type', handlers.getBedesDataTypeList);
 }
 
 export {
