@@ -20,7 +20,7 @@ select
 	b.name as "_name",
 	b.term_type_id as "_termTypeId",
 	b.data_type_id as "_dataTypeId",
-	b.source_id "_sourceId",
+	b.definition_source_id "_definitionSourceId",
 	b.unit_id as "_unitId",
 	json_agg(o) "_options"
 from
@@ -30,5 +30,5 @@ cross join
 where
     b.name = ${_termName}
 group by
-    b.id, b.name, b.term_type_id, b.data_type_id, b.source_id, b.unit_id
+    b.id, b.name, b.term_type_id, b.data_type_id, b.definition_source_id, b.unit_id
 ;

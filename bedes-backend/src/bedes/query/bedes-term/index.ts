@@ -43,7 +43,8 @@ export class BedesTermQuery {
                 _description: item._description || null,
                 _termTypeId: item._termTypeId,
                 _dataTypeId: item._dataTypeId,
-                _unitId: item._unitId
+                _unitId: item._unitId,
+                _definitionSourceId: item._definitionSourceId
             };
             if (transaction) {
                 return transaction.one(this.sqlInsert, params);
@@ -75,7 +76,8 @@ export class BedesTermQuery {
                 _description: item._description || null,
                 _termTypeId: item._termTypeId,
                 _dataTypeId: item._dataTypeId,
-                _unitId: item._unitId
+                _unitId: item._unitId,
+                _definitionSourceId: item._definitionSourceId
             };
             // create the constrained list, wait for promise to resolve
             let constrainedList: IBedesConstrainedList;

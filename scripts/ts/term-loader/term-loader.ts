@@ -323,10 +323,17 @@ export class TermLoader {
             console.log('no name?');
         }
         let unit = await this.getBedesUnit(rowItem.unit);
+        // get the definition source id
+        let definitionSourceId: number | undefined | null;
+        if (rowItem.definitionSource) {
+            let item = await this.getDefinitionSource(rowItem);
+            definitionSourceId = item.id;
+        }
         const params = <IBedesTermOption>{
             _name: rowItem.dataType,
             _description: rowItem.definition,
-            _unitId: unit.id
+            _unitId: unit.id,
+            _definitionSourceId: definitionSourceId
         };
         return new BedesTermOption(params);
     }

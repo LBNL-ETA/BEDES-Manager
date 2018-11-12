@@ -43,7 +43,7 @@ export class BedesDefinitionSourceQuery {
     }
 
     /**
-     * Gets BedesUnit record given a unit name.
+     * Gets BedesDefinitionSource record given a unit name.
      * @param name 
      * @returns record by name 
      */

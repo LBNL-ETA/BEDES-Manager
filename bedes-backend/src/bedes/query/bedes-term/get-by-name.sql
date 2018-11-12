@@ -4,7 +4,8 @@ select
     d.description as "_description",
     d.term_type_id as "_termTypeId",
     d.data_type_id as "_dataTypeId",
-    d.unit_id as "_unitId"
+    d.unit_id as "_unitId",
+    d.definition_source_id as "_definitionSourceId"
 from
     public.bedes_term as d
 where

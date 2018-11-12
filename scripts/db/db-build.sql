@@ -31,7 +31,7 @@ create table public.unit (
 
 create table public.definition_source (
     id serial primary key,
-    name varchar(100) not null unique
+    name text not null unique
 );
 
 create table public.bedes_term (
@@ -40,7 +40,7 @@ create table public.bedes_term (
     description text,
     term_type_id int references public.term_type (id) not null,
     data_type_id int references public.data_type (id) not null,
-    source_id int references public.definition_source (id),
+    definition_source_id int references public.definition_source (id),
     unit_id int references public.unit (id) not null
 );
 

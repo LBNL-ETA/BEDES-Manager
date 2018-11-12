@@ -21,8 +21,8 @@ select
 	b.description as "_description",
 	b.term_type_id as "_termTypeId",
 	b.data_type_id as "_dataTypeId",
-	b.source_id "_sourceId",
 	b.unit_id as "_unitId",
+	b.definition_source_id as "_definitionSourceId",
 	json_agg(o) "_options"
 from
     bedes_term as b
@@ -31,5 +31,5 @@ cross join
 where
     lower(trim(b.name)) = lower(trim(${_termName}))
 group by
-    b.id, b.name, b.description, b.term_type_id, b.data_type_id, b.source_id, b.unit_id
+    b.id, b.name, b.description, b.term_type_id, b.data_type_id, b.definition_source_id, b.unit_id
 ;
