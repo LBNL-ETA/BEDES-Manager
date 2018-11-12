@@ -5,7 +5,7 @@ import * as db from '@bedes-backend/db';
 import sql_loader from '@bedes-backend/db/sql_loader';
 import { createLogger }  from '@bedes-backend/logging';
 const logger = createLogger(module);
-import { IBedesTerm, BedesTerm, IBedesConstrainedList } from '@bedes-common/bedes-term';
+import { IBedesTerm, BedesTerm, IBedesConstrainedList } from '@bedes-common/models/bedes-term';
 import { HttpStatusCodes } from '@bedes-common/enums/http-status-codes';
 import { BedesError } from '@bedes-common/bedes-error';
 

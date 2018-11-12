@@ -5,8 +5,8 @@ import * as db from '@bedes-backend/db';
 import sql_loader from '@bedes-backend/db/sql_loader';
 import { createLogger }  from '@bedes-backend/logging';
 const logger = createLogger(module);
-import { IBedesTerm, BedesTerm, IBedesConstrainedList } from '@bedes-common/bedes-term';
-import { IBedesTermOption } from '@bedes-common/bedes-term-option';
+import { IBedesTerm, BedesTerm, IBedesConstrainedList } from '@bedes-common/models/bedes-term';
+import { IBedesTermOption } from '@bedes-common/models/bedes-term-option';
 import { bedesQuery } from '../';
 
 export class BedesTermQuery {

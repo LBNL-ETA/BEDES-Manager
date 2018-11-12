@@ -5,7 +5,7 @@ import sql_loader from '@bedes-backend/db/sql_loader';
 import { createLogger }  from '@bedes-backend/logging';
 const logger = createLogger(module);
 import * as util from 'util';
-import { IBedesUnit } from '@bedes-common/bedes-unit';
+import { IBedesUnit } from '@bedes-common/models/bedes-unit';
 
 export class BedesUnitQuery {
     private sqlGetByName!: QueryFile;

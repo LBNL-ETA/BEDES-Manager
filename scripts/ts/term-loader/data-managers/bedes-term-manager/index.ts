@@ -1,7 +1,7 @@
 import {
     BedesTerm,
     BedesConstrainedList,
-} from "@bedes-common/bedes-term";
+} from "@bedes-common/models/bedes-term";
 import { bedesQuery } from "@bedes-backend/bedes/query";
 import { createLogger } from '@script-common/logging';
 const logger = createLogger(module);

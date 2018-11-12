@@ -3,7 +3,7 @@ import { createLogger }  from "@script-common/logging";
 const logger = createLogger(module);
 import { bedesQuery } from "@bedes-backend/bedes/query";
 import { BedesRow } from "./bedes-row";
-import { IBedesConstrainedList, IBedesTerm } from "@bedes-common/bedes-term";
+import { IBedesConstrainedList, IBedesTerm } from "@bedes-common/models/bedes-term";
 import { BedesMappingLabel } from '../base/bedes-mapping-label';
 
 /**

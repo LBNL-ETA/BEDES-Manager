@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
 import { MatPaginator, MatTableDataSource } from '@angular/material';
-import { IBedesTerm, BedesConstrainedList, BedesTerm } from '@bedes-common/bedes-term';
+import { IBedesTerm, BedesConstrainedList, BedesTerm } from '@bedes-common/models/bedes-term';
 import { BedesTermSearchService } from '../../services/bedes-term-search/bedes-term-search.service';
 import { takeUntil } from 'rxjs/operators';
 import { Subject } from 'rxjs';

@@ -4,7 +4,7 @@ const logger = createLogger(module);
 import { bedesQuery } from "@bedes-backend/bedes/query";
 import { AppField } from '@bedes-common/enums';
 import { AppRow } from "./app-row-hpxml";
-import { IAppTerm, IAppTermAdditionalInfo } from "@bedes-common/app-term";
+import { IAppTerm, IAppTermAdditionalInfo } from "@bedes-common/models/app-term";
 
 /**
  * App term processor: it processes a collection of AppRow objects,

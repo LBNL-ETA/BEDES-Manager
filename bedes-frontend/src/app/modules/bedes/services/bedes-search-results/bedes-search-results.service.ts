@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
-import { BedesTerm, BedesConstrainedList } from '@bedes-common/bedes-term';
+import { BedesTerm, BedesConstrainedList } from '@bedes-common/models/bedes-term';
 
 @Injectable({
     providedIn: 'root'

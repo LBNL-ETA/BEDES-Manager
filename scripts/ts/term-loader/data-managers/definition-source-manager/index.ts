@@ -1,4 +1,4 @@
-import { BedesDefinitionSource, IBedesDefinitionSource } from "@bedes-common/bedes-definition-source";
+import { BedesDefinitionSource, IBedesDefinitionSource } from "@bedes-common/models/bedes-definition-source";
 import { bedesQuery } from "@bedes-backend/bedes/query";
 import { GenericDataManager } from "../generic-data-manager";
 import { createLogger } from '@script-common/logging';

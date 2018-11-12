@@ -5,18 +5,18 @@ import * as XLSX from 'xlsx';
 import * as util from 'util';
 import { getCellValue } from './excel/lib';
 import { BedesUnitManager } from "./data-managers/unit-manager";
-import { BedesUnit } from "@bedes-common/bedes-unit";
-import { BedesTerm, BedesConstrainedList, IBedesConstrainedList, IBedesTerm } from '@bedes-common/bedes-term';
+import { BedesUnit } from "@bedes-common/models/bedes-unit";
+import { BedesTerm, BedesConstrainedList, IBedesConstrainedList, IBedesTerm } from '@bedes-common/models/bedes-term';
 import { WorksheetRow } from './excel/worksheet-row';
-import { BedesTermOption } from "@bedes-common/bedes-term-option/bedes-term-option";
-import { IBedesTermOption } from "@bedes-common/bedes-term-option/bedes-term-option.interface";
+import { BedesTermOption } from "@bedes-common/models/bedes-term-option/bedes-term-option";
+import { IBedesTermOption } from "@bedes-common/models/bedes-term-option/bedes-term-option.interface";
 import { BedesDataTypeManager } from "./data-managers/data-type-manager";
-import { BedesDataType } from "@bedes-common/bedes-data-type";
+import { BedesDataType } from "@bedes-common/models/bedes-data-type";
 import { BedesTermManager } from "./data-managers/bedes-term-manager";
 import { BedesDefinitionSourceManager } from "./data-managers/definition-source-manager";
 import { BedesTermTypeManager } from "./data-managers/term-type-manager";
-import { BedesTermType } from "@bedes-common/bedes-term-type";
-import { BedesDefinitionSource } from "@bedes-common/bedes-definition-source";
+import { BedesTermType } from "@bedes-common/models/bedes-term-type";
+import { BedesDefinitionSource } from "@bedes-common/models/bedes-definition-source";
 
 /**
  * Load's the BEDES terms from the BEDES V2.1_0.xlsx file.

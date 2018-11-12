@@ -1,4 +1,4 @@
-import { BedesTermType } from "@bedes-common/bedes-term-type";
+import { BedesTermType } from "@bedes-common/models/bedes-term-type";
 import { bedesQuery } from "@bedes-backend/bedes/query";
 import { GenericDataManager } from "../generic-data-manager";
 

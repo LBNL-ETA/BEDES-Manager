@@ -8,7 +8,7 @@ import {
     IBedesConstrainedList,
     BedesTerm,
     BedesConstrainedList
-} from '@bedes-common/bedes-term';
+} from '@bedes-common/models/bedes-term';
 
 @Injectable({
     providedIn: 'root'

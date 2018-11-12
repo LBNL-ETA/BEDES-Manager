@@ -4,7 +4,7 @@ import * as db from '@bedes-backend/db';
 import sql_loader from '@bedes-backend/db/sql_loader';
 import { createLogger }  from '@bedes-backend/logging';
 const logger = createLogger(module);
-import { IApp } from '@bedes-common/app';
+import { IApp } from '@bedes-common/models/app';
 import * as util from 'util';
 
 export class AppQuery {

@@ -5,7 +5,7 @@ import * as db from '@bedes-backend/db';
 import sql_loader from '@bedes-backend/db/sql_loader';
 import { createLogger }  from '@bedes-backend/logging';
 const logger = createLogger(module);
-import { AppTerm, IAppTerm, AppTermAdditionalInfo, IAppTermAdditionalInfo } from '@bedes-common/app-term';
+import { AppTerm, IAppTerm, AppTermAdditionalInfo, IAppTermAdditionalInfo } from '@bedes-common/models/app-term';
 
 export class AppTermQuery {
     private sqlInsertTerm!: QueryFile;

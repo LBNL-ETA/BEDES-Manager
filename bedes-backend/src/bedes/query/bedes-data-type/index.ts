@@ -4,7 +4,7 @@ import * as db from '@bedes-backend/db';
 import sql_loader from '@bedes-backend/db/sql_loader';
 import { createLogger }  from '@bedes-backend/logging';
 const logger = createLogger(module);
-import { IBedesDataType } from '@bedes-common/bedes-data-type';
+import { IBedesDataType } from '@bedes-common/models/bedes-data-type';
 import * as util from 'util';
 
 export class BedesDataTypeQuery {

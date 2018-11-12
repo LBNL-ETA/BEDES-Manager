@@ -1,4 +1,4 @@
-import { BedesUnit } from "@bedes-common/bedes-unit";
+import { BedesUnit } from "@bedes-common/models/bedes-unit";
 import { bedesQuery } from "@bedes-backend/bedes/query";
 import { GenericDataManager } from "../generic-data-manager";
 
