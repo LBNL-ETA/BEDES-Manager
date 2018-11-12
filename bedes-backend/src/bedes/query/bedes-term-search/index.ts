@@ -160,7 +160,7 @@ export class BedesTermSearchQuery {
                 bt.id as "_id",
                 bt.name as "_name",
                 bt.description as "_description",
-                bt.term_type_id as "_termTypeId",
+                bt.term_category_id as "_termTypeId",
                 bt.data_type_id as "_dataTypeId",
                 bt.definition_source_id as "_definitionSourceId",
                 bt.unit_id as "_unitId",
@@ -170,7 +170,7 @@ export class BedesTermSearchQuery {
             join
                 options o on o.term_id = bt.id
             group by
-                bt.id, bt.name, bt.description, bt.term_type_id, bt.data_type_id, bt.definition_source_id, bt.unit_id
+                bt.id, bt.name, bt.description, bt.term_category_id, bt.data_type_id, bt.definition_source_id, bt.unit_id
             ;
         `
         logger.debug(query);
@@ -191,7 +191,7 @@ export class BedesTermSearchQuery {
                 id as "_id",
                 name as "_name",
                 description as "_description",
-                term_type_id as "_termTypeId",
+                term_category_id as "_termTypeId",
                 data_type_id as "_dataTypeId",
                 definition_source_id as "_definitionSourceId",
                 unit_id as "_unitId"

@@ -2,7 +2,7 @@ import { IBedesTerm } from "./bedes-term.interface";
 
 export class BedesTerm {
     protected _id: number | null | undefined;
-    protected _termTypeId: number;
+    protected _termCategoryId: number;
     protected _name: string;
     protected _description: string;
     protected _dataTypeId: number;
@@ -11,7 +11,7 @@ export class BedesTerm {
 
     constructor(data: IBedesTerm) {
         this._id = data._id;
-        this._termTypeId = data._termTypeId;
+        this._termCategoryId = data._termCategoryId;
         this._name = data._name;
         this._description = data._description;
         this._dataTypeId = data._dataTypeId;
@@ -25,11 +25,11 @@ export class BedesTerm {
     set id(value: number | null | undefined) {
         this._id = value;
     }
-    get termTypeId(): number {
-        return this._termTypeId;
+    get termCategoryId(): number {
+        return this._termCategoryId;
     }
-    set termTypeId(value: number) {
-        this._termTypeId = value;
+    set termCategoryId(value: number) {
+        this._termCategoryId = value;
     }
     get name(): string {
         return this._name;
@@ -73,7 +73,7 @@ export class BedesTerm {
             _description: this._description,
             _dataTypeId: this._dataTypeId,
             _definitionSourceId: this._definitionSourceId,
-            _termTypeId: this._termTypeId,
+            _termCategoryId: this._termCategoryId,
             _unitId: this._unitId
         }
     }

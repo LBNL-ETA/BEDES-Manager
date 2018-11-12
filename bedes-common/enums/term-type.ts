@@ -1,4 +1,4 @@
-export enum TermType {
+export enum TermCategory {
     Global=1,
     Premises,
     Contact,

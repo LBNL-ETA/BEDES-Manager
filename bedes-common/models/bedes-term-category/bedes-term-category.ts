@@ -1,10 +1,10 @@
-import { IBedesTermType } from "./bedes-term-type.interface";
+import { IBedesTermCategory } from "./bedes-term-category.interface";
 
-export class BedesTermType {
+export class BedesTermCategory {
     private _id: number | null | undefined;
     private _name: string;
 
-    constructor(data: IBedesTermType) {
+    constructor(data: IBedesTermCategory) {
         this._id = data._id;
         this._name = data._name;
     }

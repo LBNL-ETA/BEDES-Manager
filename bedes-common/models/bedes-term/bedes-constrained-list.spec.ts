@@ -1,25 +1,25 @@
 import "jasmine";
-import { TermType } from '../enums';
-import { IBedesTermConstrainedList } from './bedes-constrained-list.interface';
+import { TermCategory } from '../../enums';
+import { IBedesConstrainedList } from './bedes-constrained-list.interface';
 import { BedesConstrainedList } from './bedes-constrained-list';
 import { IBedesTermOption } from "../bedes-term-option/bedes-term-option.interface";
 import { BedesTermOption } from "../bedes-term-option/bedes-term-option";
 
 describe('BedesConstrainedList', () => {
     it('Should not require initial options', () => {
-        const params = <IBedesTermConstrainedList>{
+        const params = <IBedesConstrainedList>{
             _name: 'Test Term',
             _description: 'Term description goes here...',
-            _termTypeId: TermType.Global
+            _termCategoryId: TermCategory.Global
         };
         const item = new BedesConstrainedList(params);
         expect(item).toBeTruthy();
     });
     it('Should allow passing of Term Options via the constructor', () => {
-        const params = <IBedesTermConstrainedList>{
+        const params = <IBedesConstrainedList>{
             _name: 'Test Term',
             _description: 'Term description goes here...',
-            _termTypeId: TermType.Global,
+            _termCategoryId: TermCategory.Global,
             _options: new Array<IBedesTermOption>()
         };
         // build a few List Options
@@ -40,10 +40,10 @@ describe('BedesConstrainedList', () => {
         expect(item.options.length).toBe(params._options.length);
     });
     it('Should allow addition of Bedes Options through the addOption method', () => {
-        const params = <IBedesTermConstrainedList>{
+        const params = <IBedesConstrainedList>{
             _name: 'Test Term',
             _description: 'Term description goes here...',
-            _termTypeId: TermType.Global
+            _termCategoryId: TermCategory.Global
         };
         const item = new BedesConstrainedList(params);
         expect(item).toBeTruthy();

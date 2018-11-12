@@ -14,8 +14,8 @@ import { BedesDataTypeManager } from "./data-managers/data-type-manager";
 import { BedesDataType } from "@bedes-common/models/bedes-data-type";
 import { BedesTermManager } from "./data-managers/bedes-term-manager";
 import { BedesDefinitionSourceManager } from "./data-managers/definition-source-manager";
-import { BedesTermTypeManager } from "./data-managers/term-type-manager";
-import { BedesTermType } from "@bedes-common/models/bedes-term-type";
+import { BedesTermCategoryManager } from "./data-managers/term-category-manager";
+import { BedesTermCategory } from "@bedes-common/models/bedes-term-category";
 import { BedesDefinitionSource } from "@bedes-common/models/bedes-definition-source";
 
 /**
@@ -28,7 +28,7 @@ export class TermLoader {
     private dataTypeManager: BedesDataTypeManager;
     private termManager: BedesTermManager;
     private definitionSourceManager: BedesDefinitionSourceManager;
-    private termTypeManager: BedesTermTypeManager;
+    private termCategoryManager: BedesTermCategoryManager;
 
     private book!: XLSX.WorkBook;
     // list of sheet names to process
@@ -56,7 +56,7 @@ export class TermLoader {
         this.dataTypeManager = new BedesDataTypeManager();
         this.termManager = new BedesTermManager();
         this.definitionSourceManager = new BedesDefinitionSourceManager();
-        this.termTypeManager = new BedesTermTypeManager();
+        this.termCategoryManager = new BedesTermCategoryManager();
     }
 
     /**
@@ -105,8 +105,8 @@ export class TermLoader {
             let currentTerm: BedesTerm | undefined;
             // get the term type for this set of terms
             // corresponds to the worksheet names
-            let termType = await this.getTermType(sheetName); 
-            if (!termType || !termType.id) {
+            let termCategory = await this.getTermCategory(sheetName); 
+            if (!termCategory || !termCategory.id) {
                 logger.error(`Error creating term type for sheet name ${sheetName}`);
                 throw new Error(`Invalid term type: ${sheetName}`);
             }
@@ -130,11 +130,11 @@ export class TermLoader {
                     // start of a new term, do we create a regular BedesTerm or ConstrainedList
                     if (rowItem.dataType && rowItem.dataType.match(/constrained list/i)) {
                         // start of a constrained list definition
-                        currentTerm = await this.buildConstrainedList(termType.id, rowItem);
+                        currentTerm = await this.buildConstrainedList(termCategory.id, rowItem);
                     }
                     else {
                         // A reguar BedesTerm, not a ConstrainedList
-                        currentTerm = await this.buildBedesTerm(termType.id, rowItem);
+                        currentTerm = await this.buildBedesTerm(termCategory.id, rowItem);
                         // can go ahead and write single terms
                         await this.termManager.writeTerm(currentTerm);
                         currentTerm = undefined;
@@ -175,19 +175,19 @@ export class TermLoader {
         }
     }
 
-    private async getTermType(sheetName: string): Promise<BedesTermType> {
+    private async getTermCategory(sheetName: string): Promise<BedesTermCategory> {
         // get the term type for this set of terms
         // corresponds to the worksheet names
         try {
-            return this.termTypeManager.getOrCreateItem(sheetName);
+            return this.termCategoryManager.getOrCreateItem(sheetName);
         }
         catch (error) {
-            logger.error(`Error retrieving TermType ${sheetName}`);
+            logger.error(`Error retrieving TermCategory ${sheetName}`);
             throw error;
         }
     }
 
-    private async buildBedesTerm(termTypeId: number, rowItem: WorksheetRow): Promise<BedesTerm> {
+    private async buildBedesTerm(termCategoryId: number, rowItem: WorksheetRow): Promise<BedesTerm> {
         try {
             if (!rowItem.dataType) {
                 throw new Error('Missing data type');
@@ -203,7 +203,7 @@ export class TermLoader {
                 definitionSourceId = item.id;
             }
             const params = <IBedesTerm>{
-                _termTypeId: termTypeId,
+                _termCategoryId: termCategoryId,
                 _name: rowItem.term,
                 _description: rowItem.definition,
                 _dataTypeId: dataType.id,
@@ -231,7 +231,7 @@ export class TermLoader {
         }
     }
 
-    private async buildConstrainedList(termTypeId: number, rowItem: WorksheetRow): Promise<BedesConstrainedList> {
+    private async buildConstrainedList(termCategoryId: number, rowItem: WorksheetRow): Promise<BedesConstrainedList> {
         try {
             if (!rowItem.unit) {
                 rowItem.unit = "n/a";
@@ -248,7 +248,7 @@ export class TermLoader {
             // start building the BedesConstrainedList object
             const params = <IBedesConstrainedList>{
                 _id: null,
-                _termTypeId: termTypeId,
+                _termCategoryId: termCategoryId,
                 _name: rowItem.term,
                 _description: rowItem.definition,
                 _unitId: unit.id,

@@ -1,10 +1,10 @@
 
-create table public.term_type (
+create table public.term_category (
     id serial primary key,
     name varchar(100) not null unique
 );
 
-insert into public.term_type (name) values
+insert into public.term_category (name) values
     ('Global Terms'),
     ('Premises'),
     ('Contact'),
@@ -38,7 +38,7 @@ create table public.bedes_term (
     id serial primary key,
     name varchar(100) unique not null,
     description text,
-    term_type_id int references public.term_type (id) not null,
+    term_category_id int references public.term_category (id) not null,
     data_type_id int references public.data_type (id) not null,
     definition_source_id int references public.definition_source (id),
     unit_id int references public.unit (id) not null

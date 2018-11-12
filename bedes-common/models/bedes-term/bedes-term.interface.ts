@@ -1,6 +1,6 @@
 export interface IBedesTerm {
     _id: number | null | undefined;
-    _termTypeId: number;
+    _termCategoryId: number;
     _name: string;
     _description: string;
     _dataTypeId: number;

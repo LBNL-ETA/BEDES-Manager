@@ -41,7 +41,7 @@ export class BedesTermQuery {
             const params = {
                 _name: item._name,
                 _description: item._description || null,
-                _termTypeId: item._termTypeId,
+                _termTypeId: item._termCategoryId,
                 _dataTypeId: item._dataTypeId,
                 _unitId: item._unitId,
                 _definitionSourceId: item._definitionSourceId
@@ -74,7 +74,7 @@ export class BedesTermQuery {
             const params = {
                 _name: item._name,
                 _description: item._description || null,
-                _termTypeId: item._termTypeId,
+                _termTypeId: item._termCategoryId,
                 _dataTypeId: item._dataTypeId,
                 _unitId: item._unitId,
                 _definitionSourceId: item._definitionSourceId

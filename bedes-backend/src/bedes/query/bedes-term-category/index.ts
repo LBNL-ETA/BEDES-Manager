@@ -4,10 +4,10 @@ import * as db from '@bedes-backend/db';
 import sql_loader from '@bedes-backend/db/sql_loader';
 import { createLogger }  from '@bedes-backend/logging';
 const logger = createLogger(module);
-import { IBedesTermType } from '@bedes-common/models/bedes-term-type';
 import * as util from 'util';
+import { IBedesTermCategory } from '@bedes-common/models/bedes-term-category';
 
-export class BedesTermTypeQuery {
+export class BedesTermCategoryQuery {
     private sqlGetByName!: QueryFile;
     private sqlInsert!: QueryFile;
 
@@ -20,10 +20,10 @@ export class BedesTermTypeQuery {
         this.sqlInsert = sql_loader(path.join(__dirname, 'insert.sql'))
     }
 
-    public newRecord(item: IBedesTermType, transaction?: any): Promise<IBedesTermType> {
+    public newRecord(item: IBedesTermCategory, transaction?: any): Promise<IBedesTermCategory> {
         try {
             if (!item._name) {
-                logger.error(`${this.constructor.name}: Missing name in BedesTermType-newRecord`);
+                logger.error(`${this.constructor.name}: Missing name in BedesTermCategory-newRecord`);
                 throw new Error('Missing required parameters.');
             }
             const params = {
@@ -43,14 +43,14 @@ export class BedesTermTypeQuery {
     }
 
     /**
-     * Gets BedesTermType record given a unit name.
+     * Gets BedesTermCategory record given a unit name.
      * @param name 
      * @returns record by name 
      */
-    public getRecordByName(name: string, transaction?: any): Promise<IBedesTermType> {
+    public getRecordByName(name: string, transaction?: any): Promise<IBedesTermCategory> {
         try {
             if (!name) {
-                logger.error(`${this.constructor.name}: Missing name in BedesTermType-getRecordByName`);
+                logger.error(`${this.constructor.name}: Missing name in BedesTermCategory-getRecordByName`);
                 throw new Error('Missing required parameters.');
             }
             const params = {

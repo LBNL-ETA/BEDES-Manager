@@ -1,5 +1,5 @@
 insert into
-    public.term_type (name)
+    public.term_category (name)
 values
     (${_name})
 returning
