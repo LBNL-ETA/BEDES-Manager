@@ -1,7 +1,7 @@
 import * as util from 'util';
 import { createLogger }  from "@script-common/logging";
 const logger = createLogger(module);
-import { bedesQuery } from '@script-common/queries';
+import { bedesQuery } from "@bedes-backend/bedes/query";
 import { AppField } from '@bedes-common/enums';
 import { AppRow } from "./app-row-hpxml";
 import { IAppTerm, IAppTermAdditionalInfo } from "@bedes-common/app-term";

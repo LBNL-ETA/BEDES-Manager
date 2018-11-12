@@ -1,7 +1,7 @@
 import * as util from 'util';
 import { createLogger }  from "@script-common/logging";
 const logger = createLogger(module);
-import { bedesQuery } from '@script-common/queries';
+import { bedesQuery } from "@bedes-backend/bedes/query";
 import { IAppTerm } from "@bedes-common/app-term";
 import { IBedesTerm, IBedesConstrainedList } from "@bedes-common/bedes-term";
 import { IMappedTerm, IAppTermMap, IBedesTermMap } from "@bedes-common/mapped-term";
@@ -93,18 +93,24 @@ export class TermLinker {
                 _appTerms: new Array<IAppTermMap>(),
                 _bedesTerms: new Array<IBedesTermMap>()
             };
+            // setup the order of terms in the term map
+            let orderNumber = 1;
             // add the app terms, and set the name
             for (let appTerm of appTerms) {
                 mappedTerm._appTerms.push(<IAppTermMap>{
                     _appTermId: appTerm._id,
-                    _mappedTermId: undefined
+                    _mappedTermId: undefined,
+                    _orderNumber: orderNumber++
                 });
             }
+            // setup the order of terms in the term map
+            orderNumber = 1;
             // add the bedes term, and set the bedes term name
             for (let bedesTerm of bedesTerms) {
                 mappedTerm._bedesTerms.push(<IBedesTermMap>{
                     _bedesTermId: bedesTerm._id,
-                    _mappedTermId: undefined
+                    _mappedTermId: undefined,
+                    _orderNumber: orderNumber++
                 });
             }
             return bedesQuery.mappedTerm.newMappedTerm(mappedTerm, this.transaction);

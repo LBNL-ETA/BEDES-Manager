@@ -3,7 +3,7 @@ const logger = createLogger(module);
 import * as path from 'path';
 import * as XLSX from 'xlsx';
 import * as util from 'util';
-import { bedesQuery } from "@script-common/queries";
+import { bedesQuery } from "@bedes-backend/bedes/query";
 import { IApp } from "@bedes-common/app";
 import * as db from '@bedes-backend/db';
 

@@ -54,7 +54,7 @@ export class MappedTermQuery {
             logger.debug(util.inspect(mappedTerm));
             const promises = new Array<Promise<any>>();
             for (let appTerm of item._appTerms) {
-                promises.push(this.newAppTermMap(mappedTerm._id, appTerm._appTermId, transaction));
+                promises.push(this.newAppTermMap(mappedTerm._id, appTerm, transaction));
             }
             for (let bedesTerm of item._bedesTerms) {
                 if (!bedesTerm._bedesTermId) {
@@ -62,7 +62,7 @@ export class MappedTermQuery {
                     logger.error(util.inspect(item));
                     throw new Error('BedesTerm missing id');
                 }
-                promises.push(this.newBedesTermMap(mappedTerm._id, bedesTerm._bedesTermId, transaction));
+                promises.push(this.newBedesTermMap(mappedTerm._id, bedesTerm, transaction));
             }
             let results = await Promise.all(promises);
             logger.debug('mapped app and bedes terms');
@@ -76,15 +76,16 @@ export class MappedTermQuery {
         }
     }
 
-    public async newAppTermMap(mappedTermId: number, appTermId: number, transaction?: any): Promise<any> {
+    public async newAppTermMap(mappedTermId: number, appTerm: IAppTermMap, transaction?: any): Promise<any> {
         try {
-            if (!mappedTermId || !appTermId) {
+            if (!mappedTermId || !appTerm || !appTerm._appTermId) {
                 logger.error(`${this.constructor.name}: invalid paramters`);
                 throw new Error('Missing required parameters.');
             }
             const params = {
                 _mappedTermId: mappedTermId,
-                _appTermId: appTermId
+                _appTermId: appTerm._appTermId,
+                _orderNumber: appTerm._orderNumber
             };
             if (transaction) {
                 return transaction.one(this.sqlInsertAppTermMap, params);
@@ -93,21 +94,22 @@ export class MappedTermQuery {
                 return db.one(this.sqlInsertAppTermMap, params);
             }
         } catch (error) {
-            logger.error(`${this.constructor.name}: Error in newAppTermMap (${mappedTermId}, ${appTermId})`);
+            logger.error(`${this.constructor.name}: Error in newAppTermMap (${mappedTermId}, ${appTerm._appTermId})`);
             logger.error(util.inspect(error));
             throw error;
         }
     }
 
-    public async newBedesTermMap(mappedTermId: number, bedesTermId: number, transaction?: any): Promise<any> {
+    public async newBedesTermMap(mappedTermId: number, bedesTerm: IBedesTermMap, transaction?: any): Promise<any> {
         try {
-            if (!mappedTermId || !bedesTermId) {
+            if (!mappedTermId || !bedesTerm || !bedesTerm._bedesTermId) {
                 logger.error(`${this.constructor.name}: invalid paramters`);
                 throw new Error('Missing required parameters.');
             }
             const params = {
                 _mappedTermId: mappedTermId,
-                _bedesTermId: bedesTermId
+                _bedesTermId: bedesTerm._bedesTermId,
+                _orderNumber: bedesTerm._orderNumber
             };
             if (transaction) {
                 return transaction.one(this.sqlInsertBedesTermMap, params);
@@ -116,7 +118,7 @@ export class MappedTermQuery {
                 return db.one(this.sqlInsertBedesTermMap, params);
             }
         } catch (error) {
-            logger.error(`${this.constructor.name}: Error in newAppTermMap (${mappedTermId}, ${bedesTermId})`);
+            logger.error(`${this.constructor.name}: Error in newAppTermMap (${mappedTermId}, ${bedesTerm._bedesTermId})`);
             logger.error(util.inspect(error));
             throw error;
         }

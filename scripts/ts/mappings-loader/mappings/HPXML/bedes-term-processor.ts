@@ -1,7 +1,7 @@
 import * as util from 'util';
 import { createLogger }  from "@script-common/logging";
 const logger = createLogger(module);
-import { bedesQuery } from '@script-common/queries';
+import { bedesQuery } from "@bedes-backend/bedes/query";
 import { BedesRow } from "./bedes-row";
 import { IBedesConstrainedList, IBedesTerm } from "@bedes-common/bedes-term";
 import { BedesMappingLabel } from '../base/bedes-mapping-label';

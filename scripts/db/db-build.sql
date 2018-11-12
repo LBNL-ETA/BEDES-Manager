@@ -110,11 +110,15 @@ create table public.mapped_terms (
 create table public.app_term_maps (
     id serial primary key,
     mapped_term_id int not null references public.mapped_terms (id) on delete cascade,
-    app_term_id int not null references public.app_term (id) on delete cascade
+    app_term_id int not null references public.app_term (id) on delete cascade,
+    order_number int not null,
+    unique (mapped_term_id, order_number)
 );
 
 create table public.bedes_term_maps (
     id serial primary key,
     mapped_term_id int not null references public.mapped_terms (id) on delete cascade,
-    bedes_term_id int not null references public.bedes_term (id) on delete cascade
+    bedes_term_id int not null references public.bedes_term (id) on delete cascade,
+    order_number int not null,
+    unique (mapped_term_id, order_number)
 );
