@@ -18,6 +18,7 @@ with
 			bedes_term bt
 		where
 			bt.name ~* ${_searchString}
+			or bt.description ~* ${_searchString}
 		and
 			bt.data_type_id = 1
 			
@@ -46,6 +47,7 @@ with
 select
 	bt.id as "_id",
 	bt.name as "_name",
+	bt.description as "_description",
 	bt.term_type_id as "_termTypeId",
 	bt.data_type_id as "_dataTypeId",
 	bt.source_id as "_sourceId",
@@ -56,5 +58,5 @@ from
 join
 	options o on o.term_id = bt.id
 group by
-	bt.id, bt.name, bt.term_type_id, bt.data_type_id, bt.source_id, bt.unit_id
+	bt.id, bt.name, bt.description, bt.term_type_id, bt.data_type_id, bt.source_id, bt.unit_id
 ;

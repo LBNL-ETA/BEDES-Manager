@@ -2,6 +2,9 @@
   "compileOnSave": false,
   "compilerOptions": {
     "baseUrl": "./",
+    "paths": {
+        "@bedes-common/*": ["../bedes-common/*"],
+      },
     "outDir": "./dist/out-tsc",
     "sourceMap": true,
     "declaration": false,

@@ -1,1 +1,86 @@
 /* You can add global styles to this file, and also import other style files */
+/**
+*   Global Style Sheet
+*   Do not import this file from components
+*/
+
+@import '~@angular/material/theming';
+@include mat-core();
+@import "./styles/theme";
+// @import '~@angular/material/prebuilt-themes/deeppurple-amber.css';
+
+body {
+    margin: 0;
+    /*background-color: darkgrey;*/
+}
+
+.dialog-waiting .mat-dialog-container {
+    overflow: visible;
+    background: rgba(255, 255, 255, 0);
+    box-shadow:none;
+}
+
+.dialog-no-padding .mat-dialog-container {
+    padding:0;
+}
+
+.dialog-waiting .mat-dialog-container {
+    overflow: visible;
+    background: rgba(255, 255, 255, 0);
+    box-shadow:none;
+}
+
+.card {
+    border-radius: 0;
+    box-shadow: 4px 6px 8px rgba(0, 0, 0, 0.5);
+}
+
+.card .card {
+    box-shadow:none;
+}
+
+// Custom Card formatting
+mat-card.bedes-card {
+    margin:0;
+    margin-bottom: 0;
+    padding:0;
+}
+
+mat-card.bedes-card mat-card-content {
+    padding: 7px;
+}
+
+mat-card.bedes-card mat-card-header {
+    display:block;
+    padding: 1px;
+}
+
+mat-card.bedes-card mat-card-header.color-primary  {
+    background-color: mat-color($custom-primary);
+    color: mat-color($custom-primary, lighter-contrast);
+}
+
+mat-card.bedes-card mat-card-header.color-accent  {
+    background-color: mat-color($custom-accent);
+    color: mat-color($custom-accent, lighter-contrast);
+}
+
+mat-card.bedes-card mat-card-header.color-accent-2  {
+    background-color: mat-color($custom-accent-2);
+    color: mat-color($custom-accent-2, lighter-contrast);
+}
+
+mat-card.bedes-card mat-card-title {
+    width: 100%;
+    text-align: center;
+}
+
+mat-card.bedes-card mat-card-actions {
+    margin:0;
+    padding: 1rem;
+}
+
+mat-card.bedes-card>.mat-card-actions:last-child {
+    margin-bottom: 0;
+    padding-bottom: 1rem;
+}

@@ -107,6 +107,7 @@ export class BedesTermSearchQuery {
         for (let searchTerm of searchTerms) {
             const key = `_searchNum${searchNumber++}`;
             bedesNameConditions.push(`bt.name ~* \${${key}}`);
+            bedesNameConditions.push(`bt.description ~* \${${key}}`);
             optionNameConditions.push(`o.name ~* \${${key}}`);
             optionDescConditions.push(`o.description ~* \${${key}}`);
             queryParams[key] = searchTerm;
@@ -158,6 +159,7 @@ export class BedesTermSearchQuery {
             select
                 bt.id as "_id",
                 bt.name as "_name",
+                bt.description as "_description",
                 bt.term_type_id as "_termTypeId",
                 bt.data_type_id as "_dataTypeId",
                 bt.source_id as "_sourceId",
@@ -168,10 +170,10 @@ export class BedesTermSearchQuery {
             join
                 options o on o.term_id = bt.id
             group by
-                bt.id, bt.name, bt.term_type_id, bt.data_type_id, bt.source_id, bt.unit_id
-            ;
+                bt.id, bt.name, bt.description, bt.term_type_id, bt.data_type_id, bt.source_id, bt.unit_id
             ;
         `
+        logger.debug(query);
         return [query, queryParams];
     }
 
@@ -181,13 +183,14 @@ export class BedesTermSearchQuery {
         const queryParams:any = {};
         for (let searchTerm of searchTerms) {
             const key = `_searchNum${searchNumber++}`;
-            sqlSearchList.push(`bt.name ~* \${${key}}`);
+            sqlSearchList.push(`(bt.name ~* \${${key}} or bt.description  ~* \${${key}})`);
             queryParams[key] = searchTerm;
         }
         const query = `
             select
                 id as "_id",
                 name as "_name",
+                description as "_description",
                 term_type_id as "_termTypeId",
                 data_type_id as "_dataTypeId",
                 source_id as "_sourceId",

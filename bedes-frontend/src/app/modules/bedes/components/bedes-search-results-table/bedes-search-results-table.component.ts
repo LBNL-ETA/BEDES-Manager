@@ -12,7 +12,7 @@ import { Subject } from 'rxjs';
 })
 export class BedesSearchResultsTableComponent implements OnInit, OnDestroy {
     private ngUnsubscribe: Subject<void> = new Subject<void>();
-    public displayedColumns: string[] = ['name', 'dataTypeId', 'unitId'];
+    public displayedColumns: string[] = ['name', 'description', 'dataTypeId', 'unitId'];
     public dataSource = new MatTableDataSource<BedesTerm | BedesConstrainedList>();
     @ViewChild(MatPaginator) paginator: MatPaginator;
 
