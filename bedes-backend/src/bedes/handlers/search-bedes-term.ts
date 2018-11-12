@@ -13,6 +13,7 @@ export async function searchBedesTermHandler(request: Request, response: Respons
         //     // response.status(401).send('Unauthorized');
         //     // return;
         // }
+        logger.debug(util.inspect(request.params));
         const searchTerms = buildSearchParams(request.query.search);
         if (!searchTerms.length) {
             throw new BedesError(

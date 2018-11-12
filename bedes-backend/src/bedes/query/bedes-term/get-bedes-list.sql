@@ -18,6 +18,7 @@ with
 select
 	b.id as "_id",
 	b.name as "_name",
+	b.description as "_description",
 	b.term_type_id as "_termTypeId",
 	b.data_type_id as "_dataTypeId",
 	b.source_id "_sourceId",
@@ -30,5 +31,5 @@ cross join
 where
     lower(trim(b.name)) = lower(trim(${_termName}))
 group by
-    b.id, b.name, b.term_type_id, b.data_type_id, b.source_id, b.unit_id
+    b.id, b.name, b.description, b.term_type_id, b.data_type_id, b.source_id, b.unit_id
 ;

@@ -1,5 +1,5 @@
 import { BedesUnit } from "@bedes-common/bedes-unit";
-import { bedesQuery } from "@script-common/queries";
+import { bedesQuery } from "@bedes-backend/bedes/query";
 import { GenericDataManager } from "../generic-data-manager";
 
 export class BedesUnitManager extends GenericDataManager<BedesUnit> {

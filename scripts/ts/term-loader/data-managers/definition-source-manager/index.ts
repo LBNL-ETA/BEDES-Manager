@@ -1,5 +1,5 @@
 import { BedesDefinitionSource, IBedesDefinitionSource } from "@bedes-common/bedes-definition-source";
-import { bedesQuery } from "@script-common/queries";
+import { bedesQuery } from "@bedes-backend/bedes/query";
 import { GenericDataManager } from "../generic-data-manager";
 import { createLogger } from '@script-common/logging';
 const logger = createLogger(module);

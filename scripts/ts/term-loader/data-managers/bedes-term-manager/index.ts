@@ -1,15 +1,11 @@
 import {
     BedesTerm,
-    IBedesTerm,
     BedesConstrainedList,
-    IBedesConstrainedList
 } from "@bedes-common/bedes-term";
-import { bedesQuery } from "@script-common/queries";
+import { bedesQuery } from "@bedes-backend/bedes/query";
 import { createLogger } from '@script-common/logging';
 const logger = createLogger(module);
-import { BedesTermOption } from "@bedes-common/bedes-term-option/bedes-term-option";
 import * as util from 'util';
-import { IBedesTermOption } from "@bedes-common/bedes-term-option";
 
 export class BedesTermManager {
 

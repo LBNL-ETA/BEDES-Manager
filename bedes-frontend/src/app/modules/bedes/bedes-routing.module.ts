@@ -1,8 +1,11 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
+import { BedesTermSearchComponent } from './components/bedes-term-search/bedes-term-search.component';
 
 const appRoutes: Routes = [
-    { path: '', redirectTo: 'projects', pathMatch: 'full'},
+    { path: 'search', component: BedesTermSearchComponent},
+    { path: '', redirectTo: 'search', pathMatch: 'full' },
+    // { path: '**', redirectTo: '/search' }
 ];
 
 @NgModule({

@@ -37,6 +37,7 @@ create table public.definition_source (
 create table public.bedes_term (
     id serial primary key,
     name varchar(100) unique not null,
+    description text,
     term_type_id int references public.term_type (id) not null,
     data_type_id int references public.data_type (id) not null,
     source_id int references public.definition_source (id),

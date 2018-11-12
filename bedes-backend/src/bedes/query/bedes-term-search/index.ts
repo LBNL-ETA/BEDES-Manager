@@ -56,10 +56,6 @@ export class BedesTermSearchQuery {
                 logger.error(`${this.constructor.name}: search strings`);
                 throw new Error('Missing required parameters.');
             }
-            // const params = {
-            //     _searchString: searchStrings[0]
-            // };
-            logger.debug(`search for "${searchStrings}`);
             const [query, params] = this.buildSearchQuery(searchStrings);
             if (transaction) {
                 return transaction.manyOrNone(query, params);
@@ -84,11 +80,7 @@ export class BedesTermSearchQuery {
                 logger.error(`${this.constructor.name}: searchConstrainedListTerms`);
                 throw new Error('Missing required parameters.');
             }
-            logger.debug(`search for "${searchStrings}`);
             const [query, params] = this.buildConstrainedListSearchQuery(searchStrings);
-            logger.debug(`constrined list query`);
-            logger.debug(query);
-            logger.debug(util.inspect(params));
             if (transaction) {
                 return transaction.manyOrNone(query, params);
             }
@@ -180,9 +172,6 @@ export class BedesTermSearchQuery {
             ;
             ;
         `
-        logger.debug('query');
-        logger.debug(query);
-        logger.debug(util.inspect(queryParams));
         return [query, queryParams];
     }
 
@@ -211,43 +200,7 @@ export class BedesTermSearchQuery {
                 ${sqlSearchList.join(' and ')}
             ;
         `
-        logger.debug('query');
-        logger.debug(query);
-        logger.debug(util.inspect(queryParams));
         return [query, queryParams];
     }
 
-    /**
-     * Search the Bedes Constrained List options.
-     * @param searchTerms 
-     * @returns search option query 
-     */
-    private buildSearchOptionQuery(searchTerms: Array<string>): [string, any] {
-        let searchNumber = 1;
-        let sqlSearchList = new Array<string>();
-        const queryParams:any = {};
-        for (let searchTerm of searchTerms) {
-            const key = `_searchNum${searchNumber++}`;
-            sqlSearchList.push(`bt.name ~* \${${key}}`);
-            queryParams[key] = searchTerm;
-        }
-        const query = `
-            select
-                id as "_id",
-                name as "_name",
-                term_type_id as "_termTypeId",
-                data_type_id as "_dataTypeId",
-                source_id as "_sourceId",
-                unit_id as "_unitId"
-            from
-                public.bedes_term as bt
-            where
-                ${sqlSearchList.join(' and ')}
-            ;
-        `
-        logger.debug('query');
-        logger.debug(query);
-        logger.debug(util.inspect(queryParams));
-        return [query, queryParams];
-    }
 }
