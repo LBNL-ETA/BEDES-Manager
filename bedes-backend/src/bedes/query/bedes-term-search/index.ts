@@ -160,7 +160,7 @@ export class BedesTermSearchQuery {
                 bt.id as "_id",
                 bt.name as "_name",
                 bt.description as "_description",
-                bt.term_category_id as "_termTypeId",
+                bt.term_category_id as "_termCategoryId",
                 bt.data_type_id as "_dataTypeId",
                 bt.definition_source_id as "_definitionSourceId",
                 bt.unit_id as "_unitId",
@@ -191,7 +191,7 @@ export class BedesTermSearchQuery {
                 id as "_id",
                 name as "_name",
                 description as "_description",
-                term_category_id as "_termTypeId",
+                term_category_id as "_termCategoryId",
                 data_type_id as "_dataTypeId",
                 definition_source_id as "_definitionSourceId",
                 unit_id as "_unitId"
