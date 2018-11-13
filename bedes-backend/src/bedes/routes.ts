@@ -29,6 +29,7 @@ function mountRoutes(router: Router) {
      *         description: Server error.
      * 
      */
+    router.get('/bedes-term/:id', handlers.getBedesTermHandler);
     router.get('/search-terms', handlers.searchBedesTermHandler);
     router.get('/data-type', handlers.getBedesDataTypeList);
     router.get('/term-category', handlers.getBedesTermCategoryList);

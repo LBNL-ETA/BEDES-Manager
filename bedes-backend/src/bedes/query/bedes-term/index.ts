@@ -11,6 +11,9 @@ import { bedesQuery } from '../';
 
 export class BedesTermQuery {
     private sqlGetByName!: QueryFile;
+    private sqlGetTermById!: QueryFile;
+    private sqlGetListById!: QueryFile;
+    private sqlGetTermOrListById!: QueryFile;
     private sqlGetBedesList!: QueryFile;
     private sqlInsert!: QueryFile;
     private sqlIsConstrainedList!: QueryFile;
@@ -20,6 +23,9 @@ export class BedesTermQuery {
     }
 
     private initSql(): void {
+        this.sqlGetTermById = sql_loader(path.join(__dirname, 'get-term-by-id.sql'));
+        this.sqlGetListById = sql_loader(path.join(__dirname, 'get-list-by-id.sql'));
+        this.sqlGetTermOrListById = sql_loader(path.join(__dirname, 'get-term-or-list-by-id.sql'));
         this.sqlGetByName = sql_loader(path.join(__dirname, 'get-by-name.sql'));
         this.sqlGetBedesList = sql_loader(path.join(__dirname, 'get-bedes-list.sql'));
         this.sqlInsert = sql_loader(path.join(__dirname, 'insert.sql'))
@@ -101,6 +107,91 @@ export class BedesTermQuery {
             return constrainedList;
         } catch (error) {
             logger.error(`${this.constructor.name}: Error in newRecord`);
+            logger.error(util.inspect(error));
+            throw error;
+        }
+    }
+
+    /**
+     * Retrieve a BedesTerm by id.
+     * @param id 
+     * @param [transaction] 
+     * @returns record by id 
+     */
+    public getTermById(id: number, transaction?: any): Promise<IBedesTerm> {
+        try {
+            if (!id) {
+                logger.error(`${this.constructor.name}: Missing id`);
+                throw new Error('Missing required parameters.');
+            }
+            const params = {
+                _id: id
+            };
+            if (transaction) {
+                return transaction.one(this.sqlGetTermById, params);
+            }
+            else {
+                return db.one(this.sqlGetTermById, params);
+            }
+        } catch (error) {
+            logger.error(`${this.constructor.name}: Error in getRecordById`);
+            logger.error(util.inspect(error));
+            throw error;
+        }
+    }
+
+    /**
+     * Retrieves a BedesConstrainedList from the database.
+     * @param id 
+     * @param [transaction] 
+     * @returns list by id 
+     */
+    public getListById(id: number, transaction?: any): Promise<IBedesConstrainedList> {
+        try {
+            if (!id) {
+                logger.error(`${this.constructor.name}: Missing id`);
+                throw new Error('Missing required parameters.');
+            }
+            const params = {
+                _id: id
+            };
+            if (transaction) {
+                return transaction.one(this.sqlGetListById, params);
+            }
+            else {
+                return db.one(this.sqlGetListById, params);
+            }
+        } catch (error) {
+            logger.error(`${this.constructor.name}: Error in getListById`);
+            logger.error(util.inspect(error));
+            throw error;
+        }
+    }
+
+    /**
+     * Retrieves a IBedesTerm or IBedesConstrainedList object,
+     * given an id
+     * @param id 
+     * @param [transaction] 
+     * @returns term or list by id 
+     */
+    public getTermOrListById(id: number, transaction?: any): Promise<IBedesTerm | IBedesConstrainedList> {
+        try {
+            if (!id) {
+                logger.error(`${this.constructor.name}: Missing id`);
+                throw new Error('Missing required parameters.');
+            }
+            const params = {
+                _id: id
+            };
+            if (transaction) {
+                return transaction.one(this.sqlGetTermOrListById, params);
+            }
+            else {
+                return db.one(this.sqlGetTermOrListById, params);
+            }
+        } catch (error) {
+            logger.error(`${this.constructor.name}: Error in getTermOrListById`);
             logger.error(util.inspect(error));
             throw error;
         }
