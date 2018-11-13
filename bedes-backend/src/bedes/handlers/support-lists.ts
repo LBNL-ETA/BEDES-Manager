@@ -18,6 +18,8 @@ const logger = createLogger(module);
  */
 export async function getSupportLists(request: Request, response: Response): Promise<any> {
     try {
+        // create an array of promises, where each element is a promise returned
+        // from the list building function.
         let promises = new Array<Promise<Array<IBedesTermCategory> | Array<IBedesUnit> | Array<IBedesDataType>>>();
         promises.push(bedesQuery.termCategory.getAllRecords());
         promises.push(bedesQuery.units.getAllRecords());
@@ -30,7 +32,7 @@ export async function getSupportLists(request: Request, response: Response): Pro
         });
     }
     catch (error) {
-        logger.error('Error in getBedesTermCategoryList');
+        logger.error('Error in getSupportLists');
         logger.error(util.inspect(error));
         if (error instanceof BedesError) {
             response.status((<BedesError>error).responseStatusCode)

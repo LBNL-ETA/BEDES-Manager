@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+import { NgModule, APP_INITIALIZER } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
@@ -9,7 +9,9 @@ import { API_URL_TOKEN, API_URL } from './services/url/url.service';
 import { BedesTermSearchComponent } from './components/bedes-term-search/bedes-term-search.component';
 import { BedesTermSearchService } from './services/bedes-term-search/bedes-term-search.service';
 import { BedesRoutingModule } from './bedes-routing.module';
-import { BedesSearchResultsTableComponent } from './components/bedes-search-results-table/bedes-search-results-table.component';
+import { BedesSearchResultsTableComponent } from './components/bedes-term-search/bedes-search-results-table/bedes-search-results-table.component';
+import { SupportListService } from './services/support-list/support-list.service';
+import { supportListFactory } from './services/support-list/support-list-factory.service';
 
 @NgModule({
     imports: [
@@ -28,8 +30,15 @@ import { BedesSearchResultsTableComponent } from './components/bedes-search-resu
     ],
     entryComponents: [],
     providers: [
+        BedesTermSearchService,
+        SupportListService,
         { provide: API_URL_TOKEN, useValue: API_URL },
-        BedesTermSearchService
+        {
+            provide: APP_INITIALIZER,
+            useFactory: supportListFactory,
+            deps: [SupportListService],
+            multi: true
+        },
     ]
 })
 export class BedesModule { }
