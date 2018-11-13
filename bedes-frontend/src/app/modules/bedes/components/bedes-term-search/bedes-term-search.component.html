@@ -1,5 +1,5 @@
-<div style="display:flex; justify-content: space-around;">
-    <mat-card class="bedes-card" style="margin:10px; width: 700px;">
+<div style="display:flex;">
+    <mat-card class="bedes-card" style="margin:10px; flex: 1;">
         <mat-card-header class="color-accent-1">
             <mat-card-title>
                 <h2 class="mat-dislay-2">
@@ -9,20 +9,9 @@
             </mat-card-title>
         </mat-card-header>
         <mat-card-content>
-            <form name="myForm">
-                <div style="display:flex;">
-                    <mat-form-field style="flex:1;">
-                        <input matInput name="searchStringInput" placeholder="Enter Search Terms" [(ngModel)]="searchString">
-                    </mat-form-field>
-                    <button mat-stroked-button color="primary" [disabled]="false"
-                        (click)="searchForTerms()">
-                        <!-- <i class="far fa-sign-in"></i> -->
-                        Submit
-                    </button>
-                </div>
-            </form>
+            <app-bedes-search-parameters></app-bedes-search-parameters>
+            <app-bedes-search-results-table></app-bedes-search-results-table>
         </mat-card-content>
     </mat-card>
 </div>
 
-<app-bedes-search-results-table></app-bedes-search-results-table>

@@ -1,0 +1,20 @@
+<div class="search-box">
+    <form name="myForm">
+        <div style="display:flex; flex-direction: row; align-items: center">
+            <mat-form-field style="flex:1;">
+                <input matInput name="searchStringInput" placeholder="Enter Search Text..."
+                [disabled]="waitingForResults"
+                [(ngModel)]="searchString">
+            </mat-form-field>
+            <button mat-raised-button style="margin-left: 5px;" color="primary"
+            [disabled]="waitingForResults"
+            (click)="searchForTerms()">
+                <fa-icon [icon]="['fas', 'play-circle']" *ngIf="!waitingForResults">
+                </fa-icon>
+                <fa-icon [icon]="['fas', 'spinner']" [pulse]="true" *ngIf="waitingForResults">
+                </fa-icon>
+                Submit
+            </button>
+        </div>
+    </form>
+</div>

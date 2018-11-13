@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { BedesTermService } from '../../services/bedes-term/bedes-term.service';
-import { BedesTerm, BedesConstrainedList } from '@bedes-common/bedes-term';
-import { BedesTermSearchService } from '../../services/bedes-term-search/bedes-term-search.service';
+import { SupportListService } from '../../services/support-list/support-list.service';
+import { BedesTermCategory } from '@bedes-common/models/bedes-term-category';
 
 @Component({
     selector: 'app-bedes-term-search',
@@ -9,25 +8,22 @@ import { BedesTermSearchService } from '../../services/bedes-term-search/bedes-t
     styleUrls: ['./bedes-term-search.component.scss']
 })
 export class BedesTermSearchComponent implements OnInit {
-    public searchString: string;
+    public categoryList: Array<BedesTermCategory>;
 
     constructor(
-        private bedesTermSearchService: BedesTermSearchService
-    ) {}
+        private supportListService: SupportListService
+    ) {
+        this.supportListService.termCategorySubject.subscribe(
+            (categoryList: Array<BedesTermCategory>) => {
+            console.log(`${this.constructor.name}: received category list`)
+            console.log(categoryList);
+            this.categoryList = categoryList;
+        });
+    }
 
     ngOnInit() {
+        console.log(`${this.constructor.name}: ngOnInit`);
     }
 
-    public searchForTerms(): void {
-        console.log('search for terms...', this.searchString);
-        this.bedesTermSearchService.searchAndNotify([this.searchString])
-            .subscribe((results: Array<BedesTerm | BedesConstrainedList>) => {
-                console.log(`${this.constructor.name}: received search results`);
-                console.log(results);
-            }, (error: any) => {
-                console.log(`${this.constructor.name}: error in searchTerms`);
-                console.log(error);
-            });
-    }
 
 }

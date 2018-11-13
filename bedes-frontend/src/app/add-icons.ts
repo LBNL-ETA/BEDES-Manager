@@ -27,7 +27,9 @@ import {
     faFileExcel,
     faCheck,
     faExclamationTriangle,
-    faSearch
+    faSearch,
+    faSpinner,
+    faPlayCircle
 } from '@fortawesome/pro-solid-svg-icons';
 
 /**
@@ -53,4 +55,6 @@ export function addIcons (): void {
     library.add(faCheck);
     library.add(faExclamationTriangle);
     library.add(faSearch);
+    library.add(faSpinner);
+    library.add(faPlayCircle);
 }

@@ -12,6 +12,10 @@ import { BedesRoutingModule } from './bedes-routing.module';
 import { BedesSearchResultsTableComponent } from './components/bedes-term-search/bedes-search-results-table/bedes-search-results-table.component';
 import { SupportListService } from './services/support-list/support-list.service';
 import { supportListFactory } from './services/support-list/support-list-factory.service';
+import { BedesSearchParametersComponent } from './components/bedes-term-search/bedes-search-parameters/bedes-search-parameters.component';
+import { DataTypePipe } from './pipes/data-type/data-type.pipe';
+import { BedesUnitPipe } from './pipes/bedes-unit/bedes-unit.pipe';
+import { BedesTermCategoryPipe } from './pipes/bedes-term-category/bedes-term-category.pipe';
 
 @NgModule({
     imports: [
@@ -26,7 +30,11 @@ import { supportListFactory } from './services/support-list/support-list-factory
     ],
     declarations: [
         BedesTermSearchComponent,
-        BedesSearchResultsTableComponent
+        BedesSearchResultsTableComponent,
+        BedesSearchParametersComponent,
+        DataTypePipe,
+        BedesUnitPipe,
+        BedesTermCategoryPipe
     ],
     entryComponents: [],
     providers: [
