@@ -1,0 +1,12 @@
+/api/users:
+  get:
+    tags:
+      - Authenticaition
+    description: Login a user.
+    produces:
+      - application/json
+    responses:
+      200:
+        description: A UserProfile object, containing the user information.
+        schema:
+          $ref: '#/definitions/UserProfile'

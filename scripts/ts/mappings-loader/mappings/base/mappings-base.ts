@@ -5,7 +5,7 @@ import * as XLSX from 'xlsx';
 import * as util from 'util';
 import { bedesQuery } from "@bedes-backend/bedes/query";
 import { IApp } from "@bedes-common/models/app";
-import * as db from '@bedes-backend/db';
+import { db } from '@bedes-backend/db';
 
 /**
  * Base class for loading a bedes mapping workbook into the database.

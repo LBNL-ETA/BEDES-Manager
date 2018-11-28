@@ -1,0 +1,121 @@
+import "jasmine";
+import { addUser } from './add-user';
+import * as Message from '../messages/new-account-message';
+import * as httpMocks from 'node-mocks-http';
+import * as AuthQuery from '../queries';
+import { IUserByEmail } from "../interfaces/user-by-email";
+import { UserStatus } from "@epb-common/enums/user-status.enum";
+
+describe('Authentication', () => {
+    describe("add-user", () => {
+        let response: any = null;
+
+        beforeEach(() => {
+            response = httpMocks.createResponse();
+        });
+
+        it('Should return an 400 status code for a missing email address', (done) => {
+            const request = httpMocks.createRequest({
+                body: {
+                    email: null,
+                    password: 'abcdefg'
+                }
+            });
+            addUser(request, response).then(
+                () => {
+                    expect(response.statusCode).toBe(400);
+                    done();
+                }
+            );
+        });
+
+        it('Should return an 400 status code for a missing password', (done) => {
+            const request = httpMocks.createRequest({
+                body: {
+                    email: 'email@test.com',
+                    password: null
+                }
+            });
+            addUser(request, response).then(
+                () => {
+                    expect(response.statusCode).toBe(400);
+                    done();
+                }
+            );
+        });
+
+        it('Should return an 400 status code for non-matching password and passwordConfirm', (done) => {
+            const request = httpMocks.createRequest({
+                body: {
+                    email: 'email@test.com',
+                    password: 'abcdefg',
+                    passwordConfirm: 'a'
+                }
+            });
+            addUser(request, response).then(
+                () => {
+                    expect(response.statusCode).toBe(400);
+                    done();
+                }
+            );
+        });
+        
+        it('Should return a status 400 if trying to add an existing account.', (done) => {
+            // mock the authQuery.getByEmail method
+            // set the return value to true, which indicates the email address
+            // is already in the database.
+            AuthQuery.authQuery.getByEmail = jasmine.createSpy('getByEmail')
+                .and.returnValue(Promise.resolve(true));
+            const request = httpMocks.createRequest({
+                body: {
+                    email: 'email@test.com',
+                    password: 'abcdefg',
+                    passwordConfirm: 'abcdefg'
+                }
+            });
+            addUser(request, response).then(
+                () => {
+                    expect(response.statusCode).toBe(400);
+                    done();
+                }
+            );
+        });
+
+        it('Should add a user to the auth.user table', () => {
+            // create the request parameters
+            const request = httpMocks.createRequest({
+                body: {
+                    firstName: 'mikey',
+                    lastName: 'spears',
+                    email: 'mspears@lbl.gov',
+                    organization: 'organization',
+                    password: 'abcdefg',
+                    passwordConfirm: 'abcdefg'
+                }
+            });
+            // create the response object
+            const mockUser: IUserByEmail = {
+                id: 1,
+                firstName: request.body.firstName,
+                lastName: request.body.lastName,
+                email: request.body.email,
+                password: request.body.password,
+                status: UserStatus.NEW
+            };
+            // mock the authQuery.addUser method,
+            // set the return value to newUser
+            AuthQuery.authQuery.addUser = jasmine.createSpy('addUser')
+                .and.returnValue(Promise.resolve(mockUser));
+            // mock the sendNewAccountMessage function
+            Message.message.sendNewAccountMessage = jasmine.createSpy('sendNewAccountMessage');
+
+            addUser(request, response).then(
+                () => {
+                    expect(AuthQuery.authQuery.addUser).toHaveBeenCalled();
+                    expect(Message.message.sendNewAccountMessage).toHaveBeenCalled();
+                }
+            )
+        });
+
+   });
+});

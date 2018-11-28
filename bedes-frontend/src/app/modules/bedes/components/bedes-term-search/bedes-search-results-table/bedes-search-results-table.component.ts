@@ -5,6 +5,8 @@ import { BedesTermSearchService } from '../../../services/bedes-term-search/bede
 import { takeUntil } from 'rxjs/operators';
 import { Subject } from 'rxjs';
 import { RequestStatus } from '../../../enums';
+import { Router } from '@angular/router';
+import { BedesTermService } from '../../../services/bedes-term/bedes-term.service';
 
 @Component({
     selector: 'app-bedes-search-results-table',
@@ -24,12 +26,14 @@ export class BedesSearchResultsTableComponent implements OnInit, OnDestroy {
     private receivedInitialValues = false;
 
     constructor(
-        private bedesTermSearchService: BedesTermSearchService
+        private router: Router,
+        private termSearchService: BedesTermSearchService,
+        private termService: BedesTermService
     ) { }
 
     ngOnInit() {
         // subscribe to the search results service
-        this.bedesTermSearchService.searchResultsSubject()
+        this.termSearchService.searchResultsSubject()
             .pipe(takeUntil(this.ngUnsubscribe))
             .subscribe((results: Array<BedesTerm | BedesConstrainedList>) => {
                 console.log(`${this.constructor.name}: received search results...`, results);
@@ -49,7 +53,7 @@ export class BedesSearchResultsTableComponent implements OnInit, OnDestroy {
             });
         // subscribe to the requestStatus of the search
         // will indicate if the current state of the search
-        this.bedesTermSearchService.requestStatusSubject
+        this.termSearchService.requestStatusSubject
             .pipe(takeUntil(this.ngUnsubscribe))
             .subscribe((newStatus: RequestStatus) => {
                 console.log(`${this.constructor.name}: status = ${newStatus}`);
@@ -76,6 +80,16 @@ export class BedesSearchResultsTableComponent implements OnInit, OnDestroy {
 
     public applyFilter(filterText: string): void {
         console.log('apply the table filter...', filterText);
+    }
+
+    /**
+     * Navigates to the bedesTerm details view for the given term.
+     * @param bedesTerm
+     */
+    public viewTerm(bedesTerm: BedesTerm | BedesConstrainedList): void {
+        console.log(`${this.constructor.name}: view term`, bedesTerm);
+        this.termService.selectedTermSubject.next(bedesTerm);
+        this.router.navigate(['/bedes-term', bedesTerm.id]);
     }
 
 }

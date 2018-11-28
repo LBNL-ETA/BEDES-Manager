@@ -52,7 +52,18 @@ mat-card.bedes-card mat-card-content {
 
 mat-card.bedes-card mat-card-header {
     display:block;
-    padding: 1px;
+    padding: 5px;
+
+    .mat-card-header-text {
+        margin: 0;
+        mat-card-title {
+            margin: 0;
+            h2 {
+                margin: 0;
+                color: white;
+            }
+        }
+    }
 }
 
 mat-card.bedes-card mat-card-header.color-primary  {
@@ -65,10 +76,10 @@ mat-card.bedes-card mat-card-header.color-accent  {
     color: mat-color($custom-accent, lighter-contrast);
 }
 
-mat-card.bedes-card mat-card-header.color-accent-2  {
-    background-color: mat-color($custom-accent-2);
-    color: mat-color($custom-accent-2, lighter-contrast);
-}
+// mat-card.bedes-card mat-card-header.color-accent-2  {
+//     background-color: mat-color($custom-accent-2);
+//     color: mat-color($custom-accent-2, lighter-contrast);
+// }
 
 mat-card.bedes-card mat-card-title {
     width: 100%;

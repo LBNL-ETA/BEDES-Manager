@@ -1,120 +1,22 @@
 // @import '~@angular/material/theming';
 // @include mat-core();
 /* For use in src/lib/core/theming/_palette.scss */
-$md-bedes-pirmary: (
-    50 : #e3eced,
-    100 : #b9ced3,
-    200 : #8baeb6,
-    300 : #5c8e98,
-    400 : #397582,
-    500 : #0c5e6e,
-    600 : #0a5666,
-    700 : #104b59,
-    800 : #0c414f,
-    900 : #06303d,
-    A100 : #74d9ff,
-    A200 : #41cbff,
-    A400 : #0ebdff,
-    A700 : #00b1f3,
-    contrast: (
-        50 : #000000,
-        100 : #000000,
-        200 : #000000,
-        300 : #000000,
-        400 : #ffffff,
-        500 : #ffffff,
-        600 : #ffffff,
-        700 : #ffffff,
-        800 : #ffffff,
-        900 : #ffffff,
-        A100 : #641a1a,
-        A200 : #000000,
-        A400 : #000000,
-        A700 : #000000,
-    )
-);
-
-$md-bedes-accent1: (
-    50 : #ebf6f8,
-    100 : #cde9ed,
-    200 : #acdbe2,
-    300 : #8bccd6,
-    400 : #72c1cd,
-    500 : #59b6c4,
-    600 : #51afbe,
-    700 : #48a6b6,
-    800 : #3e9eaf,
-    900 : #2e8ea2,
-    A100 : #e6fbff,
-    A200 : #b3f2ff,
-    A400 : #80e9ff,
-    A700 : #67e4ff,
-    contrast: (
-        50 : #000000,
-        100 : #000000,
-        200 : #000000,
-        300 : #000000,
-        400 : #000000,
-        500 : #ffffff,
-        600 : #000000,
-        700 : #000000,
-        800 : #000000,
-        900 : #ffffff,
-        A100 : #000000,
-        A200 : #000000,
-        A400 : #000000,
-        A700 : #000000,
-    )
-);
-
-$md-bedes-accent2: (
-    50 : #edf2ee,
-    100 : #d3ddd6,
-    200 : #b5c7ba,
-    300 : #97b19e,
-    400 : #81a08a,
-    500 : #6b8f75,
-    600 : #63876d,
-    700 : #587c62,
-    800 : #4e7258,
-    900 : #3c6045,
-    A100 : #b6ffc8,
-    A200 : #83ffa2,
-    A400 : #50ff7c,
-    A700 : #36ff69,
-    contrast: (
-        50 : #000000,
-        100 : #000000,
-        200 : #000000,
-        300 : #000000,
-        400 : #000000,
-        500 : #000000,
-        600 : #ffffff,
-        700 : #ffffff,
-        800 : #ffffff,
-        900 : #ffffff,
-        A100 : #000000,
-        A200 : #000000,
-        A400 : #000000,
-        A700 : #000000,
-    )
-);
-
-$md-bedes-dark: (
-    50 : #e3e4e4,
-    100 : #b9baba,
-    200 : #8b8d8d,
-    300 : #5d5f5f,
-    400 : #3a3c3c,
-    500 : #171a1a,
-    600 : #141717,
-    700 : #111313,
-    800 : #0d0f0f,
-    900 : #070808,
-    A100 : #ff5050,
-    A200 : #ff1d1d,
-    A400 : #e90000,
-    A700 : #cf0000,
+/* For use in src/lib/core/theming/_palette.scss */
+$md-primary: (
+    50 : #e2eaf1,
+    100 : #b6cbdd,
+    200 : #85a8c7,
+    300 : #5485b0,
+    400 : #2f6b9f,
+    500 : #0a518e,
+    600 : #094a86,
+    700 : #07407b,
+    800 : #053771,
+    900 : #03275f,
+    A100 : #90b3ff,
+    A200 : #5d90ff,
+    A400 : #2a6dff,
+    A700 : #105cff,
     contrast: (
         50 : #000000,
         100 : #000000,
@@ -127,60 +29,27 @@ $md-bedes-dark: (
         800 : #ffffff,
         900 : #ffffff,
         A100 : #000000,
-        A200 : #ffffff,
+        A200 : #000000,
         A400 : #ffffff,
         A700 : #ffffff,
     )
 );
 
-$md-success: (
-    50 : #e8f2eb,
-    100 : #c5dfcd,
-    200 : #9ecaab,
-    300 : #77b589,
-    400 : #5aa570,
-    500 : #3d9557,
-    600 : #378d4f,
-    700 : #2f8246,
-    800 : #27783c,
-    900 : #1a672c,
-    A100 : #a2ffb5,
-    A200 : #6fff8d,
-    A400 : #3cff64,
-    A700 : #23ff50,
-    contrast: (
-        50 : #000000,
-        100 : #000000,
-        200 : #000000,
-        300 : #000000,
-        400 : #000000,
-        500 : #ffffff,
-        600 : #ffffff,
-        700 : #ffffff,
-        800 : #ffffff,
-        900 : #ffffff,
-        A100 : #000000,
-        A200 : #000000,
-        A400 : #000000,
-        A700 : #000000,
-    )
-);
-
-$md-warning: (
-    50 : #f7f0e4,
-    100 : #eadabc,
-    200 : #ddc28f,
-    300 : #cfaa62,
-    400 : #c49741,
-    500 : #ba851f,
-    600 : #b37d1b,
-    700 : #ab7217,
-    800 : #a36812,
-    900 : #94550a,
-    A100 : #ffe0c2,
-    A200 : #ffc78f,
-    A400 : #ffad5c,
-    A700 : #ffa142,
+$md-accent: (
+    50 : #e9f4fb,
+    100 : #c7e4f4,
+    200 : #a2d3ed,
+    300 : #7dc1e5,
+    400 : #61b3e0,
+    500 : #45a6da,
+    600 : #3e9ed6,
+    700 : #3695d0,
+    800 : #2e8bcb,
+    900 : #1f7bc2,
+    A100 : #fafdff,
+    A200 : #c7e5ff,
+    A400 : #94cdff,
+    A700 : #7ac1ff,
     contrast: (
         50 : #000000,
         100 : #000000,
@@ -199,27 +68,27 @@ $md-warning: (
     )
 );
 
-$md-danger: (
-    50 : #fee8e7,
-    100 : #fcc7c3,
-    200 : #faa19b,
-    300 : #f77b72,
-    400 : #f65f54,
-    500 : #f44336,
-    600 : #f33d30,
-    700 : #f13429,
-    800 : #ef2c22,
-    900 : #ec1e16,
-    A100 : #ffffff,
-    A200 : #ffe9e9,
-    A400 : #ffb8b6,
-    A700 : #ff9f9c,
+$md-success: (
+    50 : #e5efe1,
+    100 : #bfd8b4,
+    200 : #94be82,
+    300 : #69a350,
+    400 : #49902b,
+    500 : #297c05,
+    600 : #247404,
+    700 : #1f6904,
+    800 : #195f03,
+    900 : #0f4c01,
+    A100 : #8cff80,
+    A200 : #5eff4d,
+    A400 : #30ff1a,
+    A700 : #1aff00,
     contrast: (
         50 : #000000,
         100 : #000000,
         200 : #000000,
         300 : #000000,
-        400 : #000000,
+        400 : #ffffff,
         500 : #ffffff,
         600 : #ffffff,
         700 : #ffffff,
@@ -232,9 +101,74 @@ $md-danger: (
     )
 );
 
-$custom-primary: mat-palette($md-bedes-pirmary);
-$custom-accent:  mat-palette($md-bedes-accent1);
-$custom-accent-2:  mat-palette($md-bedes-accent2);
+$md-danger: (
+    50 : #f5e0e0,
+    100 : #e6b3b3,
+    200 : #d68080,
+    300 : #c54d4d,
+    400 : #b82626,
+    500 : #ac0000,
+    600 : #a50000,
+    700 : #9b0000,
+    800 : #920000,
+    900 : #820000,
+    A100 : #ffafaf,
+    A200 : #ff7c7c,
+    A400 : #ff4949,
+    A700 : #ff3030,
+    contrast: (
+        50 : #000000,
+        100 : #000000,
+        200 : #000000,
+        300 : #ffffff,
+        400 : #ffffff,
+        500 : #ffffff,
+        600 : #ffffff,
+        700 : #ffffff,
+        800 : #ffffff,
+        900 : #ffffff,
+        A100 : #000000,
+        A200 : #000000,
+        A400 : #ffffff,
+        A700 : #ffffff,
+    )
+);
+
+$md-warning: (
+    50 : #fbeee1,
+    100 : #f5d5b3,
+    200 : #eeb981,
+    300 : #e79c4e,
+    400 : #e28728,
+    500 : #dd7202,
+    600 : #d96a02,
+    700 : #d45f01,
+    800 : #cf5501,
+    900 : #c74201,
+    A100 : #fff3ef,
+    A200 : #ffcdbc,
+    A400 : #ffa889,
+    A700 : #ff956f,
+    contrast: (
+        50 : #000000,
+        100 : #000000,
+        200 : #000000,
+        300 : #000000,
+        400 : #000000,
+        500 : #000000,
+        600 : #ffffff,
+        700 : #ffffff,
+        800 : #ffffff,
+        900 : #ffffff,
+        A100 : #000000,
+        A200 : #000000,
+        A400 : #000000,
+        A700 : #000000,
+    )
+);
+
+$custom-primary: mat-palette($md-primary);
+$custom-accent:  mat-palette($md-accent);
 $custom-warn: mat-palette($md-danger);
 
 .color-primary {
@@ -242,13 +176,8 @@ $custom-warn: mat-palette($md-danger);
   color: white;
 }
 
-.color-accent-1 {
+.color-accent {
   background-color: mat-color($custom-accent);
-  color: white;
-}
-
-.color-accent-2 {
-  background-color: mat-color($custom-accent-2);
   color: white;
 }
 

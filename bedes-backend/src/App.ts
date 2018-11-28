@@ -6,6 +6,7 @@ import session from 'express-session';
 import * as swaggerUi from 'swagger-ui-express';
 import swaggerJsDoc = require('swagger-jsdoc');
 import { createLogger } from './logging';
+import { authenticationConfig } from './authentication';
 const logger = createLogger(module);
 
 /**
@@ -46,13 +47,15 @@ class App {
             })
         );
         this.express.use((req, res, next) => {
-            res.header("Access-Control-Allow-Origin", process.env.MODE === "production" ? "http://production-server.lbl.gov" : "http://localhost:4200");
+            res.header("Access-Control-Allow-Origin", "http://localhost:4200");
             res.header("Access-Control-Allow-Credentials", "true");
             res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
             res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
 
             next();
         });
+        // setup authentication
+        authenticationConfig(this.express);
         // mount the routes
         this.mountRoutes();
         // setup swagger
@@ -72,7 +75,7 @@ class App {
                   version: '0.1.0',
                 },
               },
-              apis: ['./src/**/routes.ts'],
+              apis: ['./src/**/swagger/*.yaml'],
               host: `localhost:3000`
         }
         const swaggerSpec = swaggerJsDoc(options);

@@ -14,3 +14,11 @@ drop table if exists public.app_term_additional_data;
 drop table if exists public.app_term;
 drop table if exists public.app_field;
 drop table if exists public.app;
+
+drop table if exists auth.registration_code;
+drop table if exists auth.user_group_membership;
+drop table if exists auth.user;
+drop table if exists auth.user_group;
+drop table if exists auth.user_status;
+
+drop function public.update_modified_date;

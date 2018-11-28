@@ -1,0 +1,50 @@
+<div style="display:flex; justify-content:center; padding-top:1rem">
+    <mat-card class="bedes-card" style="width: 600px; padding:0">
+        <mat-card-header class="color-accent">
+            <mat-card-title>
+                <h2 class="mat-h2">
+                    <!-- <i class="far fa-shield-check fa-lg"></i> -->
+                    <!-- <fa-icon [icon]="['fas', 'fa-shield-check']"></fa-icon> -->
+                    <fa-icon [icon]="['fas', 'user-plus']"></fa-icon>
+                    Verify Account
+                </h2>
+            </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+            <div *ngIf="!verifySuccess">
+                <div style="display:flex">
+                    <mat-form-field style="flex:50%; padding:10px">
+                        <input type="text" matInput placeholder="Verification Code" [(ngModel)]="verificationCode" maxlength="10" required>
+                        <!-- <mat-icon matSuffix>lock</mat-icon> -->
+                    </mat-form-field>
+                </div>
+                <div *ngIf="verifyError" class="font-color-warn" style="margin-bottom: 10px">
+                    <i class="far fa-exclamation-triangle fa-2x"></i>
+                    Unable to verify your account, please check the code and try again.
+                </div>
+                <div>
+                    <button mat-raised-button color="primary" (click)="verify()" [disabled]="!verificationCode">
+                        <!-- <i class="fa fa-check"></i> -->
+                        Verify
+                    </button>
+                </div>
+            </div>
+            <div *ngIf="verifySuccess">
+                <!-- <i class="far fa-check-circle fa-2x"></i> -->
+                Your account has been verified.
+            </div>
+            <mat-card-actions style="display:flex;">
+                <button mat-stroked-button color="primary" style="flex: 1;" (click)="forgotPassword()">
+                    Verify
+                </button>
+                <button mat-stroked-button color="primary" style="flex: 1;" (click)="newVerificationCode()">
+                    New Verification Code
+                </button>
+                <!-- <button mat-stroked-button color="primary" style="flex:1;" [routerLink]="['request-account']">
+                    New Verification Code
+                </button> -->
+            </mat-card-actions>
+        </mat-card-content>
+    </mat-card>
+</div>
+

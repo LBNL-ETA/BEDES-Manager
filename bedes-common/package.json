@@ -15,5 +15,8 @@
   "devDependencies": {
     "@types/jasmine": "^2.8.8",
     "@types/module-alias": "^2.0.0"
+  },
+  "_moduleAliases": {
+    "@bedes-common": "./"
   }
 }

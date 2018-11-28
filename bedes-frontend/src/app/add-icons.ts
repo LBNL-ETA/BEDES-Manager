@@ -29,7 +29,12 @@ import {
     faExclamationTriangle,
     faSearch,
     faSpinner,
-    faPlayCircle
+    faPlayCircle,
+    faInfoCircle,
+    faSignIn,
+    faUserPlus,
+    faBan,
+    faShieldCheck
 } from '@fortawesome/pro-solid-svg-icons';
 
 /**
@@ -57,4 +62,9 @@ export function addIcons (): void {
     library.add(faSearch);
     library.add(faSpinner);
     library.add(faPlayCircle);
+    library.add(faInfoCircle);
+    library.add(faSignIn);
+    library.add(faUserPlus);
+    library.add(faBan);
+    library.add(faShieldCheck);
 }

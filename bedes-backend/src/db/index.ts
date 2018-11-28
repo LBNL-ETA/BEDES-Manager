@@ -3,6 +3,9 @@ import pgPromise from 'pg-promise';
 import * as promise from 'bluebird';
 // import { createLogger }  from '../logging';
 // const logger = createLogger(module);
+import sqlLoader from './sql_loader';
+import { createLogger } from '@bedes-backend/logging';
+const logger = createLogger(module);
 
 const pgp:IMain = pgPromise({
     // Set bluebird as the primise library
@@ -24,4 +27,7 @@ else {
 }
 const db:IDatabase<any> = pgp(cn);
 
-export = db;
+export {
+    db,
+    sqlLoader
+}

@@ -16,6 +16,7 @@ import { BedesSearchParametersComponent } from './components/bedes-term-search/b
 import { DataTypePipe } from './pipes/data-type/data-type.pipe';
 import { BedesUnitPipe } from './pipes/bedes-unit/bedes-unit.pipe';
 import { BedesTermCategoryPipe } from './pipes/bedes-term-category/bedes-term-category.pipe';
+import { BedesTermDetailsComponent } from './components/bedes-term-details/bedes-term-details.component';
 
 @NgModule({
     imports: [
@@ -34,7 +35,8 @@ import { BedesTermCategoryPipe } from './pipes/bedes-term-category/bedes-term-ca
         BedesSearchParametersComponent,
         DataTypePipe,
         BedesUnitPipe,
-        BedesTermCategoryPipe
+        BedesTermCategoryPipe,
+        BedesTermDetailsComponent
     ],
     entryComponents: [],
     providers: [

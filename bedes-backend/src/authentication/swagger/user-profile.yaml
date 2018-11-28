@@ -1,0 +1,11 @@
+definition:
+  UserProfile:
+    properties:
+      name:
+        type: string
+      email:
+        type: string
+      age:
+        type: integer
+      sex:
+        type: string
