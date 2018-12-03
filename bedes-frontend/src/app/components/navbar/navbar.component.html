@@ -2,23 +2,24 @@
   <mat-toolbar-row style="display:flex;">
     <span>BEDES Manager</span>
     <span style="flex:1;"></span>
-    <span style="padding-right:15px;">currentStatus = {{currentStatus}} === {{UserStatus.IsLoggedIn}}</span>
+    <!-- <span style="padding-right:15px;">currentStatus = {{currentStatus}} === {{UserStatus.IsLoggedIn}}</span> -->
     <span *ngIf="currentStatus === UserStatus.NotLoggedIn">
-        <button mat-button (click)="logout()">Login</button>
+        <!-- <button mat-button (click)="logout()">Login</button> -->
+        <a mat-button [routerLink]="['/login']" routerLinkActive="active">
+            <fa-icon [icon]="['fas', 'sign-in']" size="lg"></fa-icon>
+        </a>
     </span>
+
     <span *ngIf="currentStatus === UserStatus.NeedsVerify || currentStatus === UserStatus.IsLoggedIn">
         <!-- <button mat-button (click)="logout()">Logout</button> -->
         <button mat-icon-button [matMenuTriggerFor]="menu">
-            <fa-icon [icon]="['fas', 'user-plus']"></fa-icon>
+            <fa-icon [icon]="['fas', 'user-plus']" size="lg" *ngIf="currentStatus === UserStatus.NeedsVerify"></fa-icon>
+            <fa-icon [icon]="['fas', 'shield-check']" size="lg" *ngIf="currentStatus === UserStatus.IsLoggedIn"></fa-icon>
           </button>
           <mat-menu #menu="matMenu">
             <button mat-menu-item (click)="logout()">
               <!-- <mat-icon>dialpad</mat-icon> -->
               <span>Logout</span>
-            </button>
-            <button mat-menu-item disabled>
-              <!-- <mat-icon>voicemail</mat-icon> -->
-              <span>Check voicemail</span>
             </button>
             <button mat-menu-item>
               <!-- <mat-icon>notifications_off</mat-icon> -->
