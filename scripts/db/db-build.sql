@@ -57,6 +57,24 @@ create table public.bedes_term_list_option (
 -- e.g. Premises - Assessment Level
 create unique index on public.bedes_term_list_option (term_id, name, md5(description));
 
+-- Composite Term
+create table public.bedes_composite_term (
+    id serial primary key,
+    signature text not null unique,
+    created_date timestamp default now(),
+    modified_date timestamp default now()
+);
+
+create table public.bedes_composite_term_details (
+    id serial primary key,
+    composite_term_id int not null references public.bedes_composite_term (id),
+    bedes_term_id int not null references public.bedes_term (id),
+    list_option_id int references public.bedes_term_list_option (id),
+    order_number int not null,
+    unique (composite_term_id, bedes_term_id),
+    unique (composite_term_id, order_number)
+);
+
 create table public.app (
     id serial primary key,
     name varchar(100) not null unique

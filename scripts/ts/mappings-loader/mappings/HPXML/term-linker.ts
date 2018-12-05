@@ -9,6 +9,9 @@ import { BedesTermProcessor } from './bedes-term-processor';
 import { AppTermProcessor } from './app-term-processor';
 import { AppRow } from './app-row-hpxml';
 import { BedesRow } from './bedes-row';
+import { BedesCompositeTerm } from '../../../../../bedes-common/models/bedes-composite-term/bedes-composite-term';
+import { buildCompositeTerm, buildCompositeTermFromInterface } from '../../../../../bedes-common/util/build-composite-term';
+import { IBedesCompositeTerm } from '../../../../../bedes-common/models/bedes-composite-term/bedes-composite-term.interface';
 
 /**
  * Responsible for linking AppTerm objects for a given application to
@@ -52,6 +55,28 @@ export class TermLinker {
                 logger.warn(util.inspect(appRows));
                 return;
             }
+            let compositeTerm: BedesCompositeTerm | undefined;
+            if (bedesTerms.length > 1) {
+                compositeTerm = buildCompositeTermFromInterface(bedesTerms);
+                logger.debug('built composite term...');
+                logger.debug(util.inspect(compositeTerm));
+                // save the composite term
+                // TODO: develop this section further
+                let existing = await bedesQuery.compositeTerm.getRecordBySignature(compositeTerm.signature);
+                if (!existing) {
+                    bedesQuery.compositeTerm.newCompositeTerm(compositeTerm.toInterface())
+                    .then((results: IBedesCompositeTerm) => {
+                        logger.debug('save composite term success!!');
+                        logger.debug(util.inspect(results));
+                    })
+                    .catch((error: any) => {
+                        logger.error('An error occured savings the composite term');
+                        logger.error(util.inspect(error));
+                        logger.error(util.inspect(compositeTerm));
+                        throw error;
+                    });
+                }
+            }
             // transform the AppRows to AppTerms
             let appTerms = this.appTermProcessor.transform(appId, appRows);
             if (!appTerms.length) {
@@ -76,6 +101,14 @@ export class TermLinker {
         }
     }
 
+    public async saveMappedAtomicTerm() {
+
+    }
+
+    public async saveMappedCompositeTerm() {
+
+    }
+
     /**
      * Links the AppTerm objects in appTerms to the BedesTerm objects in bedesTerms,
      * producing a single MappedTerm object, which links the AppTerm and BedesTerm objects
@@ -85,7 +118,8 @@ export class TermLinker {
      * @param bedesTerms 
      * @returns linked terms 
      */
-    public async saveMappedTerm(appId: number, appTerms: Array<IAppTerm>, bedesTerms: Array<IBedesTerm | IBedesConstrainedList>): Promise<IMappedTerm> {
+    public async saveMappedTerm(appId: number, appTerms: Array<IAppTerm>,
+                                bedesTerms: Array<IBedesTerm | IBedesConstrainedList>): Promise<IMappedTerm> {
         try {
             // create a new MappedTerm object
             let mappedTerm = <IMappedTerm>{

@@ -8,6 +8,8 @@ import { AppQuery } from "./app";
 import { AppTermQuery } from "./app-term";
 import { MappedTermQuery } from "./mapped-term";
 import { BedesTermSearchQuery } from "./bedes-term-search";
+import { BedesCompositeTermQuery } from './bedes-composite-term/index';
+import { CompositeTermDetailQuery } from './bedes-composite-term/composite-term-detail';
 
 class BedesQuery {
     public units: BedesUnitQuery;
@@ -20,6 +22,8 @@ class BedesQuery {
     public appTerm: AppTermQuery;
     public mappedTerm: MappedTermQuery;
     public bedesTermSearch: BedesTermSearchQuery;
+    public compositeTerm: BedesCompositeTermQuery;
+    public compositeTermDetail: CompositeTermDetailQuery;
 
     constructor() {
         this.units = new BedesUnitQuery();
@@ -32,6 +36,8 @@ class BedesQuery {
         this.appTerm = new AppTermQuery();
         this.mappedTerm = new MappedTermQuery();
         this.bedesTermSearch = new BedesTermSearchQuery();
+        this.compositeTerm = new BedesCompositeTermQuery();
+        this.compositeTermDetail = new CompositeTermDetailQuery();
     }
 }
 

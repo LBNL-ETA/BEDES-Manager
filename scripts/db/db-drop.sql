@@ -2,6 +2,9 @@ drop table if exists public.bedes_term_maps;
 drop table if exists public.app_term_maps;
 drop table if exists public.mapped_terms;
 
+drop table if exists public.bedes_composite_term_details;
+drop table if exists public.bedes_composite_term;
+
 drop table if exists public.bedes_term_list_option;
 drop table if exists public.bedes_term;
 drop table if exists public.definition_source;
