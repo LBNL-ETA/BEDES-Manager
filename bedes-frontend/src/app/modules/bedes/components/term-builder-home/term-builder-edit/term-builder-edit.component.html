@@ -1,0 +1,26 @@
+<div class="stepper-container">
+    <button mat-raised-button style="margin-left: 5px;" color="primary" (click)="openTermSearchDialog()">
+        Add Terms
+    </button>
+
+                <app-selected-term></app-selected-term>
+
+    <mat-accordion>
+
+        <mat-expansion-panel>
+            <mat-expansion-panel-header>
+                <mat-panel-title>
+                    Search for Bedes Terms
+                </mat-panel-title>
+                <mat-panel-description>
+                    Select BEDES Terms from the table below
+                    to add to your composite term.
+                </mat-panel-description>
+            </mat-expansion-panel-header>
+            <div class="content-container">
+                <app-bedes-search-parameters></app-bedes-search-parameters>
+                <app-select-terms-table></app-select-terms-table>
+            </div>
+        </mat-expansion-panel>
+    </mat-accordion>
+</div>

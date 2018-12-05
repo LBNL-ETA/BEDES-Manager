@@ -17,6 +17,12 @@ import { DataTypePipe } from './pipes/data-type/data-type.pipe';
 import { BedesUnitPipe } from './pipes/bedes-unit/bedes-unit.pipe';
 import { BedesTermCategoryPipe } from './pipes/bedes-term-category/bedes-term-category.pipe';
 import { BedesTermDetailsComponent } from './components/bedes-term-details/bedes-term-details.component';
+import { TermBuilderHomeComponent } from './components/term-builder-home/term-builder-home.component';
+import { BedesApplicationManagerComponent } from './components/bedes-application-manager/bedes-application-manager.component';
+import { BedesTermSearchDialogComponent } from './components/dialogs/bedes-term-search-dialog/bedes-term-search-dialog.component';
+import { TermBuilderEditComponent } from './components/term-builder-home/term-builder-edit/term-builder-edit.component';
+import { SelectedTermComponent } from './components/term-builder-home/selected-term/selected-term.component';
+import { SelectTermsTableComponent } from './components/term-builder-home/select-terms-table/select-terms-table.component';
 
 @NgModule({
     imports: [
@@ -36,9 +42,17 @@ import { BedesTermDetailsComponent } from './components/bedes-term-details/bedes
         DataTypePipe,
         BedesUnitPipe,
         BedesTermCategoryPipe,
-        BedesTermDetailsComponent
+        BedesTermDetailsComponent,
+        TermBuilderHomeComponent,
+        BedesApplicationManagerComponent,
+        BedesTermSearchDialogComponent,
+        TermBuilderEditComponent,
+        SelectedTermComponent,
+        SelectTermsTableComponent
     ],
-    entryComponents: [],
+    entryComponents: [
+        BedesTermSearchDialogComponent
+    ],
     providers: [
         BedesTermSearchService,
         SupportListService,

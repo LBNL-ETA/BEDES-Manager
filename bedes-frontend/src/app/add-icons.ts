@@ -35,7 +35,8 @@ import {
     faUserPlus,
     faBan,
     faShieldCheck,
-    faShieldAlt
+    faShieldAlt,
+    faProjectDiagram
 } from '@fortawesome/pro-solid-svg-icons';
 
 /**
@@ -69,4 +70,5 @@ export function addIcons (): void {
     library.add(faBan);
     library.add(faShieldCheck);
     library.add(faShieldAlt);
+    library.add(faProjectDiagram);
 }
