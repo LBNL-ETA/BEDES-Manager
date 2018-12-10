@@ -1,0 +1,30 @@
+<!-- <div *ngIf="hasSearched">
+    <h1 class="mat-h1" style="text-align: center;" *ngIf="!searchResults || !searchResults.length">
+        No records found.
+    </h1>
+    <h1 class="mat-h1" style="text-align: center;" *ngIf="searchResults?.length">
+        Found {{ searchResults.length}} records
+    </h1>
+</div> -->
+<div style="display:flex; justify-content: space-around;" [style.display]="selectedTerms?.length ? 'block' : 'none'">
+    <mat-card class="bedes-card" style="margin:10px; flex: 1;">
+        <mat-card-content>
+            <div>
+                <button mat-raised-button
+                (click)="removeSelectedTerms()"
+                color="primary"
+                [disabled]="!selectedTerms || !selectedTerms.length" >
+                    Remove Selected Terms
+                </button>
+            </div>
+            <div style="display: flex; flex-direction: row">
+                <div style=" overflow: hidden; flex-grow: 1">
+                    <ag-grid-angular #agGrid style="width: 100%; height: 500px;" id="myGrid" [gridOptions]="gridOptions"
+                        class="ag-theme-material">
+                    </ag-grid-angular>
+                </div>
+
+            </div>
+        </mat-card-content>
+    </mat-card>
+</div>
