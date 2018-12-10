@@ -25,6 +25,8 @@
     "@fortawesome/angular-fontawesome": "^0.3.0",
     "@fortawesome/fontawesome-svg-core": "^1.2.8",
     "@fortawesome/pro-solid-svg-icons": "^5.5.0",
+    "ag-grid-angular": "^19.1.2",
+    "ag-grid-community": "^19.1.4",
     "core-js": "^2.5.4",
     "hammerjs": "^2.0.8",
     "rxjs": "~6.3.3",
