@@ -3,7 +3,7 @@ import * as util from 'util';
 import { createLogger } from '@bedes-backend/logging';
 import { HttpStatusCodes } from '@bedes-common/enums/http-status-codes';
 import { BedesError } from '@bedes-common/bedes-error';
-import { bedesQuery } from '../query';
+import { bedesQuery } from '../../query';
 const logger = createLogger(module);
 
 export async function getBedesUnitList(request: Request, response: Response): Promise<any> {

@@ -6,11 +6,13 @@ import { createLogger }  from '@bedes-backend/logging';
 const logger = createLogger(module);
 import * as util from 'util';
 import { IBedesUnit } from '@bedes-common/models/bedes-unit';
+import { IUsageCount } from '@bedes-common/interfaces/usage-count.interface';
 
 export class BedesUnitQuery {
     private sqlGetByName!: QueryFile;
     private sqlInsert!: QueryFile;
-    private sqlGetAllRecords!: QueryFile
+    private sqlGetAllRecords!: QueryFile;
+    private sqlUsageCount!: QueryFile
 
     constructor() { 
         this.initSql();
@@ -20,8 +22,12 @@ export class BedesUnitQuery {
         this.sqlGetByName = sql_loader(path.join(__dirname, 'get-by-name.sql'));
         this.sqlInsert = sql_loader(path.join(__dirname, 'insert.sql'))
         this.sqlGetAllRecords = sql_loader(path.join(__dirname, 'get-all-records.sql'))
+        this.sqlUsageCount = sql_loader(path.join(__dirname, 'get-usage-count.sql'))
     }
 
+    /**
+     * Create a new BedesUnit record.
+     */
     public newRecord(item: IBedesUnit, transaction?: any): Promise<IBedesUnit> {
         try {
             if (!item._name) {
@@ -91,4 +97,29 @@ export class BedesUnitQuery {
         }
     }
 
+    /**
+     * Calculates how many times a unit is referenced by BedesTerm
+     * or BedesTermListOption.
+     */
+    public getUsageCount(unitId: number, transaction?: any): Promise<IUsageCount> {
+        try {
+            if (!unitId) {
+                logger.error(`${this.constructor.name}: missing unitId`);
+                throw new Error('Missing required parameters.');
+            }
+            const params = {
+                _unitId: unitId
+            };
+            if (transaction) {
+                return transaction.one(this.sqlUsageCount, params);
+            }
+            else {
+                return db.one(this.sqlUsageCount, params);
+            }
+        } catch (error) {
+            logger.error(`${this.constructor.name}: Error in getUsageCount`);
+            logger.error(util.inspect(error));
+            throw error;
+        }
+    }
 }
