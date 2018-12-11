@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router, ParamMap } from '@angular/router';
 import { BedesTerm, BedesConstrainedList } from '@bedes-common/models/bedes-term';
 import { BedesTermService } from '../../services/bedes-term/bedes-term.service';
+import { BedesDataType } from '@bedes-common/enums/bedes-data-type';
 
 @Component({
     selector: 'app-bedes-term-details',
@@ -9,27 +9,20 @@ import { BedesTermService } from '../../services/bedes-term/bedes-term.service';
     styleUrls: ['./bedes-term-details.component.scss']
 })
 export class BedesTermDetailsComponent implements OnInit {
-    public bedesTerm: BedesTerm | BedesConstrainedList | undefined;
+    public term: BedesTerm | BedesConstrainedList | undefined;
+    public BedesDataType = BedesDataType
 
     constructor(
-        private route: ActivatedRoute,
-        private router: Router,
         private termService: BedesTermService
     ) {
     }
 
     ngOnInit() {
         this.termService.selectedTermSubject
-        .subscribe((selectedTerm: BedesTerm | BedesConstrainedList | undefined) => {
-            console.log(`${this.constructor.name}: selectedTerm`, selectedTerm);
-            this.bedesTerm = selectedTerm;
-        });
-        const routeParams = this.route.snapshot.params;
-        this.loadBedesTerm(Number(routeParams.id));
-    }
-
-    private loadBedesTerm(id: number): void {
-        console.log(`load bedes term ${id}`, this.bedesTerm);
+            .subscribe((selectedTerm: BedesTerm | BedesConstrainedList | undefined) => {
+                console.log(`${this.constructor.name}: selectedTerm`, selectedTerm);
+                this.term = selectedTerm;
+            });
     }
 
 }

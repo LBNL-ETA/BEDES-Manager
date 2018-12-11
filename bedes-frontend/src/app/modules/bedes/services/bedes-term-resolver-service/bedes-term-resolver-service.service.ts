@@ -37,6 +37,7 @@ export class BedesTermResolverServiceService {
                     mergeMap(bedesTerm => {
                         console.log(`${this.constructor.name}: received results`, bedesTerm);
                         if (bedesTerm) {
+                            this.termService.selectedTermSubject.next(bedesTerm);
                             return of(bedesTerm);
                         }
                         else {

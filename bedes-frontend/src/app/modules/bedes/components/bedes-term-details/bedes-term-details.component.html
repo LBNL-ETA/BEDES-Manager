@@ -1,6 +1,6 @@
 <div style="display:flex;">
     <mat-card class="bedes-card" style="margin:10px; flex: 1;">
-        <mat-card-header class="color-accent-1">
+        <mat-card-header class="color-accent">
             <mat-card-title>
                 <h2 class="mat-dislay-2">
                     <fa-icon [icon]="['fas', 'info-circle']"></fa-icon>
@@ -10,8 +10,13 @@
         </mat-card-header>
         <mat-card-content>
             <h1 class="mat-h1" style="text-align: center;">
-                Bedes Term
+                {{term?.name}}
             </h1>
+            <app-bedes-term-details-definition></app-bedes-term-details-definition>
+            <div *ngIf="term?.dataTypeId === BedesDataType.ConstrainedList">
+                <mat-divider></mat-divider>
+                <app-bedes-term-details-list-options></app-bedes-term-details-list-options>
+            </div>
         </mat-card-content>
     </mat-card>
 </div>

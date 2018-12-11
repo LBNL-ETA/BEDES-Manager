@@ -1,0 +1,9 @@
+<div class="mat-typography" style="margin-top:10px;">
+    <h1 style="text-align: center;">Constrained List Options</h1>
+    <div style="display: flex; flex-direction: row" *ngIf="term?.options">
+        <div style=" overflow: hidden; flex-grow: 1">
+            <ag-grid-angular #agGrid style="width: 100%; height: 500px;" id="myGrid" [gridOptions]="gridOptions" class="ag-theme-material">
+            </ag-grid-angular>
+        </div>
+    </div>
+</div>
