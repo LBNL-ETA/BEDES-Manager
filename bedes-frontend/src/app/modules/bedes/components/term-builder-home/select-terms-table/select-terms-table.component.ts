@@ -25,10 +25,6 @@ export class SelectTermsTableComponent implements OnInit, OnDestroy {
     public currentRequestStatus: RequestStatus;
     public searchResults = new Array<BedesTerm | BedesConstrainedList>();
     private ngUnsubscribe: Subject<void> = new Subject<void>();
-    // public displayedColumns: string[] = ['buttons', 'name', 'description', 'termCategoryId', 'dataTypeId', 'unitId'];
-    public dataSource = new MatTableDataSource<BedesTerm | BedesConstrainedList>();
-    @ViewChild(MatPaginator) paginator: MatPaginator;
-    @ViewChild(MatSort) sort: MatSort;
     public hasSearched = false;
     private receivedInitialValues = false;
     @ViewChild('agGrid') agGrid: AgGridNg2;
@@ -138,7 +134,6 @@ export class SelectTermsTableComponent implements OnInit, OnDestroy {
                 if (this.gridOptions.api) {
                     this.gridOptions.api.setRowData(results);
                 }
-                this.setTableDataSource(results);
                 if(!this.receivedInitialValues) {
                     this.receivedInitialValues = true;
                 }
@@ -207,16 +202,6 @@ export class SelectTermsTableComponent implements OnInit, OnDestroy {
                 }
             },
         ]
-    }
-
-    private setTableDataSource(tableData: Array<BedesTerm | BedesConstrainedList>): void {
-        this.dataSource = new MatTableDataSource(tableData);
-        this.dataSource.paginator = this.paginator;
-        this.dataSource.sort = this.sort;
-    }
-
-    public applyFilter(filterText: string): void {
-        console.log('apply the table filter...', filterText);
     }
 
     /**

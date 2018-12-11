@@ -181,6 +181,16 @@ $custom-warn: mat-palette($md-danger);
 //   color: white;
 }
 
+.color-warn {
+    background-color: mat-color($custom-accent);
+  //   color: white;
+  }
+
+.color-accent-200 {
+  background-color: mat-color($custom-accent, 200);
+//   color: white;
+}
+
 .font-color-accent {
     color: mat-color($custom-accent);
 }

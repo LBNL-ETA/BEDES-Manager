@@ -1,28 +1,26 @@
-<mat-card class="bedes-card mat-typography"
-style="margin:10px; flex: 1; max-width: 700px; margin: 10px auto 10px auto"
-*ngIf="!isReplacing">
-    <mat-card-header class="color-accent">
+<mat-card class="bedes-card mat-typography" style="margin:10px; flex: 1; max-width: 700px; margin: 10px auto 10px auto">
+    <mat-card-header class="color-warn">
         <mat-card-title>
             <h2>
-                <fa-icon [icon]="['fas', 'list']"></fa-icon>
-                Units
+                <fa-icon [icon]="['fas', 'exclamation-triangle']"></fa-icon>
+                Replace Unit
             </h2>
         </mat-card-title>
     </mat-card-header>
     <mat-card-content>
+        <p style="text-align: center;">
+            The unit you are removing is referenced <strong>{{5}}</strong> times in
+            other Bedes Terms/List Options.  Select a new unit below for replacement.
+        </p>
         <div>
             <button mat-stroked-button color="primary">
                 <fa-icon [icon]="['fas', 'plus-circle']"></fa-icon>
-                New Unit
-            </button>
-            <button mat-stroked-button color="primary" [disabled]="!selectedUnit">
-                <fa-icon [icon]="['fas', 'edit']"></fa-icon>
-                Edit
+                Replace with Selected Unit
             </button>
             <button mat-stroked-button color="primary" [disabled]="!selectedUnit"
-            (click)="getUsageCount()">
-                <fa-icon [icon]="['fas', 'trash']"></fa-icon>
-                Remove Selected Unit
+            >
+                <fa-icon [icon]="['fas', 'times-circle']"></fa-icon>
+                Cancel
             </button>
         </div>
         <div style="display: flex; flex-direction: row">
@@ -34,5 +32,3 @@ style="margin:10px; flex: 1; max-width: 700px; margin: 10px auto 10px auto"
         </div>
     </mat-card-content>
 </mat-card>
-
-<app-replace-unit *ngIf="isReplacing"></app-replace-unit>

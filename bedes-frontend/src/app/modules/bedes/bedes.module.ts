@@ -36,6 +36,10 @@ import { ManageUnitListComponent } from './components/list-management/manage-uni
 import { ManageDefinitionSourceListComponent } from './components/list-management/manage-definition-source-list/manage-definition-source-list.component';
 import { ManageCategoryListComponent } from './components/list-management/manage-category-list/manage-category-list.component';
 import { ManageDataTypeListComponent } from './components/list-management/manage-data-type-list/manage-data-type-list.component';
+import { BedesUnitService } from './services/bedes-unit/bedes-unit.service';
+import { ReplaceUnitComponent } from './components/list-management/manage-unit-list/replace-unit/replace-unit.component';
+import { NewUnitComponent } from './components/list-management/manage-unit-list/new-unit/new-unit.component';
+import { EditUnitComponent } from './components/list-management/manage-unit-list/edit-unit/edit-unit.component';
 
 @NgModule({
     imports: [
@@ -73,7 +77,10 @@ import { ManageDataTypeListComponent } from './components/list-management/manage
         ManageUnitListComponent,
         ManageDefinitionSourceListComponent,
         ManageCategoryListComponent,
-        ManageDataTypeListComponent
+        ManageDataTypeListComponent,
+        ReplaceUnitComponent,
+        NewUnitComponent,
+        EditUnitComponent
     ],
     entryComponents: [
         BedesTermSearchDialogComponent,
@@ -82,6 +89,7 @@ import { ManageDataTypeListComponent } from './components/list-management/manage
     providers: [
         BedesTermSearchService,
         SupportListService,
+        BedesUnitService,
         { provide: API_URL_TOKEN, useValue: API_URL },
         {
             provide: APP_INITIALIZER,

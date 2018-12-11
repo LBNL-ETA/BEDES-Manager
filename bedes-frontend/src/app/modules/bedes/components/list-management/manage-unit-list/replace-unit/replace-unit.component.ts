@@ -1,25 +1,25 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, Output, EventEmitter } from '@angular/core';
 import { AgGridNg2 } from 'ag-grid-angular';
 import { GridOptions, ColDef, ValueGetterParams, SelectionChangedEvent } from 'ag-grid-community';
-import { SupportListService } from '../../../services/support-list/support-list.service';
+import { SupportListService } from '../../../../services/support-list/support-list.service';
 import { BedesUnit } from '@bedes-common/models/bedes-unit/bedes-unit';
 import { Subject } from 'rxjs';
-import { BedesUnitService } from '../../../services/bedes-unit/bedes-unit.service';
-import { IUsageCount } from '../../../../../../../../bedes-common/interfaces/usage-count.interface';
+import { BedesUnitService } from '../../../../services/bedes-unit/bedes-unit.service';
+import { IUsageCount } from '@bedes-common/interfaces/usage-count.interface';
 
 @Component({
-    selector: 'app-manage-unit-list',
-    templateUrl: './manage-unit-list.component.html',
-    styleUrls: ['./manage-unit-list.component.scss']
+  selector: 'app-replace-unit',
+  templateUrl: './replace-unit.component.html',
+  styleUrls: ['./replace-unit.component.scss']
 })
-export class ManageUnitListComponent implements OnInit {
+export class ReplaceUnitComponent implements OnInit {
+    @Output() replacementUnit = new EventEmitter<BedesUnit | undefined>();
     private ngUnsubscribe: Subject<void> = new Subject<void>();
     public unitList: Array<BedesUnit>;
     @ViewChild('agGrid') agGrid: AgGridNg2;
     // grid options
     public gridOptions: GridOptions;
     public selectedUnit: BedesUnit | undefined;
-    public isReplacing = false;
 
     constructor(
         private supportListService: SupportListService,
@@ -94,11 +94,9 @@ export class ManageUnitListComponent implements OnInit {
         this.unitService.getUsageCount(this.selectedUnit.id)
         .subscribe((usageCount: IUsageCount) => {
             console.log(`${this.constructor.name}: received usage count`, usageCount);
-            if (usageCount._usageCount > 0) {
-                this.isReplacing = true;
-            }
         });
     }
 
 
 }
+

@@ -34,7 +34,7 @@ body {
 }
 
 .card {
-    border-radius: 0;
+    border-radius: 5px;
     box-shadow: 4px 6px 8px rgba(0, 0, 0, 0.5);
 }
 
@@ -61,9 +61,9 @@ mat-card.bedes-card mat-card-header {
         margin: 0;
         mat-card-title {
             margin: 0;
-            h2 {
+            h1,h2,h3,h4 {
                 margin: 0;
-                color: white;
+                // color: white;
             }
         }
     }
@@ -77,6 +77,11 @@ mat-card.bedes-card mat-card-header.color-primary  {
 mat-card.bedes-card mat-card-header.color-accent  {
     background-color: mat-color($custom-accent);
     color: mat-color($custom-accent, lighter-contrast);
+}
+
+mat-card.bedes-card mat-card-header.color-warn {
+    background-color: mat-color($custom-warn);
+    color: mat-color($custom-warn, lighter-contrast);
 }
 
 // mat-card.bedes-card mat-card-header.color-accent-2  {
@@ -97,4 +102,9 @@ mat-card.bedes-card mat-card-actions {
 mat-card.bedes-card>.mat-card-actions:last-child {
     margin-bottom: 0;
     padding-bottom: 1rem;
+}
+
+// expansion panel
+mat-expansion-panel mat-expansion-panel-header {
+    background-color: mat-color($custom-accent, 200)
 }

@@ -1,3 +1,75 @@
-<p>
-  list-management works!
-</p>
+<div class="mat-typography" style="display:flex;">
+    <mat-card class="bedes-card" style="margin:10px; flex: 1;">
+        <mat-card-header class="color-accent">
+            <mat-card-title>
+                <h2>
+                    <fa-icon [icon]="['fas', 'list']"></fa-icon>
+                    Units
+                </h2>
+            </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+            <p>
+                Manage the list of BEDES Units
+            </p>
+            <mat-card-actions style="display:flex;">
+                <button mat-stroked-button color="primary" style="flex:1;"
+                [routerLink]="['/list-management', 'unit']">
+                    <fa-icon [icon]="['fas', 'play-circle']">
+                    </fa-icon>
+                    Go
+                </button>
+            </mat-card-actions>
+        </mat-card-content>
+    </mat-card>
+
+    <mat-card class="bedes-card" style="margin:10px; flex: 1;">
+        <mat-card-header class="color-accent">
+            <mat-card-title>
+                <h2>
+                    <fa-icon [icon]="['fas', 'list']"></fa-icon>
+                    Data Types
+                </h2>
+            </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+            <p>
+                Manage the list of BEDES Data Types
+            </p>
+            <mat-card-actions style="display:flex;">
+                <button mat-stroked-button color="primary" style="flex:1;"
+                [routerLink]="['/list-management', 'data-type']">
+                    <fa-icon [icon]="['fas', 'play-circle']">
+                    </fa-icon>
+                    Go
+                </button>
+            </mat-card-actions>
+        </mat-card-content>
+    </mat-card>
+
+    <mat-card class="bedes-card" style="margin:10px; flex: 1;">
+        <mat-card-header class="color-accent">
+            <mat-card-title>
+                <h2>
+                    <fa-icon [icon]="['fas', 'list']"></fa-icon>
+                    Definition Source
+                </h2>
+            </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+            <p>
+                Manage the list of BEDES Term definition sources.
+            </p>
+            <mat-card-actions style="display:flex;">
+                <button mat-stroked-button color="primary" style="flex:1;"
+                [routerLink]="['/list-management', 'data-type']">
+                    <fa-icon [icon]="['fas', 'play-circle']">
+                    </fa-icon>
+                    Go
+                </button>
+            </mat-card-actions>
+        </mat-card-content>
+    </mat-card>
+</div>
+
+<router-outlet></router-outlet>

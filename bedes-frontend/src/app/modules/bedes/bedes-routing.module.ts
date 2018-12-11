@@ -5,6 +5,10 @@ import { BedesTermDetailsComponent } from './components/bedes-term-details/bedes
 import { BedesTermResolverServiceService } from './services/bedes-term-resolver-service/bedes-term-resolver-service.service';
 import { TermBuilderHomeComponent } from './components/term-builder-home/term-builder-home.component';
 import { TermBuilderEditComponent } from './components/term-builder-home/term-builder-edit/term-builder-edit.component';
+import { ListManagementComponent } from './components/list-management/list-management.component';
+import { ManageUnitListComponent } from './components/list-management/manage-unit-list/manage-unit-list.component';
+import { ManageDataTypeListComponent } from './components/list-management/manage-data-type-list/manage-data-type-list.component';
+import { ManageDefinitionSourceListComponent } from './components/list-management/manage-definition-source-list/manage-definition-source-list.component';
 
 const appRoutes: Routes = [
     { path: 'search', component: BedesTermSearchComponent},
@@ -28,6 +32,20 @@ const appRoutes: Routes = [
                 component: TermBuilderEditComponent
             }
         ]
+    },
+    {
+        path: 'list-management',
+        component: ListManagementComponent,
+        children: [{
+            path: 'unit',
+            component: ManageUnitListComponent
+        },{
+            path: 'data-type',
+            component: ManageDataTypeListComponent
+        }, {
+            path: 'definition-source',
+            component: ManageDefinitionSourceListComponent
+        }]
     },
     { path: '', redirectTo: 'search', pathMatch: 'full' },
     // { path: '**', redirectTo: '/search' }
