@@ -9,13 +9,18 @@
 <div style="display:flex; justify-content: space-around;" [style.display]="selectedTerms?.length ? 'block' : 'none'">
     <mat-card class="bedes-card" style="margin:10px; flex: 1;">
         <mat-card-content>
-            <div>
+            <!-- <div>
                 <button mat-raised-button
                 (click)="removeSelectedTerms()"
                 color="primary"
                 [disabled]="!selectedTerms || !selectedTerms.length" >
                     Remove Selected Terms
                 </button>
+            </div> -->
+            <div>
+                <div cdkDropList cdkDropListOrientation="horizontal" class="example-list" (cdkDropListDropped)="drop($event)">
+                    <div class="example-box" *ngFor="let term of selectedTerms " cdkDrag>{{term.name}}</div>
+                </div>
             </div>
             <div style="display: flex; flex-direction: row">
                 <div style=" overflow: hidden; flex-grow: 1">

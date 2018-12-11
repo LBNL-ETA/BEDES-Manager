@@ -1,4 +1,5 @@
 import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
+import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { AgGridNg2 } from 'ag-grid-angular';
@@ -19,7 +20,7 @@ import { ConfirmDialogComponent } from '../../dialogs/confirm-dialog/confirm-dia
 })
 export class SelectedTermsTableComponent implements OnInit, OnDestroy {
     private ngUnsubscribe: Subject<void> = new Subject<void>();
-    private selectedTerms: Array<BedesTerm | BedesConstrainedList>;
+    public selectedTerms: Array<BedesTerm | BedesConstrainedList>;
     @ViewChild('agGrid')
     agGrid: AgGridNg2;
     // grid options
@@ -95,6 +96,8 @@ export class SelectedTermsTableComponent implements OnInit, OnDestroy {
             enableFilter: true,
             enableSorting: true,
             rowSelection: 'multiple',
+            rowDragManaged: true,
+            animateRows: true,
             columnDefs: this.buildColumnDefs(),
             getRowNodeId: (data: any) => {
                 return data.id;
@@ -132,7 +135,7 @@ export class SelectedTermsTableComponent implements OnInit, OnDestroy {
 
     private buildColumnDefs(): Array<ColDef> {
         return [
-            {headerName: 'Name', field: 'name', checkboxSelection: true },
+            {headerName: 'Name', field: 'name', rowDrag: true},
             {headerName: 'Description', field: 'description'},
             {
                 headerName: 'Term Category',
@@ -181,4 +184,8 @@ export class SelectedTermsTableComponent implements OnInit, OnDestroy {
             console.log('dialogRef.afterClosed()', result);
         });
     }
+
+    public drop(event: CdkDragDrop<string[]>) {
+        moveItemInArray(this.selectedTerms, event.previousIndex, event.currentIndex);
+      }
 }

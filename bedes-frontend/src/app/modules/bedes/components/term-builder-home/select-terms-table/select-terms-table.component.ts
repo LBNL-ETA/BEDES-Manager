@@ -91,6 +91,8 @@ export class SelectTermsTableComponent implements OnInit, OnDestroy {
             enableFilter: true,
             enableSorting: true,
             rowSelection: 'multiple',
+            suppressRowClickSelection: true,
+            // suppressCellSelection: true,
             columnDefs: this.buildColumnDefs(),
             getRowNodeId: (data: any) => {
                 return data.id;
