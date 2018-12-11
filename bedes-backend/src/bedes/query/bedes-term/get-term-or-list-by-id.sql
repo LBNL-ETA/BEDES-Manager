@@ -1,6 +1,20 @@
 -- retrieve an IBedesTerm or IBedesConstrainedList
 -- if it's a constrained list _options will always be an array
 -- if it's a regular bedes term _options will always be null
+with
+	w_list_options as (
+		select
+			d.id as "_id",
+			d.term_id,
+			d.name as "_name",
+			d.description as "_description",
+			d.unit_id as "_unitId",
+			d.definition_source_id as "_definitionSourceId"
+		from
+			public.bedes_term_list_option as d
+		where
+			d.term_id = ${_id}
+	)
 select
 	bt.id as "_id",
 	bt.name as "_name",
@@ -19,7 +33,7 @@ select
 from
 	public.bedes_term bt
 left outer join
-	public.bedes_term_list_option o on o.term_id = bt.id
+	w_list_options o on o.term_id = bt.id
 where
 	bt.id = ${_id}
 group by
