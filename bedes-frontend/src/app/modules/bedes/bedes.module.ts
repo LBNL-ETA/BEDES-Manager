@@ -28,6 +28,14 @@ import { SelectedTermContainerComponent } from './components/term-builder-home/s
 import { AgGridModule } from 'ag-grid-angular';
 import { BedesTermSelectorService } from './services/bedes-term-selector/bedes-term-selector.service';
 import { ConfirmDialogComponent } from './components/dialogs/confirm-dialog/confirm-dialog.component';
+import { DragDropModule } from '@angular/cdk/drag-drop';
+import { BedesTermDetailsDefinitionComponent } from './components/bedes-term-details/bedes-term-details-definition/bedes-term-details-definition.component';
+import { BedesTermDetailsListOptionsComponent } from './components/bedes-term-details/bedes-term-details-list-options/bedes-term-details-list-options.component';
+import { ListManagementComponent } from './components/list-management/list-management.component';
+import { ManageUnitListComponent } from './components/list-management/manage-unit-list/manage-unit-list.component';
+import { ManageDefinitionSourceListComponent } from './components/list-management/manage-definition-source-list/manage-definition-source-list.component';
+import { ManageCategoryListComponent } from './components/list-management/manage-category-list/manage-category-list.component';
+import { ManageDataTypeListComponent } from './components/list-management/manage-data-type-list/manage-data-type-list.component';
 
 @NgModule({
     imports: [
@@ -36,6 +44,7 @@ import { ConfirmDialogComponent } from './components/dialogs/confirm-dialog/conf
         CommonModule,
         HttpClientModule,
         RouterModule,
+        DragDropModule,
         AppMaterialModule,
         FontAwesomeModule,
         BedesRoutingModule,
@@ -57,7 +66,14 @@ import { ConfirmDialogComponent } from './components/dialogs/confirm-dialog/conf
         SelectTermsTableComponent,
         SelectedTermsTableComponent,
         SelectedTermContainerComponent,
-        ConfirmDialogComponent
+        ConfirmDialogComponent,
+        BedesTermDetailsDefinitionComponent,
+        BedesTermDetailsListOptionsComponent,
+        ListManagementComponent,
+        ManageUnitListComponent,
+        ManageDefinitionSourceListComponent,
+        ManageCategoryListComponent,
+        ManageDataTypeListComponent
     ],
     entryComponents: [
         BedesTermSearchDialogComponent,
