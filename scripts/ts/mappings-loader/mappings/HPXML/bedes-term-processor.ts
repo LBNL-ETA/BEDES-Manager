@@ -5,6 +5,7 @@ import { bedesQuery } from "@bedes-backend/bedes/query";
 import { BedesRow } from "./bedes-row";
 import { IBedesConstrainedList, IBedesTerm } from "@bedes-common/models/bedes-term";
 import { BedesMappingLabel } from '../base/bedes-mapping-label';
+import { BedesErrorTermNotFound } from '../lib/errors/bedes-term-not-found.error';
 
 /**
  * Bedes term processor: it processes a collection of BedesRow objects,
@@ -71,10 +72,12 @@ export class BedesTermProcessor {
             }
             return Promise.all(promises);
         } catch (error) {
-            logger.error(`${this.constructor.name}: Error in transform`);
-            logger.error(util.inspect(error));
-            logger.error(`couldn't find matching bedes terms`);
-            logger.error(util.inspect(bedesRows));
+            if (!(error instanceof BedesErrorTermNotFound)) {
+                logger.error(`${this.constructor.name}: Error in transform`);
+                logger.error(util.inspect(error));
+                logger.error(`couldn't find matching bedes terms`);
+                logger.error(util.inspect(bedesRows));
+            }
             throw error;
         }
     }

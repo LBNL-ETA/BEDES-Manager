@@ -12,6 +12,7 @@ import { BedesRow } from './bedes-row';
 import { BedesCompositeTerm } from '../../../../../bedes-common/models/bedes-composite-term/bedes-composite-term';
 import { buildCompositeTerm, buildCompositeTermFromInterface } from '../../../../../bedes-common/util/build-composite-term';
 import { IBedesCompositeTerm } from '../../../../../bedes-common/models/bedes-composite-term/bedes-composite-term.interface';
+import { BedesErrorTermNotFound } from '../lib/errors/bedes-term-not-found.error';
 
 /**
  * Responsible for linking AppTerm objects for a given application to
@@ -51,8 +52,8 @@ export class TermLinker {
             let bedesTerms = await this.bedesTermProcessor.transform(bedesRows);
             if (!bedesTerms.length) {
                 // no bedes terms found, nothing to link
-                logger.warn('bedes terms not found for appRow:');
-                logger.warn(util.inspect(appRows));
+                logger.debug('bedes terms not found for appRow:');
+                logger.debug(util.inspect(appRows));
                 return;
             }
             let compositeTerm: BedesCompositeTerm | undefined;
@@ -64,17 +65,17 @@ export class TermLinker {
                 // TODO: develop this section further
                 let existing = await bedesQuery.compositeTerm.getRecordBySignature(compositeTerm.signature);
                 if (!existing) {
-                    bedesQuery.compositeTerm.newCompositeTerm(compositeTerm.toInterface())
-                    .then((results: IBedesCompositeTerm) => {
-                        logger.debug('save composite term success!!');
-                        logger.debug(util.inspect(results));
-                    })
-                    .catch((error: any) => {
-                        logger.error('An error occured savings the composite term');
-                        logger.error(util.inspect(error));
-                        logger.error(util.inspect(compositeTerm));
-                        throw error;
-                    });
+                    try {
+                        let savedTerm = await bedesQuery.compositeTerm.newCompositeTerm(compositeTerm.toInterface())
+                    }
+                    catch (error) {
+                        if (!(error instanceof BedesErrorTermNotFound)) {
+                            logger.error('An error occured savings the composite term');
+                            logger.error(util.inspect(error));
+                            logger.error(util.inspect(compositeTerm));
+                            throw error;
+                        }
+                    }
                 }
             }
             // transform the AppRows to AppTerms
@@ -93,10 +94,12 @@ export class TermLinker {
             logger.debug(util.inspect(appTerms));
             return this.saveMappedTerm(appId, savedAppTerms, bedesTerms)
         } catch (error) {
-            logger.error(`${this.constructor.name}: Error in linkTerms`);
-            logger.error(util.inspect(error));
-            logger.error(util.inspect(appRows));
-            logger.error(util.inspect(bedesRows));
+            if (!(error instanceof BedesErrorTermNotFound)) {
+                logger.error(`${this.constructor.name}: Error in linkTerms`);
+                logger.error(util.inspect(error));
+                logger.error(util.inspect(appRows));
+                logger.error(util.inspect(bedesRows));
+            }
             throw error;
         }
     }

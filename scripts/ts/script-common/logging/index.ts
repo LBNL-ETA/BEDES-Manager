@@ -10,7 +10,10 @@ const myFormat = winston.format.printf(info => {
 // module's filename.
 function getLabel (callingModule: NodeModule): string {
     var parts = callingModule.filename.split(path.sep);
-    if (parts && parts.length >= 2) {
+    if (parts && parts.length >= 3) {
+        return path.join(parts[parts.length-3], parts[parts.length - 2], parts[parts.length - 1]);
+    }
+    else if (parts && parts.length >= 2) {
         return path.join(parts[parts.length - 2], parts[parts.length - 1]);
     }
     else {
@@ -27,7 +30,9 @@ export function createLogger(callingModule: NodeModule) {
             myFormat
         ),
         transports: [new winston.transports.Console({
-            level: process.env.BACKEND_DEBUG ? 'debug' : 'info'
+            // level: process.env.BACKEND_DEBUG ? 'debug' : 'info'
+            // level: 'info'
+            level: process.env.LOG_LEVEL_CONSOLE ? process.env.LOG_LEVEL_CONSOLE : 'debug'
         })]
     });
 };

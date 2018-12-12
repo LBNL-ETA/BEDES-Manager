@@ -5,6 +5,9 @@ import { AppRow } from './app-row-hpxml';
 import { createLogger }  from "@script-common/logging";
 import { TermLinker } from './term-linker';
 import { ExcelRowExtractor } from './excel-row-extractor';
+import { BedesErrorTermNotFound } from '../lib/errors/bedes-term-not-found.error';
+import { BedesError } from '@bedes-common/bedes-error';
+import { TermNotFound } from '../base/term-not-found';
 const logger = createLogger(module);
 
 export class HpxmlLoader extends BedesMappingBase {
@@ -36,7 +39,8 @@ export class HpxmlLoader extends BedesMappingBase {
      * @param sheetName 
      * @returns worksheet 
      */
-    protected async processWorksheet(sheetName: string): Promise<any> {
+    protected async processWorksheet(sheetName: string): Promise<Array<TermNotFound>> {
+        const termNotFoundErrors = new Array<TermNotFound>();
         try {
             logger.info(`${this.constructor.name}: process ${sheetName}`);
             if (!this.appId) {
@@ -72,7 +76,18 @@ export class HpxmlLoader extends BedesMappingBase {
                     logger.debug(`beginning of new term`);
                     if (appRowCollector.length && bedesRowCollector.length) {
                         // link the app's term to the corresponding Bedes Terms
-                        await this.termLinker.linkTerms(this.appId, appRowCollector, bedesRowCollector);
+                        try {
+                            await this.termLinker.linkTerms(this.appId, appRowCollector, bedesRowCollector);
+                        }
+                        catch (error) {
+                            if (error instanceof BedesErrorTermNotFound) {
+                                termNotFoundErrors.push(new TermNotFound(error.termName, [...appRowCollector]));
+                            }
+                            else {
+                                logger.error('unknown error in linkTerms');
+                                throw error;
+                            }
+                        }
                     }
                     // reset the collectors to start reading a new term
                     appRowCollector.splice(0, appRowCollector.length);
@@ -94,8 +109,20 @@ export class HpxmlLoader extends BedesMappingBase {
             }
             // link the last term if exists
             if (bedesRowCollector.length && appRowCollector.length) {
-                await this.termLinker.linkTerms(this.appId, appRowCollector, bedesRowCollector);
+                try {
+                    await this.termLinker.linkTerms(this.appId, appRowCollector, bedesRowCollector);
+                }
+                catch (error) {
+                    if (error instanceof BedesErrorTermNotFound) {
+                        termNotFoundErrors.push(new TermNotFound(error.termName, [...appRowCollector]));
+                    }
+                    else {
+                        logger.error('unknown error in linkTerms');
+                        throw error;
+                    }
+                }
             }
+            return termNotFoundErrors;
         } catch (error) {
             logger.error(`${this.constructor.name}: Error in processWorksheet`);
             logger.error(util.inspect(error));

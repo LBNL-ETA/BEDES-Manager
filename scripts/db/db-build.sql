@@ -43,6 +43,10 @@ create table public.bedes_term (
     definition_source_id int references public.definition_source (id),
     unit_id int references public.unit (id) not null
 );
+create index on public.bedes_term (term_category_id);
+create index on public.bedes_term (data_type_id);
+create index on public.bedes_term (definition_source_id);
+create index on public.bedes_term (unit_id);
 
 create table public.bedes_term_list_option (
     id serial primary key,
@@ -56,6 +60,8 @@ create table public.bedes_term_list_option (
 -- Use an md5 hash of the text field instead of using the actual text as the unique constraint.
 -- e.g. Premises - Assessment Level
 create unique index on public.bedes_term_list_option (term_id, name, md5(description));
+create index on public.bedes_term_list_option (unit_id);
+create index on public.bedes_term_list_option (definition_source_id);
 
 -- Composite Term
 create table public.bedes_composite_term (
@@ -71,7 +77,7 @@ create table public.bedes_composite_term_details (
     bedes_term_id int not null references public.bedes_term (id),
     list_option_id int references public.bedes_term_list_option (id),
     order_number int not null,
-    unique (composite_term_id, bedes_term_id),
+    -- unique (composite_term_id, bedes_term_id),
     unique (composite_term_id, order_number)
 );
 

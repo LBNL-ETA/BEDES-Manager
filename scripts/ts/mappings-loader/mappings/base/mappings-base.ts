@@ -6,6 +6,11 @@ import * as util from 'util';
 import { bedesQuery } from "@bedes-backend/bedes/query";
 import { IApp } from "@bedes-common/models/app";
 import { db } from '@bedes-backend/db';
+import { BedesErrorTermNotFound } from '../lib/errors/bedes-term-not-found.error';
+import { BedesError } from "@bedes-common/bedes-error";
+import { TermNotFound } from './term-not-found';
+import { TermsNotFoundSheet } from './terms-not-found-sheet';
+import { AppRow } from '../HPXML/app-row-hpxml';
 
 /**
  * Base class for loading a bedes mapping workbook into the database.
@@ -22,7 +27,7 @@ export abstract class BedesMappingBase {
     // arrays holding the names of sheets to process
     protected abstract sheetNames: Array<string>;
     // function to load data from a worksheet
-    protected abstract processWorksheet(sheetName: string): Promise<any>;
+    protected abstract processWorksheet(sheetName: string): Promise<Array<TermNotFound>>;
     // function to load the names of the worksheets to process.
     protected abstract loadSheetNames(): void;
     //
@@ -40,6 +45,7 @@ export abstract class BedesMappingBase {
     public async run(): Promise<any> {
         try {
             const runFunction = async (transaction: any) => {
+                const allTermsNotFound = new Array<TermsNotFoundSheet>();
                 this.transaction = transaction;
                 logger.info(`Begin loading mappings for ${this.applicationName}`);
                 logger.debug('open the workbook');
@@ -57,8 +63,15 @@ export abstract class BedesMappingBase {
                 }
                 for (let sheetName of this.sheetNames) {
                     logger.debug(`${this.constructor.name}: Process worksheet ${sheetName}`);
-                    await this.processWorksheet(sheetName);
-                    logger.debug('done with transaction');
+                    let termsNotFound = await this.processWorksheet(sheetName);
+                    if (termsNotFound && termsNotFound.length) {
+                        allTermsNotFound.push(new TermsNotFoundSheet(sheetName, termsNotFound));
+                    }
+                }
+                if (allTermsNotFound.length) {
+                    // some BEDES terms were not found
+                    this.displayTermNotFoundErrors(allTermsNotFound);
+                    
                 }
 
             }
@@ -67,6 +80,23 @@ export abstract class BedesMappingBase {
             logger.error(`${this.constructor.name}: Error in run`);
             logger.error(util.inspect(error));
             throw error;
+        }
+    }
+
+    private displayTermNotFoundErrors(termsNotFound: Array<TermsNotFoundSheet>): void {
+        const reducer = (accum: number, current: TermsNotFoundSheet): number => {
+            return accum + current.termsNotFound.length;
+        }
+        const numErrors = termsNotFound.reduce(reducer, 0);
+        console.log(`\nFound total ${numErrors} invalid BedesTerm references:`);
+        for (let bedesError of termsNotFound) {
+            console.log(`BedesTerms not found in sheet ${bedesError.sheetName}`);
+            bedesError.termsNotFound.forEach((item: TermNotFound) => {
+                console.log(`\n\tBedesTerm: ${item.termName}`);
+                item.appRows.forEach((appRow: AppRow) => {
+                    console.log(`\tAppRow: ${appRow.appTermCode} - ${appRow.dataElement}`);
+                });
+            });
         }
     }
 
