@@ -139,10 +139,24 @@ create table public.app_term_maps (
     unique (mapped_term_id, order_number)
 );
 
-create table public.bedes_term_maps (
+-- create table public.bedes_term_maps (
+--     id serial primary key,
+--     mapped_term_id int not null references public.mapped_terms (id) on delete cascade,
+--     bedes_term_id int not null references public.bedes_term (id) on delete cascade,
+--     order_number int not null,
+--     unique (mapped_term_id, order_number)
+-- );
+
+create table public.bedes_composite_term_maps (
+    id serial primary key,
+    mapped_term_id int not null references public.mapped_terms (id) on delete cascade,
+    bedes_composite_term_id int not null references public.bedes_composite_term (id) on delete cascade,
+    unique (mapped_term_id)
+);
+
+create table public.bedes_atomic_term_maps (
     id serial primary key,
     mapped_term_id int not null references public.mapped_terms (id) on delete cascade,
     bedes_term_id int not null references public.bedes_term (id) on delete cascade,
-    order_number int not null,
-    unique (mapped_term_id, order_number)
+    unique (mapped_term_id)
 );

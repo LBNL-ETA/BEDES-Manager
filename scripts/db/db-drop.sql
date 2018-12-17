@@ -1,4 +1,5 @@
-drop table if exists public.bedes_term_maps;
+drop table if exists public.bedes_composite_term_maps;
+drop table if exists public.bedes_atomic_term_maps;
 drop table if exists public.app_term_maps;
 drop table if exists public.mapped_terms;
 
