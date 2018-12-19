@@ -1,18 +1,18 @@
 <mat-toolbar color="primary">
     <mat-toolbar-row style="display:flex;">
-        <span>BEDES Manager</span>
+        <span style="margin-right:7px;">BEDES Manager</span>
         <span>
-            <button mat-button [routerLink]="['search']">
+            <a  mat-button [routerLink]="['search']" routerLinkActive="active-route">
                 Search for Terms
-            </button>
-            <button mat-button [routerLink]="['term-builder']">
+            </a>
+            <button mat-button [routerLink]="['term-builder']" routerLinkActive="active-route">
                 Build Composite Term
             </button>
             <button mat-button [matMenuTriggerFor]="menu">
                 Admin
             </button>
             <mat-menu #menu="matMenu">
-                <button mat-menu-item [routerLink]="['list-management']">
+                <button mat-menu-item [routerLink]="['list-management']" #menuButtonManageLists>
                     <fa-icon [icon]="['fas', 'list']"></fa-icon>
                     Manage Lists
                 </button>
