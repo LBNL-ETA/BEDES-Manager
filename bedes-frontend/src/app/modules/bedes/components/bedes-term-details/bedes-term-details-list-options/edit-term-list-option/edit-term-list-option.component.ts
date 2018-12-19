@@ -7,10 +7,8 @@ import { OptionViewState } from '../../option-view-state.enum';
 import { BedesTermListOptionService } from '../../../../services/bedes-term-list-option/bedes-term-list-option.service';
 import { BedesTermService } from 'src/app/modules/bedes/services/bedes-term/bedes-term.service';
 import { BedesTerm, BedesConstrainedList } from '@bedes-common/models/bedes-term';
-import { IBedesTermOption } from '@bedes-common/models/bedes-term-option/bedes-term-option.interface';
-import { BedesTermOption } from '../../../../../../../../../bedes-common/models/bedes-term-option/bedes-term-option';
+import { BedesTermOption } from '@bedes-common/models/bedes-term-option/bedes-term-option';
 import { takeUntil } from 'rxjs/operators';
-import { deserializeUser } from 'passport';
 
 enum RequestStatus {
     Idle=1,
