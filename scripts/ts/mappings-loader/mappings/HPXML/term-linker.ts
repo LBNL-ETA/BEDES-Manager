@@ -4,7 +4,7 @@ const logger = createLogger(module);
 import { bedesQuery } from "@bedes-backend/bedes/query";
 import { IAppTerm } from "@bedes-common/models/app-term";
 import { IBedesTerm, IBedesConstrainedList } from "@bedes-common/models/bedes-term";
-import { IMappedTerm, IAppTermMap, IBedesTermMap } from "@bedes-common/models/mapped-term";
+import { IMappedTerm, IAppTermMap, IBedesAtomicTermMap } from "@bedes-common/models/mapped-term";
 import { BedesTermProcessor } from './bedes-term-processor';
 import { AppTermProcessor } from './app-term-processor';
 import { AppRow } from './app-row-hpxml';
@@ -13,6 +13,7 @@ import { BedesCompositeTerm } from '../../../../../bedes-common/models/bedes-com
 import { buildCompositeTerm, buildCompositeTermFromInterface } from '../../../../../bedes-common/util/build-composite-term';
 import { IBedesCompositeTerm } from '../../../../../bedes-common/models/bedes-composite-term/bedes-composite-term.interface';
 import { BedesErrorTermNotFound } from '../lib/errors/bedes-term-not-found.error';
+import { IBedesCompositeTermMap } from '../../../../../bedes-common/models/mapped-term/bedes-composite-term-map.interface';
 
 /**
  * Responsible for linking AppTerm objects for a given application to
@@ -56,17 +57,25 @@ export class TermLinker {
                 logger.debug(util.inspect(appRows));
                 return;
             }
+            // if there's more than 1 bedes term in the mapping, it's a composite term
             let compositeTerm: BedesCompositeTerm | undefined;
+            let savedCompositeTerm: IBedesCompositeTerm | undefined;
+
             if (bedesTerms.length > 1) {
                 compositeTerm = buildCompositeTermFromInterface(bedesTerms);
                 logger.debug('built composite term...');
                 logger.debug(util.inspect(compositeTerm));
                 // save the composite term
-                // TODO: develop this section further
+                // look for an existing composite term
                 let existing = await bedesQuery.compositeTerm.getRecordBySignature(compositeTerm.signature);
-                if (!existing) {
+                if (existing) {
+                    // assign the existing record to the composite term we're linking to the app terms
+                    savedCompositeTerm = existing;
+                }
+                else {
                     try {
-                        let savedTerm = await bedesQuery.compositeTerm.newCompositeTerm(compositeTerm.toInterface())
+                        // otherwise, save a new composite term and wait for results
+                        savedCompositeTerm = await bedesQuery.compositeTerm.newCompositeTerm(compositeTerm.toInterface())
                     }
                     catch (error) {
                         if (!(error instanceof BedesErrorTermNotFound)) {
@@ -92,7 +101,15 @@ export class TermLinker {
             logger.debug('app terms');
             logger.debug(util.inspect(bedesTerms));
             logger.debug(util.inspect(appTerms));
-            return this.saveMappedTerm(appId, savedAppTerms, bedesTerms)
+            // either save the mapped app terms against a Bedes Atomic or Bedes Composite Term.
+            if (savedCompositeTerm) {
+                // if there's a composite term object, it's a composite term
+                return this.saveMappedCompositeTerm(appId, savedAppTerms, savedCompositeTerm);
+            }
+            else {
+                // an atomic term will have a single bedes term
+                return this.saveMappedAtomicTerm(appId, savedAppTerms, bedesTerms[0]);
+            }
         } catch (error) {
             if (!(error instanceof BedesErrorTermNotFound)) {
                 logger.error(`${this.constructor.name}: Error in linkTerms`);
@@ -104,31 +121,15 @@ export class TermLinker {
         }
     }
 
-    public async saveMappedAtomicTerm() {
-
-    }
-
-    public async saveMappedCompositeTerm() {
-
-    }
-
-    /**
-     * Links the AppTerm objects in appTerms to the BedesTerm objects in bedesTerms,
-     * producing a single MappedTerm object, which links the AppTerm and BedesTerm objects
-     * into a single MappedTerm object.  IAppTerm and IBedesTerm objects must have been saved
-     * to the database prior to linking the terms since the _id field is needed.
-     * @param appTerms 
-     * @param bedesTerms 
-     * @returns linked terms 
-     */
-    public async saveMappedTerm(appId: number, appTerms: Array<IAppTerm>,
-                                bedesTerms: Array<IBedesTerm | IBedesConstrainedList>): Promise<IMappedTerm> {
+    public async saveMappedAtomicTerm(appId: number, appTerms: Array<IAppTerm>, bedesTerm: IBedesTerm | IBedesConstrainedList) {
         try {
             // create a new MappedTerm object
-            let mappedTerm = <IMappedTerm>{
+            let mappedTerm: IMappedTerm = {
                 _appId: appId,
                 _appTerms: new Array<IAppTermMap>(),
-                _bedesTerms: new Array<IBedesTermMap>()
+                _bedesTerm: <IBedesAtomicTermMap>{
+                    _bedesTermId: bedesTerm._id
+                }
             };
             // setup the order of terms in the term map
             let orderNumber = 1;
@@ -140,12 +141,37 @@ export class TermLinker {
                     _orderNumber: orderNumber++
                 });
             }
+            return bedesQuery.mappedTerm.newMappedTerm(mappedTerm, this.transaction);
+        }
+        catch (error) {
+            logger.error(`${this.constructor.name}: Error in saveMappedAtomicTerm`);
+            logger.error(util.inspect(error));
+            logger.error(util.inspect(appTerms));
+            logger.error(util.inspect(bedesTerm));
+            throw error;
+        }
+    }
+
+    public async saveMappedCompositeTerm(appId: number, appTerms: Array<IAppTerm>, compositeTerm: IBedesCompositeTerm) {
+        try {
+            if (!compositeTerm._id) {
+                logger.error(`${this.constructor.name}: saveMappedCompositeTerm expends a BedesCompositeTerm with an id, none found`);
+                throw new Error(`${this.constructor.name}: saveMappedCompositeTerm expends a BedesCompositeTerm with an id, none found`);
+            }
+            // create a new MappedTerm object
+            let mappedTerm: IMappedTerm = {
+                _appId: appId,
+                _appTerms: new Array<IAppTermMap>(),
+                _bedesTerm: <IBedesCompositeTermMap> {
+                    _compositeTermId: compositeTerm._id,
+                }
+            };
             // setup the order of terms in the term map
-            orderNumber = 1;
-            // add the bedes term, and set the bedes term name
-            for (let bedesTerm of bedesTerms) {
-                mappedTerm._bedesTerms.push(<IBedesTermMap>{
-                    _bedesTermId: bedesTerm._id,
+            let orderNumber = 1;
+            // add the app terms, and set the name
+            for (let appTerm of appTerms) {
+                mappedTerm._appTerms.push(<IAppTermMap>{
+                    _appTermId: appTerm._id,
                     _mappedTermId: undefined,
                     _orderNumber: orderNumber++
                 });
@@ -153,12 +179,61 @@ export class TermLinker {
             return bedesQuery.mappedTerm.newMappedTerm(mappedTerm, this.transaction);
         }
         catch (error) {
-            logger.error(`${this.constructor.name}: Error in saveLinkedTerms`);
+            logger.error(`${this.constructor.name}: Error in saveMappedCompositeTerm`);
             logger.error(util.inspect(error));
             logger.error(util.inspect(appTerms));
-            logger.error(util.inspect(bedesTerms));
+            logger.error(util.inspect(compositeTerm));
             throw error;
         }
     }
+
+    /**
+     * Links the AppTerm objects in appTerms to the BedesTerm objects in bedesTerms,
+     * producing a single MappedTerm object, which links the AppTerm and BedesTerm objects
+     * into a single MappedTerm object.  IAppTerm and IBedesTerm objects must have been saved
+     * to the database prior to linking the terms since the _id field is needed.
+     * @param appTerms 
+     * @param bedesTerms 
+     * @returns linked terms 
+     */
+    // public async saveMappedTerm(appId: number, appTerms: Array<IAppTerm>,
+    //                             bedesTerms: Array<IBedesTerm | IBedesConstrainedList>): Promise<IMappedTerm> {
+    //     try {
+    //         // create a new MappedTerm object
+    //         let mappedTerm = <IMappedTerm>{
+    //             _appId: appId,
+    //             _appTerms: new Array<IAppTermMap>(),
+    //             _bedesTerms: new Array<IBedesAtomicTermMap>()
+    //         };
+    //         // setup the order of terms in the term map
+    //         let orderNumber = 1;
+    //         // add the app terms, and set the name
+    //         for (let appTerm of appTerms) {
+    //             mappedTerm._appTerms.push(<IAppTermMap>{
+    //                 _appTermId: appTerm._id,
+    //                 _mappedTermId: undefined,
+    //                 _orderNumber: orderNumber++
+    //             });
+    //         }
+    //         // setup the order of terms in the term map
+    //         orderNumber = 1;
+    //         // add the bedes term, and set the bedes term name
+    //         for (let bedesTerm of bedesTerms) {
+    //             mappedTerm._bedesTerms.push(<IBedesAtomicTermMap>{
+    //                 _bedesTermId: bedesTerm._id,
+    //                 _mappedTermId: undefined,
+    //                 _orderNumber: orderNumber++
+    //             });
+    //         }
+    //         return bedesQuery.mappedTerm.newMappedTerm(mappedTerm, this.transaction);
+    //     }
+    //     catch (error) {
+    //         logger.error(`${this.constructor.name}: Error in saveLinkedTerms`);
+    //         logger.error(util.inspect(error));
+    //         logger.error(util.inspect(appTerms));
+    //         logger.error(util.inspect(bedesTerms));
+    //         throw error;
+    //     }
+    // }
 
 }
