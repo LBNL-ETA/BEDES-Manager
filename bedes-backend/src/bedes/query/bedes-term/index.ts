@@ -8,6 +8,7 @@ const logger = createLogger(module);
 import { IBedesTerm, BedesTerm, IBedesConstrainedList } from '@bedes-common/models/bedes-term';
 import { IBedesTermOption } from '@bedes-common/models/bedes-term-option';
 import { bedesQuery } from '../';
+import { BedesErrorTermNotFound } from '../../../../../scripts/ts/mappings-loader/mappings/lib/errors/bedes-term-not-found.error';
 
 export class BedesTermQuery {
     private sqlGetByName!: QueryFile;
@@ -218,9 +219,14 @@ export class BedesTermQuery {
                 return db.one(this.sqlGetByName, params);
             }
         } catch (error) {
-            logger.error(`${this.constructor.name}: Error in newRecord`);
-            logger.error(util.inspect(error));
-            throw error;
+            if (error.name === 'QueryResultError') {
+                throw new BedesErrorTermNotFound(name);
+            }
+            else {
+                logger.error(`${this.constructor.name}: Error in newRecord`);
+                logger.error(util.inspect(error));
+                throw error;
+            }
         }
     }
 
@@ -248,9 +254,14 @@ export class BedesTermQuery {
                 return db.one(this.sqlGetBedesList, params);
             }
         } catch (error) {
-            logger.error(`${this.constructor.name}: Error in getConstrainedList`);
-            logger.error(util.inspect(error));
-            throw error;
+            if (error.name === 'QueryResultError') {
+                throw new BedesErrorTermNotFound(`listName: ${listName}, optionName: ${optionName}`);
+            }
+            else {
+                logger.error(`${this.constructor.name}: Error in getConstrainedList`);
+                logger.error(util.inspect(error));
+                throw error;
+            }
         }
     }
 
@@ -266,9 +277,14 @@ export class BedesTermQuery {
             let result = await db.one(this.sqlIsConstrainedList, params);
             return result._isConstrainedList ? true : false;
         } catch (error) {
-            logger.error(`${this.constructor.name}: Error in isConstrainedList`);
-            logger.error(util.inspect(error));
-            throw error;
+            if (error.name === 'QueryResultError') {
+                throw new BedesErrorTermNotFound(termName)
+            }
+            else {
+                logger.error(`${this.constructor.name}: Error in isConstrainedList`);
+                logger.error(util.inspect(error));
+                throw error;
+            }
         }
     }
 

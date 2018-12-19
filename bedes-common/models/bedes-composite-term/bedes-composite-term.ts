@@ -5,6 +5,7 @@ import { BedesTermOption } from '../bedes-term-option/bedes-term-option';
 import { BedesConstrainedList } from '../bedes-term/bedes-constrained-list';
 import { IBedesTerm } from '../bedes-term/bedes-term.interface';
 import { buildCompositeTermSignature } from '../../util/build-composite-term-signature';
+import { IBedesConstrainedList } from '../bedes-term/bedes-constrained-list.interface';
 
 export class BedesCompositeTerm {
     private _id: number | null | undefined;
@@ -89,6 +90,11 @@ export class BedesCompositeTerm {
      * Add a BedesTerm and optional BedesTermOption to the list of terms.
      */
     public addBedesTerm(term: BedesTerm | BedesConstrainedList, termOption?: BedesTermOption): void {
+        // throw an error on a duplicate BedesTerm.
+        // if (this.termExistsInDefinition(term.toInterface())) {
+        //     console.error(`${this.constructor.name}: BedesTerm already in composite term definition`);
+        //     throw new Error(`${this.constructor.name}: BedesTerm already in composite term definition`);
+        // }
         const orderNumber = this.getNextOrderNumber();
         if (term instanceof(BedesConstrainedList)) {
             // if it's a constrained list, don't save all the list options
@@ -107,6 +113,20 @@ export class BedesCompositeTerm {
         else {
             this.addTerm(new CompositeTermDetail(term, orderNumber, termOption));
         }
+    }
+
+    /**
+     * Determines if the given BedesTerm is already apart of the composite term.
+     *
+     * @param {(BedesTerm | BedesConstrainedList)} term
+     * @returns {boolean}
+     * @memberof BedesCompositeTerm
+     */
+    public termExistsInDefinition(term: IBedesTerm | IBedesConstrainedList): boolean {
+        if (!term._id) {
+            throw new Error('Bedes terms must have an id (ie saved to the database) to be used in a composite term');
+        }
+        return this._items.find((d) => d.term.id === term._id) ? true : false;
     }
 
     /**

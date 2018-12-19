@@ -48,8 +48,10 @@ export class BedesCompositeTermQuery {
             return newRec;
 
         } catch (error) {
-            logger.error(`${this.constructor.name}: Error in newRecord`);
+            logger.error(`${this.constructor.name}: Error in newCompositeTerm`);
             logger.error(util.inspect(error));
+            logger.error('data = ')
+            logger.error(util.inspect(item));
             throw error;
         }
     }
@@ -77,6 +79,8 @@ export class BedesCompositeTermQuery {
         } catch (error) {
             logger.error(`${this.constructor.name}: Error in newRecord`);
             logger.error(util.inspect(error));
+            logger.error('data = ')
+            logger.error(util.inspect(item));
             throw error;
         }
     }

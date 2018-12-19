@@ -42,7 +42,7 @@ export class BedesTermOption {
     public get definitionSourceId() : number | null | undefined {
         return this._definitionSourceId;
     }
-    public set definitionSource(value: number | null | undefined) {
+    public set definitionSourceId(value: number | null | undefined) {
         this._definitionSourceId = value;
     }
     

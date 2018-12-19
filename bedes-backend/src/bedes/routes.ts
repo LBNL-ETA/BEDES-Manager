@@ -11,6 +11,10 @@ function mountRoutes(router: Router) {
     router.get('/support-lists', handlers.getSupportLists);
     router.get('/composite-term/:id', handlers.compositeTerm.get);
     router.post('/composite-term', handlers.compositeTerm.post);
+
+    router.post('/bedes-term-list-option', handlers.bedesTermListOption.newListOptionHandler);
+    router.put('/bedes-term-list-option/:id', handlers.bedesTermListOption.updateListOptionHandler);
+    router.delete('/bedes-term-list-option/:id', handlers.bedesTermListOption.deleteListOptionHandler);
 }
 
 export {
