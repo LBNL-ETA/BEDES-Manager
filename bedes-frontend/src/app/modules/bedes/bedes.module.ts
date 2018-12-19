@@ -40,6 +40,9 @@ import { BedesUnitService } from './services/bedes-unit/bedes-unit.service';
 import { ReplaceUnitComponent } from './components/list-management/manage-unit-list/replace-unit/replace-unit.component';
 import { NewUnitComponent } from './components/list-management/manage-unit-list/new-unit/new-unit.component';
 import { EditUnitComponent } from './components/list-management/manage-unit-list/edit-unit/edit-unit.component';
+import { NewTermListOptionComponent } from './components/bedes-term-details/bedes-term-details-list-options/new-term-list-option/new-term-list-option.component';
+import { EditTermListOptionComponent } from './components/bedes-term-details/bedes-term-details-list-options/edit-term-list-option/edit-term-list-option.component';
+import { BedesTermListOptionService } from './services/bedes-term-list-option/bedes-term-list-option.service';
 
 @NgModule({
     imports: [
@@ -80,7 +83,9 @@ import { EditUnitComponent } from './components/list-management/manage-unit-list
         ManageDataTypeListComponent,
         ReplaceUnitComponent,
         NewUnitComponent,
-        EditUnitComponent
+        EditUnitComponent,
+        NewTermListOptionComponent,
+        EditTermListOptionComponent
     ],
     entryComponents: [
         BedesTermSearchDialogComponent,
@@ -97,7 +102,8 @@ import { EditUnitComponent } from './components/list-management/manage-unit-list
             deps: [SupportListService],
             multi: true
         },
-        BedesTermSelectorService
+        BedesTermSelectorService,
+        BedesTermListOptionService
     ]
 })
 export class BedesModule { }

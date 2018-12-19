@@ -9,6 +9,7 @@ import { ListManagementComponent } from './components/list-management/list-manag
 import { ManageUnitListComponent } from './components/list-management/manage-unit-list/manage-unit-list.component';
 import { ManageDataTypeListComponent } from './components/list-management/manage-data-type-list/manage-data-type-list.component';
 import { ManageDefinitionSourceListComponent } from './components/list-management/manage-definition-source-list/manage-definition-source-list.component';
+import { BedesTermDetailsListOptionsComponent } from './components/bedes-term-details/bedes-term-details-list-options/bedes-term-details-list-options.component';
 
 const appRoutes: Routes = [
     { path: 'search', component: BedesTermSearchComponent},

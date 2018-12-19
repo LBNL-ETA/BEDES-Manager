@@ -11,11 +11,27 @@
         <mat-card-content>
             <h1 class="mat-h1" style="text-align: center;">
                 {{term?.name}}
+                state = {{currentViewState}}
             </h1>
             <app-bedes-term-details-definition></app-bedes-term-details-definition>
             <div *ngIf="term?.dataTypeId === BedesDataType.ConstrainedList">
-                <mat-divider></mat-divider>
-                <app-bedes-term-details-list-options></app-bedes-term-details-list-options>
+                <!-- constrained list options - view -->
+                <app-bedes-term-details-list-options
+                [stateChangeSubject]="currentViewStateSubject"
+                *ngIf="currentViewState === OptionViewState.ListOptionsView">
+                </app-bedes-term-details-list-options>
+
+                <!-- Constrained List Options - New -->
+                <app-new-term-list-option
+                [stateChangeSubject]="currentViewStateSubject"
+                *ngIf="currentViewState === OptionViewState.ListOptionsNew">
+                </app-new-term-list-option>
+
+                <!-- Constrained List Options - Edit -->
+                <app-edit-term-list-option
+                [stateChangeSubject]="currentViewStateSubject"
+                *ngIf="currentViewState === OptionViewState.ListOptionsEdit">
+                </app-edit-term-list-option>
             </div>
         </mat-card-content>
     </mat-card>

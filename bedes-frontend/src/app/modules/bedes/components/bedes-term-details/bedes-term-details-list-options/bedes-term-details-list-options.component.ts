@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, Input } from '@angular/core';
 import { ActivatedRoute, Router, ParamMap } from '@angular/router';
 import { BedesTerm, BedesConstrainedList } from '@bedes-common/models/bedes-term';
 import { BedesTermService } from '../../../services/bedes-term/bedes-term.service';
@@ -9,7 +9,10 @@ import { BedesDataType } from '@bedes-common/models/bedes-data-type';
 import { BedesTermCategory } from '@bedes-common/models/bedes-term-category/bedes-term-category';
 import { AgGridNg2 } from 'ag-grid-angular';
 import { GridOptions, ColDef, ValueGetterParams, SelectionChangedEvent } from 'ag-grid-community';
-import { Subject } from 'rxjs';
+import { Subject, BehaviorSubject } from 'rxjs';
+import { BedesTermOption } from '../../../../../../../../bedes-common/models/bedes-term-option/bedes-term-option';
+import { OptionViewState } from '../option-view-state.enum';
+import { BedesTermListOptionService } from '../../../services/bedes-term-list-option/bedes-term-list-option.service';
 
 @Component({
   selector: 'app-bedes-term-details-list-options',
@@ -18,6 +21,9 @@ import { Subject } from 'rxjs';
 })
 export class BedesTermDetailsListOptionsComponent implements OnInit {
     private ngUnsubscribe: Subject<void> = new Subject<void>();
+    @Input()
+    private stateChangeSubject: BehaviorSubject<OptionViewState>;
+
     @ViewChild('agGrid')
     agGrid: AgGridNg2;
     // grid options
@@ -25,13 +31,15 @@ export class BedesTermDetailsListOptionsComponent implements OnInit {
     private gridInitialized = false;
 
     public term: BedesTerm | BedesConstrainedList | undefined;
+    public selectedOption: BedesTermOption | undefined;
+
     private unitList: Array<BedesUnit>;
     private dataTypeList: Array<BedesDataType>;
-    private categoryList: Array<BedesTermCategory>;
 
     constructor(
         private termService: BedesTermService,
-        private supportListService: SupportListService
+        private supportListService: SupportListService,
+        private listOptionService: BedesTermListOptionService
     ) {
     }
 
@@ -62,21 +70,15 @@ export class BedesTermDetailsListOptionsComponent implements OnInit {
                 console.log('data types', this.dataTypeList);
             }
         );
-        this.supportListService.termCategorySubject.subscribe(
-            (results: Array<BedesTermCategory>) => {
-                this.categoryList = results;
-            }
-        );
     }
 
     private initializeGrid(): void {
-        console.log('%c set grid options', 'background-color: dodgerblue');
         this.gridOptions = <GridOptions>{
-            enableRangeSelection: true,
+            enableRangeSelection: false,
             enableColResize: true,
             enableFilter: true,
             enableSorting: true,
-            rowSelection: 'multiple',
+            rowSelection: 'single',
             rowDragManaged: true,
             animateRows: true,
             columnDefs: this.buildColumnDefs(),
@@ -84,35 +86,15 @@ export class BedesTermDetailsListOptionsComponent implements OnInit {
                 return data.id;
             },
             onGridReady: () => {
-                console.log('%c grid is ready', 'background-color: dodgerblue');
                 this.setGridData();
-                // this.initialRowDataLoad$.subscribe(
-                //     rowData => {
-                //         // the initial full set of data
-                //         // note that we don't need to un-subscribe here as it's a one off data load
-                //         if (this.gridOptions.api) { // can be null when tabbing between the examples
-                //             this.gridOptions.api.setRowData(rowData);
-                //         }
-
-                //         // now listen for updates
-                //         // we process the updates with a transaction - this ensures that only the changes
-                //         // rows will get re-rendered, improving performance
-                //         this.rowDataUpdates$.subscribe((updates) => {
-                //             if (this.gridOptions.api) { // can be null when tabbing between the examples
-                //                 this.gridOptions.api.updateRowData({update: updates})
-                //             }
-                //         });
-                //     }
-                // );
             },
             onFirstDataRendered(params) {
                 params.api.sizeColumnsToFit();
             },
-            // onSelectionChanged: (event: SelectionChangedEvent) => {
-            //     console.log('selection changed', event.api.getSelectedRows());
-            //     this.termSelectorService.setSelectedTerms(event.api.getSelectedRows());
-            //     this.selectedTerms = event.api.getSelectedRows();
-            // }
+            onSelectionChanged: (event: SelectionChangedEvent) => {
+                const selection = event.api.getSelectedRows();
+                this.selectedOption = selection.length ? selection[0] : undefined;
+            }
         };
     }
 
@@ -130,9 +112,7 @@ export class BedesTermDetailsListOptionsComponent implements OnInit {
 
     private setGridData(): void {
         if (this.gridOptions.api && this.term) {
-            console.log('set the grid data', this.term, this.term instanceof BedesConstrainedList);
             if (this.term instanceof BedesConstrainedList) {
-                console.log('%c set row data to ', 'background-color: dodgerblue; color: white; padding: 5px;', this.term.options);
                 this.gridOptions.api.setRowData(this.term.options);
             }
             else {
@@ -145,20 +125,8 @@ export class BedesTermDetailsListOptionsComponent implements OnInit {
 
     private buildColumnDefs(): Array<ColDef> {
         return [
-            {headerName: 'Name', field: 'name', rowDrag: true},
+            {headerName: 'Name', field: 'name', checkboxSelection: true},
             {headerName: 'Description', field: 'description'},
-            {
-                headerName: 'Term Category',
-                field: 'termCategoryId',
-                valueGetter: (params: ValueGetterParams) => {
-                    if (this.categoryList) {
-                        const item = this.categoryList.find((d) => d.id === params.data.termCategoryId);
-                        if (item) {
-                            return item.name;
-                        }
-                    }
-                }
-            },
             {headerName: 'Data Type', field: 'dataTypeId'},
             {
                 headerName: 'Unit',
@@ -174,6 +142,40 @@ export class BedesTermDetailsListOptionsComponent implements OnInit {
                 }
             },
         ]
+    }
+
+    /**
+     * Set the flag to display the new list option inputs.
+     */
+    public newListOption(): void {
+        console.log('newListOption');
+        this.stateChangeSubject.next(OptionViewState.ListOptionsNew);
+    }
+
+    public editListOption(): void {
+        if (this.selectedOption) {
+            // set the active list option
+            this.listOptionService.activeListOptionSubject.next(this.selectedOption);
+            // switch to the list option edit view
+            this.stateChangeSubject.next(OptionViewState.ListOptionsEdit);
+        }
+    }
+
+    /**
+     * Remove the selected list option.
+     */
+    public removeListOption(): void {
+        if (this.selectedOption) {
+            console.log('remove the list option', this.selectedOption);
+            this.listOptionService.deleteListOption(this.selectedOption.id)
+            .subscribe((results: any) => {
+                console.log(`${this.constructor.name}: received results`, results);
+                this.selectedOption = undefined;
+            }, (error: any) => {
+                console.error(error);
+                this.selectedOption = undefined;
+            });
+        }
     }
 
 }

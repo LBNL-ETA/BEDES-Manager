@@ -3,6 +3,7 @@ import { API_URL_TOKEN } from '../url/url.service';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, BehaviorSubject } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { BedesTermOption } from '../../../../../../../bedes-common/models/bedes-term-option/bedes-term-option';
 import {
     IBedesTerm,
     IBedesConstrainedList,
@@ -21,6 +22,7 @@ export class BedesTermService {
     get selectedTermSubject(): BehaviorSubject<BedesTerm | BedesConstrainedList | undefined> {
         return this._selectedTermSubject;
     }
+    // Contains a reference to the currently selected term
     private _selectedTerm: BedesTerm | BedesConstrainedList | undefined;
     get selectedTerm(): BedesTerm | BedesConstrainedList | undefined {
         return this._selectedTerm;
@@ -40,7 +42,6 @@ export class BedesTermService {
      */
     public getTerm(id: number): Observable<BedesTerm | BedesConstrainedList> {
         const url = this.url.replace(/:id$/, String(id));
-        console.log(`url = ${url}`);
         return this.http.get<IBedesTerm | IBedesConstrainedList>(url, { withCredentials: true })
             .pipe(map((results: IBedesTerm | IBedesConstrainedList) => {
                 console.log(`${this.constructor.name}: received results`, results);
@@ -51,6 +52,35 @@ export class BedesTermService {
                     return new BedesTerm(results);
                 }
             }));
+    }
+
+    public listOptionRemoved(listOptionId: number): void {
+        const currentTerm = this._selectedTermSubject.value;
+        if (currentTerm instanceof BedesConstrainedList) {
+            const index = currentTerm.options.findIndex((d) => d.id === listOptionId);
+            if (index >= 0) {
+                // remove the option from the list
+                currentTerm.options.splice(index, 1);
+                // notify subscribers of the change
+                this.selectedTermSubject.next(currentTerm);
+            }
+            else {
+                throw new Error(`listOptionRemoved couldn't find an item with id ${listOptionId}`);
+            }
+        }
+        else {
+            throw new Error(`listOptionRemoved error: selected term is not a constrained list`);
+        }
+    }
+
+    /**
+     * Add a new listOption to the current selected term.
+     *
+     * @param {BedesTermOption} listOption
+     * @memberof BedesTermService
+     */
+    public listOptionAdded(listOption: BedesTermOption): void {
+
     }
 
     // public search(searchStrings: Array<string>): Observable<Array<BedesTerm | BedesConstrainedList>> {

@@ -34,7 +34,7 @@ body {
 }
 
 .card {
-    border-radius: 5px;
+    border-radius: 10px;
     box-shadow: 4px 6px 8px rgba(0, 0, 0, 0.5);
 }
 
@@ -43,31 +43,65 @@ body {
 }
 
 // Custom Card formatting
+
 mat-card.bedes-card {
     margin:0;
     margin-bottom: 0;
     padding:0;
+    box-shadow: 0;
 }
 
-mat-card.bedes-card mat-card-content {
-    padding: 7px;
+mat-card.bedes-content-card {
+    margin:0;
+    margin-bottom: 0;
+    padding:0;
+    box-shadow: 0;
 }
+
+// mat-card:not([class*='mat-elevation-z']) {
+//     box-shadow: 0;
+//     border: 1px red solid;
+// }
+
+// .my-class-with-custom-shadow {
+//   // Adds a shadow for elevation level 2 with color #e91e63 and 80% of the default opacity:
+//   @include mat-elevation(2, #e91e63, 0.8);
+// }
+
 
 mat-card.bedes-card mat-card-header {
     display:block;
-    padding: 10px;
+    padding: 13px;
 
     .mat-card-header-text {
         margin: 0;
         mat-card-title {
             margin: 0;
-            h1,h2,h3,h4 {
+            h1,h2,h3,h4,h5 {
                 margin: 0;
-                // color: white;
+                color: black;
             }
         }
     }
 }
+
+mat-card.bedes-content-card mat-card-header {
+    display:block;
+    padding: 13px;
+    background-color: lightgray;
+
+    .mat-card-header-text {
+        margin: 0;
+        mat-card-title {
+            margin: 0;
+            h1,h2,h3,h4,h5 {
+                margin: 0;
+                color: black;
+            }
+        }
+    }
+}
+
 
 mat-card.bedes-card mat-card-header.color-primary  {
     background-color: mat-color($custom-primary);
@@ -94,6 +128,15 @@ mat-card.bedes-card mat-card-title {
     text-align: center;
 }
 
+mat-card.bedes-card mat-card-content {
+    padding: 10px;
+}
+
+mat-card mat-card-content.bedes-content-bordered {
+    border: 1px lightgray solid;
+    border-radius: 15px;
+}
+
 mat-card.bedes-card mat-card-actions {
     margin:0;
     padding: 1rem;
@@ -103,6 +146,28 @@ mat-card.bedes-card>.mat-card-actions:last-child {
     margin-bottom: 0;
     padding-bottom: 1rem;
 }
+
+mat-card.bedes-content-card mat-card-title {
+    width: 100%;
+    text-align: center;
+}
+
+mat-card.bedes-content-card mat-card-content {
+    padding: 10px;
+    border: 1px lightgray solid;
+    border-top: none;
+}
+
+mat-card.bedes-content-card mat-card-actions {
+    margin:0;
+    padding: 1rem;
+}
+
+mat-card.bedes-content-card>.mat-card-actions:last-child {
+    margin-bottom: 0;
+    padding-bottom: 1rem;
+}
+
 
 // expansion panel
 mat-expansion-panel mat-expansion-panel-header {

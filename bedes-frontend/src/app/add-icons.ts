@@ -39,7 +39,12 @@ import {
     faProjectDiagram,
     faList,
     faTimesCircle,
-    faEdit
+    faEdit,
+    faTimes,
+    faSave,
+    faChevronCircleLeft,
+    faChevronCircleRight,
+    faCog
 } from '@fortawesome/pro-solid-svg-icons';
 
 /**
@@ -77,4 +82,9 @@ export function addIcons (): void {
     library.add(faList);
     library.add(faTimesCircle);
     library.add(faEdit);
+    library.add(faTimes);
+    library.add(faSave);
+    library.add(faChevronCircleLeft);
+    library.add(faChevronCircleRight);
+    library.add(faCog);
 }
