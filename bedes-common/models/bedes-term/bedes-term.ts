@@ -8,6 +8,8 @@ export class BedesTerm {
     protected _dataTypeId: number;
     protected _unitId: number | null | undefined;
     protected _definitionSourceId: number | null | undefined;
+    protected _uuid: string | null | undefined;
+    protected _url: string | null | undefined;
 
     constructor(data: IBedesTerm) {
         this._id = data._id;
@@ -17,6 +19,8 @@ export class BedesTerm {
         this._dataTypeId = data._dataTypeId;
         this._unitId = data._unitId;
         this._definitionSourceId = data._definitionSourceId;
+        this._uuid = data._uuid;
+        this._url = data._url;
     }
 
     get id(): number | null | undefined {
@@ -61,6 +65,18 @@ export class BedesTerm {
     set definitionSourceId(value: number | null | undefined) {
         this._definitionSourceId = value;
     }
+    get uuid(): string | null | undefined {
+        return this._uuid;
+    }
+    set uuid(value: string | null | undefined) {
+        this._uuid = value;
+    }
+    get url(): string | null | undefined {
+        return this._url;
+    }
+    set url(value: string | null | undefined) {
+        this._url = value;
+    }
 
     /**
      * Build the interface data from this object.
@@ -74,7 +90,9 @@ export class BedesTerm {
             _dataTypeId: this._dataTypeId,
             _definitionSourceId: this._definitionSourceId,
             _termCategoryId: this._termCategoryId,
-            _unitId: this._unitId
+            _unitId: this._unitId,
+            _uuid: this._uuid,
+            _url: this._url
         }
     }
 }

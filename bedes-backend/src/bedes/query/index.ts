@@ -10,6 +10,7 @@ import { MappedTermQuery } from "./mapped-term";
 import { BedesTermSearchQuery } from "./bedes-term-search";
 import { BedesCompositeTermQuery } from './bedes-composite-term/index';
 import { CompositeTermDetailQuery } from './bedes-composite-term/composite-term-detail';
+import { BedesSectorQuery } from './sector/index';
 
 class BedesQuery {
     public units: BedesUnitQuery;
@@ -24,6 +25,7 @@ class BedesQuery {
     public bedesTermSearch: BedesTermSearchQuery;
     public compositeTerm: BedesCompositeTermQuery;
     public compositeTermDetail: CompositeTermDetailQuery;
+    public sector: BedesSectorQuery;
 
     constructor() {
         this.units = new BedesUnitQuery();
@@ -38,6 +40,7 @@ class BedesQuery {
         this.bedesTermSearch = new BedesTermSearchQuery();
         this.compositeTerm = new BedesCompositeTermQuery();
         this.compositeTermDetail = new CompositeTermDetailQuery();
+        this.sector = new BedesSectorQuery();
     }
 }
 

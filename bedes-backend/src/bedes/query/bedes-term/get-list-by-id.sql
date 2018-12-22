@@ -8,6 +8,8 @@ select
 	bt.data_type_id as "_dataTypeId",
 	bt.definition_source_id as "_definitionSourceId",
 	bt.unit_id as "_unitId",
+	bt.uuid as "_uuid",
+	bt.url as "_url",
 	json_agg(o) as "_options"
 from
 	public.bedes_term bt
@@ -16,5 +18,6 @@ left outer join
 where
 	bt.id = ${_id}
 group by
-	bt.id, bt.name, bt.description, bt.term_category_id, bt.data_type_id, bt.definition_source_id, bt.unit_id
+	bt.id, bt.name, bt.description, bt.term_category_id, bt.data_type_id,
+	bt.definition_source_id, bt.unit_id, bt.uuid, bt.url
 ;

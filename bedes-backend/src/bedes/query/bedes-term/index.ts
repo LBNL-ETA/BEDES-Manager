@@ -18,6 +18,7 @@ export class BedesTermQuery {
     private sqlGetBedesList!: QueryFile;
     private sqlInsert!: QueryFile;
     private sqlIsConstrainedList!: QueryFile;
+    private sqlUpdateTerm!: QueryFile;
 
     constructor() { 
         this.initSql();
@@ -31,6 +32,7 @@ export class BedesTermQuery {
         this.sqlGetBedesList = sql_loader(path.join(__dirname, 'get-bedes-list.sql'));
         this.sqlInsert = sql_loader(path.join(__dirname, 'insert.sql'))
         this.sqlIsConstrainedList = sql_loader(path.join(__dirname, 'is-constrained-list.sql'))
+        this.sqlUpdateTerm = sql_loader(path.join(__dirname, 'update-term.sql'))
     }
 
     /**
@@ -285,6 +287,41 @@ export class BedesTermQuery {
                 logger.error(util.inspect(error));
                 throw error;
             }
+        }
+    }
+
+    /**
+     * Update an existing BedesTerm.
+     */
+    public async updateTerm(item: IBedesTerm, transaction?: any): Promise<IBedesTerm> {
+        try {
+            if (!item._id || !item._name) {
+                logger.error(`${this.constructor.name}: Missing parameters`);
+                logger.error(util.inspect(item));
+                throw new Error('Invalid parameters.');
+            }
+            const params = {
+                _id: item._id,
+                _name: item._name,
+                _description: item._description || null,
+                _termCategoryId: item._termCategoryId,
+                _dataTypeId: item._dataTypeId,
+                _unitId: item._unitId,
+                _definitionSourceId: item._definitionSourceId || null,
+                _uuid: item._uuid || null,
+                _url: item._url || null,
+            };
+            if (transaction) {
+                return transaction.one(this.sqlUpdateTerm, params);
+            }
+            else {
+                return db.one(this.sqlUpdateTerm, params);
+            }
+        } catch (error) {
+            logger.error(`${this.constructor.name}: error in updateTerm`);
+            logger.error(util.inspect(error));
+            logger.error(util.inspect(item));
+            throw error;
         }
     }
 

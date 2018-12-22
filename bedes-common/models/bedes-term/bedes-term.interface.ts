@@ -6,4 +6,6 @@ export interface IBedesTerm {
     _dataTypeId: number;
     _unitId?: number | null | undefined;
     _definitionSourceId?: number | null | undefined;
+    _uuid: string | null | undefined;
+    _url: string | null | undefined;
 }

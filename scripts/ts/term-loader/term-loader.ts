@@ -105,7 +105,7 @@ export class TermLoader {
             let currentTerm: BedesTerm | undefined;
             // get the term type for this set of terms
             // corresponds to the worksheet names
-            let termCategory = await this.getTermCategory(sheetName); 
+            let termCategory = await this.getTermCategory(this.sheetNameToCategoryName(sheetName)); 
             if (!termCategory || !termCategory.id) {
                 logger.error(`Error creating term type for sheet name ${sheetName}`);
                 throw new Error(`Invalid term type: ${sheetName}`);
@@ -172,6 +172,15 @@ export class TermLoader {
             logger.error(`${this.constructor.name}: error loading terms in ${sheetName}`);
             logger.error(util.inspect(error));
             throw error;
+        }
+    }
+
+    private sheetNameToCategoryName(sheetName: string): string {
+        if (sheetName.toLowerCase() === "Generation And Storage Equipmen".toLowerCase()) {
+            return "Generation and Storage Equipment";
+        }
+        else {
+            return sheetName;
         }
     }
 

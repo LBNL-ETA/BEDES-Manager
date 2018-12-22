@@ -8,7 +8,8 @@
     "load-terms": "(set -a && . ../../.env && set +a && LOG_LEVEL_CONSOLE=info ts-node term-loader --color=true)",
     "load-terms-debug": "(set -a && . ../../.env && set +a && LOG_LEVEL_CONSOLE=debug ts-node term-loader --color=true)",
     "load-mappings": "(set -a && . ../../.env && set +a && LOG_LEVEL_CONSOLE=info ts-node mappings-loader)",
-    "load-mappings-debug": "(set -a && . ../../.env && set +a && LOG_LEVEL_CONSOLE=debug ts-node mappings-loader)"
+    "load-mappings-debug": "(set -a && . ../../.env && set +a && LOG_LEVEL_CONSOLE=debug ts-node mappings-loader)",
+    "load-xml-terms-debug": "(set -a && . ../../.env && set +a && LOG_LEVEL_CONSOLE=debug ts-node xml-term-loader --color=true)"
   },
   "author": "",
   "license": "ISC",
@@ -21,20 +22,22 @@
     "ts-node": "^7.0.1",
     "typescript": "^3.1.1",
     "winston": "^3.1.0",
-    "xlsx": "^0.14.0"
+    "xlsx": "^0.14.0",
+    "xml2js": "^0.4.19"
   },
   "devDependencies": {
     "@types/app-root-path": "^1.2.4",
     "@types/module-alias": "^2.0.0",
     "@types/node": "^10.11.3",
     "@types/pg-promise": "^5.4.3",
-    "@types/winston": "^2.4.4"
+    "@types/winston": "^2.4.4",
+    "@types/xml2js": "^0.4.3"
   },
   "_moduleAliases": {
-    "@bedes-common" : "../../bedes-common",
-    "@app-root" : "./term-loader",
-    "@script-common" : "./script-common",
-    "@script-mapping" : "./script-mapping",
+    "@bedes-common": "../../bedes-common",
+    "@app-root": "./term-loader",
+    "@script-common": "./script-common",
+    "@script-mapping": "./script-mapping",
     "@bedes-backend": "../../bedes-backend/src"
   }
 }

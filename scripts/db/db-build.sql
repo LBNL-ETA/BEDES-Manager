@@ -12,11 +12,14 @@ insert into public.term_category (name) values
     ('Envelope'),
     ('HVAC'),
     ('Loads'),
-    ('Controls And Operation'),
-    ('Generation And Storage Equipment'),
+    ('Controls and Operations'),
+    ('Generation and Storage Equipment'),
+    ('Resource'),
     ('Resources'),
     ('Emissions'),
-    ('Waste')
+    ('Waste'),
+    ('Metadata'),
+    ('Units')
 ;
 
 create table public.data_type (
@@ -34,9 +37,21 @@ create table public.definition_source (
     name text not null unique
 );
 
+create table public.sector (
+    id int primary key,
+    name text not null unique
+);
+insert into public.sector (id, name) values
+    (1, 'Multifamily'),
+    (2, 'Residential'),
+    (3, 'Commercial')
+;
+
 create table public.bedes_term (
     id serial primary key,
     name varchar(100) unique not null,
+    uuid uuid unique,
+    url varchar(250),
     description text,
     term_category_id int references public.term_category (id) not null,
     data_type_id int references public.data_type (id) not null,
@@ -62,6 +77,16 @@ create table public.bedes_term_list_option (
 create unique index on public.bedes_term_list_option (term_id, name, md5(description));
 create index on public.bedes_term_list_option (unit_id);
 create index on public.bedes_term_list_option (definition_source_id);
+
+-- Term Sector Assignment
+create table public.bedes_term_sector_link (
+    id serial primary key,
+    term_id int not null references public.bedes_term (id),
+    sector_id int not null references public.sector (id),
+    unique(term_id, sector_id)
+);
+create index on public.bedes_term_sector_link (term_id);
+create index on public.bedes_term_sector_link (sector_id);
 
 -- Composite Term
 create table public.bedes_composite_term (
