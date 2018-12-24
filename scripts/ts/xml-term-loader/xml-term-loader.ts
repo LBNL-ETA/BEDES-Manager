@@ -22,6 +22,8 @@ import { xmlNodeToTerm } from './xml-node-to-term';
 import { IXmlTerm } from '../../../bedes-common/models/xml-term/xml-term.interface';
 import { bedesQuery } from '@bedes-backend/bedes/query';
 import { IBedesSector } from '@bedes-common/models/bedes-sector/bedes-sector.interface';
+import { BedesSector } from '../../../bedes-common/models/bedes-sector/bedes-sector';
+import { IBedesTermSectorLink } from '../../../bedes-common/models/bedes-term-sector-link/bedes-term-sector-link.interface';
 
 /**
  * Load's the BEDES terms from BEDES_all-terms_V2-2.xml
@@ -183,9 +185,101 @@ export class XmlTermLoader {
             bedesTerm._url = xmlTerm.url;
             dataChanged = true;
         }
+        // sector - write the sector info for the term
+        if (xmlTerm.sectorNames) {
+            bedesTerm._sectors = this.buildSectorsFromArray(xmlTerm.sectorNames);
+            dataChanged = true;
+        }
+
         if (dataChanged) {
             return bedesQuery.terms.updateTerm(bedesTerm);
         }
+
     }
 
+    /**
+     * Determines if a given sector name is a valid one.
+     */
+    private isValidSector(sectorName: string): boolean {
+        if (sectorName.toLowerCase() !== 'n/a') {
+            return true;
+        }
+        else {
+            return false;
+        }
+
+    }
+
+    /**
+     * Takes an array of BedesSector names,
+     * and returns them as an array of IBedesTermSectorLink objects.
+     * eg [Commercial, Residential] -> [{_sectorId: 1}, {_sectorId: 2}]
+     */
+    private buildSectorsFromArray(sectorNames: Array<string>): Array<IBedesTermSectorLink> {
+        try {
+            // // stores the valid sectorNames to return
+            // const sectorNames = new Array<string>();
+            // // parse the name string and push valid names to sectorNames.
+            // sectorNamesString
+            //     .split(',')
+            //     .map((d) => d.trim())
+            //     .forEach((sectorName: string) => {
+            //         if (this.isValidSector(sectorName)) {
+            //             sectorNames.push(sectorName);
+            //         }
+            //     });
+            // create the return arry
+            const sectors = new Array<IBedesTermSectorLink>();
+            sectorNames.forEach((sectorName: string) => {
+                if (sectorName && sectorName.toLowerCase() !== 'n/a') {
+                    const found = this.sectors.find((d) => d._name.toLowerCase() === sectorName.trim().toLowerCase())
+                    if (!found) {
+                        throw new Error(`sector name ${sectorName} not found`);
+                    }
+                    sectors.push(<IBedesTermSectorLink>{_sectorId: found._id});
+                }
+            });
+            return sectors;
+        }
+        catch (error) {
+            logger.error(`${this.constructor.name}: error in buildSectors`);
+            logger.error(util.inspect(error));
+            logger.error(util.inspect(sectorNames));
+            throw error;
+        }
+    }
+
+    private buildSectors(sectorNamesString: string): Array<IBedesTermSectorLink> {
+        try {
+            // // stores the valid sectorNames to return
+            // const sectorNames = new Array<string>();
+            // // parse the name string and push valid names to sectorNames.
+            // sectorNamesString
+            //     .split(',')
+            //     .map((d) => d.trim())
+            //     .forEach((sectorName: string) => {
+            //         if (this.isValidSector(sectorName)) {
+            //             sectorNames.push(sectorName);
+            //         }
+            //     });
+            // create the return arry
+            const sectors = new Array<IBedesTermSectorLink>();
+            sectorNamesString.split(',').forEach((sectorName: string) => {
+                if (sectorName && sectorName.toLowerCase() !== 'n/a') {
+                    const found = this.sectors.find((d) => d._name.toLowerCase() === sectorName.trim().toLowerCase())
+                    if (!found) {
+                        throw new Error(`sector name ${sectorName} not found`);
+                    }
+                    sectors.push(<IBedesTermSectorLink>{_sectorId: found._id});
+                }
+            });
+            return sectors;
+        }
+        catch (error) {
+            logger.error(`${this.constructor.name}: error in buildSectors`);
+            logger.error(util.inspect(error));
+            logger.error(util.inspect(sectorNamesString));
+            throw error;
+        }
+    }
 }

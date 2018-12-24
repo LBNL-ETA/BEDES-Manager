@@ -1,4 +1,5 @@
 import { IBedesTerm } from "./bedes-term.interface";
+import { BedesTermSectorLink } from '../bedes-term-sector-link/bedes-term-sector-link';
 
 export class BedesTerm {
     protected _id: number | null | undefined;
@@ -10,6 +11,7 @@ export class BedesTerm {
     protected _definitionSourceId: number | null | undefined;
     protected _uuid: string | null | undefined;
     protected _url: string | null | undefined;
+    protected _sectors: Array<BedesTermSectorLink>;
 
     constructor(data: IBedesTerm) {
         this._id = data._id;
@@ -21,6 +23,11 @@ export class BedesTerm {
         this._definitionSourceId = data._definitionSourceId;
         this._uuid = data._uuid;
         this._url = data._url;
+        // build the sectors array
+        this._sectors = new Array<BedesTermSectorLink>();
+        if (data._sectors && data._sectors.length) {
+            data._sectors.forEach((d) => this._sectors.push(new BedesTermSectorLink(d)));
+        }
     }
 
     get id(): number | null | undefined {
@@ -77,6 +84,9 @@ export class BedesTerm {
     set url(value: string | null | undefined) {
         this._url = value;
     }
+    get sectors(): Array<BedesTermSectorLink> {
+        return this._sectors;
+    }
 
     /**
      * Build the interface data from this object.
@@ -92,7 +102,8 @@ export class BedesTerm {
             _termCategoryId: this._termCategoryId,
             _unitId: this._unitId,
             _uuid: this._uuid,
-            _url: this._url
+            _url: this._url,
+            _sectors: this._sectors.map((d) => d.toInterface())
         }
     }
 }

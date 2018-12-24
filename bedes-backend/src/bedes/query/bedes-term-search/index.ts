@@ -164,13 +164,16 @@ export class BedesTermSearchQuery {
                 bt.data_type_id as "_dataTypeId",
                 bt.definition_source_id as "_definitionSourceId",
                 bt.unit_id as "_unitId",
+                bt.uuid as "_uuid",
+                bt.url as "_url",
                 json_agg(o) as "_options"
             from
                 public.bedes_term as bt
             join
                 options o on o.term_id = bt.id
             group by
-                bt.id, bt.name, bt.description, bt.term_category_id, bt.data_type_id, bt.definition_source_id, bt.unit_id
+                bt.id, bt.name, bt.description, bt.term_category_id, bt.data_type_id,
+                bt.definition_source_id, bt.unit_id, bt.uuid, bt.url
             ;
         `
         logger.debug(query);
@@ -194,9 +197,25 @@ export class BedesTermSearchQuery {
                 term_category_id as "_termCategoryId",
                 data_type_id as "_dataTypeId",
                 definition_source_id as "_definitionSourceId",
-                unit_id as "_unitId"
+                unit_id as "_unitId",
+                bt.uuid as "_uuid",
+                bt.url as "_url",
+                s.sectors as "_sectors"
             from
                 public.bedes_term as bt
+            left outer join
+                (
+                    select
+                        term_id,
+                        json_agg(json_build_object(
+                            '_id', id,
+                            '_sectorId', sector_id
+                        )) as sectors
+                    from
+                        bedes_term_sector_link s
+                    group by
+                        term_id
+                ) as s on s.term_id = bt.id
             where
                 bt.data_type_id != 1
             and

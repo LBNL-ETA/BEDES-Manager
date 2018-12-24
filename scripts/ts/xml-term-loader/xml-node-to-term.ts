@@ -3,6 +3,7 @@ const logger = createLogger(module);
 import { IXmlNode } from './xml-nodes/xml-node.interface';
 import { IXmlTerm } from '@bedes-common/models/xml-term/xml-term.interface';
 import { IXmlDefinition } from './xml-nodes/xml-definition.interface';
+import { IBedesSector } from "@bedes-common/models/bedes-sector/bedes-sector.interface";
 
 export function xmlNodeToTerm(node: IXmlNode): IXmlTerm {
     const termName = getValue(node, "Term", true);
@@ -17,8 +18,8 @@ export function xmlNodeToTerm(node: IXmlNode): IXmlTerm {
         dataTypeName: getValue(node, "Data-Type", true),
         unitName: getValue(node, "Unit-of-Measure", true),
         categoryName: getValue(node, "Category", true),
-        sectorNames: node.Sector,
-        applicationNames: node.Application,
+        sectorNames: splitString(getValue(node, 'Sector', true)),
+        applicationNames: splitString(getValue(node, 'Application', true)),
     };
     return term;
 }
@@ -66,5 +67,14 @@ function fixTermName(nameFromXml: string): string {
     }
     else {
         return nameFromXml;
+    }
+}
+
+/**
+ *
+ */
+function splitString(names: string | undefined): Array<string> | undefined {
+    if (names) {
+        return names.split(',').map((d) => d.trim())
     }
 }

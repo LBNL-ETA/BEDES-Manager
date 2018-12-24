@@ -9,6 +9,7 @@ import { IBedesTerm, BedesTerm, IBedesConstrainedList } from '@bedes-common/mode
 import { IBedesTermOption } from '@bedes-common/models/bedes-term-option';
 import { bedesQuery } from '../';
 import { BedesErrorTermNotFound } from '../../../../../scripts/ts/mappings-loader/mappings/lib/errors/bedes-term-not-found.error';
+import { IBedesTermSectorLink } from '../../../../../bedes-common/models/bedes-term-sector-link/bedes-term-sector-link.interface';
 
 export class BedesTermQuery {
     private sqlGetByName!: QueryFile;
@@ -37,16 +38,14 @@ export class BedesTermQuery {
 
     /**
      * Writes a new IBedesTerm to the database.
-     * @param item 
-     * @param [transaction] 
-     * @returns record 
      */
-    public newRecord(item: IBedesTerm, transaction?: any): Promise<IBedesTerm> {
+    public async newRecord(item: IBedesTerm, transaction?: any): Promise<IBedesTerm> {
         try {
             if (!item._name) {
                 logger.error(`${this.constructor.name}: Missing name`);
                 throw new Error('Missing required parameters.');
             }
+            // setup the query for the BedesTerm (sectors stored in a separate table)
             const params = {
                 _name: item._name,
                 _description: item._description || null,
@@ -55,12 +54,25 @@ export class BedesTermQuery {
                 _unitId: item._unitId,
                 _definitionSourceId: item._definitionSourceId
             };
+            // set the database context
+            let dbContext: any;
             if (transaction) {
-                return transaction.one(this.sqlInsert, params);
+                dbContext = transaction;
+                // promises.push(transaction.one(this.sqlInsert, params));
             }
             else {
-                return db.one(this.sqlInsert, params);
+                dbContext = db;
+                // promises.push(db.one(this.sqlInsert, params));
             }
+            const newTerm: IBedesTerm = await dbContext.one(this.sqlInsert, params);
+            if (!newTerm._id) {
+                throw new Error('New BedesTerm missing id');
+            }
+            // save the sector info
+            const sectors = await bedesQuery.bedesTermSectorLink.insertAll(newTerm._id, item._sectors, transaction);
+            sectors.forEach((d) => newTerm._sectors.push(d));
+            return newTerm;
+            
         } catch (error) {
             logger.error(`${this.constructor.name}: Error in newRecord`);
             logger.error(util.inspect(error));
@@ -300,6 +312,9 @@ export class BedesTermQuery {
                 logger.error(util.inspect(item));
                 throw new Error('Invalid parameters.');
             }
+            // create the array of promises
+            const promises = new Array<Promise<any>>();
+            // setup the bedesTerm parameters
             const params = {
                 _id: item._id,
                 _name: item._name,
@@ -311,12 +326,71 @@ export class BedesTermQuery {
                 _uuid: item._uuid || null,
                 _url: item._url || null,
             };
-            if (transaction) {
-                return transaction.one(this.sqlUpdateTerm, params);
+            // update the bedes_term table
+            // let dbContext: any;
+            // if (transaction) {
+            //     dbContext = transaction;
+            //     // promises.push(transaction.one(this.sqlUpdateTerm, params));
+            // }
+            // else {
+            //     dbContext = db;
+            //     // promises.push(db.one(this.sqlUpdateTerm, params));
+            // }
+            const dbContext = transaction ? transaction : db;
+            const updatedTerm: IBedesTerm = await dbContext.one(this.sqlUpdateTerm, params);
+
+            if (item._sectors && item._sectors.length) {
+                updatedTerm._sectors = await bedesQuery.bedesTermSectorLink.update(item._id, item._sectors, transaction);
             }
             else {
-                return db.one(this.sqlUpdateTerm, params);
+                updatedTerm._sectors = new Array<IBedesTermSectorLink>();
             }
+            return updatedTerm;
+            // let updatedTerm: IBedesTerm | undefined;
+            // promises.push(dbContext.one(this.sqlUpdateTerm, params).then(
+            //     (results: IBedesTerm) => {
+            //         updatedTerm = results;
+            //         return results;
+            //     }, (error: Error) => {
+            //         logger.error('Error running the bedes-term update query');
+            //         throw error;
+            //     }
+            // ));
+            // update the sectors
+            // promises.push(bedesQuery.bedesTermSectorLink.update(item._id, item._sectors, transaction));
+            // await Promise.all(promises);
+            // TODO: fixed the sectorlink update
+            // 
+
+            // const params = {
+            //     _id: item._id,
+            //     _name: item._name,
+            //     _description: item._description || null,
+            //     _termCategoryId: item._termCategoryId,
+            //     _dataTypeId: item._dataTypeId,
+            //     _unitId: item._unitId,
+            //     _definitionSourceId: item._definitionSourceId,
+            //     _uuid: item._uuid || null,
+            //     _url: item._url || null,
+            // };
+            // // set the database context
+            // let dbContext: any;
+            // if (transaction) {
+            //     dbContext = transaction;
+            //     // promises.push(transaction.one(this.sqlInsert, params));
+            // }
+            // else {
+            //     dbContext = db;
+            //     // promises.push(db.one(this.sqlInsert, params));
+            // }
+            // const newTerm: IBedesTerm = await dbContext.one(this.sqlUpdateTerm, params);
+            // if (!newTerm._id) {
+            //     throw new Error('New BedesTerm missing id');
+            // }
+            // // save the sector info
+            // const sectors = await bedesQuery.bedesTermSectorLink.insertAll(newTerm._id, item._sectors, transaction);
+            // sectors.forEach((d) => newTerm._sectors.push(d));
+            // return newTerm;
         } catch (error) {
             logger.error(`${this.constructor.name}: error in updateTerm`);
             logger.error(util.inspect(error));

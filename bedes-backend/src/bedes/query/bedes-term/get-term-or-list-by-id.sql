@@ -14,6 +14,23 @@ with
 			public.bedes_term_list_option as d
 		where
 			d.term_id = ${_id}
+	),
+	w_sectors as (
+		select
+			term_id,
+			json_agg(a) as "_items"
+		from (
+			select
+				id as "_id",
+				term_id,
+				sector_id as "_sectorId"
+			from
+				bedes_term_sector_link
+			where
+				term_id = ${_id}
+		) as a
+		group by
+			term_id
 	)
 select
 	bt.id as "_id",
@@ -36,9 +53,11 @@ from
 	public.bedes_term bt
 left outer join
 	w_list_options o on o.term_id = bt.id
+left outer join
+	w_sectors s on s.term_id = bt.id
 where
 	bt.id = ${_id}
 group by
 	bt.id, bt.name, bt.description, bt.term_category_id, bt.data_type_id,
-	bt.definition_source_id, bt.unit_id, bt._uuid, bt._url
+	bt.definition_source_id, bt.unit_id, bt.uuid, bt.url
 ;

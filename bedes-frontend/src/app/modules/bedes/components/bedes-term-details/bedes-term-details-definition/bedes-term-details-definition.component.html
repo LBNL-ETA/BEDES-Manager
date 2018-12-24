@@ -8,12 +8,23 @@
     </mat-card-header>
     <mat-card-content>
         <form [formGroup]="dataForm" style="display:flex; flex-direction: column;">
+            <!-- Term Name -->
             <mat-form-field style="flex:1; margin-bottom:5px;">
                 <input matInput placeholder="Term Name" formControlName="name">
             </mat-form-field>
+            <!-- Term Description -->
             <mat-form-field style="flex:1; margin-bottom:5px;">
                 <textarea matInput placeholder="Description" formControlName="description" rows="5"></textarea>
             </mat-form-field>
+            <div style="display:flex; flex-direction: row;">
+                <mat-form-field style="flex:1; margin-bottom:5px;">
+                    <input matInput placeholder="UUID" formControlName="uuid">
+                </mat-form-field>
+                <mat-form-field style="flex:1; margin-bottom:5px;">
+                    <input matInput placeholder="URL" formControlName="url">
+                </mat-form-field>
+            </div>
+            <!-- Form groups for data type, unit and category -->
             <div style="display:flex; flex-direction: row;">
                 <mat-form-field style="flex:1; margin-bottom:5px;">
                     <mat-select placeholder="Select the Data Type" formControlName="dataTypeId" *ngIf="dataTypeList.length">

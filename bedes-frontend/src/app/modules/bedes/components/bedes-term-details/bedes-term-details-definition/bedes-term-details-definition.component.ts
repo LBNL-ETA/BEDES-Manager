@@ -29,6 +29,11 @@ export class BedesTermDetailsDefinitionComponent implements OnInit {
         unitId: [''],
         definitionSourceId: [''],
         termCategoryId: [''],
+        uuid: [''],
+        url: [''],
+        sectorCommercial: [''],
+        sectorResidential: [''],
+        sectorMultifamily: ['']
       });
 
     constructor(
@@ -90,6 +95,12 @@ export class BedesTermDetailsDefinitionComponent implements OnInit {
         this.dataForm.controls['description'].setValue(
             this.term.description
         );
+        this.dataForm.controls['uuid'].setValue(
+            this.term.uuid
+        );
+        this.dataForm.controls['url'].setValue(
+            this.term.url
+        );
         this.dataForm.controls['dataTypeId'].setValue(
             this.term.dataTypeId
         );
@@ -125,6 +136,26 @@ export class BedesTermDetailsDefinitionComponent implements OnInit {
                 }
                 else {
                     this.term.description = undefined;
+                }
+            }
+        );
+        this.dataForm.controls['uuid'].valueChanges.subscribe(
+            (results: string) => {
+                if (results) {
+                    this.term.uuid = results;
+                }
+                else {
+                    this.term.uuid = undefined;
+                }
+            }
+        );
+        this.dataForm.controls['url'].valueChanges.subscribe(
+            (results: string) => {
+                if (results) {
+                    this.term.url = results;
+                }
+                else {
+                    this.term.url = undefined;
                 }
             }
         );
