@@ -1,11 +1,11 @@
 import { createLogger }  from "@script-common/logging";
 const logger = createLogger(module);
-import { IXmlNode } from './xml-nodes/xml-node.interface';
+import { IXmlNodeTerm } from './xml-nodes/xml-node-term.interface';
 import { IXmlTerm } from '@bedes-common/models/xml-term/xml-term.interface';
 import { IXmlDefinition } from './xml-nodes/xml-definition.interface';
 import { IBedesSector } from "@bedes-common/models/bedes-sector/bedes-sector.interface";
 
-export function xmlNodeToTerm(node: IXmlNode): IXmlTerm {
+export function xmlNodeToTerm(node: IXmlNodeTerm): IXmlTerm {
     const termName = getValue(node, "Term", true);
     if (!termName) {
         throw new Error('termName is required');
@@ -24,7 +24,7 @@ export function xmlNodeToTerm(node: IXmlNode): IXmlTerm {
     return term;
 }
 
-function getValue(node: IXmlNode | IXmlDefinition, key: string, required?: boolean): string | undefined {
+function getValue(node: IXmlNodeTerm | IXmlDefinition, key: string, required?: boolean): string | undefined {
     // @ts-ignore
     const dataArray = node[key];
     if (!(dataArray instanceof Array)) {

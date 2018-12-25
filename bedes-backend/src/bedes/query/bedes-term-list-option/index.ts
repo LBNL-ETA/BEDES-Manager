@@ -9,6 +9,7 @@ import { IBedesTermOption } from '@bedes-common/models/bedes-term-option';
 
 export class BedesTermListOptionQuery {
     private sqlGetByName!: QueryFile;
+    private sqlGetByUUID!: QueryFile;
     private sqlInsert!: QueryFile;
     private sqlDelete!: QueryFile;
     private sqlUpdate!: QueryFile;
@@ -19,6 +20,7 @@ export class BedesTermListOptionQuery {
 
     private initSql(): void {
         this.sqlGetByName = sql_loader(path.join(__dirname, 'get-by-name.sql'));
+        this.sqlGetByUUID = sql_loader(path.join(__dirname, 'get-by-uuid.sql'));
         this.sqlInsert = sql_loader(path.join(__dirname, 'insert.sql'))
         this.sqlDelete = sql_loader(path.join(__dirname, 'delete.sql'))
         this.sqlUpdate = sql_loader(path.join(__dirname, 'update.sql'))
@@ -39,7 +41,9 @@ export class BedesTermListOptionQuery {
                 _name: item._name,
                 _description: item._description,
                 _unitId: item._unitId,
-                _definitionSourceId: item._definitionSourceId
+                _definitionSourceId: item._definitionSourceId,
+                _url: item._url || null,
+                _uuid: item._uuid || null
             };
             if (transaction) {
                 return transaction.one(this.sqlInsert, params);
@@ -54,6 +58,9 @@ export class BedesTermListOptionQuery {
         }
     }
 
+    /**
+     * Update an existing BedesTermListOption record.
+     */
     public updateRecord(item: IBedesTermOption, transaction?: any): Promise<IBedesTermOption> {
         try {
             if (!item._id || !item._name) {
@@ -65,10 +72,12 @@ export class BedesTermListOptionQuery {
                 _name: item._name,
                 _description: item._description,
                 _unitId: item._unitId,
-                _definitionSourceId: item._definitionSourceId
+                _definitionSourceId: item._definitionSourceId,
+                _url: item._url || null,
+                _uuid: item._uuid || null
             };
-            logger.debug(`update term option`);
-            logger.debug(util.inspect(params));
+            // logger.debug(`update term option`);
+            // logger.debug(util.inspect(params));
             if (transaction) {
                 return transaction.one(this.sqlUpdate, params);
             }
@@ -84,18 +93,18 @@ export class BedesTermListOptionQuery {
 
 
     /**
-     * Gets BedesUnit record given a unit name.
-     * @param name 
-     * @returns record by name 
+     * Gets a bedes term list option, given its name and parent term uuid.
      */
-    public getRecordByName(name: string, transaction?: any): Promise<IBedesTermOption> {
+    public getRecordByName(termUUID: string, optionName: string, transaction?: any): Promise<IBedesTermOption> {
         try {
-            if (!name) {
+            if (!optionName) {
                 logger.error(`${this.constructor.name}: Missing name`);
                 throw new Error('Missing required parameters.');
             }
             const params = {
-                _name: name
+                _termUUID: termUUID,
+                _optionName: optionName
+
             };
             if (transaction) {
                 return transaction.one(this.sqlGetByName, params);
@@ -105,6 +114,31 @@ export class BedesTermListOptionQuery {
             }
         } catch (error) {
             logger.error(`${this.constructor.name}: Error in getRecordByName`);
+            logger.error(util.inspect(error));
+            throw error;
+        }
+    }
+
+    /**
+     * Retrieve a BedesListOption record by uuid.
+     */
+    public getRecordByUUID(uuid: string, transaction?: any): Promise<IBedesTermOption> {
+        try {
+            if (!uuid) {
+                logger.error(`${this.constructor.name}: Missing uuid`);
+                throw new Error('Missing required parameters.');
+            }
+            const params = {
+                _uuid: uuid
+            };
+            if (transaction) {
+                return transaction.one(this.sqlGetByUUID, params);
+            }
+            else {
+                return db.one(this.sqlGetByUUID, params);
+            }
+        } catch (error) {
+            logger.error(`${this.constructor.name}: Error in getRecordByUUID`);
             logger.error(util.inspect(error));
             throw error;
         }

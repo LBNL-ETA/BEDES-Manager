@@ -1,7 +1,7 @@
-import { IXmlNode } from './xml-node.interface';
+import { IXmlNodeTerm } from './xml-node-term.interface';
 
 export interface IXmlNodes {
     nodes: {
-        node: Array<IXmlNode>
+        node: Array<IXmlNodeTerm>
     }
 }

@@ -69,7 +69,9 @@ create table public.bedes_term_list_option (
     name varchar(150) not null,
     description text not null,
     unit_id int references public.unit (id) not null,
-    definition_source_id int references public.definition_source (id)
+    definition_source_id int references public.definition_source (id),
+    url varchar(250),
+    uuid uuid
 );
 -- Want to ensure uniqueness, but some terms have the same name and different descriptions
 -- Use an md5 hash of the text field instead of using the actual text as the unique constraint.

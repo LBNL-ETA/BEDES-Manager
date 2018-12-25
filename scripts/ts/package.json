@@ -9,7 +9,8 @@
     "load-terms-debug": "(set -a && . ../../.env && set +a && LOG_LEVEL_CONSOLE=debug ts-node term-loader --color=true)",
     "load-mappings": "(set -a && . ../../.env && set +a && LOG_LEVEL_CONSOLE=info ts-node mappings-loader)",
     "load-mappings-debug": "(set -a && . ../../.env && set +a && LOG_LEVEL_CONSOLE=debug ts-node mappings-loader)",
-    "load-xml-terms-debug": "(set -a && . ../../.env && set +a && LOG_LEVEL_CONSOLE=debug ts-node xml-term-loader --color=true)"
+    "load-xml-terms-debug": "(set -a && . ../../.env && set +a && LOG_LEVEL_CONSOLE=debug ts-node xml-term-loader --color=true)",
+    "load-xml-term-options-debug": "(set -a && . ../../.env && set +a && LOG_LEVEL_CONSOLE=debug ts-node xml-term-option-loader --color=true)"
   },
   "author": "",
   "license": "ISC",

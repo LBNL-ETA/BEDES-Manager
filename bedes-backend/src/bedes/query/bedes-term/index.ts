@@ -13,6 +13,7 @@ import { IBedesTermSectorLink } from '../../../../../bedes-common/models/bedes-t
 
 export class BedesTermQuery {
     private sqlGetByName!: QueryFile;
+    private sqlGetByUUID!: QueryFile;
     private sqlGetTermById!: QueryFile;
     private sqlGetListById!: QueryFile;
     private sqlGetTermOrListById!: QueryFile;
@@ -30,6 +31,7 @@ export class BedesTermQuery {
         this.sqlGetListById = sql_loader(path.join(__dirname, 'get-list-by-id.sql'));
         this.sqlGetTermOrListById = sql_loader(path.join(__dirname, 'get-term-or-list-by-id.sql'));
         this.sqlGetByName = sql_loader(path.join(__dirname, 'get-by-name.sql'));
+        this.sqlGetByUUID = sql_loader(path.join(__dirname, 'get-by-uuid.sql'));
         this.sqlGetBedesList = sql_loader(path.join(__dirname, 'get-bedes-list.sql'));
         this.sqlInsert = sql_loader(path.join(__dirname, 'insert.sql'))
         this.sqlIsConstrainedList = sql_loader(path.join(__dirname, 'is-constrained-list.sql'))
@@ -235,6 +237,36 @@ export class BedesTermQuery {
         } catch (error) {
             if (error.name === 'QueryResultError') {
                 throw new BedesErrorTermNotFound(name);
+            }
+            else {
+                logger.error(`${this.constructor.name}: Error in newRecord`);
+                logger.error(util.inspect(error));
+                throw error;
+            }
+        }
+    }
+
+    /**
+     * Get a bedes term by UUID.
+     */
+    public getRecordByUUID(uuid: string, transaction?: any): Promise<IBedesTerm> {
+        try {
+            if (!uuid) {
+                logger.error(`${this.constructor.name}: Missing name`);
+                throw new Error('Missing required parameters.');
+            }
+            const params = {
+                _uuid: uuid
+            };
+            if (transaction) {
+                return transaction.one(this.sqlGetByUUID, params);
+            }
+            else {
+                return db.one(this.sqlGetByUUID, params);
+            }
+        } catch (error) {
+            if (error.name === 'QueryResultError') {
+                throw new BedesErrorTermNotFound(uuid);
             }
             else {
                 logger.error(`${this.constructor.name}: Error in newRecord`);

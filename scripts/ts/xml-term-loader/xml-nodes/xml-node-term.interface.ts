@@ -1,6 +1,6 @@
 import { IXmlDefinition } from './xml-definition.interface';
 
-export interface IXmlNode {
+export interface IXmlNodeTerm {
     'Content-UUID': Array<string>;
     'URL': Array<string>;
     'Term': Array<string>;
