@@ -10,6 +10,7 @@ import * as util from 'util';
 export class BedesDefinitionSourceQuery {
     private sqlGetByName!: QueryFile;
     private sqlInsert!: QueryFile;
+    private sqlGetAllRecords!: QueryFile
 
     constructor() { 
         this.initSql();
@@ -18,6 +19,7 @@ export class BedesDefinitionSourceQuery {
     private initSql(): void {
         this.sqlGetByName = sql_loader(path.join(__dirname, 'get-by-name.sql'));
         this.sqlInsert = sql_loader(path.join(__dirname, 'insert.sql'))
+        this.sqlGetAllRecords = sql_loader(path.join(__dirname, 'get-all-records.sql'))
     }
 
     public newRecord(item: IBedesDefinitionSource, transaction?: any): Promise<IBedesDefinitionSource> {
@@ -68,4 +70,23 @@ export class BedesDefinitionSourceQuery {
             throw error;
         }
     }
+
+    /**
+     * Get the list of all definition source objects
+     */
+    public getAllRecords(transaction?: any): Promise<Array<IBedesDefinitionSource>> {
+        try {
+            if (transaction) {
+                return transaction.many(this.sqlGetAllRecords);
+            }
+            else {
+                return db.many(this.sqlGetAllRecords);
+            }
+        } catch (error) {
+            logger.error(`${this.constructor.name}: Error in getAllRecords`);
+            logger.error(util.inspect(error));
+            throw error;
+        }
+    }
+
 }

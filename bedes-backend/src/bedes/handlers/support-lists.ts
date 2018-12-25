@@ -5,9 +5,6 @@ import { HttpStatusCodes } from '@bedes-common/enums/http-status-codes';
 import { BedesError } from '@bedes-common/bedes-error';
 import { ISupportList } from '@bedes-common/interfaces/support-list';
 import { bedesQuery } from '../query';
-import { IBedesTermCategory } from '@bedes-common/models/bedes-term-category';
-import { IBedesUnit } from '@bedes-common/models/bedes-unit';
-import { IBedesDataType } from '@bedes-common/models/bedes-data-type';
 const logger = createLogger(module);
 
 /**
@@ -20,15 +17,17 @@ export async function getSupportLists(request: Request, response: Response): Pro
     try {
         // create an array of promises, where each element is a promise returned
         // from the list building function.
-        let promises = new Array<Promise<Array<IBedesTermCategory> | Array<IBedesUnit> | Array<IBedesDataType>>>();
+        let promises = new Array<Promise<Array<any>>>();
         promises.push(bedesQuery.termCategory.getAllRecords());
         promises.push(bedesQuery.units.getAllRecords());
         promises.push(bedesQuery.dataType.getAllRecords());
-        const [categoryList, unitList, dataTypeList] = await Promise.all(promises);
+        promises.push(bedesQuery.definitionSource.getAllRecords());
+        const [categoryList, unitList, dataTypeList, defSourceList] = await Promise.all(promises);
         response.json(<ISupportList>{
             _categoryList: categoryList,
             _unitList: unitList,
-            _dataTypeList: dataTypeList
+            _dataTypeList: dataTypeList,
+            _definitionSourceList: defSourceList
         });
     }
     catch (error) {
