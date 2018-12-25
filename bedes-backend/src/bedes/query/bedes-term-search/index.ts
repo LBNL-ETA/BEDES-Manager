@@ -149,7 +149,9 @@ export class BedesTermSearchQuery {
                         o.name as "_name",
                         o.description as "_description",
                         o.unit_id as "_unitId",
-                        o.definition_source_id as "_definitionSourceId"
+                        o.definition_source_id as "_definitionSourceId",
+                        o.url as "_url",
+                        o.uuid as "_uuid"
                     from
                         bedes_term_list_option o
                     join
