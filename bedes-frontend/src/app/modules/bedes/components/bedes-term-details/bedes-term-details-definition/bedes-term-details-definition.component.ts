@@ -8,6 +8,8 @@ import { BedesUnit } from '@bedes-common/models/bedes-unit/bedes-unit';
 import { BedesDataType } from '@bedes-common/models/bedes-data-type';
 import { BedesTermCategory } from '@bedes-common/models/bedes-term-category/bedes-term-category';
 import { Subject } from 'rxjs';
+import { BedesDefinitionSource } from '@bedes-common/models/bedes-definition-source';
+import { BedesSectorValues } from '@bedes-common/enums/bedes-sector.enum';
 
 @Component({
   selector: 'app-bedes-term-details-definition',
@@ -21,6 +23,8 @@ export class BedesTermDetailsDefinitionComponent implements OnInit {
     private unitList: Array<BedesUnit>;
     private dataTypeList: Array<BedesDataType>;
     private categoryList: Array<BedesTermCategory>;
+    public definitionSourceList: Array<BedesDefinitionSource>;
+
 
     public dataForm = this.formBuilder.group({
         name: ['', Validators.required],
@@ -86,6 +90,11 @@ export class BedesTermDetailsDefinitionComponent implements OnInit {
                 this.categoryList = results;
             }
         );
+        this.supportListService.definitionSourceSubject.subscribe(
+            (results: Array<BedesDefinitionSource>) => {
+                this.definitionSourceList = results;
+            }
+        );
     }
 
     private setFormValues(): void {
@@ -112,6 +121,15 @@ export class BedesTermDetailsDefinitionComponent implements OnInit {
         );
         this.dataForm.controls['termCategoryId'].setValue(
             this.term.termCategoryId
+        );
+        this.dataForm.controls['sectorCommercial'].setValue(
+            this.term.sectors.hasCommercial()
+        );
+        this.dataForm.controls['sectorResidential'].setValue(
+            this.term.sectors.hasResidential()
+        );
+        this.dataForm.controls['sectorMultifamily'].setValue(
+            this.term.sectors.hasMultifamily()
         );
     }
 
@@ -197,6 +215,18 @@ export class BedesTermDetailsDefinitionComponent implements OnInit {
                 else {
                     this.term.termCategoryId = undefined;
                 }
+            }
+        );
+        this.dataForm.controls['sectorCommercial'].valueChanges.subscribe(
+            (results: boolean) => {
+                console.log('sector commercial change', results);
+                this.term.sectors.setSector(BedesSectorValues.Commercial, results);
+                // if (results) {
+                //     this.term.termCategoryId = +results;
+                // }
+                // else {
+                //     this.term.termCategoryId = undefined;
+                // }
             }
         );
     }

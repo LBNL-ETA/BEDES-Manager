@@ -22,7 +22,7 @@ export async function getSupportLists(request: Request, response: Response): Pro
         promises.push(bedesQuery.units.getAllRecords());
         promises.push(bedesQuery.dataType.getAllRecords());
         promises.push(bedesQuery.definitionSource.getAllRecords());
-        const [categoryList, unitList, dataTypeList, defSourceList] = await Promise.all(promises);
+        const [categoryList, unitList, dataTypeList, defSourceList, sectorList] = await Promise.all(promises);
         response.json(<ISupportList>{
             _categoryList: categoryList,
             _unitList: unitList,

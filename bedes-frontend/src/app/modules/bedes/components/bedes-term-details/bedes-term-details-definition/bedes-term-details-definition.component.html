@@ -12,10 +12,13 @@
             <mat-form-field style="flex:1; margin-bottom:5px;">
                 <input matInput placeholder="Term Name" formControlName="name">
             </mat-form-field>
+
             <!-- Term Description -->
             <mat-form-field style="flex:1; margin-bottom:5px;">
                 <textarea matInput placeholder="Description" formControlName="description" rows="5"></textarea>
             </mat-form-field>
+
+            <!-- UUID and URL -->
             <div style="display:flex; flex-direction: row;">
                 <mat-form-field style="flex:1; margin-bottom:5px;">
                     <input matInput placeholder="UUID" formControlName="uuid">
@@ -24,8 +27,29 @@
                     <input matInput placeholder="URL" formControlName="url">
                 </mat-form-field>
             </div>
+
+            <!-- Definition source and sector -->
+            <div style="display:flex; flex-direction: row;">
+                <mat-form-field style="flex:1; margin-bottom:5px;">
+                    <mat-select placeholder="Definition Source"
+                    formControlName="definitionSourceId"
+                    *ngIf="definitionSourceList.length">
+                        <mat-option *ngFor="let item of definitionSourceList" [value]="item.id">
+                            {{item.name}}
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <div style="flex:1; display:flex; margin-bottom:5px;">
+                    <h3 style="font-weight: bold; padding-right: 20px;">Sector:</h3>
+                    <mat-checkbox style="flex:1;" formControlName="sectorCommercial">Commercial</mat-checkbox>
+                    <mat-checkbox style="flex:1;" formControlName="sectorResidential">Residential</mat-checkbox>
+                    <mat-checkbox style="flex:1;" formControlName="sectorMultifamily">Multifamily</mat-checkbox>
+                </div>
+            </div>
+
             <!-- Form groups for data type, unit and category -->
             <div style="display:flex; flex-direction: row;">
+                <!-- Data Type -->
                 <mat-form-field style="flex:1; margin-bottom:5px;">
                     <mat-select placeholder="Select the Data Type" formControlName="dataTypeId" *ngIf="dataTypeList.length">
                         <mat-option *ngFor="let item of dataTypeList" [value]="item.id">
@@ -33,6 +57,7 @@
                         </mat-option>
                     </mat-select>
                 </mat-form-field>
+                <!-- Units -->
                 <mat-form-field style="flex:1;">
                     <mat-select placeholder="Unit" formControlName="unitId" *ngIf="unitList.length">
                         <mat-option *ngFor="let item of unitList" [value]="item.id">
@@ -40,6 +65,7 @@
                         </mat-option>
                     </mat-select>
                 </mat-form-field>
+                <!-- Category -->
                 <mat-form-field style="flex:1;">
                     <mat-select placeholder="Term Category" formControlName="termCategoryId" *ngIf="categoryList.length">
                         <mat-option *ngFor="let item of categoryList" [value]="item.id">

@@ -7,6 +7,8 @@ import { BedesUnit, IBedesUnit } from '@bedes-common/models/bedes-unit';
 import { ISupportList } from '@bedes-common/interfaces/support-list';
 import { BedesDataType } from '@bedes-common/models/bedes-data-type';
 import { BedesTermCategory } from '@bedes-common/models/bedes-term-category';
+import { BedesDefinitionSource } from '@bedes-common/models/bedes-definition-source';
+import { BedesSector } from '@bedes-common/models/bedes-sector/bedes-sector';
 
 @Injectable({
     providedIn: 'root'
@@ -29,6 +31,11 @@ export class SupportListService {
     get termCategorySubject(): BehaviorSubject<Array<BedesTermCategory>> {
         return this._termCategorySubject;
     }
+    // definition source
+    private _definitionSourceSubject: BehaviorSubject<Array<BedesDefinitionSource>>;
+    get definitionSourceSubject(): BehaviorSubject<Array<BedesDefinitionSource>> {
+        return this._definitionSourceSubject;
+    }
 
     constructor(
         private http: HttpClient,
@@ -38,6 +45,7 @@ export class SupportListService {
         this._unitListSubject = new BehaviorSubject<Array<BedesUnit>>([]);
         this._dataTypeSubject = new BehaviorSubject<Array<BedesDataType>>([]);
         this._termCategorySubject = new BehaviorSubject<Array<BedesTermCategory>>([]);
+        this._definitionSourceSubject = new BehaviorSubject<Array<BedesDefinitionSource>>([]);
     }
 
     /**
@@ -62,10 +70,13 @@ export class SupportListService {
                 this._termCategorySubject.next(
                     results._categoryList.map((d) => new BedesTermCategory(d))
                 );
+                // assing the definition source lookup table
+                this._definitionSourceSubject.next(
+                    results._definitionSourceList.map((d) => new BedesDefinitionSource(d))
+                )
                 resolve(true);
             });
         });
     }
 
 }
-

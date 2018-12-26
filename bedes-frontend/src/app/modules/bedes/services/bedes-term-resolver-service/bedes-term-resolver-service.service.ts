@@ -33,7 +33,7 @@ export class BedesTermResolverServiceService {
         else {
             return this.termService.getTerm(Number(id))
                 .pipe(
-                    // take(1),
+                    take(1),
                     mergeMap(bedesTerm => {
                         console.log(`${this.constructor.name}: received results`, bedesTerm);
                         if (bedesTerm) {
