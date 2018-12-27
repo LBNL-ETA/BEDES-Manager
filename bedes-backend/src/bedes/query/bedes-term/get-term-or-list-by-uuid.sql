@@ -1,4 +1,4 @@
--- retrieve an IBedesTerm or IBedesConstrainedList
+-- retrieve an IBedesTerm or IBedesConstrainedList by matching UUID
 -- if it's a constrained list _options will always be an array
 -- if it's a regular bedes term _options will always be null
 with
@@ -17,22 +17,26 @@ with
 					d.uuid as "_uuid"
 				from
 					public.bedes_term_list_option as d
+				join
+					public.bedes_term t on t.id = d.term_id
 				where
-					d.term_id = ${_id}
+					t.uuid = ${_uuid}
 			) as a
 	),
 	w_sectors as (
 		select
-			json_agg(a) as sectors
+			json_agg(a) as "sectors"
 		from
 			(
 				select
-					id as "_id",
-					sector_id as "_sectorId"
+					s.id as "_id",
+					s.sector_id as "_sectorId"
 				from
-					bedes_term_sector_link
+					bedes_term_sector_link as s
+				join
+					bedes_term t on t.id = s.term_id
 				where
-					term_id = ${_id}
+					t.uuid = ${_uuid}
 			) as a
 	)
 select
@@ -60,5 +64,5 @@ left outer join
 left outer join
 	w_sectors s on true
 where
-	bt.id = ${_id}
+	bt.uuid = ${_uuid}
 ;

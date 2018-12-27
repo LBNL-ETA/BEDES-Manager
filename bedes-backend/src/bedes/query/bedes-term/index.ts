@@ -9,7 +9,7 @@ import { IBedesTerm, BedesTerm, IBedesConstrainedList } from '@bedes-common/mode
 import { IBedesTermOption } from '@bedes-common/models/bedes-term-option';
 import { bedesQuery } from '../';
 import { BedesErrorTermNotFound } from '../../../../../scripts/ts/mappings-loader/mappings/lib/errors/bedes-term-not-found.error';
-import { IBedesTermSectorLink } from '../../../../../bedes-common/models/bedes-term-sector-link/bedes-term-sector-link.interface';
+import { IBedesTermSectorLink } from '@bedes-common/models/bedes-term-sector-link/bedes-term-sector-link.interface';
 
 export class BedesTermQuery {
     private sqlGetByName!: QueryFile;
@@ -17,6 +17,7 @@ export class BedesTermQuery {
     private sqlGetTermById!: QueryFile;
     private sqlGetListById!: QueryFile;
     private sqlGetTermOrListById!: QueryFile;
+    private sqlGetTermOrListByUUID!: QueryFile;
     private sqlGetBedesList!: QueryFile;
     private sqlInsert!: QueryFile;
     private sqlIsConstrainedList!: QueryFile;
@@ -30,6 +31,7 @@ export class BedesTermQuery {
         this.sqlGetTermById = sql_loader(path.join(__dirname, 'get-term-by-id.sql'));
         this.sqlGetListById = sql_loader(path.join(__dirname, 'get-list-by-id.sql'));
         this.sqlGetTermOrListById = sql_loader(path.join(__dirname, 'get-term-or-list-by-id.sql'));
+        this.sqlGetTermOrListByUUID = sql_loader(path.join(__dirname, 'get-term-or-list-by-uuid.sql'));
         this.sqlGetByName = sql_loader(path.join(__dirname, 'get-by-name.sql'));
         this.sqlGetByUUID = sql_loader(path.join(__dirname, 'get-by-uuid.sql'));
         this.sqlGetBedesList = sql_loader(path.join(__dirname, 'get-bedes-list.sql'));
@@ -209,6 +211,31 @@ export class BedesTermQuery {
             }
         } catch (error) {
             logger.error(`${this.constructor.name}: Error in getTermOrListById`);
+            logger.error(util.inspect(error));
+            throw error;
+        }
+    }
+
+    /**
+     * Get a BedesTerm or BedesConstrainedList by uuid.
+     */
+    public getTermOrListByUUID(uuid: string, transaction?: any): Promise<IBedesTerm | IBedesConstrainedList> {
+        try {
+            if (!uuid) {
+                logger.error(`${this.constructor.name}: Missing uuid`);
+                throw new Error('Missing required parameters.');
+            }
+            const params = {
+                _uuid: uuid
+            };
+            if (transaction) {
+                return transaction.one(this.sqlGetTermOrListByUUID, params);
+            }
+            else {
+                return db.one(this.sqlGetTermOrListByUUID, params);
+            }
+        } catch (error) {
+            logger.error(`${this.constructor.name}: Error in getTermOrListByUUID`);
             logger.error(util.inspect(error));
             throw error;
         }

@@ -40,7 +40,7 @@ export class BedesTermService {
      * @param id
      * @returns term
      */
-    public getTerm(id: number): Observable<BedesTerm | BedesConstrainedList> {
+    public getTerm(id: number | string): Observable<BedesTerm | BedesConstrainedList> {
         const url = this.url.replace(/:id$/, String(id));
         return this.http.get<IBedesTerm | IBedesConstrainedList>(url, { withCredentials: true })
             .pipe(map((results: IBedesTerm | IBedesConstrainedList) => {
