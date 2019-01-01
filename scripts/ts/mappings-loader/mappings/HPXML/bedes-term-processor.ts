@@ -6,6 +6,11 @@ import { BedesRow } from "./bedes-row";
 import { IBedesConstrainedList, IBedesTerm } from "@bedes-common/models/bedes-term";
 import { BedesMappingLabel } from '../base/bedes-mapping-label';
 import { BedesErrorTermNotFound } from '../lib/errors/bedes-term-not-found.error';
+import { BedesTerm } from '../../../../../bedes-common/models/bedes-term/bedes-term';
+import { BedesDataType } from '@bedes-common/enums';
+import { BedesTermOption } from '../../../../../bedes-common/models/bedes-term-option/bedes-term-option';
+import { IBedesTermOption } from '../../../../../bedes-common/models/bedes-term-option/bedes-term-option.interface';
+import { BedesTransformResultType } from '../common/bedes-transform-result.type';
 
 /**
  * Bedes term processor: it processes a collection of BedesRow objects,
@@ -31,9 +36,12 @@ export class BedesTermProcessor {
      * @param bedesRows 
      * @returns transform 
      */
-    public async transform(bedesRows: Array<BedesRow>): Promise<Array<IBedesTerm | IBedesConstrainedList>> {
+    // public async transform(bedesRows: Array<BedesRow>): Promise<Array<IBedesTerm | IBedesConstrainedList>> {
+    public async transform(bedesRows: Array<BedesRow>): Promise<Array<BedesTransformResultType>> {
         try {
             let promises = new Array<Promise<IBedesTerm | IBedesConstrainedList>>();
+            const validMappings = new Array<BedesMappingLabel>();
+            const results = new Array<BedesTransformResultType>();
             for (let bedesRow of bedesRows) {
                 // skip invalid empty mapping texts
                 if (!bedesRow.bedesMapping) {
@@ -49,35 +57,48 @@ export class BedesTermProcessor {
                     continue;
                 }
                 for (let mapping of mappings) {
-                    if (mapping) {
-                        // check if the term is a constrained list or regular term
-                        let result = await bedesQuery.terms.isConstrainedList(mapping.termName);
-                        if (result) {
-                            // term is a constrained list
-                            // if constrained list, and [value], then this is a custom value for the list
-                            if (mapping.value === '[value]') {
-                                mapping.value = 'Custom';
-                            }
-                            // set all values to custom
-                            // TODO: Revisit this to handle vaues correctly
-                            mapping.value = 'Custom';
-                            promises.push(bedesQuery.terms.getConstrainedList(mapping.termName, mapping.value, this.transaction));
+                    // skip blank mappings
+                    if (!mapping) {
+                        continue;
+                    }
+                    validMappings.push(mapping);
+                    // determine if the term is a constrained list or regular term
+                    // let result = await bedesQuery.terms.isConstrainedList(mapping.termName);
+                    // const term = await bedesQuery.terms.getRecordByName(mapping.termName);
+                    let term: IBedesTerm
+                    try {
+                        term = await bedesQuery.terms.getRecordByName(mapping.termName);
+                    }
+                    catch (error) {
+                        logger.error(`${this.constructor.name}: couldn't find BedesTerm`);
+                        console.log(mapping);
+                        if (error.name === 'QueryResultError') {
+                            throw new BedesErrorTermNotFound(mapping.termName);
                         }
                         else {
-                            // Regular BedesTerm, ie not a ConstrainedList
-                            promises.push(bedesQuery.terms.getRecordByName(mapping.termName, this.transaction));
+                            throw error;
                         }
                     }
+                    // create a term option
+                    let termOption: IBedesTermOption | undefined;
+                    // if the term is a constrained list, get the list option
+                    if (term._dataTypeId === BedesDataType.ConstrainedList && term._uuid && !mapping.isValueField()) {
+                        try {
+                            termOption = await bedesQuery.termListOption.getRecordByName(term._uuid, mapping.value);
+                        }
+                        catch (error) {
+                            logger.warn(`Term option ${mapping.value} not found for bedes term ${term._name} (${term._id})`)
+                        }
+                    }
+                    results.push([term, termOption, mapping]);
                 }
             }
-            return Promise.all(promises);
+            return results;
         } catch (error) {
-            if (!(error instanceof BedesErrorTermNotFound)) {
-                logger.error(`${this.constructor.name}: Error in transform`);
-                logger.error(util.inspect(error));
-                logger.error(`couldn't find matching bedes terms`);
-                logger.error(util.inspect(bedesRows));
-            }
+            logger.error(`${this.constructor.name}: Error in transform`);
+            logger.error(util.inspect(error));
+            logger.error(`couldn't find matching bedes terms`);
+            logger.error(util.inspect(bedesRows));
             throw error;
         }
     }

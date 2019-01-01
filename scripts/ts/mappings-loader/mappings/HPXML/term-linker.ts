@@ -10,10 +10,10 @@ import { AppTermProcessor } from './app-term-processor';
 import { AppRow } from './app-row-hpxml';
 import { BedesRow } from './bedes-row';
 import { BedesCompositeTerm } from '../../../../../bedes-common/models/bedes-composite-term/bedes-composite-term';
-import { buildCompositeTerm, buildCompositeTermFromInterface } from '../../../../../bedes-common/util/build-composite-term';
-import { IBedesCompositeTerm } from '../../../../../bedes-common/models/bedes-composite-term/bedes-composite-term.interface';
+import { buildCompositeTermFromInterface } from '@bedes-common/util/build-composite-term';
+import { IBedesCompositeTerm } from '@bedes-common/models/bedes-composite-term/bedes-composite-term.interface';
 import { BedesErrorTermNotFound } from '../lib/errors/bedes-term-not-found.error';
-import { IBedesCompositeTermMap } from '../../../../../bedes-common/models/mapped-term/bedes-composite-term-map.interface';
+import { IBedesCompositeTermMap } from '@bedes-common/models/mapped-term/bedes-composite-term-map.interface';
 
 /**
  * Responsible for linking AppTerm objects for a given application to
@@ -50,8 +50,8 @@ export class TermLinker {
             logger.debug(util.inspect(appRows));
             logger.debug(util.inspect(bedesRows));
             // transform the BedesRow objects to BedesTerm objects
-            let bedesTerms = await this.bedesTermProcessor.transform(bedesRows);
-            if (!bedesTerms.length) {
+            let transformResults = await this.bedesTermProcessor.transform(bedesRows);
+            if (!transformResults.length) {
                 // no bedes terms found, nothing to link
                 logger.debug('bedes terms not found for appRow:');
                 logger.debug(util.inspect(appRows));
@@ -61,8 +61,12 @@ export class TermLinker {
             let compositeTerm: BedesCompositeTerm | undefined;
             let savedCompositeTerm: IBedesCompositeTerm | undefined;
 
-            if (bedesTerms.length > 1) {
-                compositeTerm = buildCompositeTermFromInterface(bedesTerms);
+            // handle composite terms here
+            // if there's more than 1 term, then it's a composite term
+            // first check if one already exists with the given signature
+            // if not create the composite term
+            if (transformResults.length > 1) {
+                compositeTerm = buildCompositeTermFromInterface(transformResults);
                 logger.debug('built composite term...');
                 logger.debug(util.inspect(compositeTerm));
                 // save the composite term
@@ -99,7 +103,7 @@ export class TermLinker {
             // save the AppTerm objects to the database before linking to BedesTerm
             let savedAppTerms = await this.appTermProcessor.saveAppTerms(appTerms);
             logger.debug('app terms');
-            logger.debug(util.inspect(bedesTerms));
+            logger.debug(util.inspect(transformResults));
             logger.debug(util.inspect(appTerms));
             // either save the mapped app terms against a Bedes Atomic or Bedes Composite Term.
             if (savedCompositeTerm) {
@@ -108,7 +112,8 @@ export class TermLinker {
             }
             else {
                 // an atomic term will have a single bedes term
-                return this.saveMappedAtomicTerm(appId, savedAppTerms, bedesTerms[0]);
+                // first element of the transform is the bedes term object
+                return this.saveMappedAtomicTerm(appId, savedAppTerms, transformResults[0][0]);
             }
         } catch (error) {
             if (!(error instanceof BedesErrorTermNotFound)) {

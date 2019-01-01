@@ -94,6 +94,7 @@ create index on public.bedes_term_sector_link (sector_id);
 create table public.bedes_composite_term (
     id serial primary key,
     signature text not null unique,
+    name text,
     created_date timestamp default now(),
     modified_date timestamp default now()
 );
@@ -104,6 +105,7 @@ create table public.bedes_composite_term_details (
     bedes_term_id int not null references public.bedes_term (id),
     list_option_id int references public.bedes_term_list_option (id),
     order_number int not null,
+    is_value_field boolean default false,
     -- unique (composite_term_id, bedes_term_id),
     unique (composite_term_id, order_number)
 );
