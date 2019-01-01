@@ -43,6 +43,10 @@ import { EditUnitComponent } from './components/list-management/manage-unit-list
 import { NewTermListOptionComponent } from './components/bedes-term-details/bedes-term-details-list-options/new-term-list-option/new-term-list-option.component';
 import { EditTermListOptionComponent } from './components/bedes-term-details/bedes-term-details-list-options/edit-term-list-option/edit-term-list-option.component';
 import { BedesTermListOptionService } from './services/bedes-term-list-option/bedes-term-list-option.service';
+import { TableCellBedesCategoryComponent } from './components/bedes-term-search/bedes-search-results-table/table-cell-bedes-category/table-cell-bedes-category.component';
+import { TableCellBedesUnitComponent } from './components/bedes-term-search/bedes-search-results-table/table-cell-bedes-unit/table-cell-bedes-unit.component';
+import { TableCellBedesDataTypeComponent } from './components/bedes-term-search/bedes-search-results-table/table-cell-bedes-data-type/table-cell-bedes-data-type.component';
+import { TableCellTermNameComponent } from './components/bedes-term-search/bedes-search-results-table/table-cell-term-name/table-cell-term-name.component';
 
 @NgModule({
     imports: [
@@ -85,11 +89,17 @@ import { BedesTermListOptionService } from './services/bedes-term-list-option/be
         NewUnitComponent,
         EditUnitComponent,
         NewTermListOptionComponent,
-        EditTermListOptionComponent
+        EditTermListOptionComponent,
+        TableCellBedesCategoryComponent,
+        TableCellBedesUnitComponent,
+        TableCellBedesDataTypeComponent,
+        TableCellTermNameComponent
     ],
     entryComponents: [
         BedesTermSearchDialogComponent,
-        ConfirmDialogComponent
+        ConfirmDialogComponent,
+        TableCellBedesCategoryComponent,
+        TableCellTermNameComponent
     ],
     providers: [
         BedesTermSearchService,

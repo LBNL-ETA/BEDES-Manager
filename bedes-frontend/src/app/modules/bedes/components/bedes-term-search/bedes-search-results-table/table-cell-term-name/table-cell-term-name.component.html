@@ -1,0 +1,8 @@
+<!-- <button mat-mini-fab color="accent" (click)="viewTerm()">
+    <fa-icon [icon]="['fas', 'search']">
+    </fa-icon>
+</button>
+
+<span>{{displayLabel}}</span> -->
+<a [routerLink]="[ '/bedes-term', uuid]" *ngIf="uuid">{{displayLabel}}</a>
+<span *ngIf="!uuid">{{displayLabel}}</span>

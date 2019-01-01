@@ -8,7 +8,7 @@ import { ISupportList } from '@bedes-common/interfaces/support-list';
 import { BedesDataType } from '@bedes-common/models/bedes-data-type';
 import { BedesTermCategory } from '@bedes-common/models/bedes-term-category';
 import { BedesDefinitionSource } from '@bedes-common/models/bedes-definition-source';
-import { BedesSector } from '@bedes-common/models/bedes-sector/bedes-sector';
+import { SupportListType } from './support-list-type.enum';
 
 @Injectable({
     providedIn: 'root'
@@ -17,21 +17,25 @@ export class SupportListService {
     private apiEndpoint = 'api/support-lists';
     private url: string = null;
     // unit list
+    private unitList = new Array<BedesUnit>();
     private _unitListSubject: BehaviorSubject<Array<BedesUnit>>;
     get unitListSubject(): BehaviorSubject<Array<BedesUnit>> {
         return this._unitListSubject;
     }
     // data type list
+    private dataTypeList = new Array<BedesDataType>();
     private _dataTypeSubject: BehaviorSubject<Array<BedesDataType>>;
     get dataTypeSubject(): BehaviorSubject<Array<BedesDataType>> {
         return this._dataTypeSubject;
     }
     // term category list
+    private categoryList = new Array<BedesTermCategory>();
     private _termCategorySubject: BehaviorSubject<Array<BedesTermCategory>>;
     get termCategorySubject(): BehaviorSubject<Array<BedesTermCategory>> {
         return this._termCategorySubject;
     }
     // definition source
+    private definitionSourceList = new Array<BedesDefinitionSource>();
     private _definitionSourceSubject: BehaviorSubject<Array<BedesDefinitionSource>>;
     get definitionSourceSubject(): BehaviorSubject<Array<BedesDefinitionSource>> {
         return this._definitionSourceSubject;
@@ -59,24 +63,52 @@ export class SupportListService {
             .subscribe((results: ISupportList) => {
                 console.log(`${this.constructor.name}: received results`, results);
                 // assign the unit list lookup table
-                this._unitListSubject.next(
-                    results._unitList.map((d) => new BedesUnit(d))
-                );
+                this.unitList = results._unitList.map((d) => new BedesUnit(d));
+                this._unitListSubject.next(this.unitList);
                 // assign the data type lookup table
-                this._dataTypeSubject.next(
-                    results._dataTypeList.map((d) => new BedesDataType(d))
-                );
+                this.dataTypeList = results._dataTypeList.map((d) => new BedesDataType(d));
+                this._dataTypeSubject.next(this.dataTypeList);
                 // assign the term category lookup table
-                this._termCategorySubject.next(
-                    results._categoryList.map((d) => new BedesTermCategory(d))
-                );
+                this.categoryList = results._categoryList.map((d) => new BedesTermCategory(d));
+                this._termCategorySubject.next(this.categoryList);
                 // assing the definition source lookup table
-                this._definitionSourceSubject.next(
-                    results._definitionSourceList.map((d) => new BedesDefinitionSource(d))
-                )
+                this.definitionSourceList = results._definitionSourceList.map((d) => new BedesDefinitionSource(d));
+                this._definitionSourceSubject.next(this.definitionSourceList);
                 resolve(true);
             });
         });
+    }
+
+    /**
+     * Transform an id for a given support list into a name.
+     */
+    public transformIdToName(listType: SupportListType, id: number): string {
+        if (!id) {
+            return '';
+        }
+        if (listType === SupportListType.BedesUnit) {
+            return this.transformId(id, this.unitList);
+        }
+        else if (listType === SupportListType.BedesCategory) {
+            return this.transformId(id, this.categoryList);
+        }
+        else if (listType === SupportListType.BedesDataType) {
+            return this.transformId(id, this.dataTypeList);
+        }
+        else if (listType === SupportListType.BedesDefinitionSource) {
+            return this.transformId(id, this.definitionSourceList);
+        }
+        else {
+            throw new Error(`${this.constructor.name}: Invalid support list type`);
+        }
+    }
+
+    public transformId(id: number, list: Array<any>): string {
+        if (!id) {
+            return '';
+        }
+        const item = list.find((d) => d.id === id);
+        return item ? item.name : '';
     }
 
 }

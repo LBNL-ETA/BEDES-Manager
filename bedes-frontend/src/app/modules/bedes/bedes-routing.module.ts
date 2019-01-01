@@ -10,6 +10,8 @@ import { ManageUnitListComponent } from './components/list-management/manage-uni
 import { ManageDataTypeListComponent } from './components/list-management/manage-data-type-list/manage-data-type-list.component';
 import { ManageDefinitionSourceListComponent } from './components/list-management/manage-definition-source-list/manage-definition-source-list.component';
 import { BedesTermDetailsListOptionsComponent } from './components/bedes-term-details/bedes-term-details-list-options/bedes-term-details-list-options.component';
+import { EditTermListOptionComponent } from './components/bedes-term-details/bedes-term-details-list-options/edit-term-list-option/edit-term-list-option.component';
+import { NewTermListOptionComponent } from './components/bedes-term-details/bedes-term-details-list-options/new-term-list-option/new-term-list-option.component';
 
 const appRoutes: Routes = [
     { path: 'search', component: BedesTermSearchComponent},
@@ -18,7 +20,22 @@ const appRoutes: Routes = [
         component: BedesTermDetailsComponent,
         resolve: {
             bedesTerm: BedesTermResolverServiceService
-        }
+        },
+        children: [
+            {
+                path: '',
+                component: BedesTermDetailsListOptionsComponent
+            },
+            {
+                path: 'new',
+                component: NewTermListOptionComponent
+            },
+            {
+                path: 'edit',
+                component: EditTermListOptionComponent
+            }
+
+        ]
     },
     {
         path: 'term-builder',
