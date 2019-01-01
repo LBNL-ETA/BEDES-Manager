@@ -22,10 +22,6 @@ export class CompositeTermDetailQuery {
 
     /**
      * Write a new CompositeTermDetail object to the database.
-     * 
-     * @param item
-     * @param [transaction]
-     * @returns 
      */
     public newRecord(compositeTermId: number, item: ICompositeTermDetail, transaction?: any): Promise<ICompositeTermDetail> {
         try {
@@ -37,7 +33,8 @@ export class CompositeTermDetailQuery {
                 _compositeTermId: compositeTermId,
                 _bedesTermId: item._term._id,
                 _listOptionId: item._termOption ? item._termOption._id : null,
-                _orderNumber: item._orderNumber
+                _orderNumber: item._orderNumber,
+                _isValueField: item._isValueField || false
             };
             if (transaction) {
                 return transaction.one(this.sqlInsert, params);

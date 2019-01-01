@@ -67,7 +67,8 @@ export class BedesCompositeTermQuery {
                 throw new Error('Missing required parameters.');
             }
             const params = {
-                _signature: item._signature
+                _signature: item._signature,
+                _name: item._name
             };
             // first create the composite term record
             if (transaction) {

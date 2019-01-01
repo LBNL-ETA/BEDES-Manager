@@ -10,10 +10,11 @@ export class CompositeTermDetail {
     private _term: BedesTerm;
     private _listOption: BedesTermOption | null | undefined;
     private _orderNumber: number;
+    private _isValueField: boolean | null | undefined;
 
-    constructor(data: BedesTerm, orderNumber: number, termOption?: BedesTermOption);
+    constructor(data: BedesTerm, orderNumber: number, termOption?: BedesTermOption, isValueField?: boolean);
     constructor(data: ICompositeTermDetail);
-    constructor(data: ICompositeTermDetail | BedesTerm, orderNumber?: number, termOption?: BedesTermOption) {
+    constructor(data: ICompositeTermDetail | BedesTerm, orderNumber?: number, termOption?: BedesTermOption, isValueField?: boolean) {
         if (data instanceof BedesTerm) {
             // build the object from a BedesTerm-TermOption object(s)
             if (!data.id) {
@@ -31,6 +32,7 @@ export class CompositeTermDetail {
             this._term = data;
             this._listOption = termOption;
             this._orderNumber = orderNumber;
+            this._isValueField = isValueField;
         }
         else {
             if (!data._term || !data._term._id) {
@@ -54,6 +56,7 @@ export class CompositeTermDetail {
                 this._listOption = new BedesTermOption(data._termOption);
             }
             this._orderNumber = data._orderNumber;
+            this._isValueField = data._isValueField;
         }
     }
 
@@ -81,19 +84,23 @@ export class CompositeTermDetail {
     set orderNumber(value:  number) {
         this._orderNumber = value;
     }
+    get isValueField():  boolean | null | undefined {
+        return this._isValueField;
+    }
+    set isValueField(value:  boolean | null | undefined) {
+        this._isValueField = value;
+    }
 
     /**
      * Returns the interface version of the object.
-     *
-     * @returns {ICompositeTermDetail}
-     * @memberof CompositeTermDetail
      */
     public toInterface(): ICompositeTermDetail {
         return <ICompositeTermDetail>{
             _id: this.id,
             _term: this.term.toInterface(),
             _termOption: this.listOption ? this.listOption.toInterface() : null,
-            _orderNumber: this.orderNumber
+            _orderNumber: this.orderNumber,
+            _isValueField: this.isValueField
         };
     }
 }

@@ -6,6 +6,7 @@ import { createLogger }  from '@bedes-backend/logging';
 const logger = createLogger(module);
 import * as util from 'util';
 import { IBedesTermOption } from '@bedes-common/models/bedes-term-option';
+import { BedesErrorTermNotFound } from '../../../../../scripts/ts/mappings-loader/mappings/lib/errors/bedes-term-not-found.error';
 
 export class BedesTermListOptionQuery {
     private sqlGetByName!: QueryFile;
@@ -113,9 +114,14 @@ export class BedesTermListOptionQuery {
                 return db.one(this.sqlGetByName, params);
             }
         } catch (error) {
-            logger.error(`${this.constructor.name}: Error in getRecordByName`);
-            logger.error(util.inspect(error));
-            throw error;
+            if (error.name === 'QueryResultError') {
+                throw new BedesErrorTermNotFound(name);
+            }
+            else {
+                logger.error(`${this.constructor.name}: Error in newRecord`);
+                logger.error(util.inspect(error));
+                throw error;
+            }
         }
     }
 

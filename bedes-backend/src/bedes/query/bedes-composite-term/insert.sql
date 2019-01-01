@@ -1,8 +1,9 @@
 insert into
-    public.bedes_composite_term (signature)
+    public.bedes_composite_term (signature, name)
 values
-    (${_signature})
+    (${_signature}, ${_name})
 returning
     id as "_id",
-    signature as "_signature"
+    signature as "_signature",
+    name as "_name"
 ;

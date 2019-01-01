@@ -6,10 +6,12 @@ import { BedesConstrainedList } from '../bedes-term/bedes-constrained-list';
 import { IBedesTerm } from '../bedes-term/bedes-term.interface';
 import { buildCompositeTermSignature } from '../../util/build-composite-term-signature';
 import { IBedesConstrainedList } from '../bedes-term/bedes-constrained-list.interface';
+import { BedesMappingLabel } from '../../../scripts/ts/mappings-loader/mappings/base/bedes-mapping-label';
 
 export class BedesCompositeTerm {
     private _id: number | null | undefined;
     private _signature: string;
+    private _name: string | null | undefined;
     private _items: Array<CompositeTermDetail>
 
     constructor(data?: IBedesCompositeTerm) {
@@ -17,6 +19,7 @@ export class BedesCompositeTerm {
         if (data) {
             this._id = data._id || undefined;
             this._signature = data._signature;
+            this._name = data._name;
             if (data._items && data._items.length) {
                 data._items.forEach((d) => {
                     if (!d._term._id) {
@@ -51,6 +54,12 @@ export class BedesCompositeTerm {
     set signature(value:  string) {
         this._signature = value;
     }
+    get name():  string | null | undefined {
+        return this._name;
+    }
+    set name(value:  string | null | undefined) {
+        this._name = value;
+    }
     get items():  Array<CompositeTermDetail> {
         return this._items;
     }
@@ -63,15 +72,13 @@ export class BedesCompositeTerm {
         // reorder the terms by their order numbers.
         this.orderTerms();
         this.signature = buildCompositeTermSignature(this);
+        this.name = this.buildDisplayName();
+
     }
 
     /**
      * Determines if the CompositeTerm signature is valid,
      * ie does the instance's signature equal what the generated one should be?
-     *
-     * @private
-     * @returns {boolean}
-     * @memberof BedesCompositeTerm
      */
     private validSignature(): boolean {
         let genSig = buildCompositeTermSignature(this);
@@ -89,7 +96,7 @@ export class BedesCompositeTerm {
     /**
      * Add a BedesTerm and optional BedesTermOption to the list of terms.
      */
-    public addBedesTerm(term: BedesTerm | BedesConstrainedList, termOption?: BedesTermOption): void {
+    public addBedesTerm(term: BedesTerm | BedesConstrainedList, isValueField?: boolean, termOption?: BedesTermOption): void {
         // throw an error on a duplicate BedesTerm.
         // if (this.termExistsInDefinition(term.toInterface())) {
         //     console.error(`${this.constructor.name}: BedesTerm already in composite term definition`);
@@ -108,19 +115,15 @@ export class BedesCompositeTerm {
                 _termCategoryId: term.termCategoryId,
                 _unitId: term.unitId
             });
-            this.addTerm(new CompositeTermDetail(newTerm, orderNumber, termOption));
+            this.addTerm(new CompositeTermDetail(newTerm, orderNumber, termOption, isValueField));
         }
         else {
-            this.addTerm(new CompositeTermDetail(term, orderNumber, termOption));
+            this.addTerm(new CompositeTermDetail(term, orderNumber, termOption, isValueField));
         }
     }
 
     /**
      * Determines if the given BedesTerm is already apart of the composite term.
-     *
-     * @param {(BedesTerm | BedesConstrainedList)} term
-     * @returns {boolean}
-     * @memberof BedesCompositeTerm
      */
     public termExistsInDefinition(term: IBedesTerm | IBedesConstrainedList): boolean {
         if (!term._id) {
@@ -168,7 +171,16 @@ export class BedesCompositeTerm {
      * Generates the display name of the composite term.
      */
     private buildDisplayName(): string {
-        return 'display name';
+        let parts = new Array<string>();
+        this._items.forEach((termDetail: CompositeTermDetail) => {
+            if (termDetail.listOption) {
+                parts.push(termDetail.listOption.name);
+            }
+            else {
+                parts.push(termDetail.term.name);
+            }
+        });
+        return parts.join(' ');
     }
 
     /**
@@ -196,6 +208,7 @@ export class BedesCompositeTerm {
         return <IBedesCompositeTerm>{
             _id: this.id,
             _signature: this.signature,
+            _name: this.name,
             _items: this._items.map((d) => d.toInterface())
         }
     }

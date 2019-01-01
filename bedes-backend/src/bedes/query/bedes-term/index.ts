@@ -133,9 +133,8 @@ export class BedesTermQuery {
 
     /**
      * Retrieve a BedesTerm by id.
-     * @param id 
-     * @param [transaction] 
-     * @returns record by id 
+     * @param {id} The id of the term to retrieve.
+     * @returns The BedesTerm record as an IBedesTerm interface.
      */
     public getTermById(id: number, transaction?: any): Promise<IBedesTerm> {
         try {
@@ -161,9 +160,6 @@ export class BedesTermQuery {
 
     /**
      * Retrieves a BedesConstrainedList from the database.
-     * @param id 
-     * @param [transaction] 
-     * @returns list by id 
      */
     public getListById(id: number, transaction?: any): Promise<IBedesConstrainedList> {
         try {
@@ -190,9 +186,6 @@ export class BedesTermQuery {
     /**
      * Retrieves a IBedesTerm or IBedesConstrainedList object,
      * given an id
-     * @param id 
-     * @param [transaction] 
-     * @returns term or list by id 
      */
     public getTermOrListById(id: number, transaction?: any): Promise<IBedesTerm | IBedesConstrainedList> {
         try {
@@ -243,8 +236,6 @@ export class BedesTermQuery {
 
     /**
      * Gets BedesUnit record given a unit name.
-     * @param name 
-     * @returns record by name or undefined if it diesn't exist.
      */
     public getRecordByName(name: string, transaction?: any): Promise<IBedesTerm> {
         try {
@@ -305,10 +296,6 @@ export class BedesTermQuery {
 
     /**
      * Retrieves a IBedesTermConstrainedList from the database.
-     * @param listName 
-     * @param optionName 
-     * @param [transaction] 
-     * @returns Promise<IBedesTermConstrainedList | undefined>
      */
     public getConstrainedList(listName: string, optionName: string, transaction?: any): Promise<IBedesConstrainedList> {
         try {
@@ -338,6 +325,9 @@ export class BedesTermQuery {
         }
     }
 
+    /**
+     * Determines if a term name is a constrained list or regular bedes term.
+     */
     public async isConstrainedList(termName: string): Promise<boolean> {
         try {
             if (!termName) {
@@ -385,16 +375,7 @@ export class BedesTermQuery {
                 _uuid: item._uuid || null,
                 _url: item._url || null,
             };
-            // update the bedes_term table
-            // let dbContext: any;
-            // if (transaction) {
-            //     dbContext = transaction;
-            //     // promises.push(transaction.one(this.sqlUpdateTerm, params));
-            // }
-            // else {
-            //     dbContext = db;
-            //     // promises.push(db.one(this.sqlUpdateTerm, params));
-            // }
+            
             const dbContext = transaction ? transaction : db;
             const updatedTerm: IBedesTerm = await dbContext.one(this.sqlUpdateTerm, params);
 
@@ -405,51 +386,6 @@ export class BedesTermQuery {
                 updatedTerm._sectors = new Array<IBedesTermSectorLink>();
             }
             return updatedTerm;
-            // let updatedTerm: IBedesTerm | undefined;
-            // promises.push(dbContext.one(this.sqlUpdateTerm, params).then(
-            //     (results: IBedesTerm) => {
-            //         updatedTerm = results;
-            //         return results;
-            //     }, (error: Error) => {
-            //         logger.error('Error running the bedes-term update query');
-            //         throw error;
-            //     }
-            // ));
-            // update the sectors
-            // promises.push(bedesQuery.bedesTermSectorLink.update(item._id, item._sectors, transaction));
-            // await Promise.all(promises);
-            // TODO: fixed the sectorlink update
-            // 
-
-            // const params = {
-            //     _id: item._id,
-            //     _name: item._name,
-            //     _description: item._description || null,
-            //     _termCategoryId: item._termCategoryId,
-            //     _dataTypeId: item._dataTypeId,
-            //     _unitId: item._unitId,
-            //     _definitionSourceId: item._definitionSourceId,
-            //     _uuid: item._uuid || null,
-            //     _url: item._url || null,
-            // };
-            // // set the database context
-            // let dbContext: any;
-            // if (transaction) {
-            //     dbContext = transaction;
-            //     // promises.push(transaction.one(this.sqlInsert, params));
-            // }
-            // else {
-            //     dbContext = db;
-            //     // promises.push(db.one(this.sqlInsert, params));
-            // }
-            // const newTerm: IBedesTerm = await dbContext.one(this.sqlUpdateTerm, params);
-            // if (!newTerm._id) {
-            //     throw new Error('New BedesTerm missing id');
-            // }
-            // // save the sector info
-            // const sectors = await bedesQuery.bedesTermSectorLink.insertAll(newTerm._id, item._sectors, transaction);
-            // sectors.forEach((d) => newTerm._sectors.push(d));
-            // return newTerm;
         } catch (error) {
             logger.error(`${this.constructor.name}: error in updateTerm`);
             logger.error(util.inspect(error));

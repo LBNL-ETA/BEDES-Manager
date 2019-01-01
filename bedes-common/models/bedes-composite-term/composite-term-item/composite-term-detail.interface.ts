@@ -8,5 +8,6 @@ export interface ICompositeTermDetail {
     _id?: number | null | undefined;
     _term: IBedesTerm;
     _termOption?: IBedesTermOption | null | undefined;
+    _isValueField?: boolean | null | undefined;
     _orderNumber: number;
 }
