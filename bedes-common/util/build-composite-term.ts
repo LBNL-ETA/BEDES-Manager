@@ -8,6 +8,7 @@ import { BedesMappingLabel } from '../../scripts/ts/mappings-loader/mappings/bas
 import { IBedesTermOption } from '../models/bedes-term-option/bedes-term-option.interface';
 import { BedesTermOption } from '@bedes-common/models/bedes-term-option';
 import { BedesTransformResultType } from '../../scripts/ts/mappings-loader/mappings/common/bedes-transform-result.type';
+import { IBedesUnit } from '../models/bedes-unit/bedes-unit.template';
 
 /**
  * Build a CompositeTerm object from a list of BedesTerm|BedesConstrainedList objects.
@@ -19,8 +20,10 @@ import { BedesTransformResultType } from '../../scripts/ts/mappings-loader/mappi
 //     return composite;
 // }
 
-export function buildCompositeTermFromInterface(transformResults: Array<BedesTransformResultType>): BedesCompositeTerm {
-    const composite = new BedesCompositeTerm();
+export function buildCompositeTermFromInterface(transformResults: Array<BedesTransformResultType>, bedesUnit?: IBedesUnit): BedesCompositeTerm {
+    // build the params if there's a unit present
+    const params = bedesUnit ? <IBedesCompositeTerm>{_unitId: bedesUnit._id} : undefined;
+    const composite = new BedesCompositeTerm(params);
     // convert each bedesTerm Object to either BedesTerm or BedesConstrainedList
     transformResults.forEach(([term, iTermOption, mappingLabel ]: BedesTransformResultType) => {
         const termOption = iTermOption ? new BedesTermOption(iTermOption) : undefined;

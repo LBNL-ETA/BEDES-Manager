@@ -50,7 +50,7 @@ export class TermLinker {
             logger.debug(util.inspect(appRows));
             logger.debug(util.inspect(bedesRows));
             // transform the BedesRow objects to BedesTerm objects
-            let transformResults = await this.bedesTermProcessor.transform(bedesRows);
+            let [transformResults, bedesUnit] = await this.bedesTermProcessor.transform(bedesRows);
             if (!transformResults.length) {
                 // no bedes terms found, nothing to link
                 logger.debug('bedes terms not found for appRow:');
@@ -66,12 +66,12 @@ export class TermLinker {
             // first check if one already exists with the given signature
             // if not create the composite term
             if (transformResults.length > 1) {
-                compositeTerm = buildCompositeTermFromInterface(transformResults);
+                compositeTerm = buildCompositeTermFromInterface(transformResults, bedesUnit);
                 logger.debug('built composite term...');
                 logger.debug(util.inspect(compositeTerm));
                 // save the composite term
                 // look for an existing composite term
-                let existing = await bedesQuery.compositeTerm.getRecordBySignature(compositeTerm.signature);
+                let existing = await bedesQuery.compositeTerm.getRecordBySignature(compositeTerm.signature, this.transaction);
                 if (existing) {
                     // assign the existing record to the composite term we're linking to the app terms
                     savedCompositeTerm = existing;
@@ -79,7 +79,7 @@ export class TermLinker {
                 else {
                     try {
                         // otherwise, save a new composite term and wait for results
-                        savedCompositeTerm = await bedesQuery.compositeTerm.newCompositeTerm(compositeTerm.toInterface())
+                        savedCompositeTerm = await bedesQuery.compositeTerm.newCompositeTerm(compositeTerm.toInterface(), this.transaction)
                     }
                     catch (error) {
                         if (!(error instanceof BedesErrorTermNotFound)) {

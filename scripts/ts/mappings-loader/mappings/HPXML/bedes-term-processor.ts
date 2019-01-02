@@ -11,6 +11,7 @@ import { BedesDataType } from '@bedes-common/enums';
 import { BedesTermOption } from '../../../../../bedes-common/models/bedes-term-option/bedes-term-option';
 import { IBedesTermOption } from '../../../../../bedes-common/models/bedes-term-option/bedes-term-option.interface';
 import { BedesTransformResultType } from '../common/bedes-transform-result.type';
+import { IBedesUnit } from '../../../../../bedes-common/models/bedes-unit/bedes-unit.template';
 
 /**
  * Bedes term processor: it processes a collection of BedesRow objects,
@@ -36,16 +37,29 @@ export class BedesTermProcessor {
      * @param bedesRows 
      * @returns transform 
      */
-    // public async transform(bedesRows: Array<BedesRow>): Promise<Array<IBedesTerm | IBedesConstrainedList>> {
-    public async transform(bedesRows: Array<BedesRow>): Promise<Array<BedesTransformResultType>> {
+    public async transform(bedesRows: Array<BedesRow>): Promise<[Array<BedesTransformResultType>, IBedesUnit | undefined]> {
         try {
-            let promises = new Array<Promise<IBedesTerm | IBedesConstrainedList>>();
             const validMappings = new Array<BedesMappingLabel>();
             const results = new Array<BedesTransformResultType>();
+            let unit: IBedesUnit | undefined;
             for (let bedesRow of bedesRows) {
                 // skip invalid empty mapping texts
                 if (!bedesRow.bedesMapping) {
                     continue;
+                }
+                // find the unit_id if it's there
+                if (bedesRow.bedesUnit) {
+                    try {
+                        unit = await bedesQuery.units.getRecordByName(bedesRow.bedesUnit.trim(), this.transaction)
+                        console.log('** find unit');
+                        console.log(unit);
+                    }
+                    catch (error) {
+                        const newUnit: IBedesUnit = {_id: undefined, _name: bedesRow.bedesUnit.trim()};
+                        unit = await bedesQuery.units.newRecord(newUnit, this.transaction);
+                        logger.debug(`unable to find unit ${bedesRow.bedesUnit}`);
+                        // throw error
+                    }
                 }
                 // parse the bedes mapping text into an array of
                 // "termName=value" array items (can have multiple definitions in 1 cell)
@@ -93,7 +107,7 @@ export class BedesTermProcessor {
                     results.push([term, termOption, mapping]);
                 }
             }
-            return results;
+            return [results, unit];
         } catch (error) {
             logger.error(`${this.constructor.name}: Error in transform`);
             logger.error(util.inspect(error));

@@ -68,7 +68,8 @@ export class BedesCompositeTermQuery {
             }
             const params = {
                 _signature: item._signature,
-                _name: item._name
+                _name: item._name,
+                _unitId: item._unitId
             };
             // first create the composite term record
             if (transaction) {

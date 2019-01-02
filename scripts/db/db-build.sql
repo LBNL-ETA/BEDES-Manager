@@ -95,6 +95,7 @@ create table public.bedes_composite_term (
     id serial primary key,
     signature text not null unique,
     name text,
+    unit_id int references public.unit (id),
     created_date timestamp default now(),
     modified_date timestamp default now()
 );
