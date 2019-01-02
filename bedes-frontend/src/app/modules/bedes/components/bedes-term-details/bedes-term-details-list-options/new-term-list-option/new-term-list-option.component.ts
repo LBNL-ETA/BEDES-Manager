@@ -39,7 +39,7 @@ export class NewTermListOptionComponent implements OnInit {
     @Input()
     private stateChangeSubject: BehaviorSubject<OptionViewState>;
 
-    private unitList: Array<BedesUnit>;
+    public unitList: Array<BedesUnit>;
 
     public dataForm = this.formBuilder.group({
         name: ['', Validators.required],

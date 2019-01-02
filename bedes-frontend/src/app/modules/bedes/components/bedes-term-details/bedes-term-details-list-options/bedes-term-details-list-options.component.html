@@ -24,14 +24,14 @@
                 </button>
 
             </div>
-            <div style="display: flex; flex-direction: row" *ngIf="term?.options">
+            <div style="display: flex; flex-direction: row" *ngIf="shouldShowListOptions()">
                 <div style=" overflow: hidden; flex-grow: 1">
                     <ag-grid-angular #agGrid style="width: 100%; height: 500px;" id="myGrid" [gridOptions]="gridOptions"
                         class="ag-theme-material">
                     </ag-grid-angular>
                 </div>
             </div>
-            <div class="alert-danger" style="margin-top:10px;" *ngIf="term && (!term.options || !term.options.length)">
+            <div class="alert-danger" style="margin-top:10px;" *ngIf="shouldShowEmptyListOptions()">
                 <h3 style="margin: 0; padding:0;">
                     <fa-icon [icon]="['fas', 'exclamation-triangle']"></fa-icon>
                     No list options have been defined, click the <strong>New</strong>

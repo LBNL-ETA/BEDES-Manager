@@ -98,4 +98,7 @@ export class VerificationComponent implements OnInit, OnDestroy {
         })
     }
 
+    public forgotPassword(): void {
+        console.log('forgot password...');
+    }
 }

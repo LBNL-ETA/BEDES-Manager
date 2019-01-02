@@ -33,7 +33,7 @@ export class SelectTermsTableComponent implements OnInit, OnDestroy {
     private unitList: Array<BedesUnit>;
     private dataTypeList: Array<BedesDataType>;
     private categoryList: Array<BedesTermCategory>;
-    private selectedTerms: Array<BedesTerm | BedesConstrainedList>;
+    public selectedTerms: Array<BedesTerm | BedesConstrainedList>;
 
     constructor(
         private router: Router,

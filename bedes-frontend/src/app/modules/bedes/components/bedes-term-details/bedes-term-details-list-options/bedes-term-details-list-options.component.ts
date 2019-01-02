@@ -178,4 +178,23 @@ export class BedesTermDetailsListOptionsComponent implements OnInit {
         }
     }
 
+    public shouldShowListOptions(): boolean {
+        if (this.term instanceof BedesConstrainedList && (!this.term.options || !this.agGrid.enterMovesDown.options.length)) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+    public shouldShowEmptyListOptions(): boolean {
+        if (this.term instanceof BedesConstrainedList && this.term.options && this.term.options.length) {
+            return true;
+        }
+        else {
+            return false;
+        }
+
+    }
+
 }

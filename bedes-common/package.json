@@ -10,7 +10,8 @@
   "license": "ISC",
   "dependencies": {
     "jasmine": "^3.2.0",
-    "module-alias": "^2.1.0"
+    "module-alias": "^2.1.0",
+    "tslib": "^1.9.3"
   },
   "devDependencies": {
     "@types/jasmine": "^2.8.8",

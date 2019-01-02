@@ -20,9 +20,9 @@ export class BedesTermDetailsDefinitionComponent implements OnInit {
     private ngUnsubscribe: Subject<void> = new Subject<void>();
 
     public term: BedesTerm | BedesConstrainedList | undefined;
-    private unitList: Array<BedesUnit>;
-    private dataTypeList: Array<BedesDataType>;
-    private categoryList: Array<BedesTermCategory>;
+    public unitList: Array<BedesUnit>;
+    public dataTypeList: Array<BedesDataType>;
+    public categoryList: Array<BedesTermCategory>;
     public definitionSourceList: Array<BedesDefinitionSource>;
 
 
