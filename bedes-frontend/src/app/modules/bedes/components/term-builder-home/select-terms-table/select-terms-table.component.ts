@@ -14,6 +14,7 @@ import { BedesUnit } from '@bedes-common/models/bedes-unit/bedes-unit';
 import { BedesDataType } from '@bedes-common/models/bedes-data-type';
 import { BedesTermCategory } from '@bedes-common/models/bedes-term-category/bedes-term-category';
 import { BedesTermSelectorService } from '../../../services/bedes-term-selector/bedes-term-selector.service';
+import { BedesSearchResult } from '../../../../../../../../bedes-common/models/bedes-search-result/bedes-search-result';
 
 @Component({
     selector: 'app-select-terms-table',
@@ -128,18 +129,19 @@ export class SelectTermsTableComponent implements OnInit, OnDestroy {
         // subscribe to the search results service
         this.termSearchService.searchResultsSubject()
             .pipe(takeUntil(this.ngUnsubscribe))
-            .subscribe((results: Array<BedesTerm | BedesConstrainedList>) => {
+            .subscribe((results: Array<BedesSearchResult>) => {
                 console.log(`${this.constructor.name}: received search results...`, results);
-                this.searchResults = results;
-                if (this.gridOptions.api) {
-                    this.gridOptions.api.setRowData(results);
-                }
-                if(!this.receivedInitialValues) {
-                    this.receivedInitialValues = true;
-                }
-                else {
-                    this.hasSearched = true;
-                }
+                // TODO: this needs to return bedes terms and options only, not composite terms
+                // this.searchResults = results;
+                // if (this.gridOptions.api) {
+                //     this.gridOptions.api.setRowData(results);
+                // }
+                // if(!this.receivedInitialValues) {
+                //     this.receivedInitialValues = true;
+                // }
+                // else {
+                //     this.hasSearched = true;
+                // }
             },
             (error: any) => {
                 console.error(`${this.constructor.name}: error in ngOnInit`)

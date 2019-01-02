@@ -37,9 +37,14 @@ export class BedesTermSearchQuery {
             //         description: true
             //     },
             //     termListOption: {
-            //         disabled: false,
+            //         disabled: true,
             //         name: false,
             //         description: true
+            //     },
+            //     compositeTerm: {
+            //         disabled: false,
+            //         name: true,
+            //         description:true 
             //     }
             // }
             let promises = new Array<Promise<Array<IBedesSearchResult>>>();
@@ -48,6 +53,9 @@ export class BedesTermSearchQuery {
             }
             if (this.shouldSearchListTermOption(searchOptions)) {
                 promises.push(this.searchListTermOption(searchStrings, searchOptions, transaction));
+            }
+            if (this.shouldSearchCompositeTerms(searchOptions)) {
+                promises.push(this.searchCompositeTerms(searchStrings, searchOptions, transaction));
             }
             let results = await Promise.all(promises);
             // transform the results from an array of array of IBedesSearchResult objects,
@@ -93,8 +101,6 @@ export class BedesTermSearchQuery {
         else {
             return true;
         }
-
-
     }
 
     /**
@@ -457,5 +463,97 @@ export class BedesTermSearchQuery {
     //     logger.debug(query);
     //     return [query, queryParams];
     // }
+
+    /**
+     * Determines if the Bedes Composite Terms should be searched
+     */
+    private shouldSearchCompositeTerms(searchOptions?: ISearchOptions): boolean {
+        // include searches through BedesCompositeTerm unless it's explicitly disabled
+        // ie searchOptions.termListOption.disabled is set,
+        // or the name and description are both set to false
+        if (searchOptions
+            && searchOptions.compositeTerm
+            && (
+                searchOptions.compositeTerm.disabled
+                ||
+                (
+                    searchOptions.compositeTerm.name === false
+                    && searchOptions.compositeTerm.description === false
+                )
+            )
+        ) {
+            return false;
+        }
+        else {
+            return true;
+        }
+
+    }
+
+    public searchCompositeTerms(searchStrings: Array<string>, searchOptions?: ISearchOptions, transaction?: any): Promise<Array<IBedesSearchResult>> {
+        try {
+            if (!searchStrings || !(searchStrings instanceof Array) || !searchStrings.length) {
+                logger.error(`${this.constructor.name}: search strings`);
+                throw new Error('Missing required parameters.');
+            }
+            const [query, params] = this.buildBedesCompositeTermQuery(searchStrings, searchOptions);
+            if (transaction) {
+                return transaction.manyOrNone(query, params);
+            }
+            else {
+                return db.manyOrNone(query, params);
+            }
+        } catch (error) {
+            logger.error(`${this.constructor.name}: Error in searchCompositeTerms`);
+            logger.error(util.inspect(error));
+            throw new BedesError(
+                error.message,
+                HttpStatusCodes.ServerError_500,
+                'An error occured querying the database.'
+            );
+        }
+    }
+
+    private buildBedesCompositeTermQuery(searchTerms: Array<string>, searchOptions?: ISearchOptions): [string, any] {
+        let searchNumber = 1;
+        let sqlSearchList = new Array<string>();
+        const queryParams:any = {};
+        // extract the search options, if they exist;
+        const options = searchOptions && searchOptions.compositeTerm ? searchOptions.compositeTerm : {};
+        console.log('bedes composite term search options', options);
+        if (options.disabled || (options.name === false && options.description === false)) {
+            logger.error('Invalid query parameters for BedesCompositeTerm');
+            console.log(searchOptions);
+            throw new Error('Invalid query parameters for BedesCompositeTerm');
+        }
+
+        for (let searchTerm of searchTerms) {
+            const key = `_searchNum${searchNumber++}`;
+            const columns: Array<String> = [];
+            if (!searchOptions || options.name) {
+                columns.push(`t.name ~* \${${key}}`)
+            }
+            if (!searchOptions || options.description) {
+                columns.push(`t.description ~* \${${key}}`)
+            }
+            sqlSearchList.push(`(${columns.join(' or ')})`);
+            queryParams[key] = searchTerm;
+        }
+        const query = `
+            select
+                t.id as "_id",
+                t.name as "_name",
+                t.description as "_description",
+                t.unit_id as "_unitId",
+                4 as "_resultObjectType"
+            from
+                public.bedes_composite_term t
+            where
+                ${sqlSearchList.join(' and ')}
+        `;
+        logger.debug(query);
+        console.log(queryParams);
+        return [query, queryParams];
+    }
 
 }

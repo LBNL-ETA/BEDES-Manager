@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { BedesTermSearchService } from '../../../services/bedes-term-search/bedes-term-search.service';
 import { BedesTerm, BedesConstrainedList } from '@bedes-common/models/bedes-term';
+import { BedesSearchResult } from '../../../../../../../../bedes-common/models/bedes-search-result/bedes-search-result';
 
 @Component({
     selector: 'app-bedes-search-parameters',
@@ -28,7 +29,7 @@ export class BedesSearchParametersComponent implements OnInit {
         console.log('search for terms...', this.searchString);
         this.waitingForResults = true;
         this.bedesTermSearchService.searchAndNotify([this.searchString])
-            .subscribe((results: Array<BedesTerm | BedesConstrainedList>) => {
+            .subscribe((results: Array<BedesSearchResult>) => {
                 // set the number of rows found
                 this.numResults = results.length;
             }, (error: any) => {

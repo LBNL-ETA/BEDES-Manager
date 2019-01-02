@@ -12,6 +12,7 @@ export class BedesCompositeTerm {
     private _id: number | null | undefined;
     private _signature: string;
     private _name: string | null | undefined;
+    private _description: string | null | undefined;
     private _unitId: number | null | undefined;
     private _items: Array<CompositeTermDetail>
 
@@ -21,6 +22,7 @@ export class BedesCompositeTerm {
             this._id = data._id || undefined;
             this._signature = data._signature;
             this._name = data._name;
+            this._description = data._description;
             this._unitId = data._unitId;
             if (data._items && data._items.length) {
                 data._items.forEach((d) => {
@@ -61,6 +63,12 @@ export class BedesCompositeTerm {
     }
     set name(value:  string | null | undefined) {
         this._name = value;
+    }
+    get description():  string | null | undefined {
+        return this._description;
+    }
+    set description(value:  string | null | undefined) {
+        this._description = value;
     }
     get unitId():  number | null | undefined {
         return this._unitId;

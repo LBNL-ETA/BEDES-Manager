@@ -10,6 +10,8 @@ import {
     BedesConstrainedList
 } from '@bedes-common/models/bedes-term';
 import { RequestStatus } from '../../enums';
+import { IBedesSearchResult } from '@bedes-common/models/bedes-search-result/bedes-search-result.interface';
+import { BedesSearchResult } from '../../../../../../../bedes-common/models/bedes-search-result/bedes-search-result';
 
 @Injectable({
     providedIn: 'root'
@@ -18,7 +20,7 @@ export class BedesTermSearchService {
     private apiEndpoint = 'api/search-terms';
     private url: string = null;
     // Subject which emits the latest search result values.
-    private _searchResultsSubject = new BehaviorSubject<Array<BedesTerm | BedesConstrainedList>>([]);
+    private _searchResultsSubject = new BehaviorSubject<Array<BedesSearchResult>>([]);
     // Subject which keeps track of the current state of the search.
     private currentRequestStatus = RequestStatus.OK;
     private _requestStatusSubject = new BehaviorSubject<RequestStatus>(this.currentRequestStatus);
@@ -38,7 +40,7 @@ export class BedesTermSearchService {
      * @param searchStrings
      * @returns search
      */
-    public search(searchStrings: Array<string>): Observable<Array<BedesTerm | BedesConstrainedList>> {
+    public search(searchStrings: Array<string>): Observable<Array<BedesSearchResult>> {
         // build a params object to pass the search terms
         let httpParams = new HttpParams({
             fromObject: {
@@ -50,16 +52,11 @@ export class BedesTermSearchService {
         // build the http params for each search term
         searchStrings.forEach(searchString => httpParams.append('search', String(searchString)))
         // returm the http request observable
-        return this.http.get<Array<IBedesTerm | IBedesConstrainedList>>(this.url, { params: httpParams, withCredentials: true })
+        return this.http.get<Array<IBedesSearchResult>>(this.url, { params: httpParams, withCredentials: true })
             .pipe(
-                map((results: Array<IBedesTerm | IBedesConstrainedList>) => {
-                    return results.map((item: IBedesTerm | IBedesConstrainedList) =>
-                        // if the object has an _options key it's a ContstrainedList
-                        // everything else is a reguarl Term
-                        item.hasOwnProperty('_options') ?
-                            new BedesConstrainedList(<IBedesConstrainedList>item)
-                            :
-                            new BedesTerm(<IBedesTerm>item));
+                map((results: Array<IBedesSearchResult>) => {
+                    return results.map((item: IBedesSearchResult) => new BedesSearchResult(item));
+
                 }),
                 finalize(() => {
                     this.setRequestStatus(RequestStatus.OK);
@@ -79,11 +76,11 @@ export class BedesTermSearchService {
      * from the search and calls next() on the searchResultSubject.
      * @param searchStrings
      */
-    public searchAndNotify(searchStrings: Array<string>): Observable<Array<BedesTerm | BedesConstrainedList>> {
+    public searchAndNotify(searchStrings: Array<string>): Observable<Array<BedesSearchResult>> {
         try {
             return this.search(searchStrings)
                 .pipe(
-                    map((results: Array<BedesTerm | BedesConstrainedList>) => {
+                    map((results: Array<BedesSearchResult>) => {
                         this._searchResultsSubject.next(results);
                         return results;
                     })
@@ -101,7 +98,7 @@ export class BedesTermSearchService {
      * the latest set of search results.
      * @returns results subject
      */
-    public searchResultsSubject(): BehaviorSubject<Array<BedesTerm | BedesConstrainedList>> {
+    public searchResultsSubject(): BehaviorSubject<Array<BedesSearchResult>> {
         return this._searchResultsSubject;
     }
 
@@ -110,7 +107,7 @@ export class BedesTermSearchService {
      * of the search results observable (this.searchResultsSubject()).
      * @param searchResults
      */
-    public broadcastResults(searchResults: Array<BedesTerm | BedesConstrainedList>): void {
+    public broadcastResults(searchResults: Array<BedesSearchResult>): void {
         this._searchResultsSubject.next(searchResults);
     }
 }

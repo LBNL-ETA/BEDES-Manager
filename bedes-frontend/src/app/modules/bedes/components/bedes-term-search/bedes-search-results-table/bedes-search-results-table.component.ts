@@ -14,6 +14,8 @@ import { BedesDataType } from '@bedes-common/models/bedes-data-type/bedes-data-t
 import { BedesTermCategory } from '@bedes-common/models/bedes-term-category/bedes-term-category';
 import { SupportListType } from '../../../services/support-list/support-list-type.enum';
 import { TableCellTermNameComponent } from './table-cell-term-name/table-cell-term-name.component';
+import { BedesSearchResult } from '../../../../../../../../bedes-common/models/bedes-search-result/bedes-search-result';
+import { SearchResultType } from '../../../../../../../../bedes-common/models/bedes-search-result/search-result-type.enum';
 
 interface ISearchResultRow {
     name: string,
@@ -21,7 +23,8 @@ interface ISearchResultRow {
     categoryName: string,
     unitName: string,
     dataTypeName: string,
-    ref: BedesTerm | BedesConstrainedList
+    ref: BedesSearchResult,
+    searchResultTypeName: string
 }
 
 @Component({
@@ -32,19 +35,17 @@ interface ISearchResultRow {
 export class BedesSearchResultsTableComponent implements OnInit, OnDestroy {
     public RequestStatus = RequestStatus;
     public currentRequestStatus: RequestStatus;
-    public searchResults = new Array<BedesTerm | BedesConstrainedList>();
+    public searchResults = new Array<BedesSearchResult>();
     private ngUnsubscribe: Subject<void> = new Subject<void>();
-    public displayedColumns: string[] = ['buttons', 'name', 'description', 'termCategoryId', 'dataTypeId', 'unitId'];
-    public dataSource = new MatTableDataSource<BedesTerm | BedesConstrainedList>();
-    @ViewChild(MatPaginator) paginator: MatPaginator;
-    @ViewChild(MatSort) sort: MatSort;
     public hasSearched = false;
     private receivedInitialValues = false;
+    private gridInitialized = false;
+    private initialized = false;
+
     // lists
     private unitList: Array<BedesUnit>;
     private dataTypeList: Array<BedesDataType>;
     private categoryList: Array<BedesTermCategory>;
-
     // ag-grid
     public gridOptions: GridOptions;
     public rowData: Array<BedesTerm | BedesConstrainedList>;
@@ -55,24 +56,33 @@ export class BedesSearchResultsTableComponent implements OnInit, OnDestroy {
         private termSearchService: BedesTermSearchService,
         private termService: BedesTermService,
         private supportListService: SupportListService
-    ) { }
+    ) {}
 
     ngOnInit() {
+        this.receivedInitialValues = false;
+        this.hasSearched = false;
+        this.gridInitialized = false;
+        this.initialized = false;
+
         this.gridSetup();
         this.setTableContext();
         // subscribe to the search results service
         this.termSearchService.searchResultsSubject()
             .pipe(takeUntil(this.ngUnsubscribe))
-            .subscribe((results: Array<BedesTerm | BedesConstrainedList>) => {
+            .subscribe((results: Array<BedesSearchResult>) => {
                 console.log(`${this.constructor.name}: received search results...`, results);
+                // set the search results
                 this.searchResults = results;
-                this.setTableDataSource(results);
-                this.setGridData();
-                if(!this.receivedInitialValues) {
-                    this.receivedInitialValues = true;
-                }
-                else {
-                    this.hasSearched = true;
+                // if the grid is ready then set the grid data
+                // otherwise setting the grid data is done after grid initialization
+                if (this.gridInitialized) {
+                    this.setGridData();
+                    if(!this.receivedInitialValues) {
+                        this.receivedInitialValues = true;
+                    }
+                    else {
+                        this.hasSearched = true;
+                    }
                 }
             },
             (error: any) => {
@@ -102,16 +112,6 @@ export class BedesSearchResultsTableComponent implements OnInit, OnDestroy {
         this.ngUnsubscribe.complete();
     }
 
-    private setTableDataSource(tableData: Array<BedesTerm | BedesConstrainedList>): void {
-        this.dataSource = new MatTableDataSource(tableData);
-        this.dataSource.paginator = this.paginator;
-        this.dataSource.sort = this.sort;
-    }
-
-    public applyFilter(filterText: string): void {
-        console.log('apply the table filter...', filterText);
-    }
-
     /**
      * Navigates to the bedesTerm details view for the given term.
      * @param bedesTerm
@@ -122,16 +122,6 @@ export class BedesSearchResultsTableComponent implements OnInit, OnDestroy {
         this.router.navigate(['/bedes-term', bedesTerm.id]);
     }
 
-    private buildGridData(): Array<ISearchResultRow> {
-        const results = new Array<ISearchResultRow>();
-        this.searchResults.map((d) => <ISearchResultRow>{
-            name: d.name,
-            uuid: d.uuid,
-
-        })
-
-        return results;
-    }
     /**
      * Setup the ag-grid for the list of projects.
      */
@@ -147,9 +137,11 @@ export class BedesSearchResultsTableComponent implements OnInit, OnDestroy {
                 return data.uuid;
             },
             onGridReady: () => {
-                if (this.gridOptions && this.gridOptions.api && this.searchResults) {
+                this.gridInitialized = true;
+                if (this.gridOptions && this.gridOptions.api && this.searchResults && !this.initialized) {
                     console.log(`** ${this.constructor.name}: call to setRowData`);
                     // this.gridOptions.api.setRowData(this.searchResults);
+                    this.setGridData();
                 }
             },
             onFirstDataRendered(params) {
@@ -176,6 +168,10 @@ export class BedesSearchResultsTableComponent implements OnInit, OnDestroy {
      */
     private buildColumnDefs(): Array<ColDef> {
         return [
+            {
+                headerName: 'Type',
+                field: 'searchResultTypeName'
+            },
             {
                 headerName: 'Name',
                 field: 'name',
@@ -260,20 +256,39 @@ export class BedesSearchResultsTableComponent implements OnInit, OnDestroy {
     }
 
     private setGridData() {
-        if (this.gridOptions && this.gridOptions.api && this.searchResults) {
-            const gridData = this.searchResults.map((term: BedesTerm | BedesConstrainedList) => {
+        if (this.gridOptions && this.gridOptions.api && this.searchResults && this.gridInitialized) {
+            const gridData = this.searchResults.map((searchResult: BedesSearchResult) => {
                 return <ISearchResultRow>{
-                    name: term.name,
-                    uuid: term.uuid,
-                    categoryName: this.supportListService.transformIdToName(SupportListType.BedesCategory, term.termCategoryId),
-                    dataTypeName: this.supportListService.transformIdToName(SupportListType.BedesDataType, term.dataTypeId),
-                    unitName: this.supportListService.transformIdToName(SupportListType.BedesUnit, term.unitId),
-                    ref: term
+                    name: searchResult.name,
+                    uuid: searchResult.uuid,
+                    // categoryName: this.supportListService.transformIdToName(SupportListType.BedesCategory, term.termCategoryId),
+                    // dataTypeName: this.supportListService.transformIdToName(SupportListType.BedesDataType, term.dataTypeId),
+                    unitName: this.supportListService.transformIdToName(SupportListType.BedesUnit, searchResult.unitId),
+                    ref: searchResult,
+                    searchResultTypeName: this.getResultTypeName(searchResult.resultObjectType)
                 }
             });
             this.gridOptions.api.setRowData(gridData);
+            this.initialized = true;
         }
     }
 
+    private getResultTypeName(searchResultType: SearchResultType): string {
+        if (searchResultType === SearchResultType.BedesTerm) {
+            return 'BEDES Term';
+        }
+        else if (searchResultType === SearchResultType.BedesConstrainedList) {
+            return 'Constrained List';
+        }
+        else if (searchResultType === SearchResultType.BedesTermOption) {
+            return 'Constrained List Option';
+        }
+        else if (searchResultType === SearchResultType.CompositeTerm) {
+            return 'Composite Term';
+        }
+        else {
+            '';
+        }
+    }
 
 }
