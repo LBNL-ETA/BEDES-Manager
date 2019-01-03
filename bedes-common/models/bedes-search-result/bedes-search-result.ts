@@ -4,6 +4,8 @@ import { IBedesSearchResult } from './bedes-search-result.interface';
 export class BedesSearchResult {
     private _id: number;
     private _uuid: string;
+    private _termUUID: string | null | undefined;
+    private _termId: number | null | undefined;
     private _name: string;
     private _description: string;
     private _resultObjectType: SearchResultType;
@@ -15,6 +17,8 @@ export class BedesSearchResult {
         if (data) {
             this._id = data._id;
             this._uuid = data._uuid;
+            this._termUUID = data._termUUID;
+            this._termId = data._termId;
             this._name = data._name;
             this._description = data._description;
             this._resultObjectType = data._resultObjectType;
@@ -35,6 +39,18 @@ export class BedesSearchResult {
     }
     set uuid(value: string) {
         this._uuid = value;
+    }
+    get termUUID(): string {
+        return this._termUUID;
+    }
+    set termUUID(value: string) {
+        this._termUUID = value;
+    }
+    get termId(): number {
+        return this._termId;
+    }
+    set termId(value: number) {
+        this._termId = value;
     }
     get name(): string {
         return this._name;

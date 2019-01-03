@@ -24,7 +24,11 @@ export class BedesTermSearchQuery {
         // this.sqlSearchBedesConstrainedList = sql_loader(path.join(__dirname, 'get-bedes-constrained-list-search.sql'));
     }
 
-    public async searchAllBedesTerms(searchStrings: Array<string>, searchOptions?: ISearchOptions, transaction?: any): Promise<Array<IBedesSearchResult>> {
+    public async searchAllBedesTerms(
+        searchStrings: Array<string>,
+        searchOptions?: ISearchOptions,
+        transaction?: any
+    ): Promise<Array<IBedesSearchResult>> {
         try {
             if (!searchStrings || !(searchStrings instanceof Array) || !searchStrings.length) {
                 logger.error(`${this.constructor.name}: search strings`);
@@ -366,12 +370,16 @@ export class BedesTermSearchQuery {
             select
                 t.id as "_id",
                 t.uuid as "_uuid",
+                b.uuid as "_termUUID",
+                t.term_id as "_termId",
                 t.name as "_name",
                 t.description as "_description",
                 t.unit_id as "_unitId",
                 3 as "_resultObjectType"
             from
                 bedes_term_list_option as t
+            join
+                bedes_term b on b.id = t.term_id
             where
                 ${sqlSearchList.join(' and ')}
         `;

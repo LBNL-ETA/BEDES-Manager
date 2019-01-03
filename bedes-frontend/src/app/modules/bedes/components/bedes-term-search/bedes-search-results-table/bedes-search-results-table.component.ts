@@ -118,8 +118,32 @@ export class BedesSearchResultsTableComponent implements OnInit, OnDestroy {
      */
     public viewTerm(selectedItem: ISearchResultRow): void {
         console.log(`${this.constructor.name}: view term`, selectedItem);
-        if (selectedItem.ref.resultObjectType === SearchResultType.BedesTerm || selectedItem.ref.resultObjectType === SearchResultType.BedesConstrainedList) {
-            this.router.navigate(['/bedes-term', selectedItem.ref.uuid]);
+        if ( selectedItem.ref.resultObjectType === SearchResultType.BedesTerm
+            || selectedItem.ref.resultObjectType === SearchResultType.BedesConstrainedList
+        ) {
+            if (selectedItem.ref.uuid) {
+                this.router.navigate(['/bedes-term', selectedItem.ref.uuid]);
+            }
+            else if (selectedItem.ref.id) {
+                this.router.navigate(['/bedes-term', selectedItem.ref.id]);
+            }
+            else {
+                console.error('unable to find route for selectedRow', selectedItem);
+            }
+        }
+        else if (selectedItem.ref.resultObjectType === SearchResultType.BedesTermOption) {
+            if (selectedItem.ref.termUUID) {
+                this.router.navigate(['/bedes-term', selectedItem.ref.termUUID]);
+            }
+            else if (selectedItem.ref.termId) {
+                this.router.navigate(['/bedes-term', selectedItem.ref.termId]);
+            }
+            else {
+                console.error('unable to find route for selectedRow', selectedItem);
+            }
+        }
+        else {
+            console.error('unable to find route for selectedRow', selectedItem);
         }
         // this.termService.selectedTermSubject.next(bedesTerm);
     }
