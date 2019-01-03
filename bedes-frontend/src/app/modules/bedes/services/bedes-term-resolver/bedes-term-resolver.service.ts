@@ -12,7 +12,7 @@ import { BedesConstrainedList, BedesTerm } from '@bedes-common/models/bedes-term
 @Injectable({
     providedIn: 'root',
 })
-export class BedesTermResolverServiceService {
+export class BedesTermResolverService {
 
     constructor(
         private termService: BedesTermService,

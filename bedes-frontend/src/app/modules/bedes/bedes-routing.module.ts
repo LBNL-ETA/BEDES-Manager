@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { BedesTermSearchComponent } from './components/bedes-term-search/bedes-term-search.component';
 import { BedesTermDetailsComponent } from './components/bedes-term-details/bedes-term-details.component';
-import { BedesTermResolverServiceService } from './services/bedes-term-resolver-service/bedes-term-resolver-service.service';
+import { BedesTermResolverService } from './services/bedes-term-resolver/bedes-term-resolver.service';
 import { TermBuilderHomeComponent } from './components/term-builder-home/term-builder-home.component';
 import { TermBuilderEditComponent } from './components/term-builder-home/term-builder-edit/term-builder-edit.component';
 import { ListManagementComponent } from './components/list-management/list-management.component';
@@ -19,7 +19,7 @@ const appRoutes: Routes = [
         path: 'bedes-term/:id',
         component: BedesTermDetailsComponent,
         resolve: {
-            bedesTerm: BedesTermResolverServiceService
+            bedesTerm: BedesTermResolverService
         },
         children: [
             {
