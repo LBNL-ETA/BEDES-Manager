@@ -82,9 +82,9 @@ export class BedesTermDetailsListOptionsComponent implements OnInit {
             rowDragManaged: true,
             animateRows: true,
             columnDefs: this.buildColumnDefs(),
-            getRowNodeId: (data: any) => {
-                return data.id;
-            },
+            // getRowNodeId: (data: any) => {
+            //     return data.id;
+            // },
             onGridReady: () => {
                 this.setGridData();
             },
@@ -178,16 +178,23 @@ export class BedesTermDetailsListOptionsComponent implements OnInit {
         }
     }
 
-    public shouldShowListOptions(): boolean {
-        if (this.term instanceof BedesConstrainedList && (!this.term.options || !this.agGrid.enterMovesDown.options.length)) {
-            return true;
-        }
-        else {
-            return false;
-        }
-    }
+    // /**
+    //  * Determines if the ag-grid of list options should be displayed.
+    //  */
+    // public shouldShowListOptions(): boolean {
+    //     if (this.term instanceof BedesConstrainedList && (!this.term.options || !this.term.options.length)) {
+    //         return true;
+    //     }
+    //     else {
+    //         return false;
+    //     }
+    // }
 
-    public shouldShowEmptyListOptions(): boolean {
+    /**
+     * Determines if the "no list options" message is to be displayed,
+     * ie is this a constrained list and is the array length === 0
+     */
+    public shouldShowListOptions(): boolean {
         if (this.term instanceof BedesConstrainedList && this.term.options && this.term.options.length) {
             return true;
         }

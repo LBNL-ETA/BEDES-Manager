@@ -28,14 +28,11 @@ export class TableCellTermNameComponent implements ICellRendererAngularComp {
 
     public viewTerm(): void {
         if (this.params) {
-            console.log('context...');
-            console.log(this.params.context);
             this.params.context.parent.viewTerm(this.params.data);
         }
     }
 
     agInit(params: any): void {
-        console.log(`${this.constructor.name}: params`, this.params);
         this.params = params;
         this.setDisplayLabel(params ? params.data : undefined);
     }

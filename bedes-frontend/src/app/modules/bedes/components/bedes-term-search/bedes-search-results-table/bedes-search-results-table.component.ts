@@ -114,12 +114,14 @@ export class BedesSearchResultsTableComponent implements OnInit, OnDestroy {
 
     /**
      * Navigates to the bedesTerm details view for the given term.
-     * @param bedesTerm
+     * @param selectedItem
      */
-    public viewTerm(bedesTerm: BedesTerm | BedesConstrainedList): void {
-        console.log(`${this.constructor.name}: view term`, bedesTerm);
-        this.termService.selectedTermSubject.next(bedesTerm);
-        this.router.navigate(['/bedes-term', bedesTerm.id]);
+    public viewTerm(selectedItem: ISearchResultRow): void {
+        console.log(`${this.constructor.name}: view term`, selectedItem);
+        if (selectedItem.ref.resultObjectType === SearchResultType.BedesTerm || selectedItem.ref.resultObjectType === SearchResultType.BedesConstrainedList) {
+            this.router.navigate(['/bedes-term', selectedItem.ref.uuid]);
+        }
+        // this.termService.selectedTermSubject.next(bedesTerm);
     }
 
     /**
@@ -133,9 +135,9 @@ export class BedesSearchResultsTableComponent implements OnInit, OnDestroy {
             enableSorting: true,
             rowSelection: 'multiple',
             columnDefs: this.buildColumnDefs(),
-            getRowNodeId: (data: any) => {
-                return data.uuid;
-            },
+            // getRowNodeId: (data: any) => {
+            //     return data.uuid;
+            // },
             onGridReady: () => {
                 this.gridInitialized = true;
                 if (this.gridOptions && this.gridOptions.api && this.searchResults && !this.initialized) {
@@ -169,20 +171,14 @@ export class BedesSearchResultsTableComponent implements OnInit, OnDestroy {
     private buildColumnDefs(): Array<ColDef> {
         return [
             {
-                headerName: 'Type',
-                field: 'searchResultTypeName'
-            },
-            {
                 headerName: 'Name',
                 field: 'name',
                 minWidth: 250,
                 cellRendererFramework: TableCellTermNameComponent
-                // cellRenderer: (params: any): string => {
-                //     return ` <button mat-mini-fab color="accent" (click)="viewTerm(element)">
-                //     <fa-icon [icon]="['fas', 'search']">
-                //     </fa-icon>
-                // </button>`;
-                // }
+            },
+            {
+                headerName: 'Type',
+                field: 'searchResultTypeName'
             },
             {
                 headerName: 'UUID',
@@ -200,58 +196,6 @@ export class BedesSearchResultsTableComponent implements OnInit, OnDestroy {
                 headerName: 'Data Type',
                 field: 'dataTypeName'
             }
-            // {
-            //     headerName: 'Category',
-            //     field: 'termCategoryId',
-            //     cellRenderer: (params: any): string => {
-            //         return `
-            //         <span>
-            //             ${this.supportListService.transformIdToName(SupportListType.BedesCategory, params.value)}
-            //         </span>
-            //     `
-            //     }
-            // },
-            // {
-            //     headerName: 'Data Type',
-            //     field: 'dataTypeId',
-            //     cellRenderer: (params: any): string => {
-            //         return `<span>${this.supportListService.transformIdToName(SupportListType.BedesDataType, params.value)}</span>`
-            //     }
-            // },
-            // {
-            //     headerName: 'Unit',
-            //     field: 'unitId',
-            //     cellRenderer: (params: any): string => {
-            //         return `<span>${this.supportListService.transformIdToName(SupportListType.BedesUnit, params.value)}</span>`
-            //     }
-            // },
-            // {
-            //     headerName: 'Modified Date',
-            //     field: 'modifiedDate',
-            //     cellRendererFramework: TableCellDateComponent
-            // },
-            // {
-            //     headerName: 'Organization',
-            //     field: 'customerOrg',
-            //     editable: true,
-            //     cellStyle: () => {
-            //         return 'padding: 0;';
-            //     }
-            // },
-            // {
-            //     headerName: 'ESCO',
-            //     field: 'ESCOName'
-            // },
-            // {
-            //     headerName: 'Total Implementation Price',
-            //     field: 'totalImplementationPrice',
-            //     cellRendererFramework: TableCellCurrencyComponent
-            // },
-            // {
-            //     headerName: 'Total Guaranteed Cost Savings',
-            //     field: 'totalGuarCostSavings',
-            //     cellRendererFramework: TableCellCurrencyComponent
-            // },
         ];
     }
 
@@ -273,6 +217,10 @@ export class BedesSearchResultsTableComponent implements OnInit, OnDestroy {
         }
     }
 
+    /**
+     * Returns the type of result object from the search,
+     * ie is it a constrained list? or composite term?
+     */
     private getResultTypeName(searchResultType: SearchResultType): string {
         if (searchResultType === SearchResultType.BedesTerm) {
             return 'BEDES Term';

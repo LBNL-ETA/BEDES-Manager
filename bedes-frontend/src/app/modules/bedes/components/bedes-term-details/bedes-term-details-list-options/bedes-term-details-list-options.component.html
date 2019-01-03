@@ -31,7 +31,7 @@
                     </ag-grid-angular>
                 </div>
             </div>
-            <div class="alert-danger" style="margin-top:10px;" *ngIf="shouldShowEmptyListOptions()">
+            <div class="alert-danger" style="margin-top:10px;" *ngIf="!shouldShowListOptions()">
                 <h3 style="margin: 0; padding:0;">
                     <fa-icon [icon]="['fas', 'exclamation-triangle']"></fa-icon>
                     No list options have been defined, click the <strong>New</strong>

@@ -3,13 +3,14 @@ import { API_URL_TOKEN } from '../url/url.service';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, BehaviorSubject } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { BedesTermOption } from '../../../../../../../bedes-common/models/bedes-term-option/bedes-term-option';
+import { BedesTermOption } from '@bedes-common/models/bedes-term-option/bedes-term-option';
 import {
     IBedesTerm,
     IBedesConstrainedList,
     BedesTerm,
     BedesConstrainedList
 } from '@bedes-common/models/bedes-term';
+import { BedesDataType } from '@bedes-common/enums/bedes-data-type';
 
 @Injectable({
     providedIn: 'root'
@@ -45,7 +46,7 @@ export class BedesTermService {
         return this.http.get<IBedesTerm | IBedesConstrainedList>(url, { withCredentials: true })
             .pipe(map((results: IBedesTerm | IBedesConstrainedList) => {
                 console.log(`${this.constructor.name}: received results`, results);
-                if (<IBedesConstrainedList>results['_options']) {
+                if (results._dataTypeId === BedesDataType.ConstrainedList) {
                     return new BedesConstrainedList(<IBedesConstrainedList>results);
                 }
                 else {
