@@ -31,7 +31,7 @@ const appRoutes: Routes = [
                 component: NewTermListOptionComponent
             },
             {
-                path: 'edit',
+                path: 'edit/:listOptionId',
                 component: EditTermListOptionComponent
             }
 

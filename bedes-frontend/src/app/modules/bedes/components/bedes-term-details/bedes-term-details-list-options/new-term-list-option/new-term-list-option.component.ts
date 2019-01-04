@@ -8,6 +8,7 @@ import { BedesTermListOptionService } from '../../../../services/bedes-term-list
 import { BedesTermService } from 'src/app/modules/bedes/services/bedes-term/bedes-term.service';
 import { BedesTerm, BedesConstrainedList } from '@bedes-common/models/bedes-term';
 import { IBedesTermOption } from '@bedes-common/models/bedes-term-option/bedes-term-option.interface';
+import { Router, ActivatedRoute } from '@angular/router';
 
 enum RequestStatus {
     Idle=1,
@@ -36,8 +37,6 @@ export class NewTermListOptionComponent implements OnInit {
     public ControlState = ControlState;
 
     private ngUnsubscribe: Subject<void> = new Subject<void>();
-    @Input()
-    private stateChangeSubject: BehaviorSubject<OptionViewState>;
 
     public unitList: Array<BedesUnit>;
 
@@ -51,7 +50,9 @@ export class NewTermListOptionComponent implements OnInit {
         private formBuilder: FormBuilder,
         private supportListService: SupportListService,
         private termService: BedesTermService,
-        private listOptionService: BedesTermListOptionService
+        private listOptionService: BedesTermListOptionService,
+        private router: Router,
+        private route: ActivatedRoute
     ) { }
 
     ngOnInit() {
@@ -128,7 +129,7 @@ export class NewTermListOptionComponent implements OnInit {
      * Change the view back to ListOptionsView
      */
     public back(): void {
-        this.stateChangeSubject.next(OptionViewState.ListOptionsView);
+        this.router.navigate(['../'], {relativeTo: this.route});
     }
 
     public controlsDisabled(): boolean {

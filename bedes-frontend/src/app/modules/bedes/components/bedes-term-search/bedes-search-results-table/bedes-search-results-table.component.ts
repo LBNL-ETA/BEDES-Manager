@@ -113,8 +113,7 @@ export class BedesSearchResultsTableComponent implements OnInit, OnDestroy {
     }
 
     /**
-     * Navigates to the bedesTerm details view for the given term.
-     * @param selectedItem
+     * Navigate to the bedesTerm details view for the selected term.
      */
     public viewTerm(selectedItem: ISearchResultRow): void {
         console.log(`${this.constructor.name}: view term`, selectedItem);
@@ -132,20 +131,14 @@ export class BedesSearchResultsTableComponent implements OnInit, OnDestroy {
             }
         }
         else if (selectedItem.ref.resultObjectType === SearchResultType.BedesTermOption) {
-            if (selectedItem.ref.termUUID) {
-                this.router.navigate(['/bedes-term', selectedItem.ref.termUUID]);
-            }
-            else if (selectedItem.ref.termId) {
-                this.router.navigate(['/bedes-term', selectedItem.ref.termId]);
-            }
-            else {
-                console.error('unable to find route for selectedRow', selectedItem);
-            }
+            // navigate to bedes-term/term_uuid_or_id/edit/option_uuid_or_id
+            const termId = selectedItem.ref.termUUID || selectedItem.ref.termId;
+            const optionId = selectedItem.ref.uuid || selectedItem.ref.id;
+            this.router.navigate(['/bedes-term', termId, 'edit', optionId]);
         }
         else {
             console.error('unable to find route for selectedRow', selectedItem);
         }
-        // this.termService.selectedTermSubject.next(bedesTerm);
     }
 
     /**

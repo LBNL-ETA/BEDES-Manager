@@ -93,7 +93,7 @@ import { TableCellTermNameComponent } from './components/bedes-term-search/bedes
         TableCellBedesCategoryComponent,
         TableCellBedesUnitComponent,
         TableCellBedesDataTypeComponent,
-        TableCellTermNameComponent
+        TableCellTermNameComponent,
     ],
     entryComponents: [
         BedesTermSearchDialogComponent,

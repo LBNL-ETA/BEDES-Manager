@@ -9,6 +9,7 @@ import { BedesTermService } from 'src/app/modules/bedes/services/bedes-term/bede
 import { BedesTerm, BedesConstrainedList } from '@bedes-common/models/bedes-term';
 import { BedesTermOption } from '@bedes-common/models/bedes-term-option/bedes-term-option';
 import { takeUntil } from 'rxjs/operators';
+import { Router, ActivatedRoute } from '@angular/router';
 
 enum RequestStatus {
     Idle=1,
@@ -53,7 +54,9 @@ export class EditTermListOptionComponent implements OnInit {
         private formBuilder: FormBuilder,
         private supportListService: SupportListService,
         private termService: BedesTermService,
-        private listOptionService: BedesTermListOptionService
+        private listOptionService: BedesTermListOptionService,
+        private router: Router,
+        private route: ActivatedRoute
     ) { }
 
     ngOnInit() {
@@ -150,7 +153,7 @@ export class EditTermListOptionComponent implements OnInit {
      * Change the view back to ListOptionsView
      */
     public back(): void {
-        this.stateChangeSubject.next(OptionViewState.ListOptionsView);
+        this.router.navigate(['../..'], {relativeTo: this.route});
     }
 
     /**

@@ -22,7 +22,6 @@ import { BedesTermListOptionService } from '../../../services/bedes-term-list-op
 export class BedesTermDetailsListOptionsComponent implements OnInit {
     private ngUnsubscribe: Subject<void> = new Subject<void>();
     @Input()
-    private stateChangeSubject: BehaviorSubject<OptionViewState>;
 
     @ViewChild('agGrid')
     agGrid: AgGridNg2;
@@ -39,7 +38,9 @@ export class BedesTermDetailsListOptionsComponent implements OnInit {
     constructor(
         private termService: BedesTermService,
         private supportListService: SupportListService,
-        private listOptionService: BedesTermListOptionService
+        private listOptionService: BedesTermListOptionService,
+        private router: Router,
+        private route: ActivatedRoute
     ) {
     }
 
@@ -145,19 +146,25 @@ export class BedesTermDetailsListOptionsComponent implements OnInit {
     }
 
     /**
-     * Set the flag to display the new list option inputs.
+     * Activate the new list option route.
      */
     public newListOption(): void {
-        console.log('newListOption');
-        this.stateChangeSubject.next(OptionViewState.ListOptionsNew);
+        // change the route, but don't update the url.
+        // this hides the trailing "/new" in the url
+        this.router.navigate(['new'], {relativeTo: this.route, skipLocationChange: true});
     }
 
+    /**
+     * Set the flag to edit a list option.
+     */
     public editListOption(): void {
         if (this.selectedOption) {
             // set the active list option
             this.listOptionService.activeListOptionSubject.next(this.selectedOption);
             // switch to the list option edit view
-            this.stateChangeSubject.next(OptionViewState.ListOptionsEdit);
+            const optionId = this.selectedOption.uuid ? this.selectedOption.uuid : this.selectedOption.id;
+            console.log(`option id = ${optionId}`, this.selectedOption);
+            this.router.navigate(['edit', optionId], {relativeTo: this.route});
         }
     }
 

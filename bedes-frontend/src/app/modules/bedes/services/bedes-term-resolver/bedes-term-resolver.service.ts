@@ -8,6 +8,8 @@ import { Observable, of, EMPTY } from 'rxjs';
 import { mergeMap, take, catchError } from 'rxjs/operators';
 import { BedesTermService } from '../bedes-term/bedes-term.service';
 import { BedesConstrainedList, BedesTerm } from '@bedes-common/models/bedes-term';
+import { BedesTermListOptionService } from '../bedes-term-list-option/bedes-term-list-option.service';
+import { BedesTermOption } from '../../../../../../../bedes-common/models/bedes-term-option/bedes-term-option';
 
 @Injectable({
     providedIn: 'root',
@@ -16,6 +18,7 @@ export class BedesTermResolverService {
 
     constructor(
         private termService: BedesTermService,
+        private listOptionService: BedesTermListOptionService,
         private router: Router
     ) {
     }
@@ -27,12 +30,15 @@ export class BedesTermResolverService {
         if (value.match(/^\d+$/)) {
             value = Number(value);
         }
-        console.log(`${this.constructor.name}: resolve id ${value}`, typeof value);
-        console.log('current selected value', this.termService.selectedTermSubject.getValue());
         // check the current selected term for a matching id
         // don't make the http request if we already have the term selected
         const selectedTerm = this.termService.selectedTermSubject.getValue();
         if (selectedTerm && selectedTerm.isMatch(value)) {
+            // check if we're editing a list option, which will have an id after /edit/
+            // need to set the selected list option if it isn't set
+            if (selectedTerm instanceof BedesConstrainedList) {
+                this.checkForActiveTermOption(selectedTerm, state);
+            }
             return of(selectedTerm);
         }
         else {
@@ -42,7 +48,13 @@ export class BedesTermResolverService {
                     mergeMap(bedesTerm => {
                         console.log(`${this.constructor.name}: received results`, bedesTerm);
                         if (bedesTerm) {
+                            // set the term as the "selected term"
                             this.termService.selectedTermSubject.next(bedesTerm);
+                            // check if a list option needs to be activated
+                            // ie a BedesTermOption id was passed in the url
+                            if (bedesTerm instanceof BedesConstrainedList) {
+                                this.checkForActiveTermOption(bedesTerm, state);
+                            }
                             return of(bedesTerm);
                         }
                         else {
@@ -51,7 +63,7 @@ export class BedesTermResolverService {
                         }
                     }),
                     catchError((err: any, caught: any) => {
-                        console.log('caught error');
+                        console.log('caught term resolve error');
                         console.log(err);
                         console.log(caught);
                         this.router.navigate(['/search']);
@@ -59,5 +71,24 @@ export class BedesTermResolverService {
                     })
                 );
         }
+    }
+
+    /**
+     * Check for any list options that need to be activated.
+     */
+    public checkForActiveTermOption(term: BedesConstrainedList, state: RouterStateSnapshot): void {
+        // check for a match on the edit route
+        const results = state.url.match(/\/edit\/(.*)/);
+        if (results) {
+            // the id/uuid will be in the captured regex group
+            // use it to retrieve the option on the selected term
+            const listOptionId = results[1];
+            const termOption = term.getOption(listOptionId);
+            if (termOption) {
+                // set the option to active if found
+                this.listOptionService.activeListOptionSubject.next(termOption);
+            }
+        }
+
     }
 }
