@@ -29,7 +29,6 @@ export class BedesConstrainedList extends BedesTerm {
 
     /**
      * Adds BedesTermOption to the Constrained List.
-     * @param option 
      */
     public async addOption(termOption: BedesTermOption): Promise<void> {
         this._options.push(termOption);
@@ -42,4 +41,13 @@ export class BedesConstrainedList extends BedesTerm {
             _options: this._options.map((d) => d.toInterface())
         }
     }
+
+    /**
+     * Retrieve an option by its id or uuid.
+     * The id can be either string or number.
+     */
+    public getOption(idOrUUID: number | string): BedesTermOption | undefined {
+        return this.options.find((d) => d.isMatch(idOrUUID));
+    }
+
 }

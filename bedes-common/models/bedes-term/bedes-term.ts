@@ -1,8 +1,9 @@
 import { IBedesTerm } from "./bedes-term.interface";
 import { BedesTermSectorLink } from '../bedes-term-sector-link/bedes-term-sector-link';
 import { BedesSectorList } from './bedes-sector-list';
+import { MatchByUUIDOrId } from '../match-by-uuid-or-id/match-by-uuid-or-id';
 
-export class BedesTerm {
+export class BedesTerm extends MatchByUUIDOrId {
     protected _id: number | null | undefined;
     protected _termCategoryId: number;
     protected _name: string;
@@ -15,6 +16,7 @@ export class BedesTerm {
     protected _sectors: BedesSectorList;
 
     constructor(data: IBedesTerm) {
+        super();
         this._id = data._id;
         this._termCategoryId = data._termCategoryId;
         this._name = data._name;
@@ -84,35 +86,6 @@ export class BedesTerm {
     }
     get sectors(): BedesSectorList {
         return this._sectors;
-    }
-
-    /**
-     * Determines if a given id, name or uuid is a match for this term instance.
-     */
-    public isMatch(value: number | string): boolean {
-        if (typeof value === 'number') {
-            return this.isMatchById(value);
-        }
-        else if (typeof value === 'string') {
-            return this.isMatchByUUID(value);
-        }
-        else {
-            throw new Error(`${this.constructor.name}: isMatch expects a number or string.`)
-        }
-    }
-
-    /**
-     * Determines if a given term id matches this term instance.
-     */
-    private isMatchById(value: number): boolean {
-        return value === this._id ? true : false;
-    }
-
-    /**
-     * Determines if the given name or uuid is a match to the term instance.
-     */
-    private isMatchByUUID(value: string): boolean {
-        return value === this._uuid ? true : false;
     }
 
     /**

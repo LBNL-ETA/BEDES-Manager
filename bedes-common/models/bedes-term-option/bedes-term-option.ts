@@ -1,15 +1,17 @@
 import { IBedesTermOption } from "./bedes-term-option.interface";
+import { MatchByUUIDOrId } from '../match-by-uuid-or-id/match-by-uuid-or-id';
 
-export class BedesTermOption {
-    private _id: number | null | undefined;
-    private _name: string;
-    private _description: string;
+export class BedesTermOption extends MatchByUUIDOrId {
+    protected _id: number | null | undefined;
+    protected _name: string;
+    protected _description: string;
     protected _unitId: number | null | undefined;
-    private _definitionSourceId: number | null | undefined;
+    protected _definitionSourceId: number | null | undefined;
     protected _uuid: string | null | undefined;
     protected _url: string | null | undefined;
 
     constructor(data: IBedesTermOption) {
+        super();
         this._id = data._id;
         this._name = data._name;
         this._description = data._description;
