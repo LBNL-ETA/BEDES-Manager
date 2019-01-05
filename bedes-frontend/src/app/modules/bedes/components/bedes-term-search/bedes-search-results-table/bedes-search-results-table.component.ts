@@ -1,5 +1,4 @@
-import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
-import { MatPaginator, MatTableDataSource, MatSort } from '@angular/material';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { BedesConstrainedList, BedesTerm } from '@bedes-common/models/bedes-term';
 import { BedesTermSearchService } from '../../../services/bedes-term-search/bedes-term-search.service';
 import { takeUntil } from 'rxjs/operators';
@@ -7,25 +6,17 @@ import { Subject } from 'rxjs';
 import { RequestStatus } from '../../../enums';
 import { Router } from '@angular/router';
 import { BedesTermService } from '../../../services/bedes-term/bedes-term.service';
-import { GridOptions, SelectionChangedEvent, ColDef, ValueGetterParams, ICellRendererParams, Context } from 'ag-grid-community';
+import { GridOptions, SelectionChangedEvent, ColDef } from 'ag-grid-community';
 import { SupportListService } from '../../../services/support-list/support-list.service';
 import { BedesUnit } from '@bedes-common/models/bedes-unit/bedes-unit';
 import { BedesDataType } from '@bedes-common/models/bedes-data-type/bedes-data-type';
 import { BedesTermCategory } from '@bedes-common/models/bedes-term-category/bedes-term-category';
 import { SupportListType } from '../../../services/support-list/support-list-type.enum';
 import { TableCellTermNameComponent } from './table-cell-term-name/table-cell-term-name.component';
-import { BedesSearchResult } from '../../../../../../../../bedes-common/models/bedes-search-result/bedes-search-result';
-import { SearchResultType } from '../../../../../../../../bedes-common/models/bedes-search-result/search-result-type.enum';
-
-interface ISearchResultRow {
-    name: string,
-    uuid: string,
-    categoryName: string,
-    unitName: string,
-    dataTypeName: string,
-    ref: BedesSearchResult,
-    searchResultTypeName: string
-}
+import { BedesSearchResult } from '@bedes-common/models/bedes-search-result/bedes-search-result';
+import { SearchResultType } from '@bedes-common/models/bedes-search-result/search-result-type.enum';
+import { ISearchResultRow } from '../../../models/ag-table/search-result-row.interface';
+import { getResultTypeName } from '../../../lib/get-result-type-name';
 
 @Component({
     selector: 'app-bedes-search-results-table',
@@ -226,33 +217,11 @@ export class BedesSearchResultsTableComponent implements OnInit, OnDestroy {
                     // dataTypeName: this.supportListService.transformIdToName(SupportListType.BedesDataType, term.dataTypeId),
                     unitName: this.supportListService.transformIdToName(SupportListType.BedesUnit, searchResult.unitId),
                     ref: searchResult,
-                    searchResultTypeName: this.getResultTypeName(searchResult.resultObjectType)
+                    searchResultTypeName: getResultTypeName(searchResult.resultObjectType)
                 }
             });
             this.gridOptions.api.setRowData(gridData);
             this.initialized = true;
-        }
-    }
-
-    /**
-     * Returns the type of result object from the search,
-     * ie is it a constrained list? or composite term?
-     */
-    private getResultTypeName(searchResultType: SearchResultType): string {
-        if (searchResultType === SearchResultType.BedesTerm) {
-            return 'BEDES Term';
-        }
-        else if (searchResultType === SearchResultType.BedesConstrainedList) {
-            return 'Constrained List';
-        }
-        else if (searchResultType === SearchResultType.BedesTermOption) {
-            return 'Constrained List Option';
-        }
-        else if (searchResultType === SearchResultType.CompositeTerm) {
-            return 'Composite Term';
-        }
-        else {
-            '';
         }
     }
 

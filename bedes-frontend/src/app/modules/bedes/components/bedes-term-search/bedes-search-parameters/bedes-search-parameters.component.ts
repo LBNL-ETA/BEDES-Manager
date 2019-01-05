@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { BedesTermSearchService } from '../../../services/bedes-term-search/bedes-term-search.service';
 import { BedesTerm, BedesConstrainedList } from '@bedes-common/models/bedes-term';
-import { BedesSearchResult } from '../../../../../../../../bedes-common/models/bedes-search-result/bedes-search-result';
+import { BedesSearchResult } from '@bedes-common/models/bedes-search-result/bedes-search-result';
 
 @Component({
     selector: 'app-bedes-search-parameters',

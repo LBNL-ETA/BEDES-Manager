@@ -1,5 +1,4 @@
 import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
-import { MatPaginator, MatTableDataSource, MatSort } from '@angular/material';
 import { BedesConstrainedList, BedesTerm } from '@bedes-common/models/bedes-term';
 import { BedesTermSearchService } from '../../../services/bedes-term-search/bedes-term-search.service';
 import { takeUntil } from 'rxjs/operators';
@@ -8,13 +7,17 @@ import { RequestStatus } from '../../../enums';
 import { Router } from '@angular/router';
 import { BedesTermService } from '../../../services/bedes-term/bedes-term.service';
 import { AgGridNg2 } from 'ag-grid-angular';
-import { GridOptions, ColDef, ValueGetterParams, SelectionChangedEvent } from 'ag-grid-community';
+import { GridOptions, ColDef, SelectionChangedEvent } from 'ag-grid-community';
 import { SupportListService } from '../../../services/support-list/support-list.service';
 import { BedesUnit } from '@bedes-common/models/bedes-unit/bedes-unit';
 import { BedesDataType } from '@bedes-common/models/bedes-data-type';
 import { BedesTermCategory } from '@bedes-common/models/bedes-term-category/bedes-term-category';
 import { BedesTermSelectorService } from '../../../services/bedes-term-selector/bedes-term-selector.service';
-import { BedesSearchResult } from '../../../../../../../../bedes-common/models/bedes-search-result/bedes-search-result';
+import { BedesSearchResult } from '@bedes-common/models/bedes-search-result/bedes-search-result';
+import { ISearchResultRow } from '../../../models/ag-table/search-result-row.interface';
+import { SupportListType } from '../../../services/support-list/support-list-type.enum';
+import { TableCellTermNameComponent } from '../../bedes-term-search/bedes-search-results-table/table-cell-term-name/table-cell-term-name.component';
+import { getResultTypeName } from '../../../lib/get-result-type-name';
 
 @Component({
     selector: 'app-select-terms-table',
@@ -24,17 +27,21 @@ import { BedesSearchResult } from '../../../../../../../../bedes-common/models/b
 export class SelectTermsTableComponent implements OnInit, OnDestroy {
     public RequestStatus = RequestStatus;
     public currentRequestStatus: RequestStatus;
-    public searchResults = new Array<BedesTerm | BedesConstrainedList>();
+    public searchResults = new Array<BedesSearchResult>();
     private ngUnsubscribe: Subject<void> = new Subject<void>();
     public hasSearched = false;
     private receivedInitialValues = false;
     @ViewChild('agGrid') agGrid: AgGridNg2;
     // grid options
     public gridOptions: GridOptions;
+    private gridInitialized = false;
+    public rowData: Array<BedesTerm | BedesConstrainedList>;
+    // lists
     private unitList: Array<BedesUnit>;
     private dataTypeList: Array<BedesDataType>;
     private categoryList: Array<BedesTermCategory>;
-    public selectedTerms: Array<BedesTerm | BedesConstrainedList>;
+    // search results
+    public selectedTerms: Array<BedesSearchResult>;
 
     constructor(
         private router: Router,
@@ -91,28 +98,11 @@ export class SelectTermsTableComponent implements OnInit, OnDestroy {
             suppressRowClickSelection: true,
             // suppressCellSelection: true,
             columnDefs: this.buildColumnDefs(),
-            getRowNodeId: (data: any) => {
-                return data.id;
-            },
+            // getRowNodeId: (data: any) => {
+            //     return data.id;
+            // },
             onGridReady: () => {
-                // this.initialRowDataLoad$.subscribe(
-                //     rowData => {
-                //         // the initial full set of data
-                //         // note that we don't need to un-subscribe here as it's a one off data load
-                //         if (this.gridOptions.api) { // can be null when tabbing between the examples
-                //             this.gridOptions.api.setRowData(rowData);
-                //         }
-
-                //         // now listen for updates
-                //         // we process the updates with a transaction - this ensures that only the changes
-                //         // rows will get re-rendered, improving performance
-                //         this.rowDataUpdates$.subscribe((updates) => {
-                //             if (this.gridOptions.api) { // can be null when tabbing between the examples
-                //                 this.gridOptions.api.updateRowData({update: updates})
-                //             }
-                //         });
-                //     }
-                // );
+                this.gridInitialized = true;
             },
             onFirstDataRendered(params) {
                 params.api.sizeColumnsToFit();
@@ -125,6 +115,9 @@ export class SelectTermsTableComponent implements OnInit, OnDestroy {
         };
     }
 
+    /**
+     * Subscribe to the BedesSearchResults Subject.
+     */
     private initializeSearchResultsSubscriber(): void {
         // subscribe to the search results service
         this.termSearchService.searchResultsSubject()
@@ -132,16 +125,17 @@ export class SelectTermsTableComponent implements OnInit, OnDestroy {
             .subscribe((results: Array<BedesSearchResult>) => {
                 console.log(`${this.constructor.name}: received search results...`, results);
                 // TODO: this needs to return bedes terms and options only, not composite terms
-                // this.searchResults = results;
-                // if (this.gridOptions.api) {
-                //     this.gridOptions.api.setRowData(results);
-                // }
-                // if(!this.receivedInitialValues) {
-                //     this.receivedInitialValues = true;
-                // }
-                // else {
-                //     this.hasSearched = true;
-                // }
+                this.searchResults = results;
+                if (this.gridOptions.api) {
+                    // this.gridOptions.api.setRowData(this.buildGridData());
+                    this.setGridData();
+                }
+                if(!this.receivedInitialValues) {
+                    this.receivedInitialValues = true;
+                }
+                else {
+                    this.hasSearched = true;
+                }
             },
             (error: any) => {
                 console.error(`${this.constructor.name}: error in ngOnInit`)
@@ -175,35 +169,53 @@ export class SelectTermsTableComponent implements OnInit, OnDestroy {
 
     private buildColumnDefs(): Array<ColDef> {
         return [
-            {headerName: 'Name', field: 'name', checkboxSelection: true },
-            {headerName: 'Description', field: 'description'},
             {
-                headerName: 'Term Category',
-                field: 'termCategoryId',
-                valueGetter: (params: ValueGetterParams) => {
-                    if (this.categoryList) {
-                        const item = this.categoryList.find((d) => d.id === params.data.termCategoryId);
-                        if (item) {
-                            return item.name;
-                        }
-                    }
-                }
+                headerName: 'Name',
+                field: 'name',
+                minWidth: 250,
+                checkboxSelection: true
             },
-            {headerName: 'Data Type', field: 'dataTypeId'},
+            {
+                headerName: 'Type',
+                field: 'searchResultTypeName'
+            },
+            {
+                headerName: 'UUID',
+                field: 'uuid'
+            },
+            {
+                headerName: 'Category',
+                field: 'categoryName'
+            },
             {
                 headerName: 'Unit',
-                field: 'unitId',
-                valueGetter: (params: ValueGetterParams) => {
-                    if (this.unitList) {
-                        const unit = this.unitList.find((d) => d.id === params.data.unitId);
-                        if (unit) {
-                            return unit.name;
-                        }
-                    }
-                    return ``;
-                }
+                field: 'unitName'
             },
-        ]
+            {
+                headerName: 'Data Type',
+                field: 'dataTypeName'
+            }
+        ];
+    }
+
+    /**
+     * Build the data for populating the grid.
+     */
+    private setGridData(): void {
+        if (this.gridOptions && this.gridOptions.api && this.searchResults && this.gridInitialized) {
+            const gridData = this.searchResults.map((searchResult: BedesSearchResult) => {
+                return <ISearchResultRow>{
+                    name: searchResult.name,
+                    uuid: searchResult.uuid,
+                    // categoryName: this.supportListService.transformIdToName(SupportListType.BedesCategory, term.termCategoryId),
+                    // dataTypeName: this.supportListService.transformIdToName(SupportListType.BedesDataType, term.dataTypeId),
+                    unitName: this.supportListService.transformIdToName(SupportListType.BedesUnit, searchResult.unitId),
+                    ref: searchResult,
+                    searchResultTypeName: getResultTypeName(searchResult.resultObjectType)
+                }
+            });
+            this.gridOptions.api.setRowData(gridData);
+        }
     }
 
     /**
@@ -220,7 +232,7 @@ export class SelectTermsTableComponent implements OnInit, OnDestroy {
      * Sets the selected BedesTerms
      */
     public selectTerms(): void {
-        this.termSelectorService.setSelectedTerms(this.selectedTerms);
+        // this.termSelectorService.setSelectedTerms(this.selectedTerms);
     }
 
 }
