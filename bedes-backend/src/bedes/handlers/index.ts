@@ -6,6 +6,7 @@ import { getSupportLists } from './support-lists';
 import { getBedesTermHandler } from './get-bedes-term';
 import * as compositeTerm from './composite-term';
 import * as bedesTermListOption from './bedes-term-list-option';
+import * as applications from './applications';
 
 export {
     searchBedesTermHandler,
@@ -15,5 +16,6 @@ export {
     getSupportLists,
     getBedesTermHandler,
     compositeTerm,
-    bedesTermListOption
+    bedesTermListOption,
+    applications
 }

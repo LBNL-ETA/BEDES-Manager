@@ -1,8 +1,9 @@
 insert into
-    public.app (name)
+    public.app (name, description)
 values
-    (${_name})
+    (${_name}, ${_description})
 returning
     id as "_id",
-    name as "_name"
+    name as "_name",
+    description as "_description"
 ;

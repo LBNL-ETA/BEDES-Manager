@@ -1,0 +1,61 @@
+<div class="mat-typography" style="display:flex;">
+    <mat-card class="bedes-content-card mat-elevation-z0" style="margin:10px 0 10px 0; flex: 1;">
+        <mat-card-header>
+            <mat-card-title>
+                <h2>
+                    <fa-icon [icon]="['fas', 'plus-circle']"></fa-icon>
+                    Edit Application Details
+                </h2>
+            </mat-card-title>
+        </mat-card-header>
+        <mat-card-content style="padding: 10px;">
+            <div style="max-width: 700px; margin: 0 auto 0 auto;">
+                <div style="display:flex;">
+                    <button mat-stroked-button color="primary"
+                    [disabled]="dataForm.invalid || currentRequestStatus === RequestStatus.Pending"
+                    (click)="updateApplication()">
+                        <fa-icon [icon]="['fas', 'save']"></fa-icon>
+                        Save
+                    </button>
+                    <a mat-stroked-button color="primary" [routerLink]="['/applications/list']"
+                    [disabled]="currentControlState === ControlState.disabled">
+                        <fa-icon [icon]="['fas', 'chevron-circle-left']"></fa-icon>
+                        Back
+                    </a>
+                </div>
+                <!-- Messages -->
+                <!-- Missing required fields -->
+                <div class="alert-warn" style="margin: 10px 0 10px 0; text-align:left;"
+                *ngIf="currentRequestStatus === RequestStatus.Idle && dataForm.invalid">
+                    <span style="font-weight:bold; padding-right:10px;">Status:</span>
+                    <span>
+                        <fa-icon [icon]="['fas', 'exclamation-triangle']"></fa-icon>
+                        Missing required fields.
+                    </span>
+                </div>
+                <!-- Application successfully created -->
+                <div class="alert-success"
+                style="margin: 10px 0 10px 0; text-align:left;"
+                *ngIf="currentRequestStatus === RequestStatus.Success">
+                    <span style="font-weight:bold; padding-right:10px;">Status:</span>
+                    <span>
+                        <fa-icon [icon]="['fas', 'check']"></fa-icon>
+                        Application successfully created.
+                    </span>
+                </div>
+
+                <!-- Data Form -->
+                <form [formGroup]="dataForm" style="display:flex; flex-direction: column; margin-top:10px">
+                    <mat-form-field style="flex:1; margin-bottom:5px;" hintLabel="* Required">
+                        <input matInput placeholder="Enter the Application Name" formControlName="name">
+                    </mat-form-field>
+                    <mat-form-field style="flex:1; margin-bottom:5px;">
+                        <textarea matInput placeholder="Enter a Description" formControlName="description" rows="5">
+                        </textarea>
+                    </mat-form-field>
+
+                </form>
+            </div>
+        </mat-card-content>
+    </mat-card>
+</div>

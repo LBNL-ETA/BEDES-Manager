@@ -22,12 +22,14 @@ export async function getSupportLists(request: Request, response: Response): Pro
         promises.push(bedesQuery.units.getAllRecords());
         promises.push(bedesQuery.dataType.getAllRecords());
         promises.push(bedesQuery.definitionSource.getAllRecords());
-        const [categoryList, unitList, dataTypeList, defSourceList, sectorList] = await Promise.all(promises);
+        promises.push(bedesQuery.app.getAllRecords());
+        const [categoryList, unitList, dataTypeList, defSourceList, applicationList] = await Promise.all(promises);
         response.json(<ISupportList>{
             _categoryList: categoryList,
             _unitList: unitList,
             _dataTypeList: dataTypeList,
-            _definitionSourceList: defSourceList
+            _definitionSourceList: defSourceList,
+            _applicationList: applicationList
         });
     }
     catch (error) {

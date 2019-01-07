@@ -12,6 +12,14 @@ import { ManageDefinitionSourceListComponent } from './components/list-managemen
 import { BedesTermDetailsListOptionsComponent } from './components/bedes-term-details/bedes-term-details-list-options/bedes-term-details-list-options.component';
 import { EditTermListOptionComponent } from './components/bedes-term-details/bedes-term-details-list-options/edit-term-list-option/edit-term-list-option.component';
 import { NewTermListOptionComponent } from './components/bedes-term-details/bedes-term-details-list-options/new-term-list-option/new-term-list-option.component';
+import { CompositeTermComponent } from './components/composite-term/composite-term.component';
+import { SelectTermsComponent } from './components/composite-term/select-terms/select-terms.component';
+import { CompositeTermEditComponent } from './components/composite-term/composite-term-edit/composite-term-edit.component';
+import { ApplicationListComponent } from './components/application-home/application-list/application-list.component';
+import { ApplicationNewComponent } from './components/application-home/application-new/application-new.component';
+import { ApplicationEditComponent } from './components/application-home/application-edit/application-edit.component';
+import { ApplicationResolverService } from './services/application/application-resolver.service';
+import { ApplicationHomeComponent } from './components/application-home/application-home.component';
 
 const appRoutes: Routes = [
     { path: 'search', component: BedesTermSearchComponent},
@@ -49,6 +57,45 @@ const appRoutes: Routes = [
                 path: 'build',
                 component: TermBuilderEditComponent
             }
+        ]
+    },
+    {
+        path: 'applications',
+        component: ApplicationHomeComponent,
+        children: [
+            {
+                path: '',
+                redirectTo: 'list',
+                pathMatch: 'full'
+            },
+            {
+                path: 'list',
+                component: ApplicationListComponent
+            },
+            {
+                path: 'new',
+                component: ApplicationNewComponent
+            },
+            {
+                path: 'edit/:id',
+                component: ApplicationEditComponent,
+                resolve: {
+                    application: ApplicationResolverService
+                },
+            },
+            // {
+            //     path: 'search',
+            //     component: SelectTermsComponent
+            // },
+            // {
+            //     path: 'edit',
+            //     component: CompositeTermEditComponent,
+            //     pathMatch: 'full'
+            // },
+            // {
+            //     path: 'edit/:id',
+            //     component: CompositeTermComponent
+            // }
         ]
     },
     {

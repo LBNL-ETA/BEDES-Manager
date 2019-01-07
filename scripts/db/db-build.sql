@@ -114,7 +114,8 @@ create table public.bedes_composite_term_details (
 
 create table public.app (
     id serial primary key,
-    name varchar(100) not null unique
+    name varchar(100) not null unique,
+    description varchar(500)
 );
 
 create table public.app_field (

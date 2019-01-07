@@ -9,7 +9,6 @@ import { mergeMap, take, catchError } from 'rxjs/operators';
 import { BedesTermService } from '../bedes-term/bedes-term.service';
 import { BedesConstrainedList, BedesTerm } from '@bedes-common/models/bedes-term';
 import { BedesTermListOptionService } from '../bedes-term-list-option/bedes-term-list-option.service';
-import { BedesTermOption } from '../../../../../../../bedes-common/models/bedes-term-option/bedes-term-option';
 
 @Injectable({
     providedIn: 'root',

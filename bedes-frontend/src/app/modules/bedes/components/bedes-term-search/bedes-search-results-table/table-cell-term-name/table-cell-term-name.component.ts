@@ -5,6 +5,9 @@ import { ICellRendererAngularComp } from 'ag-grid-angular';
 import { BedesConstrainedList } from '@bedes-common/models/bedes-term/bedes-constrained-list';
 import { BedesTerm } from '@bedes-common/models/bedes-term/bedes-term';
 
+/**
+ * Component implementation for an ag-grid cell.
+ */
 @Component({
   selector: 'app-table-cell-term-name',
   templateUrl: './table-cell-term-name.component.html',
@@ -27,7 +30,8 @@ export class TableCellTermNameComponent implements ICellRendererAngularComp {
     }
 
     public viewTerm(): void {
-        if (this.params) {
+        if (this.params && this.params.context) {
+            console.log(this.params);
             this.params.context.parent.viewTerm(this.params.data);
         }
     }

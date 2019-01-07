@@ -9,6 +9,7 @@ import { BedesDataType } from '@bedes-common/models/bedes-data-type';
 import { BedesTermCategory } from '@bedes-common/models/bedes-term-category';
 import { BedesDefinitionSource } from '@bedes-common/models/bedes-definition-source';
 import { SupportListType } from './support-list-type.enum';
+import { MappingApplication } from '@bedes-common/models/mapping-application/mapping-application';
 
 @Injectable({
     providedIn: 'root'
@@ -40,6 +41,12 @@ export class SupportListService {
     get definitionSourceSubject(): BehaviorSubject<Array<BedesDefinitionSource>> {
         return this._definitionSourceSubject;
     }
+    // application list
+    private applicationList = new Array<MappingApplication>();
+    private _applicationSubject: BehaviorSubject<Array<MappingApplication>>;
+    get applicationSubject(): BehaviorSubject<Array<MappingApplication>> {
+        return this._applicationSubject;
+    }
 
     constructor(
         private http: HttpClient,
@@ -50,6 +57,7 @@ export class SupportListService {
         this._dataTypeSubject = new BehaviorSubject<Array<BedesDataType>>([]);
         this._termCategorySubject = new BehaviorSubject<Array<BedesTermCategory>>([]);
         this._definitionSourceSubject = new BehaviorSubject<Array<BedesDefinitionSource>>([]);
+        this._applicationSubject = new BehaviorSubject<Array<MappingApplication>>([]);
     }
 
     /**
@@ -74,6 +82,9 @@ export class SupportListService {
                 // assing the definition source lookup table
                 this.definitionSourceList = results._definitionSourceList.map((d) => new BedesDefinitionSource(d));
                 this._definitionSourceSubject.next(this.definitionSourceList);
+                // assign the application list lookup table
+                this.applicationList = results._applicationList.map((d) => new MappingApplication(d));
+                this._applicationSubject.next(this.applicationList);
                 resolve(true);
             });
         });

@@ -4,7 +4,7 @@ import * as path from 'path';
 import * as XLSX from 'xlsx';
 import * as util from 'util';
 import { bedesQuery } from "@bedes-backend/bedes/query";
-import { IApp } from "@bedes-common/models/app";
+import { IMappingApplication } from "@bedes-common/models/mapping-application";
 import { db } from '@bedes-backend/db';
 import { BedesErrorTermNotFound } from '../lib/errors/bedes-term-not-found.error';
 import { BedesError } from "@bedes-common/bedes-error";
@@ -108,14 +108,14 @@ export abstract class BedesMappingBase {
      */
     private async setAppId(): Promise<any> {
         try {
-            let item: IApp;
+            let item: IMappingApplication;
             try {
                 item = await bedesQuery.app.getRecord(this.applicationName);
                 logger.debug('found existing app record');
                 logger.debug(util.inspect(item));
             }
             catch {
-                item = await bedesQuery.app.newRecord(<IApp>{_name: this.applicationName}, this.transaction);
+                item = await bedesQuery.app.newRecord(<IMappingApplication>{_name: this.applicationName}, this.transaction);
             }
             if (item) {
                 this.appId = item._id;
