@@ -1,0 +1,35 @@
+version: '3'
+services:
+  backend:
+    container_name: "bedes_deploy_backend_container"
+    env_file:
+      - ".env"
+    build:
+      context: "./"
+      dockerfile: "./Dockerfiles/Dockerfile-backend"
+    ports:
+      - "3009:3000"
+    depends_on:
+      - "db"
+  frontend:
+    container_name: "bedes_nginx_container"
+    build:
+      context: "./"
+      dockerfile: "./Dockerfiles/Dockerfile-nginx-local"
+    ports:
+      - 8086:80
+    depends_on:
+      - "backend"
+  db:
+    container_name: "bedes_pg_container"
+    build:
+      context: "."
+      dockerfile: "./Dockerfiles/Dockerfile-postgres"
+    env_file:
+      - ".env"
+    expose:
+      - 5432
+    ports:
+      - "5461:5432"
+    volumes:
+      - ./epb/epb-postgres/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d 

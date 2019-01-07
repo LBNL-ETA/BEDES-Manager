@@ -1,0 +1,5 @@
+FROM nginx:latest
+COPY ./bedes-frontend/dist/Bedes-App /usr/share/nginx/html
+COPY ./build/nginx_config/nginx.conf /etc/nginx
+COPY ./build/nginx_config/conf.dev.d/default.conf /etc/nginx/conf.d
+EXPOSE 80
