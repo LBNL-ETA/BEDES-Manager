@@ -3,6 +3,7 @@ import * as handlers from './handlers';
 
 function mountRoutes(router: Router) {
     router.get('/bedes-term/:id', handlers.getBedesTermHandler);
+    router.post('/bedes-term', handlers.getBedesTermsMultipleHandler);
     // BedesSearch
     router.get('/search-terms', handlers.searchBedesTermHandler);
     router.get('/data-type', handlers.getBedesDataTypeList);

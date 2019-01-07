@@ -12,6 +12,7 @@ import { BedesDataType } from '@bedes-common/models/bedes-data-type';
 import { BedesTermCategory } from '@bedes-common/models/bedes-term-category/bedes-term-category';
 import { MatDialog } from '@angular/material';
 import { ConfirmDialogComponent } from '../../dialogs/confirm-dialog/confirm-dialog.component';
+import { BedesCompositeTerm } from '../../../../../../../../bedes-common/models/bedes-composite-term/bedes-composite-term';
 
 @Component({
     selector: 'app-selected-terms-table',
@@ -20,11 +21,13 @@ import { ConfirmDialogComponent } from '../../dialogs/confirm-dialog/confirm-dia
 })
 export class SelectedTermsTableComponent implements OnInit, OnDestroy {
     private ngUnsubscribe: Subject<void> = new Subject<void>();
+    public compositeTerm: BedesCompositeTerm;
     public selectedTerms: Array<BedesTerm | BedesConstrainedList>;
     @ViewChild('agGrid')
     agGrid: AgGridNg2;
     // grid options
     public gridOptions: GridOptions;
+    public isGridDataSet = false;
 
     private unitList: Array<BedesUnit>;
     private dataTypeList: Array<BedesDataType>;
@@ -37,6 +40,7 @@ export class SelectedTermsTableComponent implements OnInit, OnDestroy {
     ) { }
 
     ngOnInit() {
+        this.initializeCompositeTerm();
         this.initializeSupportLists();
         this.initializeGrid();
         this.initTermSelectorSubscriber();
@@ -46,6 +50,25 @@ export class SelectedTermsTableComponent implements OnInit, OnDestroy {
         // unsubscribe from the subjects
         this.ngUnsubscribe.next();
         this.ngUnsubscribe.complete();
+    }
+
+    /**
+     * Build the CompositeTerm object.
+     */
+    private initializeCompositeTerm(): void {
+        this.compositeTerm = new BedesCompositeTerm();
+    }
+
+    /**
+     * Add BedesTerms to the current CompositeTerm.
+     */
+    private addNewItemsToCompositeTerm(newTerms: Array<BedesTerm | BedesConstrainedList>): void {
+        newTerms.forEach((newTerm) => {
+            if (!this.compositeTerm.termExistsInDefinition(newTerm.toInterface())) {
+                this.compositeTerm.addBedesTerm(newTerm);
+            }
+        });
+        console.log('compositeTerm', this.compositeTerm);
     }
 
     /**
@@ -70,7 +93,7 @@ export class SelectedTermsTableComponent implements OnInit, OnDestroy {
     }
 
     /**
-     * subscribe to the select terms subject.
+     * Subscribe to the select terms subject.
      */
     private initTermSelectorSubscriber(): void {
         this.termSelectorService.selectedTermsSubject
@@ -78,7 +101,9 @@ export class SelectedTermsTableComponent implements OnInit, OnDestroy {
             .subscribe((results: Array<BedesTerm | BedesConstrainedList>) => {
                 console.log(`${this.constructor.name}: received search results...`, results);
                 this.selectedTerms = results;
+                this.addNewItemsToCompositeTerm(results);
                 if (this.gridOptions.api) {
+                    this.isGridDataSet = true;
                     this.gridOptions.api.setRowData(results);
                 }
             },
@@ -89,6 +114,9 @@ export class SelectedTermsTableComponent implements OnInit, OnDestroy {
             });
     }
 
+    /**
+     * Initialize the ag-grid.
+     */
     private initializeGrid(): void {
         this.gridOptions = <GridOptions>{
             enableRangeSelection: true,
@@ -103,6 +131,8 @@ export class SelectedTermsTableComponent implements OnInit, OnDestroy {
                 return data.id;
             },
             onGridReady: () => {
+                console.log('grid ready...');
+                this.gridOptions.api.setRowData(this.selectedTerms);
                 // this.initialRowDataLoad$.subscribe(
                 //     rowData => {
                 //         // the initial full set of data
@@ -133,6 +163,9 @@ export class SelectedTermsTableComponent implements OnInit, OnDestroy {
         };
     }
 
+    /**
+     * Build the column definitions for the ag-grid.
+     */
     private buildColumnDefs(): Array<ColDef> {
         return [
             {headerName: 'Name', field: 'name', rowDrag: true},
@@ -187,5 +220,16 @@ export class SelectedTermsTableComponent implements OnInit, OnDestroy {
 
     public drop(event: CdkDragDrop<string[]>) {
         moveItemInArray(this.selectedTerms, event.previousIndex, event.currentIndex);
-      }
+        console.log('new array?', this.selectedTerms);
+        let newIndex = 1;
+        this.selectedTerms.forEach((item) => {
+            const term = this.compositeTerm.items.find((d) => d.term.id === item.id);
+            if (!term) {
+                throw new Error(`Invalid termId encountered in term reordering`);
+            }
+            term.orderNumber = newIndex++;
+        });
+        // refresh the compositeTerm to reflect the new term ordering.
+        this.compositeTerm.refresh();
+    }
 }

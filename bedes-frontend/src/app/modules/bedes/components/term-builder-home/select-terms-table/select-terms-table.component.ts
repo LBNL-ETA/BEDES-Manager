@@ -18,6 +18,7 @@ import { ISearchResultRow } from '../../../models/ag-table/search-result-row.int
 import { SupportListType } from '../../../services/support-list/support-list-type.enum';
 import { TableCellTermNameComponent } from '../../bedes-term-search/bedes-search-results-table/table-cell-term-name/table-cell-term-name.component';
 import { getResultTypeName } from '../../../lib/get-result-type-name';
+import { SearchResultType } from '@bedes-common/models/bedes-search-result/search-result-type.enum';
 
 @Component({
     selector: 'app-select-terms-table',
@@ -41,7 +42,7 @@ export class SelectTermsTableComponent implements OnInit, OnDestroy {
     private dataTypeList: Array<BedesDataType>;
     private categoryList: Array<BedesTermCategory>;
     // search results
-    public selectedTerms: Array<BedesSearchResult>;
+    public selectedTerms: Array<ISearchResultRow>;
 
     constructor(
         private router: Router,
@@ -109,10 +110,29 @@ export class SelectTermsTableComponent implements OnInit, OnDestroy {
             },
             onSelectionChanged: (event: SelectionChangedEvent) => {
                 console.log('selection changed', event.api.getSelectedRows());
-                this.termSelectorService.setSelectedTerms(event.api.getSelectedRows());
                 this.selectedTerms = event.api.getSelectedRows();
             }
         };
+    }
+
+
+    /**
+     * Calls the service to update the selected terms for the current composite term.
+     */
+    public updateSelectedTerms(): void {
+        // this.termSelectorService.setSelectedTerms(this.selectedTerms);
+    }
+
+    /**
+     * Removes the selection from selected terms.
+     * Removes all items from the selectedTerms and updates
+     * the grid to remove all row selections.
+     */
+    public resetSelectedTerms(): void {
+        // remove all items from the selectedTerms array
+        this.selectedTerms.splice(0, this.selectTerms.length)
+        // deSelect the grid rows
+        this.gridOptions.api.deselectAll();
     }
 
     /**
@@ -160,13 +180,6 @@ export class SelectTermsTableComponent implements OnInit, OnDestroy {
             });
     }
 
-    // getSelectedRows() {
-    //     const selectedNodes = this.agGrid.api.getSelectedNodes();
-    //     const selectedData = selectedNodes.map( node => node.data );
-    //     const selectedDataStringPresentation = selectedData.map( node => node.make + ' ' + node.model).join(', ');
-    //     alert(`Selected nodes: ${selectedDataStringPresentation}`);
-    // }
-
     private buildColumnDefs(): Array<ColDef> {
         return [
             {
@@ -203,7 +216,9 @@ export class SelectTermsTableComponent implements OnInit, OnDestroy {
      */
     private setGridData(): void {
         if (this.gridOptions && this.gridOptions.api && this.searchResults && this.gridInitialized) {
-            const gridData = this.searchResults.map((searchResult: BedesSearchResult) => {
+            // remove existing composite terms
+            const filteredData = this.searchResults.filter((d) => d.resultObjectType !== SearchResultType.CompositeTerm);
+            const gridData = filteredData.map((searchResult: BedesSearchResult) => {
                 return <ISearchResultRow>{
                     name: searchResult.name,
                     uuid: searchResult.uuid,
@@ -218,21 +233,21 @@ export class SelectTermsTableComponent implements OnInit, OnDestroy {
         }
     }
 
-    /**
-     * Navigates to the bedesTerm details view for the given term.
-     * @param bedesTerm
-     */
-    public viewTerm(bedesTerm: BedesTerm | BedesConstrainedList): void {
-        console.log(`${this.constructor.name}: view term`, bedesTerm);
-        this.termService.selectedTermSubject.next(bedesTerm);
-        this.router.navigate(['/bedes-term', bedesTerm.id]);
-    }
 
     /**
-     * Sets the selected BedesTerms
+     * Retrieves the selected BedesTerms in the grid from the api
      */
     public selectTerms(): void {
-        // this.termSelectorService.setSelectedTerms(this.selectedTerms);
+        // extract the ids from the selected ISearchResultRow objects.
+        const ids = this.selectedTerms.map((d) => d.ref.id);
+        // call the api to retrieve the term objects
+        this.termService.getTerms(ids)
+        .subscribe((results: Array<BedesTerm | BedesConstrainedList>) => {
+            console.log(`${this.constructor.name}: received results`, results);
+            // update the selected terms service with the new terms
+            this.termSelectorService.setSelectedTerms(results);
+            this.resetSelectedTerms();
+        });
     }
 
 }

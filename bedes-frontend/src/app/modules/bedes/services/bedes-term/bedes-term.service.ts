@@ -16,8 +16,12 @@ import { BedesDataType } from '@bedes-common/enums/bedes-data-type';
     providedIn: 'root'
 })
 export class BedesTermService {
+    // api end point for single term interactions
     private apiEndpoint = 'api/bedes-term/:id';
     private url: string = null;
+    // api end point for interacting with multiple bedes terms
+    private apiEndpointMultiple = 'api/bedes-term';
+    private urlMultiple: string = null;
     // Subject that emits the currently selected BedesTerm.
     private _selectedTermSubject = new BehaviorSubject<BedesTerm | BedesConstrainedList>(undefined);
     get selectedTermSubject(): BehaviorSubject<BedesTerm | BedesConstrainedList | undefined> {
@@ -34,12 +38,11 @@ export class BedesTermService {
         @Inject(API_URL_TOKEN) private apiUrl
     ) {
         this.url = `${this.apiUrl}${this.apiEndpoint}`;
+        this.urlMultiple = `${this.apiUrl}${this.apiEndpointMultiple}`;
     }
 
     /**
      * Fetch a BedesTerm or BedesConstrainedList  from the server.
-     * @param id
-     * @returns term
      */
     public getTerm(id: number | string): Observable<BedesTerm | BedesConstrainedList> {
         const url = this.url.replace(/:id$/, String(id));
@@ -52,6 +55,28 @@ export class BedesTermService {
                 else {
                     return new BedesTerm(results);
                 }
+            }));
+    }
+
+    /**
+     * API call to retrieve an Array of BedesTerms from a given Array of ids (numeric or uuuid)
+     */
+    public getTerms(ids: Array<number | string>): Observable<Array<BedesTerm | BedesConstrainedList>> {
+        const params = {
+            termIds: ids
+        };
+        return this.http.post<Array<IBedesTerm | IBedesConstrainedList>>(this.urlMultiple, params, { withCredentials: true })
+            .pipe(map((results: Array<IBedesTerm | IBedesConstrainedList>) => {
+                console.log(`${this.constructor.name}: received results`, results);
+                // transform the incoming array of interface objects with class objects.
+                return results.map((term: IBedesTerm | IBedesConstrainedList) => {
+                    if (term._dataTypeId === BedesDataType.ConstrainedList) {
+                        return new BedesConstrainedList(<IBedesConstrainedList>term);
+                    }
+                    else {
+                        return new BedesTerm(term);
+                    }
+                })
             }));
     }
 
