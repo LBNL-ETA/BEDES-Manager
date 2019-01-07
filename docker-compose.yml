@@ -1,0 +1,65 @@
+version: '3'
+services:
+  backend:
+    container_name: "bedes_deploy_backend_container"
+    env_file:
+      - ".env"
+    build:
+      context: "."
+      dockerfile: "./build/Dockerfiles/Dockerfile-backend"
+    ports:
+      - "3009:3000"
+    depends_on:
+      - "db"
+  frontend:
+    container_name: "bedes_nginx_container"
+    build:
+      context: "./"
+      dockerfile: "./build/Dockerfiles/Dockerfile-nginx-local"
+    ports:
+      - 8086:80
+    depends_on:
+      - "backend"
+  db:
+    container_name: "bedes_db_container"
+    build:
+      context: "./bedes-db/"
+      dockerfile: "../build/Dockerfiles/Dockerfile-postgres"
+    env_file:
+      - ".env"
+      - "./bedes-db/.env"
+    expose:
+      - 5432
+    ports:
+      - "5461:5432"
+    volumes:
+      - ./bedes-db/postgres_data:/var/lib/postgresql/data/pgdata
+
+# version: '3'
+# services:
+#   nginx:
+#     container_name: "${NGINX_CONTAINER_NAME}"
+#     build:
+#       context: "${NGINX_PATH}"
+#     depends_on:
+#       - "db"
+#   backend:
+#     container_name: "${BACKEND_CONTAINER_NAME}"
+#     env_file:
+#       - "${BACKEND_PATH}/.env"
+#     build:
+#       context: "${BACKEND_PATH}"
+#     depends_on:
+#       - "db"
+#   db:
+#     container_name: "${DB_CONTAINER_NAME}"
+#     image: ${DB_IMAGE}
+#     env_file:
+#       - "${DB_PATH}/.env"
+#     expose:
+#       - ${DB_EXPOSE}
+#     ports:
+#       - "${DB_PORT}:5432"
+#     volumes:
+#       - ${DB_PATH}/postgres_data:/var/lib/postgresql/data/pgdata
+#       - ${DB_PATH}/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d 
