@@ -143,6 +143,13 @@ create table public.app_term (
     description text
 );
 
+create table public.app_term_list_option (
+    id serial primary key,
+    app_term_id int references public.app_term (id) on delete cascade not null,
+    name varchar(500) not null,
+    unit_id int references public.unit(id)
+);
+
 create table public.app_term_additional_data (
     id serial primary key,
     app_term_id int references public.app_term (id) on delete cascade not null,

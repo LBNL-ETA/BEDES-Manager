@@ -1,5 +1,5 @@
 include ../../bedes-db/.env
-include ../../.env
+include ../../bedes-backend/.env
 
 db_drop_all:
 	cat db-drop.sql | \

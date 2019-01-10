@@ -1,5 +1,5 @@
 
-include ../.env
+include ../bedes-backend/.env
 include ./.env
 
 install_and_run:
