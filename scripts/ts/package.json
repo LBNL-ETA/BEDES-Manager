@@ -5,12 +5,13 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "load-terms": "(set -a && . ../../.env && set +a && LOG_LEVEL_CONSOLE=info ts-node term-loader --color=true)",
-    "load-terms-debug": "(set -a && . ../../.env && set +a && LOG_LEVEL_CONSOLE=debug ts-node term-loader --color=true)",
-    "load-mappings": "(set -a && . ../../.env && set +a && LOG_LEVEL_CONSOLE=info ts-node mappings-loader)",
-    "load-mappings-debug": "(set -a && . ../../.env && set +a && LOG_LEVEL_CONSOLE=debug ts-node mappings-loader)",
-    "load-xml-terms-debug": "(set -a && . ../../.env && set +a && LOG_LEVEL_CONSOLE=debug ts-node xml-term-loader --color=true)",
-    "load-xml-term-options-debug": "(set -a && . ../../.env && set +a && LOG_LEVEL_CONSOLE=debug ts-node xml-term-option-loader --color=true)"
+    "load-terms": "(set -a && . ../../bedes-backend/.env && set +a && LOG_LEVEL_CONSOLE=info ts-node term-loader --color=true)",
+    "load-terms-debug": "(set -a && . ../../bedes-backend/.env && set +a && LOG_LEVEL_CONSOLE=debug ts-node term-loader --color=true)",
+    "load-mappings": "(set -a && . ../../bedes-backend/.env && set +a && LOG_LEVEL_CONSOLE=info ts-node mappings-loader)",
+    "load-mappings-debug": "(set -a && . ../../bedes-backend/.env && set +a && LOG_LEVEL_CONSOLE=debug ts-node mappings-loader)",
+    "load-xml-terms-debug": "(set -a && . ../../bedes-backend/.env && set +a && LOG_LEVEL_CONSOLE=debug ts-node xml-term-loader --color=true)",
+    "load-xml-term-options-debug": "(set -a && . ../../bedes-backend/.env && set +a && LOG_LEVEL_CONSOLE=debug ts-node xml-term-option-loader --color=true)",
+    "load-all": "npm run load-terms && npm run load-xml-terms-debug && npm run load-xml-term-options-debug && npm run load-mappings"
   },
   "author": "",
   "license": "ISC",
