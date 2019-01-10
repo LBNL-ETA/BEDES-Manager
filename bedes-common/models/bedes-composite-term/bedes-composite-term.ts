@@ -6,7 +6,6 @@ import { BedesConstrainedList } from '../bedes-term/bedes-constrained-list';
 import { IBedesTerm } from '../bedes-term/bedes-term.interface';
 import { buildCompositeTermSignature } from '../../util/build-composite-term-signature';
 import { IBedesConstrainedList } from '../bedes-term/bedes-constrained-list.interface';
-import { BedesMappingLabel } from '../../../scripts/ts/mappings-loader/mappings/base/bedes-mapping-label';
 
 export class BedesCompositeTerm {
     private _id: number | null | undefined;
