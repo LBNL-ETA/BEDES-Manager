@@ -38,7 +38,8 @@ import {
     faSave,
     faChevronCircleLeft,
     faChevronCircleRight,
-    faCog
+    faCog,
+    faSignInAlt
 } from '@fortawesome/free-solid-svg-icons';
 
 /**
@@ -67,7 +68,7 @@ export function addIcons (): void {
     library.add(faSpinner);
     library.add(faPlayCircle);
     library.add(faInfoCircle);
-    // library.add(faSignIn);
+    library.add(faSignInAlt);
     library.add(faUserPlus);
     library.add(faBan);
     // library.add(faShieldCheck);
