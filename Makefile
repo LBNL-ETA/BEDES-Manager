@@ -1,3 +1,5 @@
+FRONTEND_BUILD_IMG=bedes_ng_build_img
+FRONTEND_BUILD_CONTAINER=bedes_ng_build_container
 
 install-db:
 	echo "build the database"
@@ -23,3 +25,24 @@ install:
 	make install-common && \
 	make install-scripts && \
 	echo "done"
+
+build_ng_image:
+	docker build -t=${FRONTEND_BUILD_IMG} -f ./build/Dockerfiles/Dockerfile-angular --rm=true .
+
+ng_build:
+	docker run -ti --rm -u node --name=${FRONTEND_BUILD_CONTAINER} \
+	-e "MODE=production" \
+	-v ${CURDIR}/bedes-frontend/:/app \
+	-v ${CURDIR}/bedes-common/:/bedes-common \
+	${FRONTEND_BUILD_IMG} 
+
+
+ng_bash:
+	docker run -ti --rm -u node --name=${FRONTEND_BUILD_CONTAINER} \
+	-e "MODE=production" \
+	-v ${CURDIR}/bedes-frontend/:/app \
+	-v ${CURDIR}/bedes-common/:/bedes-common \
+	${FRONTEND_BUILD_IMG} \
+	/bin/bash
+
+

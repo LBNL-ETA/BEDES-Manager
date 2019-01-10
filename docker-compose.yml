@@ -3,7 +3,7 @@ services:
   backend:
     container_name: "bedes_deploy_backend_container"
     env_file:
-      - ".env"
+      - "bedes-backend/.env"
     build:
       context: "."
       dockerfile: "./build/Dockerfiles/Dockerfile-backend"
@@ -26,7 +26,7 @@ services:
       context: "./bedes-db/"
       dockerfile: "../build/Dockerfiles/Dockerfile-postgres"
     env_file:
-      - ".env"
+      - "./bedes-backend/.env"
       - "./bedes-db/.env"
     expose:
       - 5432
