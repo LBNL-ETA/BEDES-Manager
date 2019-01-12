@@ -1,8 +1,7 @@
 update
     public.mapping_application
 set
-    name = ${_name},
-    description = ${_description}
+    scope_id = ${_scopeId}
 where
     id = ${_id}
 returning
@@ -11,3 +10,4 @@ returning
     description as "_description",
     scope_id as "_scopeId"
 ;
+

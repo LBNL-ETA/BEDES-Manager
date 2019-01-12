@@ -8,6 +8,7 @@ import { getBedesTermsMultipleHandler } from './get-bedes-term-multiple';
 import * as compositeTerm from './composite-term';
 import * as bedesTermListOption from './bedes-term-list-option';
 import * as applications from './applications';
+import * as appTerm from './app-term';
 
 export {
     searchBedesTermHandler,
@@ -19,5 +20,6 @@ export {
     getBedesTermsMultipleHandler,
     compositeTerm,
     bedesTermListOption,
-    applications
+    applications,
+    appTerm
 }

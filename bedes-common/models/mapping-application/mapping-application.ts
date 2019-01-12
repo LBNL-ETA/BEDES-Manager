@@ -4,11 +4,15 @@ export class MappingApplication {
     private _id: number | null | undefined;
     private _name: string;
     private _description: string | null | undefined;
+    private _scopeId: number;
+    private _roleId: number;
 
     constructor(data: IMappingApplication) {
         this._id = data._id;
         this._name = data._name
         this._description = data._description;
+        this._scopeId = data._scopeId;
+        this._roleId = data._roleId;
     }
 
     get id(): number | null | undefined {
@@ -28,6 +32,12 @@ export class MappingApplication {
     }
     set description(value: string | null | undefined) {
         this._description = value;
+    }
+    get scopeId(): number {
+        return this._scopeId;
+    }
+    get roleId(): number {
+        return this._roleId;
     }
 
 }

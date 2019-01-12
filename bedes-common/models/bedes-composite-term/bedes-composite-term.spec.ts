@@ -1,7 +1,7 @@
 import "jasmine";
 import { BedesCompositeTerm } from './bedes-composite-term';
 import { IBedesCompositeTerm } from './bedes-composite-term.interface';
-import { TermCategory } from '../../enums/term-type';
+import { TermCategory } from '../../enums/term-category';
 import { BedesDataType } from "../../enums/bedes-data-type";
 import { IBedesTerm } from '../bedes-term/bedes-term.interface';
 import { BedesTerm } from '../bedes-term/bedes-term';

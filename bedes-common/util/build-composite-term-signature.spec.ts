@@ -1,6 +1,6 @@
 import "jasmine";
 import { IBedesCompositeTerm, BedesCompositeTerm } from '../models/bedes-composite-term';
-import { TermCategory } from '../enums/term-type';
+import { TermCategory } from '../enums/term-category';
 import { BedesDataType } from '../enums/bedes-data-type';
 import { buildCompositeTermSignature } from './build-composite-term-signature';
 

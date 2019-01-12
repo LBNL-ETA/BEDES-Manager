@@ -17,6 +17,10 @@ function mountRoutes(router: Router) {
     router.get('/mapping-application', handlers.applications.getApplicationsHandler);
     router.post('/mapping-application', handlers.applications.newMappingApplicationHandler);
     router.put('/mapping-application', handlers.applications.updateMappingApplicationHandler);
+    // Mapping Application Terms
+    router.post('/mapping-application/:id/term', handlers.appTerm.insertAppTermHandler);
+    router.get('/mapping-application/:id/term', handlers.appTerm.getAppTermsHandler);
+    router.get('/mapping-application/term/:id', handlers.appTerm.getAppTermHandler);
     // Composite Terms
     router.get('/composite-term/:id', handlers.compositeTerm.get);
     router.post('/composite-term', handlers.compositeTerm.post);

@@ -1,5 +1,5 @@
 delete from
-    public.mapping_application
+    public.app_term_list_option
 where
     id = ${_id}
 ;

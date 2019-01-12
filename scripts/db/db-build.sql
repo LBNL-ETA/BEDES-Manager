@@ -112,10 +112,43 @@ create table public.bedes_composite_term_details (
     unique (composite_term_id, order_number)
 );
 
-create table public.app (
+-- ApplicationScope
+create table public.application_scope (
+    id int primary key,
+    name varchar (30) not null unique
+);
+insert into public.application_scope (id, name) values
+    (1, 'Private'),
+    (2, 'Public')
+;
+
+-- ApplicationRole
+create table public.application_role_type (
+    id int primary key,
+    name varchar(30) not null unique,
+    description varchar(200)
+);
+insert into
+    application_role_type (id, name, description)
+values
+    (1, 'Owner', 'The owner of the mapping application')
+;
+
+-- Mapping Application
+create table public.mapping_application (
     id serial primary key,
     name varchar(100) not null unique,
-    description varchar(500)
+    description varchar(500),
+    scope_id int not null references public.application_scope (id) default 1
+);
+
+-- Links authenticated users to mapping applications
+create table public.mapping_application_roles (
+    id serial primary key,
+    app_id int not null references public.mapping_application (id),
+    role_id int not null references public.application_role_type (id),
+    user_id int not null references auth.user (id),
+    created_date timestamp default now()
 );
 
 create table public.app_field (
@@ -135,19 +168,33 @@ insert into public.app_field (id, name) values
     (8, 'EnumeratedValue')
 ;
 
+create table public.term_type (
+    id serial primary key,
+    name varchar(50) not null unique
+);
+insert into public.term_type (name) values
+    ('Atomic Term'),
+    ('Constrained List')
+;
+
 create table public.app_term (
     id serial primary key,
-    app_id int references public.app (id) on delete cascade not null,
-    field_code text not null unique,
     name varchar(100) not null,
-    description text
+    description text,
+    app_id int references public.mapping_application (id) on delete cascade not null,
+    field_code text not null,
+    uuid uuid,
+    term_type_id int not null references public.term_type (id),
+    unit_id int references public.unit(id),
+    unique (app_id, name)
 );
 
 create table public.app_term_list_option (
     id serial primary key,
     app_term_id int references public.app_term (id) on delete cascade not null,
     name varchar(500) not null,
-    unit_id int references public.unit(id)
+    unit_id int references public.unit(id),
+    unique (app_term_id, name)
 );
 
 create table public.app_term_additional_data (
@@ -167,7 +214,7 @@ create table public.app_term_additional_data (
 
 create table public.mapped_terms (
     id serial primary key,
-    app_id int references public.app (id) on delete cascade not null
+    app_id int references public.mapping_application (id) on delete cascade not null
 );
 
 create table public.app_term_maps (
@@ -198,4 +245,26 @@ create table public.bedes_atomic_term_maps (
     mapped_term_id int not null references public.mapped_terms (id) on delete cascade,
     bedes_term_id int not null references public.bedes_term (id) on delete cascade,
     unique (mapped_term_id)
+);
+
+-- table that containst he different states an application can be in as it's waiting
+-- for a mapping request to be made public.
+create table public.application_request_status (
+    id int primary key,
+    name varchar(30) unique not null
+);
+
+-- create the different states for an application's public mapping request
+insert into public.application_request_status (id, name) values
+    (1, 'Pending'),
+    (2, 'Approved'),
+    (3, 'Rejected')
+;
+
+-- table that contains the requests for a mapping application to be made public
+create table public.mapping_application_requests (
+    id serial primary key,
+    app_id int not null references public.mapping_application (id),
+    status_id int not null references public.application_request_status (id) default 1,
+    request_time timestamp default now()
 );

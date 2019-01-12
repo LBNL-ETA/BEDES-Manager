@@ -6,14 +6,15 @@ import { createLogger }  from '@bedes-backend/logging';
 const logger = createLogger(module);
 import { IMappingApplication } from '@bedes-common/models/mapping-application';
 import * as util from 'util';
-import { BedesError } from '../../../../../bedes-common/bedes-error/bedes-error';
-import { HttpStatusCodes } from '../../../../../bedes-common/enums/http-status-codes';
+import { BedesError } from '@bedes-common/bedes-error/bedes-error';
+import { HttpStatusCodes } from '@bedes-common/enums/http-status-codes';
 
 export class AppQuery {
     private sqlGet!: QueryFile;
     private sqlGetAll!: QueryFile;
     private sqlInsert!: QueryFile;
     private sqlUpdate!: QueryFile;
+    private sqlUpdateScope!: QueryFile;
 
     constructor() { 
         this.initSql();
@@ -27,6 +28,7 @@ export class AppQuery {
         this.sqlGetAll = sql_loader(path.join(__dirname, 'get-all.sql'));
         this.sqlInsert = sql_loader(path.join(__dirname, 'insert.sql'))
         this.sqlUpdate = sql_loader(path.join(__dirname, 'update.sql'))
+        this.sqlUpdateScope = sql_loader(path.join(__dirname, 'update-scope.sql'))
     }
 
     /**
@@ -34,13 +36,18 @@ export class AppQuery {
      */
     public newRecord(item: IMappingApplication, transaction?: any): Promise<IMappingApplication> {
         try {
-            if (!item._name) {
-                logger.error(`${this.constructor.name}: Missing name in newRecord`);
-                throw new Error('Missing required parameters.');
+            if (!item._name || !item._scopeId) {
+                logger.error(`${this.constructor.name}: Missing parameters`);
+                throw new BedesError(
+                    'Missing required parameters.',
+                    HttpStatusCodes.BadRequest_400,
+                    "Missing required parameters."
+                );
             }
             const params = {
                 _name: item._name,
-                _description: item._description
+                _description: item._description,
+                _scopeId: item._scopeId
             };
             if (transaction) {
                 return transaction.one(this.sqlInsert, params);
@@ -97,6 +104,46 @@ export class AppQuery {
                 // all other errors
                 throw error;
             }
+        }
+    }
+
+    /**
+     * Updates the application scope for a given MappingApplication
+     *
+     * @param {IMappingApplication} item
+     * @param {*} [transaction]
+     * @returns {Promise<IMappingApplication>}
+     * @memberof AppQuery
+     */
+    public updateScope(item: IMappingApplication, transaction?: any): Promise<IMappingApplication> {
+        try {
+            if (!item._id) {
+                logger.error(`${this.constructor.name}: Missing parameters in updateRecord`);
+                throw new BedesError(
+                    'Missing required parameters.',
+                    HttpStatusCodes.BadRequest_400,
+                    'Missing required parameters.'
+                );
+            }
+            const params = {
+                _id: item._id,
+                _scopeId: item._scopeId
+            };
+            if (transaction) {
+                return transaction.one(this.sqlUpdateScope, params);
+            }
+            else {
+                return db.one(this.sqlUpdateScope, params);
+            }
+        } catch (error) {
+            logger.error(`${this.constructor.name}: Error in updateScope`);
+            // logger.error(util.inspect(error));
+            console.log(error);
+            throw new BedesError(
+                'Error updating the application scope',
+                HttpStatusCodes.ServerError_500,
+                'Error updating record'
+            )
         }
     }
 
