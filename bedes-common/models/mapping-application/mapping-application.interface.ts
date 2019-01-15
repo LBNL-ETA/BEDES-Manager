@@ -3,5 +3,4 @@ export interface IMappingApplication {
     _name: string;
     _description?: string | null | undefined;
     _scopeId: number;
-    _roleId: number;
 }

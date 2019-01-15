@@ -1,5 +1,7 @@
 FRONTEND_BUILD_IMG=bedes_ng_build_img
 FRONTEND_BUILD_CONTAINER=bedes_ng_build_container
+SCRIPT_IMG=bedes_script_img
+SCRIPT_CONTAINER=bedes_script_container
 
 install-db:
 	echo "build the database"
@@ -25,6 +27,18 @@ install:
 	make install-common && \
 	make install-scripts && \
 	echo "done"
+
+build_mappings_image:
+	docker build -t=${SCRIPT_IMG} -f ./build/Dockerfiles/Dockerfile-mappings --rm=true .
+
+load_all_mappings:
+	docker run -ti --rm -u node --name=${SCRIPT_CONTAINER} \
+	${SCRIPT_IMG} 
+
+load_all_mappings_bash:
+	docker run -ti --rm -u node --name=${SCRIPT_CONTAINER} \
+	${SCRIPT_IMG} \
+	/bin/bash
 
 build_ng_image:
 	docker build -t=${FRONTEND_BUILD_IMG} -f ./build/Dockerfiles/Dockerfile-angular --rm=true .

@@ -169,12 +169,12 @@ insert into public.app_field (id, name) values
 ;
 
 create table public.term_type (
-    id serial primary key,
+    id int primary key,
     name varchar(50) not null unique
 );
-insert into public.term_type (name) values
-    ('Atomic Term'),
-    ('Constrained List')
+insert into public.term_type (id, name) values
+    (1, '[Value]'),
+    (2, 'Constrained List')
 ;
 
 create table public.app_term (
