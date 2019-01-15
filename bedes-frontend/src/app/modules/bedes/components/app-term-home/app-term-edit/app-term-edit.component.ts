@@ -5,10 +5,11 @@ import { ApplicationService } from '../../../services/application/application.se
 import { MappingApplication } from '@bedes-common/models/mapping-application/mapping-application';
 import { IMappingApplication } from '@bedes-common/models/mapping-application';
 import { HttpStatusCodes } from '@bedes-common/enums/http-status-codes';
-import { ApplicationScope } from '../../../../../../../../bedes-common/enums/application-scope.enum';
+import { ApplicationScope } from '@bedes-common/enums/application-scope.enum';
 import { AppTermService } from '../../../services/app-term/app-term.service';
-import { AppTerm } from '../../../../../../../../bedes-common/models/app-term/app-term';
-import { AppTermList } from '../../../../../../../../bedes-common/models/app-term/app-term-list';
+import { AppTerm, AppTermList } from '@bedes-common/models/app-term';
+import { appTermTypeList } from '@bedes-common/lookup-tables/app-term-type-list';
+import { takeUntil } from 'rxjs/operators';
 
 
 enum RequestStatus {
@@ -23,16 +24,19 @@ enum ControlState {
     FormSuccess
 }
 
+
+
 @Component({
-  selector: 'app-application-edit',
-  templateUrl: './application-edit.component.html',
-  styleUrls: ['./application-edit.component.scss']
+  selector: 'app-app-term-edit',
+  templateUrl: './app-term-edit.component.html',
+  styleUrls: ['./app-term-edit.component.scss']
 })
-export class ApplicationEditComponent implements OnInit {
+export class AppTermEditComponent implements OnInit {
     // The active MappingApplication object.
     public app: MappingApplication;
     // The active MappingApplication's AppTerms
     public termList: Array<AppTerm | AppTermList>;
+    public appTerm: AppTerm | AppTermList | undefined;
     // contains the status of the current request status
     public currentRequestStatus = RequestStatus.Idle;
     public RequestStatus = RequestStatus;
@@ -42,12 +46,15 @@ export class ApplicationEditComponent implements OnInit {
     // Error messages
     public hasError: boolean;
     public errorMessage: string;
+    // list of AppTermTypes (for dropdown list)
+    public appTermTypeItems = appTermTypeList.items;
 
     private ngUnsubscribe: Subject<void> = new Subject<void>();
 
     public dataForm = this.formBuilder.group({
         name: ['', Validators.required],
-        description: ['']
+        description: [''],
+        termTypeId: [null, Validators.required]
     });
 
     constructor(
@@ -58,7 +65,14 @@ export class ApplicationEditComponent implements OnInit {
 
     ngOnInit() {
         this.subscrbeToApplicationData();
-        this.subscribeToAppTerms();
+        this.subscribeToActiveTerm();
+        this.subscribeToFormChanges();
+    }
+
+    ngOnDestroy() {
+        // unsubscribe from the subjects
+        this.ngUnsubscribe.next();
+        this.ngUnsubscribe.complete();
     }
 
     /**
@@ -66,49 +80,53 @@ export class ApplicationEditComponent implements OnInit {
      */
     private subscrbeToApplicationData(): void {
         this.appService.selectedItemSubject
-        .subscribe((app: MappingApplication) => {
-            this.app = app;
-            this.setFormData();
-        });
+            .pipe(takeUntil(this.ngUnsubscribe))
+            .subscribe((app: MappingApplication) => {
+                this.app = app;
+                // this.setFormData();
+            });
     }
 
     /**
      * Subscribe to the BehaviorSubject that serves the
      * active Mapping Application's set of AppTerms.
      */
-    private subscribeToAppTerms(): void {
-        console.log('subscribe to app terms')
-        this.appTermService.termListSubject
-        .subscribe((termList: Array<AppTerm | AppTermList>) => {
-            console.log(`${this.constructor.name}: received app terms`, termList);
-            this.termList = termList;
-        });
+    private subscribeToActiveTerm(): void {
+        console.log('subscribe to the active AppTerm')
+        this.appTermService.activeTermSubject
+            .pipe(takeUntil(this.ngUnsubscribe))
+            .subscribe((activeTerm: AppTerm | AppTermList | undefined) => {
+                console.log(`${this.constructor.name}: received activeTerm`, activeTerm);
+                this.appTerm = activeTerm;
+                this.setFormData();
+            });
     }
 
     /**
      * Calls the api to update the MappingApplication record.
      */
-    public updateApplication(): void {
-        const newApp: IMappingApplication = this.getAppFromForm();
-        newApp._id = this.app.id;
-        console.log(`${this.constructor.name}: update mapping application`, newApp);
-        this.resetError();
-        this.appService.updateApplication(newApp)
-        .subscribe(
-            (newApp: MappingApplication) => {
-                // application successfully created
-                console.log(`${this.constructor.name}: create new App success`, newApp);
-                // update the MappingApplication object with the new properties
-                this.app.name = newApp.name;
-                this.app.description = newApp.description;
-                this.currentControlState = ControlState.FormSuccess;
-                this.currentRequestStatus = RequestStatus.Success;
-            },
-            (error: any) => {
-                console.log(`${this.constructor.name}: Error creating new application`, error);
-                this.setErrorMessage(error);
-            }
-        );
+    public updateAppTerm(): void {
+        console.log(`${this.constructor.name}: update app term`);
+        // const newApp: IMappingApplication = this.getAppFromForm();
+        // newApp._id = this.app.id;
+        // console.log(`${this.constructor.name}: update mapping application`, newApp);
+        // this.resetError();
+        // this.appService.updateApplication(newApp)
+        // .subscribe(
+        //     (newApp: MappingApplication) => {
+        //         // application successfully created
+        //         console.log(`${this.constructor.name}: create new App success`, newApp);
+        //         // update the MappingApplication object with the new properties
+        //         this.app.name = newApp.name;
+        //         this.app.description = newApp.description;
+        //         this.currentControlState = ControlState.FormSuccess;
+        //         this.currentRequestStatus = RequestStatus.Success;
+        //     },
+        //     (error: any) => {
+        //         console.log(`${this.constructor.name}: Error creating new application`, error);
+        //         this.setErrorMessage(error);
+        //     }
+        // );
     }
 
     /**
@@ -117,12 +135,17 @@ export class ApplicationEditComponent implements OnInit {
     private setFormData(): void {
         // Application name
         this.dataForm.controls['name'].setValue(
-            this.app.name
+            this.appTerm ? this.appTerm.name : ''
         );
         // Description
         this.dataForm.controls['description'].setValue(
-            this.app.description
+            this.appTerm ? this.appTerm.description : ''
         );
+        // Term Type
+        this.dataForm.controls['termTypeId'].setValue(
+            this.appTerm ? this.appTerm.termTypeId : ''
+        );
+
 
     }
 
@@ -132,8 +155,19 @@ export class ApplicationEditComponent implements OnInit {
      */
     private updateApplicationFromForm(): void {
         const values = this.getAppFromForm();
-        this.app.name = values._name;
-        this.app.description = values._description;
+    }
+
+    /**
+     * Subscribe to the form fields
+     *
+     * @private
+     * @memberof AppTermEditComponent
+     */
+    private subscribeToFormChanges(): void {
+        this.dataForm.controls['termTypeId'].valueChanges
+        .subscribe(() => {
+            console.log(this.dataForm.controls.termTypeId.value);
+        });
     }
 
     /**
@@ -171,3 +205,4 @@ export class ApplicationEditComponent implements OnInit {
     }
 
 }
+

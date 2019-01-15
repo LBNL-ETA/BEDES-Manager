@@ -1,0 +1,29 @@
+<div class="search-box">
+    <form name="myForm">
+        <div style="display:flex; flex-direction: row; align-items: center">
+            <mat-form-field style="flex:1;" appearance="outline">
+                <input matInput name="searchStringInput" placeholder="Enter Search Text..." [disabled]="waitingForResults"
+                    [(ngModel)]="searchString">
+            </mat-form-field>
+            <button mat-stroked-button style="margin-left: 5px;" color="primary" (click)="displaySearchOptions()">
+                <fa-icon [icon]="['fas', 'chevron-circle-down']">
+                </fa-icon>
+                Options
+            </button>
+            <button mat-stroked-button style="margin-left: 5px;" color="primary" [disabled]="waitingForResults" (click)="searchForTerms()">
+                <fa-icon [icon]="['fas', 'play-circle']" *ngIf="!waitingForResults">
+                </fa-icon>
+                <fa-icon [icon]="['fas', 'spinner']" [pulse]="true" *ngIf="waitingForResults">
+                </fa-icon>
+                Submit
+            </button>
+        </div>
+
+        <div style="display:flex; flex-direction: row; align-items: center">
+            <mat-card style="flex: 1;" class="bedes-content-card mat-elevation-z0 mat-typography">
+                <mat-card-content>
+                </mat-card-content>
+            </mat-card>
+        </div>
+    </form>
+</div>

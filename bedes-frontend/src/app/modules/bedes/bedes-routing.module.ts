@@ -20,9 +20,13 @@ import { ApplicationNewComponent } from './components/application-home/applicati
 import { ApplicationEditComponent } from './components/application-home/application-edit/application-edit.component';
 import { ApplicationResolverService } from './services/application/application-resolver.service';
 import { ApplicationHomeComponent } from './components/application-home/application-home.component';
+import { AppTermListComponent } from './components/application-home/application-edit/app-term-list/app-term-list.component';
+import { AppTermEditComponent } from './components/application-home/application-edit/app-term-edit/app-term-edit.component';
+import { AppTermListResolverService } from './services/app-term-list/app-term-list-resolver.service';
+import { AppTermResolverService } from './services/app-term/app-term-resolver.service';
 
 const appRoutes: Routes = [
-    { path: 'search', component: BedesTermSearchComponent},
+    { path: 'search', component: BedesTermSearchComponent },
     {
         path: 'bedes-term/:id',
         component: BedesTermDetailsComponent,
@@ -49,62 +53,98 @@ const appRoutes: Routes = [
         path: 'term-builder',
         component: TermBuilderHomeComponent,
         children: [{
-                path: '',
-                redirectTo: 'build',
-                pathMatch: 'full'
-            },
-            {
-                path: 'build',
-                component: TermBuilderEditComponent
-            }
+            path: '',
+            redirectTo: 'build',
+            pathMatch: 'full'
+        },
+        {
+            path: 'build',
+            component: TermBuilderEditComponent
+        }
         ]
     },
     {
         path: 'applications',
+        component: ApplicationListComponent,
+    },
+    {
+        path: 'applications/new',
+        component: ApplicationNewComponent
+    },
+    {
+        path: 'applications/:appId',
         component: ApplicationHomeComponent,
+        resolve: {
+            application: ApplicationResolverService,
+        },
         children: [
             {
                 path: '',
-                redirectTo: 'list',
+                redirectTo: 'terms',
                 pathMatch: 'full'
             },
             {
-                path: 'list',
-                component: ApplicationListComponent
+                path: 'edit',
+                component: ApplicationEditComponent
             },
             {
-                path: 'new',
-                component: ApplicationNewComponent
-            },
-            {
-                path: 'edit/:id',
-                component: ApplicationEditComponent,
+                path: 'terms',
+                component: AppTermListComponent,
                 resolve: {
-                    application: ApplicationResolverService
-                },
+                    appTerms: AppTermListResolverService
+                }
             },
-            // {
-            //     path: 'search',
-            //     component: SelectTermsComponent
-            // },
-            // {
-            //     path: 'edit',
-            //     component: CompositeTermEditComponent,
-            //     pathMatch: 'full'
-            // },
-            // {
-            //     path: 'edit/:id',
-            //     component: CompositeTermComponent
-            // }
+            {
+                path: 'terms/:termId',
+                component: AppTermEditComponent,
+                resolve: {
+                    appTerms: AppTermListResolverService
+                }
+                // resolve: {
+                //     appTerms: AppTermResolverService
+                // }
+            }
         ]
     },
+    // {
+    //     path: 'search',
+    //     component: SelectTermsComponent
+    // },
+    // {
+    //     path: 'edit',
+    //     component: CompositeTermEditComponent,
+    //     pathMatch: 'full'
+    // },
+    // {
+    //     path: 'edit/:id',
+    //     component: CompositeTermComponent
+    // }
+    // },
+    // {
+    //     path: 'app-term/:id',
+    //     component: AppTermHomeComponent,
+    //     resolve: {
+    //         appTerms: AppTermResolverService
+    //     },
+    //     children: [
+    //         {
+    //             path: '',
+    //             component: AppTermEditComponent
+    //         }
+    //     ]
+    // },
+    // {
+    //     path: 'app-term/new',
+    //     redirectTo: 'app-term',
+    //     pathMatch: 'full'
+    // },
     {
         path: 'list-management',
         component: ListManagementComponent,
         children: [{
             path: 'unit',
             component: ManageUnitListComponent
-        },{
+        }, {
             path: 'data-type',
             component: ManageDataTypeListComponent
         }, {

@@ -1,7 +1,5 @@
-
-
 <div class="mat-typography" style="max-width: 900px; margin: 0 auto; padding: 10px;">
-    <!-- <div style="display:flex;">
+    <div style="display:flex;">
         <button mat-stroked-button color="primary"
         [disabled]="dataForm.invalid || currentRequestStatus === RequestStatus.Pending"
         (click)="updateApplication()">
@@ -9,13 +7,12 @@
             Save
         </button>
         <a mat-stroked-button color="primary"
-        [routerLink]="['/applications']"
+        [routerLink]="['/applications/list']"
         [disabled]="currentControlState === ControlState.Disabled">
             <fa-icon [icon]="['fas', 'chevron-circle-left']"></fa-icon>
             Back
         </a>
-    </div> -->
-
+    </div>
     <!-- Messages -->
     <!-- Missing required fields -->
     <!-- <div class="alert-warn" style="margin: 10px 0 10px 0; text-align:left;"
@@ -27,21 +24,31 @@
                     </span>
                 </div> -->
 
-
     <!-- Data Form -->
-    <!-- <form [formGroup]="dataForm" style="display:flex; flex-direction: column; margin-top:10px">
+    <form [formGroup]="dataForm" style="display:flex; flex-direction: column; margin-top:10px">
         <mat-form-field style="flex:1; margin-bottom:5px;" hintLabel="* Required" appearance="outline">
-            <mat-label>Application Name</mat-label>
-            <input matInput placeholder="Enter the Application Name" formControlName="name">
+            <mat-label>Implementation Field Name</mat-label>
+            <input matInput placeholder="Enter the Implementation Field Name" formControlName="name">
         </mat-form-field>
         <mat-form-field style="flex:1; margin-bottom:5px;" appearance="outline">
-            <mat-label>Description</mat-label>
+            <mat-label>Implementation Field Description</mat-label>
             <textarea matInput placeholder="Enter a Description" formControlName="description" rows="5">
             </textarea>
         </mat-form-field>
 
-    </form> -->
+        <div style="display:flex;">
+            <mat-form-field style="flex:1; margin-bottom:5px;" appearance="outline">
+                <mat-label>Type of Term</mat-label>
+                <mat-select placeholder="Select a Term Type" formControlName="termTypeId">
+                    <mat-option *ngFor="let item of appTermTypeItems" [value]="item.id">
+                        {{item.name}}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+        </div>
+    </form>
 
 </div>
 
+<h2>Application Terms</h2>
 <router-outlet></router-outlet>

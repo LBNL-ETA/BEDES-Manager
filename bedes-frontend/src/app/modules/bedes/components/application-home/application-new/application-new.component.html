@@ -1,5 +1,5 @@
-<div class="mat-typography" style="display:flex;">
-    <mat-card class="bedes-content-card mat-elevation-z0" style="margin:10px 0 10px 0; flex: 1;">
+<div class="mat-typography" style="display:flex; margin: 5px; padding: 10px;">
+    <mat-card class="bedes-content-card mat-elevation-z0" style="flex: 1;">
         <mat-card-header>
             <mat-card-title>
                 <h2>
@@ -18,7 +18,7 @@
                         <fa-icon [icon]="['fas', 'save']"></fa-icon>
                         Create new Application
                     </button>
-                    <a mat-stroked-button color="primary" [routerLink]="['../list']"
+                    <a mat-stroked-button color="primary" [routerLink]="['../']"
                     [disabled]="currentControlState === ControlState.Disabled">
                         <fa-icon [icon]="['fas', 'chevron-circle-left']"></fa-icon>
                         Back
@@ -27,14 +27,14 @@
 
                 <!-- Messages -->
                 <!-- Missing required fields -->
-                <div class="alert-warn" style="margin: 10px 0 10px 0; text-align:left;"
+                <!-- <div class="alert-warn" style="margin: 10px 0 10px 0; text-align:left;"
                 *ngIf="currentRequestStatus === RequestStatus.Idle && dataForm.invalid">
                     <span style="font-weight:bold; padding-right:10px;">Status:</span>
                     <span>
                         <fa-icon [icon]="['fas', 'exclamation-triangle']"></fa-icon>
                         Missing required fields.
                     </span>
-                </div>
+                </div> -->
                 <!-- Application successfully created -->
                 <div class="alert-success"
                 style="margin: 10px 0 10px 0; text-align:left;"
@@ -47,10 +47,14 @@
                 </div>
 
                 <form [formGroup]="dataForm" style="display:flex; flex-direction: column; margin-top:10px">
-                    <mat-form-field style="flex:1; margin-bottom:5px;" hintLabel="* Required">
+                    <mat-form-field style="flex:1; margin-bottom:5px;"
+                    appearance="outline"
+                    hintLabel="* Required">
+                        <mat-label>Application Name</mat-label>
                         <input matInput placeholder="Enter the Application Name" formControlName="name">
                     </mat-form-field>
-                    <mat-form-field style="flex:1; margin-bottom:5px;">
+                    <mat-form-field style="flex:1; margin-bottom:5px;" appearance="outline">
+                        <mat-label>Application Description</mat-label>
                         <textarea matInput placeholder="Enter a Description" formControlName="description" rows="5">
                         </textarea>
                     </mat-form-field>

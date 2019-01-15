@@ -23,7 +23,7 @@ export class ApplicationResolverService {
      * a specific MappingApplication.
      */
     resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<MappingApplication> {
-        const newId: number = Number(route.paramMap.get('id'));
+        const newId: number = Number(route.paramMap.get('appId'));
         // check the current selected term for a matching id
         // don't make the http request if we already have the term selected
         const selectedItem = this.appService.selectedItem;

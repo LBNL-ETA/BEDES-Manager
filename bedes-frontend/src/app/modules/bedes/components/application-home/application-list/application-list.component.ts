@@ -13,7 +13,16 @@ import { BedesTermCategory } from '@bedes-common/models/bedes-term-category/bede
 import { MappingApplication } from '@bedes-common/models/mapping-application';
 import { TableCellTermNameComponent } from '../../bedes-term-search/bedes-search-results-table/table-cell-term-name/table-cell-term-name.component';
 import { ApplicationService } from '../../../services/application/application.service';
+import { ApplicationScope } from '../../../../../../../../bedes-common/enums/application-scope.enum';
+import { TableCellNameNavComponent } from './table-cell-name-nav/table-cell-name-nav.component';
 
+/**
+ * Defines the interface for the rows of grid objects.
+ */
+interface IAppRow {
+    scopeName: string;
+    ref: MappingApplication
+}
 
 @Component({
   selector: 'app-application-list',
@@ -96,7 +105,7 @@ export class ApplicationListComponent implements OnInit {
             enableColResize: true,
             enableFilter: true,
             enableSorting: true,
-            rowSelection: 'multiple',
+            // rowSelection: 'multiple',
             columnDefs: this.buildColumnDefs(),
             onGridReady: () => {
                 this.gridInitialized = true;
@@ -142,7 +151,37 @@ export class ApplicationListComponent implements OnInit {
      */
     public editSelectedItem(): void {
         console.log(`${this.constructor.name}: edit selected item`, this.selectedItem.id);
-        this.router.navigate(['../edit/', this.selectedItem.id], {relativeTo: this.activatedRoute});
+        this.router.navigate(['../view/', this.selectedItem.id], {relativeTo: this.activatedRoute});
+    }
+
+    /**
+     * Navigates tot he selected MappingApplication object.
+     */
+    public viewItem(selectedItem: IAppRow): void {
+        console.log(`${this.constructor.name}: view application`, selectedItem);
+        this.router.navigate(['/applications', selectedItem.ref.id], {relativeTo: this.activatedRoute});
+        // if ( selectedItem.ref.resultObjectType === SearchResultType.BedesTerm
+        //     || selectedItem.ref.resultObjectType === SearchResultType.BedesConstrainedList
+        // ) {
+        //     if (selectedItem.ref.uuid) {
+        //         this.router.navigate(['/bedes-term', selectedItem.ref.uuid]);
+        //     }
+        //     else if (selectedItem.ref.id) {
+        //         this.router.navigate(['/bedes-term', selectedItem.ref.id]);
+        //     }
+        //     else {
+        //         console.error('unable to find route for selectedRow', selectedItem);
+        //     }
+        // }
+        // else if (selectedItem.ref.resultObjectType === SearchResultType.BedesTermOption) {
+        //     // navigate to bedes-term/term_uuid_or_id/edit/option_uuid_or_id
+        //     const termId = selectedItem.ref.termUUID || selectedItem.ref.termId;
+        //     const optionId = selectedItem.ref.uuid || selectedItem.ref.id;
+        //     this.router.navigate(['/bedes-term', termId, 'edit', optionId]);
+        // }
+        // else {
+        //     console.error('unable to find route for selectedRow', selectedItem);
+        // }
     }
 
     /**
@@ -152,14 +191,18 @@ export class ApplicationListComponent implements OnInit {
         return [
             {
                 headerName: 'Name',
-                field: 'name',
-                checkboxSelection: true
+                field: 'ref.name',
+                // checkboxSelection: true
                 // minWidth: 250,
-                // cellRendererFramework: TableCellTermNameComponent
+                cellRendererFramework: TableCellNameNavComponent
             },
             {
                 headerName: 'Description',
-                field: 'description'
+                field: 'ref.description'
+            },
+            {
+                headerName: 'Scope',
+                field: 'scopeName'
             }
         ];
     }
@@ -169,7 +212,14 @@ export class ApplicationListComponent implements OnInit {
      */
     private setGridData() {
         if (this.gridOptions && this.gridOptions.api && this.applicationList) {
-            const gridData = this.applicationList;
+            // const gridData = this.applicationList;
+            const gridData = new Array<IAppRow>();
+            this.applicationList.forEach((app: MappingApplication) => {
+                gridData.push(<IAppRow>{
+                    scopeName: app.scopeId === ApplicationScope.Public ? 'Public' : 'Private',
+                    ref: app
+                });
+            })
             this.gridOptions.api.setRowData(gridData);
         }
     }
