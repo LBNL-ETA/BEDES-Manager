@@ -4,6 +4,9 @@ import { ILookupTableItem } from "./lookup-table-item.interface";
 export class LookupTable {
     // holds the objects belonging to the table
     protected _items: Array<LookupTableItem>;
+    get items(): Array<LookupTableItem> {
+        return this._items;
+    }
 
     constructor(data?: Array<ILookupTableItem>) {
         this._items = new Array<LookupTableItem>();
