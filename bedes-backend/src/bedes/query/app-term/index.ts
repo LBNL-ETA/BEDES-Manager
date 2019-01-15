@@ -22,6 +22,7 @@ export class AppTermQuery {
     private sqlInsertAdditionalData: QueryFile;
     private sqlGetAppTermsByAppId: QueryFile;
     private sqlGetAppTermById: QueryFile;
+    private sqlGetAppTermBySibling: QueryFile;
 
     constructor() { 
         // load the queries
@@ -29,6 +30,7 @@ export class AppTermQuery {
         this.sqlInsertAdditionalData = sql_loader(path.join(__dirname, 'insert-additional-data.sql'))
         this.sqlGetAppTermsByAppId = sql_loader(path.join(__dirname, 'get-app-terms.sql'))
         this.sqlGetAppTermById = sql_loader(path.join(__dirname, 'get-app-term.sql'))
+        this.sqlGetAppTermBySibling = sql_loader(path.join(__dirname, 'get-app-terms-by-sibling.sql'))
     }
 
 
@@ -245,6 +247,37 @@ export class AppTermQuery {
             }
         } catch (error) {
             logger.error(`${this.constructor.name}: Error in getAppTermById`);
+            logger.error(util.inspect(error));
+            throw error;
+        }
+
+    }
+
+    /**
+     * Retrieve all AppTerm objects for a given MappingApplication,
+     * given an id from one of the AppTerms.
+     */
+    public async getAppTermBySibling(appTermId: number, transaction?: any): Promise<Array<IAppTerm | IAppTermList>> {
+        try {
+            if (!appTermId) {
+                logger.error(`${this.constructor.name}: Missing id`);
+                throw new BedesError(
+                    'Missing required parameters.',
+                    HttpStatusCodes.BadRequest_400,
+                    'Missing required parameters.'
+                );
+            }
+            const params = {
+                _appTermId: appTermId
+            }
+            if (transaction) {
+                return transaction.manyOrNone(this.getAppTermBySibling, params);
+            }
+            else {
+                return db.manyOrNone(this.sqlGetAppTermBySibling, params);
+            }
+        } catch (error) {
+            logger.error(`${this.constructor.name}: Error in getAppTermBySibling`);
             logger.error(util.inspect(error));
             throw error;
         }
