@@ -7,6 +7,7 @@ import { IBedesTerm } from '../bedes-term/bedes-term.interface';
 import { BedesTerm } from '../bedes-term/bedes-term';
 import { BedesTermOption } from '../bedes-term-option/bedes-term-option';
 import { IBedesTermOption } from '../bedes-term-option/bedes-term-option.interface';
+import { ICompositeTermDetail } from './composite-term-item/composite-term-detail.interface';
 
 describe("BedesCompositeTerm", () => {
     it('Should create an empty object without data passed to constructor', () => {
@@ -16,31 +17,33 @@ describe("BedesCompositeTerm", () => {
 
     it('Should populate from constructor parameters', () => {
         const params: IBedesCompositeTerm = {
+            _name: 'namey namerson',
             _signature: '1:300-2',
-            _items: [{
-                _term: {
-                    _id: 2,
-                    _termCategoryId: TermCategory.Contact,
-                    _name: 'Bedes Term 1',
-                    _description: 'A fake bedes term',
-                    _dataTypeId: BedesDataType.Other
+            _items: [
+                <ICompositeTermDetail>{
+                    _term: {
+                        _id: 2,
+                        _name: 'Bedes Term 1',
+                        _description: 'A fake bedes term'
+                    },
+                    _orderNumber: 2
                 },
-                _orderNumber: 2
-                }, {
-                _term: {
-                    _id: 1,
-                    _termCategoryId: TermCategory.ControlsAndOperation,
-                    _name: 'AnotherThingy',
-                    _description: 'fakey fakey',
-                    _dataTypeId: BedesDataType.ConstrainedList
-                },
-                _termOption: {
-                    _id: 300,
-                    _name: 'namey',
-                    _description: 'namey description'
-                },
-                _orderNumber: 1
-            }]
+                <ICompositeTermDetail>{
+                    _term: {
+                        _id: 1,
+                        _termCategoryId: TermCategory.ControlsAndOperation,
+                        _name: 'AnotherThingy',
+                        _description: 'fakey fakey',
+                        _dataTypeId: BedesDataType.ConstrainedList
+                    },
+                    _termOption: {
+                        _id: 300,
+                        _name: 'namey',
+                        _description: 'namey description'
+                    },
+                    _orderNumber: 1
+                }
+            ]
         };
         const term = new BedesCompositeTerm(params);
         expect(term.id).toBe(params._id);
@@ -51,6 +54,7 @@ describe("BedesCompositeTerm", () => {
 
     it('Should be able to add BedesTerm objects', () => {
         const params: IBedesCompositeTerm = {
+            _name: 'energy amount',
             _signature: '1-2:300',
             _items: []
         };
@@ -80,7 +84,7 @@ describe("BedesCompositeTerm", () => {
         expect(compTerm.items.length).toBe(1, `CompositeTermDetail not created from BedesTerm`);
         expect(compTerm.items[0].orderNumber).toBe(1, `CompositeTermDetail orderNumber not set correctly`);
         // create detail items from bedes terms
-        compTerm.addBedesTerm(bedesTerm2, termOption2);
+        compTerm.addBedesTerm(bedesTerm2, false, termOption2);
         expect(compTerm.items.length).toBe(2);
         expect(compTerm.items[1].term).toBe(bedesTerm2, 'BedesTerm not correctly assigned to BedesCompositeTerm');
         expect(compTerm.items[1].listOption).toBe(termOption2, 'BedesTermOption not correctly assigned');
