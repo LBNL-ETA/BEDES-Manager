@@ -29,4 +29,15 @@ export class AppTermAdditionalInfo {
     set value(value: string | null | undefined) {
         this._value = value;
     }
+
+    /**
+     * Transforms the object to an IAppTermadditionalInfo object.
+     */
+    public toInterface(): IAppTermAdditionalInfo {
+        return <IAppTermAdditionalInfo>{
+            _id: this._id,
+            _appFieldId: this._appFieldId,
+            _value: this._value
+        };
+    }
 }

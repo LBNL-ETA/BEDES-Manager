@@ -29,4 +29,15 @@ export class AppTermListOption {
     set unitId(value: number | null | undefined ) {
         this._unitId = value;
     }
+
+    /**
+     * Transforms the object to an IAppTermadditionalInfo object.
+     */
+    public toInterface(): IAppTermListOption {
+        return <IAppTermListOption>{
+            _id: this._id,
+            _name: this._name,
+            _unitId: this._unitId
+        };
+    }
 }

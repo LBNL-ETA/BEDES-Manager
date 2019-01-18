@@ -2,6 +2,8 @@ import { AppTermAdditionalInfo } from "./app-term-additional-info";
 import { IAppTerm } from "./app-term.interface";
 import { TermType } from '../../enums/term-type.enum';
 import { IAppTermAdditionalInfo } from './app-term-additional-info.interface';
+import { IAppTermList } from ".";
+import { AppTermList } from './app-term-list';
 
 export class AppTerm {
     protected _id: number | null | undefined;
@@ -80,5 +82,25 @@ export class AppTerm {
         if (!this._name || typeof this.name !== 'string' || !this._name.trim()) {
             throw new Error(`${this.constructor.name}: No field name present.`);
         }
+    }
+
+    /**
+     * Return this object instance, which would be an AppTerm,
+     * as an AppTermList object.
+     */
+    public toInterface(): IAppTerm {
+        const params: IAppTerm = {
+            _id: this._id,
+            _fieldCode: this._fieldCode,
+            _name: this._name,
+            _description: this._description,
+            _termTypeId: this._termTypeId,
+            _uuid: this._uuid,
+            _unitId: this._unitId,
+        };
+        return params;
+        // const newTerm = new AppTermList(params);
+        // newTerm.additionalInfo = this.additionalInfo;
+        // return newTerm;
     }
 }

@@ -1,5 +1,5 @@
 export interface ISearchOptionSection {
     _disabled: boolean | null | undefined;
-    _name: boolean | null | undefined;
-    _description: boolean | null | undefined;
+    _nameDisabled: boolean | null | undefined;
+    _descriptionDisabled: boolean | null | undefined;
 }

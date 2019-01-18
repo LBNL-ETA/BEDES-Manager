@@ -5,5 +5,6 @@ import { ISearchOptionSection } from './search-option-section.interface';
 export interface ISearchOptions {
     _bedesTerm?: ISearchOptionSection;
     _bedesConstrainedList?: ISearchOptionSection;
+    _bedesTermListOption?: ISearchOptionSection;
     _compositeTerm?: ISearchOptionSection;
 }

@@ -6,6 +6,9 @@ import { BedesError } from '@bedes-common/bedes-error';
 import { bedesQuery } from '../query';
 const logger = createLogger(module);
 
+/**
+ * Route handler for the BedesTerm search.
+ */
 export async function searchBedesTermHandler(request: Request, response: Response): Promise<any> {
     try {
         console.log('search terms...');
