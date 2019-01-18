@@ -6,7 +6,7 @@
   "scripts": {
     "start": "npm run build:live",
     "build:live": "(set -o allexport && . ./.env && set +o allexport && nodemon --exec  ts-node -- ./src/index.ts)",
-    "test": "ts-node node_modules/jasmine/bin/jasmine --config=jasmine.json",
+    "test": "ts-node -P ./tsconfig.json test-runner jasmine.json",
     "integration-test": "ts-node node_modules/jasmine/bin/jasmine --config=jasmine-integration.json"
   },
   "author": "",
@@ -51,7 +51,8 @@
     "@types/randomstring": "^1.1.6",
     "@types/swagger-jsdoc": "0.0.2",
     "@types/swagger-ui-express": "^3.0.0",
-    "@types/winston": "^2.4.4"
+    "@types/winston": "^2.4.4",
+    "jasmine-console-reporter": "^3.1.0"
   },
   "_moduleAliases": {
     "@bedes-common": "../bedes-common",
