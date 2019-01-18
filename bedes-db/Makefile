@@ -1,6 +1,6 @@
-
-include ../bedes-backend/.env
-include ./.env
+include ../environment/backend.env
+include ../environment/postgres.env
+include ../environment/docker.env
 
 install_and_run:
 	docker run --name ${DB_CONTAINER_NAME} \

@@ -5,3 +5,5 @@ set_env.sh
 **/node_modules
 .vscode
 ~*.xlsx
+environment/*.env
+!environment/*.sample.env

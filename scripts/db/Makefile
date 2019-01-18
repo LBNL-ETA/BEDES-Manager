@@ -1,5 +1,6 @@
-include ../../bedes-db/.env
-include ../../bedes-backend/.env
+include ../../environment/docker.env
+include ../../environment/backend.env
+include ../../environment/postgres.env
 
 db_drop_all:
 	cat db-drop.sql | \

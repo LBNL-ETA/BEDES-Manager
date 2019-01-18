@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "npm run build:live",
-    "build:live": "(set -o allexport && . ./.env && set +o allexport && nodemon --exec  ts-node -- ./src/index.ts)",
+    "build:live": "(set -o allexport && . ../environment/backend.env && set +o allexport && nodemon --exec  ts-node -- ./src/index.ts)",
     "test": "ts-node -P ./tsconfig.json test-runner jasmine.json",
     "integration-test": "ts-node node_modules/jasmine/bin/jasmine --config=jasmine-integration.json"
   },
