@@ -6,7 +6,7 @@ import { createLogger }  from '@bedes-backend/logging';
 const logger = createLogger(module);
 import * as util from 'util';
 import { IBedesTermOption } from '@bedes-common/models/bedes-term-option';
-import { BedesErrorTermNotFound } from '../../../../../scripts/ts/mappings-loader/mappings/lib/errors/bedes-term-not-found.error';
+import { BedesErrorTermNotFound } from '@bedes-common/errors/bedes-term-not-found.error';
 
 export class BedesTermListOptionQuery {
     private sqlGetByName!: QueryFile;

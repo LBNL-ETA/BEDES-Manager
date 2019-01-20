@@ -59,22 +59,20 @@ export class AppTermQuery {
                     _unitId: item._unitId || null
                 }
                 let newAppTerm: IAppTerm | IAppTermList;
-                logger.debug('params');
-                console.log(params);
                 if (transaction) {
                     newAppTerm = await transaction.one(this.sqlInsertTerm, params);
                 }
                 else {
                     newAppTerm = await db.one(this.sqlInsertTerm, params);
                 }
-                console.log('results')
-                console.log(newAppTerm);
                 if (!newAppTerm._id) {
                     throw new Error(`${this.constructor.name}: _id missing from new AppTerm`);
                 }
                 logger.debug('Created AppTerm');
                 logger.debug(util.inspect(newAppTerm));
                 newAppTerm._additionalInfo = new Array<IAppTermAdditionalInfo>();
+                // Created a variable for additinalInfo to stop the compiler from complaining.
+                const additionalInfo = newAppTerm._additionalInfo;
                 // write the additional data, if any
                 if (Array.isArray(item._additionalInfo) && item._additionalInfo.length) {
                     let promises =  new Array<Promise<any>>();
@@ -85,7 +83,9 @@ export class AppTermQuery {
                                 // @ts-ignore
                                 this.newAppTermAdditionalData(newAppTerm._id, item, transaction)
                                 .then((newInfo: IAppTermAdditionalInfo) => {
-                                    newAppTerm._additionalInfo.push(newInfo);
+                                    // additionalInfo is the same array of additionalInfo
+                                    // that's attached to the newAppTerm.  See a few lines above.
+                                    additionalInfo.push(newInfo);
                                     return newInfo;
                                 })
                             );
@@ -114,6 +114,7 @@ export class AppTermQuery {
                             promises.push(
                                 bedesQuery.appTermListOption.newRecord(newAppTerm._id, option, transaction)
                                 .then((newOption: IAppTermListOption) => {
+                                    // @ts-ignore
                                     appTermList._listOptions.push(newOption);
                                     return newOption;
                                 }, (error: any) => {

@@ -24,11 +24,11 @@ export class BedesCompositeTerm {
             this._description = data._description;
             this._unitId = data._unitId;
             if (data._items && data._items.length) {
-                data._items.forEach((d) => {
-                    if (!d._term._id) {
+                data._items.forEach((item: ICompositeTermDetail) => {
+                    if (!item._term._id) {
                         throw new Error('BedesTerms must have valid _id to be used in composite');
                     }
-                    this.addTerm(new CompositeTermDetail(d))
+                    this.addTerm(new CompositeTermDetail(item))
                 });
                 this.orderTerms();
                 if (!this.validSignature()) {

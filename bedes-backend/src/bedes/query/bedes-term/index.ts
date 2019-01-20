@@ -8,7 +8,7 @@ const logger = createLogger(module);
 import { IBedesTerm, BedesTerm, IBedesConstrainedList } from '@bedes-common/models/bedes-term';
 import { IBedesTermOption } from '@bedes-common/models/bedes-term-option';
 import { bedesQuery } from '../';
-import { BedesErrorTermNotFound } from '../../../../../scripts/ts/mappings-loader/mappings/lib/errors/bedes-term-not-found.error';
+import { BedesErrorTermNotFound } from '@bedes-common/errors/bedes-term-not-found.error';
 import { IBedesTermSectorLink } from '@bedes-common/models/bedes-term-sector-link/bedes-term-sector-link.interface';
 
 export class BedesTermQuery {

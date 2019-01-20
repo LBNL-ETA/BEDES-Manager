@@ -12,6 +12,7 @@ export class BedesCompositeTermQuery {
     private sqlGetBySignature!: QueryFile;
     private sqlGetById!: QueryFile;
     private sqlInsert!: QueryFile;
+    private sqlGetCompositeTermComplete!: QueryFile;
 
     constructor() { 
         this.initSql();
@@ -20,6 +21,7 @@ export class BedesCompositeTermQuery {
     private initSql(): void {
         this.sqlGetBySignature = sql_loader(path.join(__dirname, 'get.sql'));
         this.sqlGetById = sql_loader(path.join(__dirname, 'get-by-id.sql'));
+        this.sqlGetCompositeTermComplete = sql_loader(path.join(__dirname, 'get-composite-term-complete.sql'));
         this.sqlInsert = sql_loader(path.join(__dirname, 'insert.sql'))
     }
 
@@ -132,6 +134,32 @@ export class BedesCompositeTermQuery {
             }
         } catch (error) {
             logger.error(`${this.constructor.name}: Error in getRecordBySignature`);
+            logger.error(util.inspect(error));
+            throw error;
+        }
+    }
+
+    /**
+     * Retrieves a complete IBedesCpompositeTerm object for the given
+     * composite term_id.
+     */
+    public getRecordComplete(id: number, transaction?: any): Promise<IBedesCompositeTerm> {
+        try {
+            if (!id) {
+                logger.error(`${this.constructor.name}: Missing unitName in BedesUnit-getRecordByName`);
+                throw new Error('Missing required parameters.');
+            }
+            const params = {
+                _id: id
+            };
+            if (transaction) {
+                return transaction.oneOrNone(this.sqlGetCompositeTermComplete, params);
+            }
+            else {
+                return db.oneOrNone(this.sqlGetCompositeTermComplete, params);
+            }
+        } catch (error) {
+            logger.error(`${this.constructor.name}: Error in getRecordComplete`);
             logger.error(util.inspect(error));
             throw error;
         }
