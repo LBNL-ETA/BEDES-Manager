@@ -4,10 +4,43 @@ The Bedes Mapping Manager is a web-based application for managing the superset o
 ## Setting up the Environment
 
 ### Environment and Environment Variables
-All of the application components use environment variables to set various configuration parameters. The app expects environment files named `.env` in both the app root and /bedes-db.  Sample .env files, named sample.env, can be found in both locations.
+Environment variables used throughout the app are set in the *.env files located in `./environment`.
+There should be a xyz.env file for each xyz.sample.env file in the folder, where all of the
+runtime parameters and passwords should be set to one's own specification.
 
-#### Creating the Environment Files
-Copy `/sample.env` to `.env`, and set the passwords.  Do the same thing with the `/bedes-db/sample.env` file.
+## Running the BEDES Mapping Manager
+There are two ways to run the BEDES Mapping Manger in your local environment:
+
+1. Docker Compose - Runs all components in a single command.
+2. Local installation of Node.js and PostgreSQL, running each component seprately.
+
+### Docker Compose
+To launch the BEDES Mapping Manager using docker-compose:
+
+1. All of the environment variables, as indicated above, should be set.
+2. at the project root type:
+
+```
+$ make angular
+$ docker-compose up
+```
+
+The `make angular` command runs the angular build in the context of a Docker container. The resulting output of which should be in `./bedes-frontend/dist/Bedes-App`. The nginx Dockerfile copies this build directory when building the nginx image.
+
+Running `docker-compose up` will launch 4 containers:
+
+1. The PostgreSQL database container.
+    * Initialization scripts passed into the container are in `./bedes-db/docker-entrypoint-initdb.d`, will run whenever a database needs to be initialized.
+2. The Backend Node.js image
+3. The Frontend Nginx image, which uses the build folder generated from the `make angular` command.
+4. The **Scripts** container
+    * When the containers are started, this container checks the `public.bedes_term` table for any entries. If there are no records present, this container initiates the scripts to load:
+        I. The `BEDES V2.2.xlsx` file.
+        II. The `BEDES_all-terms_V2-2.xml` file.
+        III. The `BEDES_all-terms_V2-2.xml` file.
+
+### Node.js and PostgreSQL
+Running the components in your local environment requires Node.js and PostgreSQL to be running on your machine.
 
 ### Building the Database
 
@@ -22,14 +55,14 @@ This command will:
 2. Build the database objects.
 3. Install the npm packages
 
-#### PostgreSQL 10.5
+#### PostgreSQL 11.0
 
-The BEDES Mapping Manager uses PostgreSQL 10.5, which can be running locally or remotely.
+The BEDES Mapping Manager uses PostgreSQL 11.0, which can be running locally or remotely.
 
 Docker is not required to run the BEDES Mapping Manger, but there's `Docker run` commands defined in `/bedes-db/Makefile`
 which make using the PostgreSQL Docker image easier than setting it up locally.
 
-To install and run the official Docker PostgreSQL 10.5 image:
+To install and run the official Docker PostgreSQL 11.0 image:
 
     // Docker (https://www.docker.com/) should already be installed and running
     // Both .env files described above should already be setup with secure passwords
@@ -62,16 +95,10 @@ The Makefile at `/scripts/db/Makefile` defines commands to:
 
 The TypeScript files for loading the BEDES terms and application mappings can be found at `/scripts/ts`.
 
-There's 2 main modules for loading the BEDES terms and application mappings:
-
-1. `term-loader`: Loads the BEDES terms from the `/bedes-mappings/BEDES V2.1_0.xlsx` file.
+To load the initial set of BEDES Terms:
 
         $ cd scripts/ts
-        $ npm run load-terms
+        $ npm run load-all
 
-2. `mappings-loader`: Loads the application mappings from the various files in `/bedes-mappings`
-
-        $ cd scriprts/ts
-        $ npm run load-mappings
+This runs the loads the BEDES terms from the `/bedes-mappings/BEDES V2.2.xlsx`, and then supplements missing information (eg UUID) from the `BEDES_all-terms_V2-2.xml` and `BEDES_all_list_options_V2-2.xml` files.
     
-    Currently only `/bedes-mappings/BPI-2200-S HPXML to BEDES V2 Mapping 20161026_0.xls` can be loaded.

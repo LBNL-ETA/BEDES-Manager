@@ -46,5 +46,4 @@ services:
     volumes:
       - ./scripts/db:/create-epb-db
       - ./bedes-db/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
-      - /var/lib/postgresql/data/pgdata
-
+      - ./bedes-db/postgres_data:/var/lib/postgresql/data/pgdata
