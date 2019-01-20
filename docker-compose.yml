@@ -34,8 +34,8 @@ services:
   db:
     container_name: "bedes_db_compose_container"
     build:
-      context: "./bedes-db/"
-      dockerfile: "../build/Dockerfiles/Dockerfile-postgres"
+      context: "."
+      dockerfile: "./build/Dockerfiles/Dockerfile-postgres"
     env_file:
       - "./environment/backend.env"
       - "./environment/postgres.env"
