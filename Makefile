@@ -28,10 +28,13 @@ install:
 build_ng_image:
 	docker build -t=${ANGULAR_BUILD_IMAGE} -f ./build/Dockerfiles/Dockerfile-angular --rm=true .
 
+build_ng_image_no_cache:
+	docker build -t=${ANGULAR_BUILD_IMAGE} --no-cache -f ./build/Dockerfiles/Dockerfile-angular --rm=true .
+
 ng_build:
-	docker run -ti --rm -u node \
+	docker run -ti --rm \
 	--name=${ANGULAR_BUILD_CONTAINER} \
 	-e "MODE=production" \
 	-v ${CURDIR}/bedes-frontend/:/app \
 	-v ${CURDIR}/bedes-common/:/bedes-common \
-	${ANGULAR_BUILD_IMAGE} 
+	${ANGULAR_BUILD_IMAGE}
