@@ -1,7 +1,4 @@
-FRONTEND_BUILD_IMG=bedes_ng_build_img
-FRONTEND_BUILD_CONTAINER=bedes_ng_build_container
-SCRIPT_IMG=bedes_script_img
-SCRIPT_CONTAINER=bedes_script_container
+include environment/docker.env
 
 install-db:
 	echo "build the database"
@@ -28,35 +25,13 @@ install:
 	make install-scripts && \
 	echo "done"
 
-build_mappings_image:
-	docker build -t=${SCRIPT_IMG} -f ./build/Dockerfiles/Dockerfile-mappings --rm=true .
-
-load_all_mappings:
-	docker run -ti --rm -u node --name=${SCRIPT_CONTAINER} \
-	${SCRIPT_IMG} 
-
-load_all_mappings_bash:
-	docker run -ti --rm -u node --name=${SCRIPT_CONTAINER} \
-	${SCRIPT_IMG} \
-	/bin/bash
-
 build_ng_image:
-	docker build -t=${FRONTEND_BUILD_IMG} -f ./build/Dockerfiles/Dockerfile-angular --rm=true .
+	docker build -t=${ANGULAR_BUILD_IMAGE} -f ./build/Dockerfiles/Dockerfile-angular --rm=true .
 
 ng_build:
-	docker run -ti --rm -u node --name=${FRONTEND_BUILD_CONTAINER} \
+	docker run -ti --rm -u node \
+	--name=${ANGULAR_BUILD_CONTAINER} \
 	-e "MODE=production" \
 	-v ${CURDIR}/bedes-frontend/:/app \
 	-v ${CURDIR}/bedes-common/:/bedes-common \
-	${FRONTEND_BUILD_IMG} 
-
-
-ng_bash:
-	docker run -ti --rm -u node --name=${FRONTEND_BUILD_CONTAINER} \
-	-e "MODE=production" \
-	-v ${CURDIR}/bedes-frontend/:/app \
-	-v ${CURDIR}/bedes-common/:/bedes-common \
-	${FRONTEND_BUILD_IMG} \
-	/bin/bash
-
-
+	${ANGULAR_BUILD_IMAGE} 

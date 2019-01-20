@@ -6,7 +6,7 @@ import * as util from 'util';
 import { bedesQuery } from "@bedes-backend/bedes/query";
 import { IMappingApplication } from "@bedes-common/models/mapping-application";
 import { db } from '@bedes-backend/db';
-import { BedesErrorTermNotFound } from '../lib/errors/bedes-term-not-found.error';
+import { BedesErrorTermNotFound } from '@bedes-common/errors/bedes-term-not-found.error';
 import { BedesError } from "@bedes-common/bedes-error";
 import { TermNotFound } from './term-not-found';
 import { TermsNotFoundSheet } from './terms-not-found-sheet';

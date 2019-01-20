@@ -13,6 +13,7 @@ install_and_run:
 		-e DB_APP_PASSWORD=${DB_APP_PASSWORD} \
 		-v ${PWD}/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d \
 		-v ${PWD}/postgres_data:/var/lib/postgresql/data/pgdata \
+		-v ${PWD}/../scripts/db:/create-epb-db \
 		-p ${DB_PORT}:5432 \
 		-d ${DB_IMAGE}
 

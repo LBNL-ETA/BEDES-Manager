@@ -5,6 +5,7 @@ FROM node:10.11.0
 ARG NODE_USER_ID=1000
 ARG NODE_GROUP_ID=1000
 
+USER root
 RUN apt-get update -y
 ENV NPM_CONFIG_LOGLEVEL warn
 RUN npm install -g @angular/cli@7.0.4
