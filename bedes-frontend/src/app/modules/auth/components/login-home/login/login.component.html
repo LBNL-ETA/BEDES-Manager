@@ -10,13 +10,15 @@
     <mat-card-content style="padding:1rem; flex:1">
         <form novalidate #myForm="ngForm">
             <div style="display:flex">
-                <mat-form-field style="flex:1; padding: 7px">
+                <mat-form-field style="flex:1; padding: 7px" appearance="outline">
+                    <mat-label>Email</mat-label>
                     <input matInput placeholder="Email" type="text" name="emailInput" #emailInput="ngModel" required
                         [(ngModel)]="userLogin.email">
                 </mat-form-field>
             </div>
             <div style="display:flex">
-                <mat-form-field style="flex:1; padding: 7px">
+                <mat-form-field style="flex:1; padding: 7px" appearance="outline">
+                    <mat-label>Password</mat-label>
                     <input matInput placeholder="Password" type="password" name="passwordInput" #passwordInput="ngModel"
                         required [(ngModel)]="userLogin.password">
                 </mat-form-field>

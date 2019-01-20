@@ -20,8 +20,8 @@ import { ApplicationNewComponent } from './components/application-home/applicati
 import { ApplicationEditComponent } from './components/application-home/application-edit/application-edit.component';
 import { ApplicationResolverService } from './services/application/application-resolver.service';
 import { ApplicationHomeComponent } from './components/application-home/application-home.component';
-import { AppTermListComponent } from './components/application-home/application-edit/app-term-list/app-term-list.component';
-import { AppTermEditComponent } from './components/application-home/application-edit/app-term-edit/app-term-edit.component';
+import { AppTermListComponent } from './components/app-term/app-term-list/app-term-list.component';
+import { AppTermEditComponent } from './components/app-term/app-term-edit/app-term-edit.component';
 import { AppTermListResolverService } from './services/app-term-list/app-term-list-resolver.service';
 import { AppTermResolverService } from './services/app-term/app-term-resolver.service';
 
@@ -152,7 +152,7 @@ const appRoutes: Routes = [
             component: ManageDefinitionSourceListComponent
         }]
     },
-    { path: '', redirectTo: 'search', pathMatch: 'full' },
+    { path: '', redirectTo: 'home', pathMatch: 'full' },
     // { path: '**', redirectTo: '/search' }
 ];
 

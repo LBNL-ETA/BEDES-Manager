@@ -9,7 +9,7 @@ import { AuthGuardService } from './services/auth-guard/auth-guard.service';
 
 const appRoutes: Routes = [
     {
-        path: 'login',
+        path: 'home',
         component: LoginHomeComponent,
         children: [{
             path: '',

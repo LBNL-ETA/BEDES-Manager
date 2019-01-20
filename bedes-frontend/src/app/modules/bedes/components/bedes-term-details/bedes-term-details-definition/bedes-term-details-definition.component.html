@@ -8,28 +8,34 @@
         </div>
         <form [formGroup]="dataForm" style="display:flex; flex-direction: column;">
             <!-- Term Name -->
-            <mat-form-field style="flex:1; margin-bottom:5px;">
-                <input matInput placeholder="Term Name" formControlName="name">
+            <mat-form-field style="flex:1; margin-bottom:5px;" appearance="outline">
+                <mat-label>Term Name</mat-label>
+                <input matInput placeholder="Enter the name of the new term"
+                formControlName="name">
             </mat-form-field>
 
             <!-- Term Description -->
-            <mat-form-field style="flex:1; margin-bottom:5px;">
+            <mat-form-field style="flex:1; margin-bottom:5px;" appearance="outline">
+                <mat-label>Description</mat-label>
                 <textarea matInput placeholder="Description" formControlName="description" rows="5"></textarea>
             </mat-form-field>
 
             <!-- UUID and URL -->
             <div style="display:flex; flex-direction: row;">
-                <mat-form-field style="flex:1; margin-bottom:5px;">
+                <mat-form-field style="flex:1; margin-bottom:5px;" appearance="outline">
+                    <mat-label>UUID</mat-label>
                     <input matInput placeholder="UUID" formControlName="uuid">
                 </mat-form-field>
-                <mat-form-field style="flex:1; margin-bottom:5px;">
+                <mat-form-field style="flex:1; margin-bottom:5px;" appearance="outline">
+                    <mat-label>URL</mat-label>
                     <input matInput placeholder="URL" formControlName="url">
                 </mat-form-field>
             </div>
 
             <!-- Definition source and sector -->
             <div style="display:flex; flex-direction: row;">
-                <mat-form-field style="flex:1; margin-bottom:5px;">
+                <mat-form-field style="flex:1; margin-bottom:5px;" appearance="outline">
+                    <mat-label>Definition Source</mat-label>
                     <mat-select placeholder="Definition Source" formControlName="definitionSourceId" *ngIf="definitionSourceList.length">
                         <mat-option *ngFor="let item of definitionSourceList" [value]="item.id">
                             {{item.name}}
@@ -47,15 +53,17 @@
             <!-- Form groups for data type, unit and category -->
             <div style="display:flex; flex-direction: row;">
                 <!-- Data Type -->
-                <mat-form-field style="flex:1; margin-bottom:5px;">
-                    <mat-select placeholder="Select the Data Type" formControlName="dataTypeId" *ngIf="dataTypeList.length">
+                <mat-form-field style="flex:1; margin-bottom:5px;" appearance="outline">
+                    <mat-label>Data Type</mat-label>
+                    <mat-select placeholder="Select the Data Type"formControlName="dataTypeId" *ngIf="dataTypeList.length">
                         <mat-option *ngFor="let item of dataTypeList" [value]="item.id">
                             {{item.name}}
                         </mat-option>
                     </mat-select>
                 </mat-form-field>
                 <!-- Units -->
-                <mat-form-field style="flex:1;">
+                <mat-form-field style="flex:1;" appearance="outline">
+                    <mat-label>Unit</mat-label>
                     <mat-select placeholder="Unit" formControlName="unitId" *ngIf="unitList.length">
                         <mat-option *ngFor="let item of unitList" [value]="item.id">
                             {{item.name}}
@@ -63,7 +71,8 @@
                     </mat-select>
                 </mat-form-field>
                 <!-- Category -->
-                <mat-form-field style="flex:1;">
+                <mat-form-field style="flex:1;" appearance="outline">
+                    <mat-label>Category</mat-label>
                     <mat-select placeholder="Term Category" formControlName="termCategoryId" *ngIf="categoryList.length">
                         <mat-option *ngFor="let item of categoryList" [value]="item.id">
                             {{item.name}}

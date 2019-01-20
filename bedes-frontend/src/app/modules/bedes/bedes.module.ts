@@ -58,13 +58,16 @@ import { ApplicationService } from './services/application/application.service';
 import { ApplicationHomeComponent } from './components/application-home/application-home.component';
 import { ApplicationResolverService } from './services/application/application-resolver.service';
 import { TableCellNameNavComponent } from './components/application-home/application-list/table-cell-name-nav/table-cell-name-nav.component';
-import { AppTermListComponent } from './components/application-home/application-edit/app-term-list/app-term-list.component';
-import { AppTermEditComponent } from './components/application-home/application-edit/app-term-edit/app-term-edit.component';
-import { TermMappingComponent } from './components/application-home/application-edit/app-term-edit/term-mapping/term-mapping.component';
-import { ImplementationTermComponent } from './components/application-home/application-edit/app-term-edit/implementation-term/implementation-term.component';
+import { AppTermListComponent } from './components/app-term/app-term-list/app-term-list.component';
+import { AppTermEditComponent } from './components/app-term/app-term-edit/app-term-edit.component';
+import { TermMappingComponent } from './components/app-term/app-term-edit/term-mapping/term-mapping.component';
+import { ImplementationTermComponent } from './components/app-term/app-term-edit/implementation-term/implementation-term.component';
 import { BedesSearchComponent } from './components/bedes-search/bedes-search.component';
 import { BedesSearchQueryBuilderComponent } from './components/bedes-search/bedes-search-query-builder/bedes-search-query-builder.component';
 import { BedesSearchResultsComponent } from './components/bedes-search/bedes-search-results/bedes-search-results.component';
+import { ImplementationTermOptionComponent } from './components/app-term/app-term-edit/implementation-term/implementation-term-option/implementation-term-option.component';
+import { EditListOptionComponent } from './components/app-term/app-term-edit/implementation-term/edit-list-option/edit-list-option.component';
+import { DisplayListOptionsComponent } from './components/app-term/app-term-edit/implementation-term/display-list-options/display-list-options.component';
 
 @NgModule({
     imports: [
@@ -127,6 +130,9 @@ import { BedesSearchResultsComponent } from './components/bedes-search/bedes-sea
         BedesSearchComponent,
         BedesSearchQueryBuilderComponent,
         BedesSearchResultsComponent,
+        ImplementationTermOptionComponent,
+        EditListOptionComponent,
+        DisplayListOptionsComponent,
     ],
     entryComponents: [
         BedesTermSearchDialogComponent,

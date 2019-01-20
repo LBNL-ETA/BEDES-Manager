@@ -3,7 +3,7 @@ import { FormBuilder, Validators } from '@angular/forms';
 import { SupportListService } from '../../../../services/support-list/support-list.service';
 import { Subject, BehaviorSubject } from 'rxjs';
 import { BedesUnit } from '@bedes-common/models/bedes-unit/bedes-unit';
-import { OptionViewState } from '../../option-view-state.enum';
+import { OptionViewState } from '../../../../models/list-options/option-view-state.enum';
 import { BedesTermListOptionService } from '../../../../services/bedes-term-list-option/bedes-term-list-option.service';
 import { BedesTermService } from 'src/app/modules/bedes/services/bedes-term/bedes-term.service';
 import { BedesTerm, BedesConstrainedList } from '@bedes-common/models/bedes-term';

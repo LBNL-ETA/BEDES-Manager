@@ -4,15 +4,15 @@ import { takeUntil } from 'rxjs/operators';
 import { Subject } from 'rxjs';
 import { Router, ActivatedRoute } from '@angular/router';
 import { GridOptions, SelectionChangedEvent, ColDef } from 'ag-grid-community';
-import { SupportListService } from '../../../../services/support-list/support-list.service';
+import { SupportListService } from '../../../services/support-list/support-list.service';
 import { MappingApplication } from '@bedes-common/models/mapping-application';
-import { ApplicationService } from '../../../../services/application/application.service';
+import { ApplicationService } from '../../../services/application/application.service';
 import { ApplicationScope } from '@bedes-common/enums/application-scope.enum';
 // import { TableCellNameNavComponent } from './table-cell-name-nav/table-cell-name-nav.component';
 import { AppTerm, AppTermList, IAppTerm } from '@bedes-common/models/app-term';
 import { BedesUnit } from '@bedes-common/models/bedes-unit/bedes-unit';
-import { AppTermService } from '../../../../services/app-term/app-term.service';
-import { TableCellNameNavComponent } from '../../application-list/table-cell-name-nav/table-cell-name-nav.component';
+import { AppTermService } from '../../../services/app-term/app-term.service';
+import { TableCellNameNavComponent } from '../../application-home/application-list/table-cell-name-nav/table-cell-name-nav.component';
 import { TermType } from '@bedes-common/enums/term-type.enum';
 
 /**
@@ -36,7 +36,7 @@ export class AppTermListComponent implements OnInit {
     private ngUnsubscribe: Subject<void> = new Subject<void>();
     public selectedItem: IAppRow;
     // lists
-    private appTermList: Array<AppTerm | AppTermList> | undefined;
+    public appTermList: Array<AppTerm | AppTermList> | undefined;
     private unitList: Array<BedesUnit>;
     // ag-grid
     public gridOptions: GridOptions;
@@ -45,6 +45,7 @@ export class AppTermListComponent implements OnInit {
 
     constructor(
         private router: Router,
+        private route: ActivatedRoute,
         private activatedRoute: ActivatedRoute,
         private appTermService: AppTermService
     ) {}
@@ -97,7 +98,7 @@ export class AppTermListComponent implements OnInit {
         }
         const newTerm = new AppTerm(params);
         this.appTermService.setActiveTerm(newTerm);
-        this.router.navigate(['app-term', 'new']);
+        this.router.navigate(['new'], {relativeTo: this.route});
     }
 
     /**

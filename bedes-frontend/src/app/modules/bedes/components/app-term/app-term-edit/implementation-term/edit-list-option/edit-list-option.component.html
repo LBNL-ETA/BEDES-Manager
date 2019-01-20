@@ -1,28 +1,18 @@
 <div class="mat-typography" style="display:flex;">
     <mat-card class="bedes-content-card mat-elevation-z0" style="margin:10px 0 10px 0; flex: 1;">
-        <mat-card-header>
-            <mat-card-title>
-                <h2>
-                    <fa-icon [icon]="['fas', 'plus-circle']"></fa-icon>
-                    Create a New List Option
-                    is valid = {{dataForm.valid}}
-                </h2>
-            </mat-card-title>
-        </mat-card-header>
         <mat-card-content>
+            <h1 style="text-align: center;">New List Option</h1>
             <div>
-                <button mat-stroked-button color="primary" [disabled]="dataForm.invalid || currentControlState !== ControlState.Normal" (click)="createNewListOption()"
+                <button mat-stroked-button (click)="back()" *ngIf="currentRequestStatus !== RequestStatus.Pending">
+                    <fa-icon [icon]="['fas', 'chevron-circle-left']"></fa-icon>
+                    Back to List Options
+                </button>
+                <button mat-stroked-button color="primary"
+                [disabled]="dataForm.invalid || currentControlState !== ControlState.Normal"
+                (click)="updateListOption()"
                 *ngIf="currentRequestStatus !== RequestStatus.Success">
                     <fa-icon [icon]="['fas', 'save']"></fa-icon>
                     Save
-                </button>
-                <button mat-stroked-button (click)="back()" *ngIf="currentRequestStatus !== RequestStatus.Success" [disabled]="currentControlState === ControlState.disabled">
-                    <fa-icon [icon]="['fas', 'times-circle']"></fa-icon>
-                    Cancel
-                </button>
-                <button mat-stroked-button (click)="back()" *ngIf="currentRequestStatus === RequestStatus.Success">
-                    <fa-icon [icon]="['fas', 'chevron-circle-left']"></fa-icon>
-                    Back to List Options
                 </button>
             </div>
             <div style="min-height: 38px;">

@@ -11,7 +11,7 @@ import { AgGridNg2 } from 'ag-grid-angular';
 import { GridOptions, ColDef, ValueGetterParams, SelectionChangedEvent } from 'ag-grid-community';
 import { Subject, BehaviorSubject } from 'rxjs';
 import { BedesTermOption } from '../../../../../../../../bedes-common/models/bedes-term-option/bedes-term-option';
-import { OptionViewState } from '../option-view-state.enum';
+import { OptionViewState } from '../../../models/list-options/option-view-state.enum';
 import { BedesTermListOptionService } from '../../../services/bedes-term-list-option/bedes-term-list-option.service';
 
 @Component({

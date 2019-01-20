@@ -1,14 +1,8 @@
 <div style="display: flex;">
     <mat-card style="flex: 1;" class="bedes-content-card mat-elevation-z0 mat-typography">
-        <!-- <mat-card-header>
-            <mat-card-title>
-                <h1 class="mat-display-1">
-                    BEDES Mapping Applications
-                </h1>
-            </mat-card-title>
-        </mat-card-header> -->
         <mat-card-content>
             <h1 style="text-align: center;">Implementation Term</h1>
+            <!-- Button toolbar -->
             <div style="display:flex;">
                 <a mat-stroked-button
                 [routerLink]="['../']"
@@ -37,20 +31,22 @@
 
             <!-- Data Form -->
             <form [formGroup]="dataForm" style="display:flex; flex-direction: column; margin-top:10px">
+                <!-- Name -->
                 <mat-form-field style="flex:1; margin-bottom:5px;" hintLabel="* Required" appearance="outline">
-                    <mat-label>Implementation Field Name</mat-label>
+                    <mat-label>Application Field Name</mat-label>
                     <input matInput placeholder="Enter the Implementation Field Name" formControlName="name">
                 </mat-form-field>
+                <!-- Description -->
                 <mat-form-field style="flex:1; margin-bottom:5px;" appearance="outline">
-                    <mat-label>Implementation Field Description</mat-label>
+                    <mat-label>Field Description</mat-label>
                     <textarea matInput placeholder="Enter a Description" formControlName="description" rows="5">
                     </textarea>
                 </mat-form-field>
-
+                <!-- Type of Term dropdown -->
                 <div style="display:flex;">
                     <mat-form-field style="flex:1; margin-bottom:5px;" appearance="outline">
                         <mat-label>Type of Term</mat-label>
-                        <mat-select placeholder="Select a Term Type" formControlName="termTypeId">
+                        <mat-select #typeOfTerm placeholder="Select a Term Type" formControlName="termTypeId">
                             <mat-option *ngFor="let item of appTermTypeItems" [value]="item.id">
                                 {{item.name}}
                             </mat-option>
@@ -59,12 +55,48 @@
                 </div>
             </form>
 
+            <!-- List options -->
+
             <!-- The grid -->
-            <div style=" overflow: hidden; flex-grow: 1">
-                <ag-grid-angular #agGrid style="width: 100%; height: 350px;" id="myGrid" [gridOptions]="gridOptions" [context]="tableContext"
-                    class="ag-theme-balham">
+            <div style=" overflow: hidden; flex-grow: 1" *ngIf="typeOfTerm.value === TermType.ConstrainedList">
+                <h2 style="text-align: center;">List Options</h2>
+                <!-- Button toolbar -->
+                <div>
+                    <button mat-stroked-button color="primary" (click)="newListOption()">
+                        <fa-icon [icon]="['fas', 'plus-circle']"></fa-icon>
+                        New
+                    </button>
+                    <button mat-stroked-button color="primary" (click)="editListOption()" [disabled]="!selectedOption">
+                        <fa-icon [icon]="['fas', 'edit']"></fa-icon>
+                        Edit
+                    </button>
+                    <button mat-stroked-button color="primary" [disabled]="!selectedOption" (click)="removeListOption()">
+                        <fa-icon [icon]="['fas', 'trash']"></fa-icon>
+                        Remove Selected
+                    </button>
+                </div>
+
+                <div class="alert-accent" style="margin-top:10px;"
+                *ngIf="!appTerm?.listOptions.length">
+                    <h3 style="margin: 0; padding:0;">
+                        <fa-icon [icon]="['fas', 'exclamation-triangle']"></fa-icon>
+                        No list options have been defined, click the <strong>New</strong>
+                        button to create list options.
+                    </h3>
+                </div>
+
+                <!-- List option grid -->
+                <ag-grid-angular #agGrid style="width: 100%; height: 350px;"
+                *ngIf="appTerm && appTerm.listOptions && appTerm.listOptions.length"
+                id="myGrid"
+                [gridOptions]="gridOptions"
+                [context]="tableContext"
+                class="ag-theme-balham">
                 </ag-grid-angular>
             </div>
+
+            <!-- List options -->
+            <!-- <app-implementation-term-option></app-implementation-term-option> -->
 
         </mat-card-content>
     </mat-card>

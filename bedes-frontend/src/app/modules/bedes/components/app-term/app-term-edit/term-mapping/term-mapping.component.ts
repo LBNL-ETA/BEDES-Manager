@@ -1,12 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { Subject } from 'rxjs';
-import { ApplicationService } from '../../../../../services/application/application.service';
+import { ApplicationService } from '../../../../services/application/application.service';
 import { MappingApplication } from '@bedes-common/models/mapping-application/mapping-application';
 import { IMappingApplication } from '@bedes-common/models/mapping-application';
 import { HttpStatusCodes } from '@bedes-common/enums/http-status-codes';
 import { ApplicationScope } from '@bedes-common/enums/application-scope.enum';
-import { AppTermService } from '../../../../../services/app-term/app-term.service';
+import { AppTermService } from '../../../../services/app-term/app-term.service';
 import { AppTerm, AppTermList, AppTermListOption } from '@bedes-common/models/app-term';
 import { appTermTypeList } from '@bedes-common/lookup-tables/app-term-type-list';
 import { takeUntil } from 'rxjs/operators';

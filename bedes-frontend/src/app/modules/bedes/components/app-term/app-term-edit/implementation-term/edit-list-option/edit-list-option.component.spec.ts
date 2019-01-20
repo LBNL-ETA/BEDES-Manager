@@ -1,20 +1,20 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { AppTermHomeComponent } from './app-term-home.component';
+import { EditListOptionComponent } from './edit-list-option.component';
 
-describe('AppTermHomeComponent', () => {
-  let component: AppTermHomeComponent;
-  let fixture: ComponentFixture<AppTermHomeComponent>;
+describe('EditListOptionComponent', () => {
+  let component: EditListOptionComponent;
+  let fixture: ComponentFixture<EditListOptionComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ AppTermHomeComponent ]
+      declarations: [ EditListOptionComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(AppTermHomeComponent);
+    fixture = TestBed.createComponent(EditListOptionComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

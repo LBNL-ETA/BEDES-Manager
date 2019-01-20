@@ -34,7 +34,7 @@ export class ApplicationListComponent implements OnInit {
     public currentRequestStatus: RequestStatus;
     private ngUnsubscribe: Subject<void> = new Subject<void>();
     private gridInitialized = false;
-    public selectedItem: MappingApplication | undefined;
+    public selectedItem: IAppRow | undefined;
     // lists
     public applicationList: Array<MappingApplication>;
     private unitList: Array<BedesUnit>;
@@ -150,8 +150,10 @@ export class ApplicationListComponent implements OnInit {
      * ie changes the view to app-edit/:id
      */
     public editSelectedItem(): void {
-        console.log(`${this.constructor.name}: edit selected item`, this.selectedItem.id);
-        this.router.navigate(['../view/', this.selectedItem.id], {relativeTo: this.activatedRoute});
+        // console.log(`${this.constructor.name}: edit selected item`, this.selectedItem.id);
+        // this.router.navigate(['../view/', this.selectedItem.id], {relativeTo: this.activatedRoute});
+        // this.router.navigate(['/applications', selectedItem.ref.id], {relativeTo: this.activatedRoute});
+        this.viewItem(this.selectedItem);
     }
 
     /**
@@ -192,9 +194,9 @@ export class ApplicationListComponent implements OnInit {
             {
                 headerName: 'Name',
                 field: 'ref.name',
-                // checkboxSelection: true
+                checkboxSelection: true
                 // minWidth: 250,
-                cellRendererFramework: TableCellNameNavComponent
+                // cellRendererFramework: TableCellNameNavComponent
             },
             {
                 headerName: 'Description',

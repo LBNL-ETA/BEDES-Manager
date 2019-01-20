@@ -12,7 +12,8 @@ import { BedesDataType } from '@bedes-common/models/bedes-data-type';
 import { BedesTermCategory } from '@bedes-common/models/bedes-term-category/bedes-term-category';
 import { MatDialog } from '@angular/material';
 import { ConfirmDialogComponent } from '../../dialogs/confirm-dialog/confirm-dialog.component';
-import { BedesCompositeTerm } from '../../../../../../../../bedes-common/models/bedes-composite-term/bedes-composite-term';
+import { BedesCompositeTerm } from '@bedes-common/models/bedes-composite-term/bedes-composite-term';
+import { CompositeTermService } from '../../../services/composite-term/composite-term.service';
 
 @Component({
     selector: 'app-selected-terms-table',
@@ -36,7 +37,8 @@ export class SelectedTermsTableComponent implements OnInit, OnDestroy {
     constructor(
         private supportListService: SupportListService,
         private termSelectorService: BedesTermSelectorService,
-        private dialog: MatDialog
+        private dialog: MatDialog,
+        private compositeTermService: CompositeTermService
     ) { }
 
     ngOnInit() {
@@ -115,6 +117,29 @@ export class SelectedTermsTableComponent implements OnInit, OnDestroy {
     }
 
     /**
+     * Save the composite term to the database.
+     */
+    public saveCompositeTerm(): void {
+        console.log('save the composite term');
+        if (this.compositeTerm.id) {
+            // an existing term
+            this.compositeTermService.updateTerm(this.compositeTerm)
+            .subscribe((results: BedesCompositeTerm) => {
+                console.log(`${this.constructor.name}: save compoisite term success`, results);
+                this.compositeTerm = results;
+            });
+        }
+        else {
+            // new term, save it to the database.
+            this.compositeTermService.saveNewTerm(this.compositeTerm)
+            .subscribe((results: BedesCompositeTerm) => {
+                console.log(`${this.constructor.name}: save compoisite term success`, results);
+                this.compositeTerm = results;
+            });
+        }
+    }
+
+    /**
      * Initialize the ag-grid.
      */
     private initializeGrid(): void {
@@ -123,9 +148,9 @@ export class SelectedTermsTableComponent implements OnInit, OnDestroy {
             enableColResize: true,
             enableFilter: true,
             enableSorting: true,
-            rowSelection: 'multiple',
-            rowDragManaged: true,
-            animateRows: true,
+            // rowSelection: 'multiple',
+            // rowDragManaged: true,
+            // animateRows: true,
             columnDefs: this.buildColumnDefs(),
             getRowNodeId: (data: any) => {
                 return data.id;
@@ -168,7 +193,7 @@ export class SelectedTermsTableComponent implements OnInit, OnDestroy {
      */
     private buildColumnDefs(): Array<ColDef> {
         return [
-            {headerName: 'Name', field: 'name', rowDrag: true},
+            {headerName: 'Name', field: 'name'},
             {headerName: 'Description', field: 'description'},
             {
                 headerName: 'Term Category',

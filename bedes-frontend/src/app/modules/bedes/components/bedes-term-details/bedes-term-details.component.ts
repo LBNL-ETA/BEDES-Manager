@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { BedesTerm, BedesConstrainedList } from '@bedes-common/models/bedes-term';
 import { BedesTermService } from '../../services/bedes-term/bedes-term.service';
 import { BedesDataType } from '@bedes-common/enums/bedes-data-type';
-import { OptionViewState } from './option-view-state.enum';
+import { OptionViewState } from '../../models/list-options/option-view-state.enum';
 import { BehaviorSubject } from 'rxjs';
 
 @Component({

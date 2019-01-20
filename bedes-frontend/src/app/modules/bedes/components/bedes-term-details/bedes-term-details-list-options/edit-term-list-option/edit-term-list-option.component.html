@@ -62,14 +62,17 @@
                 </div>
             </div>
             <form [formGroup]="dataForm" style="display:flex; flex-direction: column; margin-top:10px">
-                <mat-form-field style="flex:1; margin-bottom:5px;" hintLabel="* Required">
+                <mat-form-field style="flex:1; margin-bottom:5px;" appearance="outline" hintLabel="* Required">
+                    <mat-label>Name</mat-label>
                     <input matInput placeholder="Display Name" formControlName="name">
                 </mat-form-field>
-                <mat-form-field style="flex:1; margin-bottom:5px;">
+                <mat-form-field style="flex:1; margin-bottom:5px;" appearance="outline">
+                    <mat-label>Description</mat-label>
                     <textarea matInput placeholder="Description" formControlName="description" rows="5"></textarea>
                 </mat-form-field>
                 <div style="display:flex; flex-direction: row;">
-                    <mat-form-field style="flex:1;">
+                    <mat-form-field style="flex:1;" appearance="outline">
+                        <mat-label>Unit</mat-label>
                         <mat-select placeholder="Unit" formControlName="unitId" *ngIf="unitList.length">
                             <mat-option *ngFor="let item of unitList" [value]="item.id">
                                 {{item.name}}

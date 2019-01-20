@@ -1,16 +1,18 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
-import { Subject } from 'rxjs';
+import { Subject, BehaviorSubject } from 'rxjs';
 import { ApplicationService } from '../../../../services/application/application.service';
 import { MappingApplication } from '@bedes-common/models/mapping-application/mapping-application';
 import { IMappingApplication } from '@bedes-common/models/mapping-application';
 import { HttpStatusCodes } from '@bedes-common/enums/http-status-codes';
 import { ApplicationScope } from '@bedes-common/enums/application-scope.enum';
 import { AppTermService } from '../../../../services/app-term/app-term.service';
-import { AppTerm, AppTermList, AppTermListOption } from '@bedes-common/models/app-term';
+import { AppTerm, AppTermList, AppTermListOption, IAppTerm, IAppTermList, IAppTermListOption } from '@bedes-common/models/app-term';
 import { appTermTypeList } from '@bedes-common/lookup-tables/app-term-type-list';
 import { takeUntil } from 'rxjs/operators';
 import { GridOptions, SelectionChangedEvent, ColDef } from 'ag-grid-community';
+import { TermType } from '@bedes-common/enums/term-type.enum';
+import { OptionViewState } from 'src/app/modules/bedes/models/list-options/option-view-state.enum';
 
 
 enum RequestStatus {
@@ -31,18 +33,28 @@ interface IGridRow {
 }
 
 
-
+/**
+ * View handler for application term editing.
+ */
 @Component({
-  selector: 'app-app-term-edit',
-  templateUrl: './app-term-edit.component.html',
-  styleUrls: ['./app-term-edit.component.scss']
+  selector: 'app-implementation-term',
+  templateUrl: './implementation-term.component.html',
+  styleUrls: ['./implementation-term.component.scss']
 })
-export class AppTermEditComponent implements OnInit {
+export class ImplementationTermComponent implements OnInit {
     // The active MappingApplication object.
     public app: MappingApplication;
     // The active MappingApplication's AppTerms
     public termList: Array<AppTerm | AppTermList>;
+    // The current AppTerm object that's being modified
     public appTerm: AppTerm | AppTermList | undefined;
+    /**
+     * Holds the array of list options when a term is switched from AppTermList -> AppTerm,
+     * and applies them back when switching from AppTerm -> AppTermList
+     */
+    private listOptionHold: Array<IAppTermListOption>;
+    // Enum for TermType
+    public TermType = TermType;
     // controls the current state of of the form controls
     public currentControlState = ControlState.Normal;
     public ControlState = ControlState;
@@ -59,15 +71,22 @@ export class AppTermEditComponent implements OnInit {
     public gridOptions: GridOptions;
     public gridData: Array<IGridRow>;
     public tableContext: any;
-
+    public RequestStatus = RequestStatus;
+    // subject for unsibscribing from BehaviorSubjects
     private ngUnsubscribe: Subject<void> = new Subject<void>();
-
+    //  The data form object.
     public dataForm = this.formBuilder.group({
         name: ['', Validators.required],
         description: [''],
         termTypeId: [null, Validators.required]
     });
 
+    public stateChangeSubject: BehaviorSubject<OptionViewState>;
+    public currentViewState: OptionViewState;
+
+    /**
+     * Create the object instance.
+     */
     constructor(
         private formBuilder: FormBuilder,
         private appService: ApplicationService,
@@ -81,6 +100,10 @@ export class AppTermEditComponent implements OnInit {
         this.subscribeToActiveTerm();
         this.subscribeToFormChanges();
         this.gridSetup();
+        this.initializeStateChanges();
+
+        console.log(this.appTerm);
+        console.log(TermType);
     }
 
     ngOnDestroy() {
@@ -112,8 +135,83 @@ export class AppTermEditComponent implements OnInit {
             .subscribe((activeTerm: AppTerm | AppTermList | undefined) => {
                 console.log(`${this.constructor.name}: received activeTerm`, activeTerm);
                 this.appTerm = activeTerm;
+                // if the appTerm is undefined create a new one
+                if (!this.appTerm) {
+                    this.setNewAppTerm();
+                }
+                // set the form data
                 this.setFormData();
             });
+    }
+
+    /**
+     * Initialize the BehaviorSubject use in communicating with the edit component
+     * when it's time for a state change.
+     */
+    private initializeStateChanges(): void {
+        // set the default view to display the list of options
+        this.currentViewState = OptionViewState.ListOptionsView;
+        this.stateChangeSubject = new BehaviorSubject<OptionViewState>(OptionViewState.ListOptionsView);
+        // listen for calls to this BehaviorSubject
+        this.stateChangeSubject.subscribe((newState: OptionViewState) => {
+            this.currentViewState = newState;
+        });
+    }
+
+    /**
+     * Assign a new instance of AppTerm to the appTerm object,
+     * we're creating a new appTerm.
+     */
+    private setNewAppTerm(): void {
+        const params: IAppTerm = {
+            _name: 'New Mapping Application Term',
+            _termTypeId: TermType.Atomic
+        }
+        this.appTerm = new AppTerm(params);
+    }
+
+    /**
+     * Transforms the current appTerm either from:
+     * 1) AppTerm -> AppTermList
+     * 2) AppTermList -> AppTerm
+     *
+     * When the drop down list term type changes,
+     * this handler is called to.
+     */
+    private transFormAppTerm(): void {
+        if (this.appTerm.termTypeId === TermType.Atomic && this.appTerm instanceof AppTermList) {
+            this.appTermListToAppTerm();
+        }
+        else if (this.appTerm.termTypeId === TermType.ConstrainedList && !(this.appTerm instanceof AppTermList)) {
+            this.appTermToList();
+        }
+    }
+
+    /**
+     * Transform the current appTerm, which should be an AppTerm object,
+     * into an AppTermList object.
+     */
+    private appTermToList(): void {
+        if (this.appTerm instanceof AppTerm) {
+            const listInterface: IAppTermList = this.appTerm.toInterface();
+            if (this.listOptionHold) {
+                listInterface._listOptions = this.listOptionHold;
+                this.listOptionHold = undefined;
+            }
+            this.appTerm = new AppTermList(listInterface);
+        }
+    }
+    /**
+     * Transform the current appTerm, which should be an AppTerm object,
+     * into an AppTermList object.
+     */
+    private appTermListToAppTerm(): void {
+        if (this.appTerm instanceof AppTermList) {
+            const termInterface: IAppTermList = this.appTerm.toInterface();
+            // Hold the list options just incase
+            this.listOptionHold = termInterface._listOptions;
+            this.appTerm = new AppTerm(termInterface);
+        }
     }
 
     /**
@@ -178,9 +276,20 @@ export class AppTermEditComponent implements OnInit {
      * @memberof AppTermEditComponent
      */
     private subscribeToFormChanges(): void {
+        this.dataForm.controls['name'].valueChanges
+        .subscribe(() => {
+            this.appTerm.name = this.dataForm.controls.name.value;
+        });
+        this.dataForm.controls['description'].valueChanges
+        .subscribe(() => {
+            this.appTerm.description = this.dataForm.controls.description.value;
+        });
         this.dataForm.controls['termTypeId'].valueChanges
         .subscribe(() => {
-            console.log(this.dataForm.controls.termTypeId.value);
+            this.appTerm.termTypeId = this.dataForm.controls.termTypeId.value;
+            console.log(this.appTerm);
+            // switch the app terms object type
+            this.transFormAppTerm();
         });
     }
 
@@ -295,5 +404,14 @@ export class AppTermEditComponent implements OnInit {
         }
     }
 
-}
+    // list option methods
+    public  newListOption(): void {
+    }
 
+    public editListOption(): void {
+    }
+
+    public removeListOption(): void {
+    }
+
+}
