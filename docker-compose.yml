@@ -32,10 +32,10 @@ services:
     depends_on:
       - "db"
   db:
+    image: postgres:11.0
     container_name: "bedes_db_compose_container"
     build:
       context: "."
-      dockerfile: "./build/Dockerfiles/Dockerfile-postgres"
     env_file:
       - "./environment/backend.env"
       - "./environment/postgres.env"

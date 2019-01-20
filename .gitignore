@@ -6,4 +6,5 @@ set_env.sh
 .vscode
 ~*.xlsx
 environment/*.env
+!environment/docker.env
 !environment/*.sample.env
