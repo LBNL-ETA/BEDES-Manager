@@ -1,22 +1,17 @@
 FROM node:10.11.0
 
-ARG NODE_USER_ID=1000
-ARG NODE_GROUP_ID=1000
-
 USER root
+
 ENV NPM_CONFIG_LOGLEVEL warn
 RUN npm install -g ts-node@7.0.1
 RUN apt-get update -y && apt-get install -y postgresql-client
-# RUN groupadd nodenew -g 1000
-# RUN groupmod -g 200 dialout
-# RUN groupmod -g ${NODE_GROUP_ID}} node
-# RUN usermod -u 501 node && usermod -g 20 node
-RUN usermod -u ${NODE_USER_ID} node
+
 COPY ./scripts /scripts
 COPY ./bedes-common /bedes-common
 COPY ./bedes-backend /bedes-backend
 COPY ./bedes-mappings /bedes-mappings
 COPY ./environment /environment
+
 RUN mkdir /entrypoint
 COPY ./build/lib/scripts-entrypoint.sh /entrypoint
 
@@ -25,12 +20,17 @@ RUN chown -R node.node /bedes-common
 RUN chown -R node.node /bedes-backend
 RUN chown -R node.node /bedes-mappings
 RUN chown -R node.node /scripts
+
 USER node
+
 WORKDIR /bedes-common
 RUN rm -rf node_modules && npm install
+
 WORKDIR /bedes-backend
 RUN rm -rf node_modules && npm install
+
 WORKDIR /scripts/ts
 RUN rm -rf node_modules && npm install
+
 CMD ["/entrypoint/scripts-entrypoint.sh"]
 EXPOSE 3000

@@ -1,18 +1,16 @@
 FROM node:10.11.0
 
-# ARG NODE_USER_ID=501
-# ARG NODE_GROUP_ID=20
-ARG NODE_USER_ID=1001
-#ARG NODE_GROUP_ID=1000
+ARG NODE_USER_ID
+#ARG NODE_GROUP_ID=20
+
 USER root
 RUN apt-get update -y
+
 ENV NPM_CONFIG_LOGLEVEL warn
 RUN npm install -g @angular/cli@7.0.4
-# RUN groupadd nodenew -g 1001
-#RUN groupmod -g 200 dialout
+
+RUN usermod -u $NODE_USER_ID node
 #RUN groupmod -g ${NODE_GROUP_ID} node
-# RUN usermod -u 501 node && usermod -g 20 node
-RUN usermod -u ${NODE_USER_ID} node
 
 RUN mkdir -p /app && chown -R node.node /app && mkdir -p /bedes-common && chown -R node.node /bedes-common
 WORKDIR /app
@@ -22,10 +20,4 @@ RUN chown -R node.node /scripts
 USER node
 
 CMD ["/scripts/make-angular-build.sh"]
-# RUN chown -R node.node /app
-# RUN chown -R node.node /bedes-common
 
-# WORKDIR /bedes-common
-# RUN rm -rf node_modules && npm install
-# WORKDIR /app
-# RUN rm -rf node_modules && npm install

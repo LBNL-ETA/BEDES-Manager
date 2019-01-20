@@ -26,15 +26,33 @@ install:
 	echo "done"
 
 build_ng_image:
-	docker build -t=${ANGULAR_BUILD_IMAGE} -f ./build/Dockerfiles/Dockerfile-angular --rm=true .
+	docker build -t=${ANGULAR_BUILD_IMAGE} \
+		-f ./build/Dockerfiles/Dockerfile-angular \
+		--rm=true \
+		--build-arg NODE_USER_ID=$$(id -u) \
+		.
 
-build_ng_image_no_cache:
-	docker build -t=${ANGULAR_BUILD_IMAGE} --no-cache -f ./build/Dockerfiles/Dockerfile-angular --rm=true .
+build_ng_image_no-cache:
+	docker build -t=${ANGULAR_BUILD_IMAGE} \
+		-f ./build/Dockerfiles/Dockerfile-angular \
+		--rm=true \
+		--no-cache \
+		--build-arg NODE_USER_ID=$$(id -u) \
+		.
 
 ng_build:
-	docker run -ti --rm \
-	--name=${ANGULAR_BUILD_CONTAINER} \
-	-e "MODE=production" \
-	-v ${CURDIR}/bedes-frontend/:/app \
-	-v ${CURDIR}/bedes-common/:/bedes-common \
-	${ANGULAR_BUILD_IMAGE}
+	docker run -ti --rm -u node \
+		--name=${ANGULAR_BUILD_CONTAINER} \
+		-e "MODE=production" \
+		-v ${CURDIR}/bedes-frontend/:/app \
+		-v ${CURDIR}/bedes-common/:/bedes-common \
+		${ANGULAR_BUILD_IMAGE}
+
+angular:
+	make build_ng_image
+	make ng_build
+
+angular_no-cache:
+	make build_ng_image_no-cache
+	make ng_build
+
