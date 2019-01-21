@@ -8,29 +8,26 @@ import { IMappingApplication } from '@bedes-common/models/mapping-application';
 const logger = createLogger(module);
 
 /**
- * Route handler for MappingApplication PUT requests.
- * Updates a MappingApplication record.
+ * Route handler for MappingApplication DELETE requests.
+ * Deletes a MappingApplication record.
  */
-export async function updateMappingApplicationHandler(request: Request, response: Response): Promise<any> {
+export async function deleteMappingApplicationHandler(request: Request, response: Response): Promise<any> {
     try {
-        const item: IMappingApplication= request.body;
-        if (!item) {
+        const id = request.params.id;
+        if (!id) {
             throw new BedesError(
                 'Invalid parameters',
                 HttpStatusCodes.BadRequest_400,
                 "Invalid parameters"
             );
         }
-        let results = await bedesQuery.app.updateRecord(item);
+        let results = await bedesQuery.app.deleteRecord(id);
         response.json(results)
     }
     catch (error) {
-        logger.error('Error in updateMappingApplicationHandler');
+        logger.error('Error in deleteMappingApplicationHandler');
         logger.error(util.inspect(error));
-        if (error && error.code === "23505") {
-                response.status(HttpStatusCodes.BadRequest_400).send('Application name already exists.');
-        }
-        else if (error instanceof BedesError) {
+        if (error instanceof BedesError) {
             response.status((<BedesError>error).responseStatusCode).send(error.responseMessage);
         }
         else {
@@ -38,4 +35,3 @@ export async function updateMappingApplicationHandler(request: Request, response
         }
     }
 }
-

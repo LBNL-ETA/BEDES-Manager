@@ -17,6 +17,7 @@ function mountRoutes(router: Router) {
     router.get('/mapping-application', handlers.applications.getApplicationsHandler);
     router.post('/mapping-application', handlers.applications.newMappingApplicationHandler);
     router.put('/mapping-application', handlers.applications.updateMappingApplicationHandler);
+    router.delete('/mapping-application/:id', handlers.applications.deleteMappingApplicationHandler);
     // Mapping Application Terms
     router.post('/mapping-application/:id/term', handlers.appTerm.insertAppTermHandler);
     router.get('/mapping-application/:id/term', handlers.appTerm.getAppTermsHandler);

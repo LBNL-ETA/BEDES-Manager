@@ -105,6 +105,32 @@ export class ApplicationService {
     }
 
     /**
+     * Delete a MappingApplication.
+     *
+     * @returns {boolean} True if the record was successfully deleted, false otherwise.
+     */
+    public deleteApplication(app: MappingApplication): Observable<boolean> {
+        if (!app.id) {
+            throw new Error('Invalid object deleted');
+        }
+        const url = `${this.url}/${app.id}`;
+        return this.http.delete<number>(url, { withCredentials: true })
+        .pipe(
+            map((results: number) => {
+                console.log(`${this.constructor.name}: received results`, results, typeof results);
+                if (results) {
+                    this.removeAppFromList(app);
+                    this.setActiveApplication(undefined);
+                    return true;
+                }
+                else {
+                    return false;
+                }
+            })
+        );
+    }
+
+    /**
      * Add a new MappingApplication object to the master list.
      * Will also update the associate BehaviorSubject.
      */
@@ -115,6 +141,20 @@ export class ApplicationService {
         else {
             this.applicationList.push(app);
             this.appListSubject.next(this.applicationList);
+        }
+    }
+
+    /**
+     * Remove a MappingApplication object from the applicationList array.
+     */
+    private removeAppFromList(app: MappingApplication): void {
+        const index = this.applicationList.findIndex((item) => item.id === app.id);
+        if (index >= 0) {
+            this.applicationList.splice(index, 1);
+            this.appListSubject.next(this.applicationList);
+        }
+        else {
+            throw new Error('MappingApplicaton not found');
         }
     }
 
@@ -142,7 +182,7 @@ export class ApplicationService {
      * Set's the active MappingApplication, calls the
      * BehaviorSubject.next to notify subscribers.
      */
-    public setActiveApplication(app: MappingApplication): void {
+    public setActiveApplication(app: MappingApplication | undefined): void {
         this._selectedItem = app;
         this._selectedItemSubject.next(this._selectedItem);
 

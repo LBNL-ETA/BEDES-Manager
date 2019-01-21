@@ -10,31 +10,27 @@ import { BedesError } from '@bedes-common/bedes-error/bedes-error';
 import { HttpStatusCodes } from '@bedes-common/enums/http-status-codes';
 
 export class AppQuery {
-    private sqlGet!: QueryFile;
-    private sqlGetAll!: QueryFile;
-    private sqlInsert!: QueryFile;
-    private sqlUpdate!: QueryFile;
-    private sqlUpdateScope!: QueryFile;
+    private sqlGet: QueryFile;
+    private sqlGetAll: QueryFile;
+    private sqlInsert: QueryFile;
+    private sqlUpdate: QueryFile;
+    private sqlUpdateScope: QueryFile;
+    private sqlDelete: QueryFile;
 
     constructor() { 
-        this.initSql();
-    }
-
-    /**
-     * Load the SQL queries.
-     */
-    private initSql(): void {
+        // load the sql queries
         this.sqlGet = sql_loader(path.join(__dirname, 'get.sql'));
         this.sqlGetAll = sql_loader(path.join(__dirname, 'get-all.sql'));
         this.sqlInsert = sql_loader(path.join(__dirname, 'insert.sql'))
         this.sqlUpdate = sql_loader(path.join(__dirname, 'update.sql'))
         this.sqlUpdateScope = sql_loader(path.join(__dirname, 'update-scope.sql'))
+        this.sqlDelete = sql_loader(path.join(__dirname, 'delete.sql'))
     }
 
     /**
      * Insert a new application record.
      */
-    public newRecord(item: IMappingApplication, transaction?: any): Promise<IMappingApplication> {
+    public async newRecord(item: IMappingApplication, transaction?: any): Promise<IMappingApplication> {
         try {
             if (!item._name || !item._scopeId) {
                 logger.error(`${this.constructor.name}: Missing parameters`);
@@ -50,14 +46,16 @@ export class AppQuery {
                 _scopeId: item._scopeId
             };
             if (transaction) {
-                return transaction.one(this.sqlInsert, params);
+                return await transaction.one(this.sqlInsert, params);
             }
             else {
-                return db.one(this.sqlInsert, params);
+                return await db.one(this.sqlInsert, params);
             }
         } catch (error) {
+            console.log(error);
             // Duplicate record
             if (error && error.code === "23505") {
+                logger.info(`MappingApplication ${item._name} already exists`);
                 throw new BedesError(
                     'Application name already exists.',
                     HttpStatusCodes.BadRequest_400,
@@ -147,39 +145,6 @@ export class AppQuery {
         }
     }
 
-    // public deleteRecord(item: IMappingApplication, transaction?: any): Promise<IMappingApplication> {
-    //     try {
-    //         if (!item._name || !item._name) {
-    //             logger.error(`${this.constructor.name}: Missing parameters in updateRecord`);
-    //             throw new Error('Missing required parameters.');
-    //         }
-    //         const params = {
-    //             _id: item._id,
-    //             _name: item._name,
-    //             _description: item._description
-    //         };
-    //         if (transaction) {
-    //             return transaction.one(this.sqlUpdate, params);
-    //         }
-    //         else {
-    //             return db.one(this.sqlUpdate, params);
-    //         }
-    //     } catch (error) {
-    //         // Duplicate record
-    //         if (error && error.code === "23505") {
-    //             throw new BedesError(
-    //                 'Application name already exists.',
-    //                 HttpStatusCodes.BadRequest_400,
-    //                 'Application name already exists.',
-    //             );
-    //         }
-    //         else {
-    //             // all other errors
-    //             throw error;
-    //         }
-    //     }
-    // }
-
     /**
      * Retrieve an application record by name.
      */
@@ -200,6 +165,34 @@ export class AppQuery {
             }
         } catch (error) {
             logger.error(`${this.constructor.name}: Error in newRecord`);
+            logger.error(util.inspect(error));
+            throw error;
+        }
+    }
+
+
+    /**
+     * Delete a MappingApplication record with the given id.
+     * 
+     * @returns {number} The number of rows deleted.
+     */
+    public async deleteRecord(id: number, transaction?: any): Promise<number> {
+        try {
+            if (!id) {
+                logger.error(`${this.constructor.name}: deleteRecord expected an id, none found.`);
+                throw new Error('Missing required parameters.');
+            }
+            const params = {
+                _id: id
+            };
+            if (transaction) {
+                return transaction.result(this.sqlDelete, params, (r: any) => r.rowCount);
+            }
+            else {
+                return db.result(this.sqlDelete, params, (r: any) => r.rowCount);
+            }
+        } catch (error) {
+            logger.error(`${this.constructor.name}: Error in deleteRecord`);
             logger.error(util.inspect(error));
             throw error;
         }

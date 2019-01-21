@@ -23,6 +23,12 @@
                 </button>
 
             </div>
+            <div class="alert-danger" style="margin-top:10px;" *ngIf="hasError && errorMessage">
+                <h3 style="margin: 0; padding:0;">
+                    <fa-icon [icon]="['fas', 'exclamation-triangle']"></fa-icon>
+                    An error occurred removing the application.
+                </h3>
+            </div>
             <div class="alert-danger" style="margin-top:10px;" *ngIf="!applicationList || !applicationList?.length">
                 <h3 style="margin: 0; padding:0;">
                     <fa-icon [icon]="['fas', 'exclamation-triangle']"></fa-icon>

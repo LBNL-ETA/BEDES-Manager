@@ -13,8 +13,6 @@ const logger = createLogger(module);
 export async function getApplicationsHandler(request: Request, response: Response): Promise<any> {
     try {
         let results = await bedesQuery.app.getAllRecords();
-        logger.debug('getApplicationsHandler resuts');
-        logger.debug(util.inspect(results));
         response.json(results)
     }
     catch (error) {

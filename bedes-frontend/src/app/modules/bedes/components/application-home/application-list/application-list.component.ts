@@ -43,6 +43,9 @@ export class ApplicationListComponent implements OnInit {
     public gridOptions: GridOptions;
     public rowData: Array<BedesTerm | BedesConstrainedList>;
     public tableContext: any;
+    // errors
+    public hasError = false;
+    public errorMessage: string;
 
     constructor(
         private router: Router,
@@ -143,6 +146,18 @@ export class ApplicationListComponent implements OnInit {
      */
     public removeSelectedItem(): void {
         console.log(`${this.constructor.name}: removeSelectedItem`);
+        this.appService.deleteApplication(this.selectedItem.ref)
+        .subscribe(
+            (results: boolean) => {
+                console.log(`${this.constructor.name}: received results`);
+                console.log(results);
+            },
+            (error: any) => {
+                console.log('Error removing MappingApplication', this.selectedItem);
+                console.log(error);
+                this.hasError = true;
+                this.errorMessage = "An error occurred removing the application.";
+            });
     }
 
     /**

@@ -45,6 +45,12 @@
                         Application successfully created.
                     </span>
                 </div>
+                <div class="alert-danger" style="margin-top:10px;" *ngIf="hasError && errorMessage">
+                    <h3 style="margin: 0; padding:0;">
+                        <fa-icon [icon]="['fas', 'exclamation-triangle']"></fa-icon>
+                        {{errorMessage}}
+                    </h3>
+                </div>
 
                 <form [formGroup]="dataForm" style="display:flex; flex-direction: column; margin-top:10px">
                     <mat-form-field style="flex:1; margin-bottom:5px;"
