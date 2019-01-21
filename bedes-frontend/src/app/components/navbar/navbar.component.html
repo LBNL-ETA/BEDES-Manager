@@ -27,7 +27,7 @@
         <!-- <span style="padding-right:15px;">currentStatus = {{currentStatus}} === {{UserStatus.IsLoggedIn}}</span> -->
         <span *ngIf="currentStatus === UserStatus.NotLoggedIn">
             <!-- <button mat-button (click)="logout()">Login</button> -->
-            <a mat-button [routerLink]="['/login']" routerLinkActive="active">
+            <a mat-button [routerLink]="['/home']" routerLinkActive="active">
                 <fa-icon [icon]="['fas', 'sign-in-alt']" size="lg"></fa-icon>
             </a>
         </span>

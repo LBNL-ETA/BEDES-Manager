@@ -10,23 +10,29 @@
     <mat-card-content style="padding:1rem">
         <form [formGroup]="requestForm">
             <div style="display:flex; flex-direction: column;">
-                <mat-form-field style="flex: 1;">
+                <mat-form-field appearance="outline">
+                    <mat-label>First Name</mat-label>
                     <input matInput placeholder="First Name" formControlName="firstName" >
                 </mat-form-field>
-                <mat-form-field style="flex: 1;">
+                <mat-form-field appearance="outline">
+                    <mat-label>Last Name</mat-label>
                     <input matInput placeholder="Last Name" formControlName="lastName" >
                 </mat-form-field>
-                <mat-form-field style="flex: 1;">
+                <mat-form-field appearance="outline">
+                    <mat-label>Email</mat-label>
                     <input matInput placeholder="Email" formControlName="email" >
                 </mat-form-field>
-                <mat-form-field style="flex: 1;">
+                <mat-form-field appearance="outline">
+                    <mat-label>Organization</mat-label>
                     <input matInput placeholder="Organization" formControlName="organization" >
                 </mat-form-field>
-                <mat-form-field style="flex: 1;">
+                <mat-form-field appearance="outline">
+                    <mat-label>Password</mat-label>
                     <input matInput type="password" placeholder="Password" formControlName="password" >
                 </mat-form-field>
-                <mat-form-field style="flex: 1;">
-                    <input matInput type="password" placeholder="Password" formControlName="passwordConfirm" >
+                <mat-form-field appearance="outline">
+                    <mat-label>Confirm Password</mat-label>
+                    <input matInput type="password" placeholder="Confirm Password" formControlName="passwordConfirm" >
                 </mat-form-field>
                 <span *ngIf="hasError" class="font-color-warn">
                     {{errorMessage}}
@@ -34,7 +40,7 @@
             </div>
         </form>
         <mat-card-actions style="display:flex; padding-left:16px; padding-right: 16px;">
-            <button mat-stroked-button color="primary" style="flex: 1;"[routerLink]="['/login']">
+            <button mat-stroked-button color="primary" style="flex: 1;"[routerLink]="['/home']">
                 <fa-icon [icon]="['fas', 'arrow-to-left']"></fa-icon>
                 Existing User
             </button>
