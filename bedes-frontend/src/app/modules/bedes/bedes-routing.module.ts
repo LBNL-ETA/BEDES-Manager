@@ -24,6 +24,7 @@ import { AppTermListComponent } from './components/app-term/app-term-list/app-te
 import { AppTermEditComponent } from './components/app-term/app-term-edit/app-term-edit.component';
 import { AppTermListResolverService } from './services/app-term-list/app-term-list-resolver.service';
 import { AppTermResolverService } from './services/app-term/app-term-resolver.service';
+import { CompositeTermListComponent } from './components/term-builder-home/composite-term-list/composite-term-list.component';
 
 const appRoutes: Routes = [
     { path: 'search', component: BedesTermSearchComponent },
@@ -52,15 +53,24 @@ const appRoutes: Routes = [
     {
         path: 'term-builder',
         component: TermBuilderHomeComponent,
-        children: [{
+        children: [
+            {
             path: '',
-            redirectTo: 'build',
+            redirectTo: 'list',
             pathMatch: 'full'
-        },
-        {
-            path: 'build',
-            component: TermBuilderEditComponent
-        }
+            },
+            {
+                path: 'list',
+                component: CompositeTermListComponent
+            },
+            {
+                path: 'edit',
+                component: TermBuilderEditComponent
+            },
+            {
+                path: 'edit/:id',
+                component: TermBuilderEditComponent
+            }
         ]
     },
     {

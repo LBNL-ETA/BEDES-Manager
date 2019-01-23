@@ -13,11 +13,11 @@ import { BedesTermCategory } from '@bedes-common/models/bedes-term-category/bede
 import { MappingApplication } from '@bedes-common/models/mapping-application';
 import { TableCellTermNameComponent } from '../../bedes-term-search/bedes-search-results-table/table-cell-term-name/table-cell-term-name.component';
 import { ApplicationService } from '../../../services/application/application.service';
-import { ApplicationScope } from '../../../../../../../../bedes-common/enums/application-scope.enum';
+import { ApplicationScope } from '@bedes-common/enums/application-scope.enum';
 import { TableCellNameNavComponent } from './table-cell-name-nav/table-cell-name-nav.component';
 import { AuthService } from '../../../../auth/services/auth/auth.service';
-import { UserStatus } from '../../../../../../../../bedes-common/enums/user-status.enum';
-import { CurrentUser } from '../../../../../../../../bedes-common/models/current-user/current-user';
+import { UserStatus } from '@bedes-common/enums/user-status.enum';
+import { CurrentUser } from '@bedes-common/models/current-user/current-user';
 
 /**
  * Defines the interface for the rows of grid objects.

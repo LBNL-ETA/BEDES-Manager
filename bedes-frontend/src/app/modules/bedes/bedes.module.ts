@@ -68,6 +68,9 @@ import { BedesSearchResultsComponent } from './components/bedes-search/bedes-sea
 import { ImplementationTermOptionComponent } from './components/app-term/app-term-edit/implementation-term/implementation-term-option/implementation-term-option.component';
 import { EditListOptionComponent } from './components/app-term/app-term-edit/implementation-term/edit-list-option/edit-list-option.component';
 import { DisplayListOptionsComponent } from './components/app-term/app-term-edit/implementation-term/display-list-options/display-list-options.component';
+import { CompositeTermListComponent } from './components/term-builder-home/composite-term-list/composite-term-list.component';
+import { compositeTermFactory } from './services/composite-term/composite-term-factory.service';
+import { CompositeTermService } from './services/composite-term/composite-term.service';
 
 @NgModule({
     imports: [
@@ -133,6 +136,7 @@ import { DisplayListOptionsComponent } from './components/app-term/app-term-edit
         ImplementationTermOptionComponent,
         EditListOptionComponent,
         DisplayListOptionsComponent,
+        CompositeTermListComponent,
     ],
     entryComponents: [
         BedesTermSearchDialogComponent,
@@ -158,8 +162,16 @@ import { DisplayListOptionsComponent } from './components/app-term/app-term-edit
             deps: [ApplicationService],
             multi: true
         },
+        {
+            provide: APP_INITIALIZER,
+            useFactory: compositeTermFactory,
+            deps: [CompositeTermService],
+            multi: true
+        },
         BedesTermSelectorService,
-        BedesTermListOptionService
+        BedesTermListOptionService,
+        ApplicationService,
+        CompositeTermService
     ]
 })
 export class BedesModule { }

@@ -3,14 +3,7 @@ import { API_URL_TOKEN } from '../url/url.service';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, BehaviorSubject } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { BedesCompositeTerm } from '../../../../../../../bedes-common/models/bedes-composite-term/bedes-composite-term';
-import {
-    IBedesTerm,
-    IBedesConstrainedList,
-    BedesTerm,
-    BedesConstrainedList
-} from '@bedes-common/models/bedes-term';
-import { IBedesCompositeTerm } from '@bedes-common/models/bedes-composite-term/bedes-composite-term.interface';
+import { BedesCompositeTerm, IBedesCompositeTerm } from '@bedes-common/models/bedes-composite-term';
 
 @Injectable({
     providedIn: 'root'
@@ -32,6 +25,14 @@ export class CompositeTermService {
     get selectedTerm(): BedesCompositeTerm | undefined {
         return this._selectedTerm;
     }
+    // list of terms
+    /* Array that holds the list of composite terms */
+    private termList: Array<BedesCompositeTerm>;
+    /* BehaviorSubject that emits the current list of composite terms */
+    private _termListSubject = new BehaviorSubject<Array<BedesCompositeTerm>>([]);
+    public get termListSubject(): BehaviorSubject<Array<BedesCompositeTerm>> {
+        return this._termListSubject;
+    }
 
     constructor(
         private http: HttpClient,
@@ -39,6 +40,48 @@ export class CompositeTermService {
     ) {
         this.urlNew = `${this.apiUrl}${this.apiEndpointNew}`;
         this.urlUpdate = `${this.apiUrl}${this.apiEndpointUpdate}`;
+    }
+
+    /**
+     * Load the list of composite terms during initialization.
+     */
+    public load(): Promise<boolean> {
+        try {
+            console.log(`${this.constructor.name}: retrieving composite term list...`)
+            return new Promise((resolve, reject) => {
+                this.getAll().subscribe(
+                    (terms: Array<BedesCompositeTerm>) => {
+                        console.log(`${this.constructor.name}: received composite term list`, terms);
+                        this.termList = terms;
+                        this.termListSubject.next(this.termList);
+                        resolve(true);
+                    },
+                    (error: any) => {
+                        console.log(`${this.constructor.name}: error retrieving composite term list`);
+                        console.log(error);
+                        reject(error);
+                    }
+                );
+            });
+        }
+        catch (error) {
+            console.log(`${this.constructor.name}: Error during application load()`, error);
+            throw error;
+        }
+    }
+
+    /**
+     * Get all of the BEDES composite terms from the API.
+     */
+    public getAll(): Observable<Array<BedesCompositeTerm>> {
+        return this.http.get<Array<IBedesCompositeTerm>>(this.urlNew, { withCredentials: true })
+            .pipe(map((results: Array<IBedesCompositeTerm>) => {
+                console.log(`${this.constructor.name}: received results`, results);
+                if (!Array.isArray(results)) {
+                    throw new Error(`${this.constructor.name}: getAll expected to receive an array of composite terms`);
+                }
+                return results.map((d) => new BedesCompositeTerm(d));
+            }));
     }
 
     /**
@@ -100,5 +143,29 @@ export class CompositeTermService {
     //                 new BedesTerm(<IBedesTerm>item));
     //         }));
     // }
+
+    /**
+     * Set's the active BedesCompositeTerm.
+     */
+    public setActiveCompositeTerm(term: BedesCompositeTerm): void {
+        this._selectedTerm = term;
+        this._selectedTermSubject.next(this._selectedTerm);
+    }
+
+    /**
+     * Set's the active composite term to the term with a matching id.
+     */
+    public setActiveCompositeTermById(id: number): void {
+        if (this._selectedTerm && id === this._selectedTerm.id) {
+            return;
+        }
+        const found = this.termList.find((d) => d.id === id)
+        if (found) {
+            this.setActiveCompositeTerm(found);
+        }
+        else {
+            throw new Error(`Invalid BedesCompositeTerm.id ${id}`);
+        }
+    }
 }
 
