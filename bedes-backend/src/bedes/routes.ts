@@ -25,6 +25,7 @@ function mountRoutes(router: Router) {
     router.get('/mapping-application/sibling/:id', handlers.appTerm.getAppTermsSiblingHandler);
     // Composite Terms
     router.get('/composite-term/:id', handlers.compositeTerm.get);
+    router.get('/composite-term', handlers.compositeTerm.getAll);
     router.post('/composite-term', handlers.compositeTerm.post);
     // BedesTermOption
     router.post('/bedes-term-list-option', handlers.bedesTermListOption.newListOptionHandler);

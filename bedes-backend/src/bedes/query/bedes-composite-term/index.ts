@@ -11,6 +11,7 @@ import { bedesQuery } from '@bedes-backend/bedes/query';
 export class BedesCompositeTermQuery {
     private sqlGetBySignature!: QueryFile;
     private sqlGetById!: QueryFile;
+    private sqlGetAllTerms!: QueryFile;
     private sqlInsert!: QueryFile;
     private sqlGetCompositeTermComplete!: QueryFile;
 
@@ -21,6 +22,7 @@ export class BedesCompositeTermQuery {
     private initSql(): void {
         this.sqlGetBySignature = sql_loader(path.join(__dirname, 'get.sql'));
         this.sqlGetById = sql_loader(path.join(__dirname, 'get-by-id.sql'));
+        this.sqlGetAllTerms = sql_loader(path.join(__dirname, 'get-all-terms.sql'));
         this.sqlGetCompositeTermComplete = sql_loader(path.join(__dirname, 'get-composite-term-complete.sql'));
         this.sqlInsert = sql_loader(path.join(__dirname, 'insert.sql'))
     }
@@ -133,11 +135,32 @@ export class BedesCompositeTermQuery {
                 return db.oneOrNone(this.sqlGetById, params);
             }
         } catch (error) {
-            logger.error(`${this.constructor.name}: Error in getRecordBySignature`);
+            logger.error(`${this.constructor.name}: Error in getRecordById`);
             logger.error(util.inspect(error));
             throw error;
         }
     }
+
+    /**
+     * Retireves the list of all composite terms in the database.
+     * 
+     * @returns Returns an array of all the composite terms.
+     */
+    public getAllTerms( transaction?: any): Promise<Array<IBedesCompositeTerm>> {
+        try {
+            if (transaction) {
+                return transaction.manyOrNone(this.sqlGetAllTerms);
+            }
+            else {
+                return db.manyOrNone(this.sqlGetAllTerms);
+            }
+        } catch (error) {
+            logger.error(`${this.constructor.name}: Error in getAllTerms`);
+            logger.error(util.inspect(error));
+            throw error;
+        }
+    }
+
 
     /**
      * Retrieves a complete IBedesCpompositeTerm object for the given
