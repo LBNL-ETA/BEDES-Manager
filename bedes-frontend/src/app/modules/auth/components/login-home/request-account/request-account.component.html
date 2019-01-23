@@ -37,15 +37,31 @@
                 <span *ngIf="hasError" class="font-color-warn">
                     {{errorMessage}}
                 </span>
+                <div class="alert-danger" style="margin-top:10px;" *ngIf="hasError">
+                    <h3 style="margin: 0; padding:0;">
+                        <fa-icon [icon]="['fas', 'exclamation-triangle']"></fa-icon>
+                        {{errorMessage}}
+                    </h3>
+                </div>
+                <div class="alert-success" style="margin-top:10px;" *ngIf="requestSuccess">
+                    <div style="margin: 0; padding:0;">
+                        <fa-icon [icon]="['fas', 'check']"></fa-icon>
+                        Your account has been successfully created.
+                    </div>
+                    <div>
+                        You'll receive an email with a verification code, which you'll
+                        need to enter after the first time you login.
+                    </div>
+                </div>
             </div>
         </form>
         <mat-card-actions style="display:flex; padding-left:16px; padding-right: 16px;">
             <button mat-stroked-button color="primary" style="flex: 1;"[routerLink]="['/home']">
-                <fa-icon [icon]="['fas', 'arrow-to-left']"></fa-icon>
-                Existing User
+                <fa-icon [icon]="['fas', 'chevron-circle-left']"></fa-icon>
+                Existing User Login
             </button>
             <button mat-stroked-button color="primary" style="flex:1;"
-            [disabled]="requestForm.invalid"
+            [disabled]="requestForm.invalid || requestSuccess"
             (click)="submitForm()">
                 <fa-icon [icon]="['fas', 'sign-in-alt']"></fa-icon>
                 Submit

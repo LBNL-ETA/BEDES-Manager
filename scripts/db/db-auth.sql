@@ -29,7 +29,7 @@ create table auth.user_group (
 -- create the bedes user groups
 insert into auth.user_group (id, name, description) values
     (1, 'Standard', 'Standard user'),
-    (2001, 'Admin', 'Administrators')
+    (2, 'Admin', 'Administrators')
 ;
 
 -- create the user table

@@ -14,14 +14,22 @@ const appRoutes: Routes = [
         children: [{
             path: '',
             component: LoginComponent
-        }, {
+        },
+        {
             path: 'request-account',
             component: RequestAccountComponent
-        }, {
+        },
+        {
             path: 'verify',
             component: VerificationComponent,
             canActivate: [AuthGuardService]
-        }]
+        },
+        {
+            path: 'verify/:verificationCode',
+            component: VerificationComponent,
+            canActivate: [AuthGuardService]
+        }
+    ]
     }
 ];
 

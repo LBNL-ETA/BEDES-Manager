@@ -9,7 +9,7 @@ import { API_URL_TOKEN } from 'src/app/services/api-url/api-url.service';
 import { NewAccount } from '../../models/auth/new-account';
 import { UserLogin } from '../../models/auth/user-login';
 import { UserStatus } from '@bedes-common/enums/user-status.enum';
-import { IUserStatus } from '@bedes-common/interfaces/user-status';
+import { CurrentUser, ICurrentUser } from '@bedes-common/models/current-user';
 
 @Injectable({
     providedIn: 'root'
@@ -30,12 +30,13 @@ export class AuthService {
     // new account
     private apiEndpointNewAccount = 'api/user_profile';
     private urlNewAccount: string = null;
-    // user status
-    private userStatus: UserStatus = UserStatus.NotLoggedIn;
-    private _userStatusSubject: BehaviorSubject<UserStatus>;
-    get userStatusSubject(): BehaviorSubject<UserStatus> {
-        return this._userStatusSubject;
+    // current user
+    private _currentUser: CurrentUser;
+    private _currentUserSubject: BehaviorSubject<CurrentUser>;
+    get currentUserSubject(): BehaviorSubject<CurrentUser> {
+        return this._currentUserSubject;
     }
+    // api end point for the user status calls
     private apiEndpointStatus = 'api/status';
     private urlStatus: string = null;
     // keeps track of redirection urls
@@ -52,8 +53,9 @@ export class AuthService {
         this.urlLogout = `${ this.apiUrl }${ this.apiEndpointLogout }`;
         this.urlNewAccount = `${ this.apiUrl }${ this.apiEndpointNewAccount }`;
         this.urlStatus = `${ this.apiUrl }${ this.apiEndpointStatus }`;
-        // create the user status BehaviorSubject
-        this._userStatusSubject = new BehaviorSubject<UserStatus>(this.userStatus);
+        // create a default user (Guest, NotLoggedIn)
+        this._currentUser = CurrentUser.makeDefaultUser();
+        this._currentUserSubject = new BehaviorSubject<CurrentUser>(this._currentUser);
     }
 
     /**
@@ -61,33 +63,32 @@ export class AuthService {
      * @param userLogin
      * @returns login
      */
-    public login(userLogin: UserLogin): Observable<IUserStatus> {
+    public login(userLogin: UserLogin): Observable<CurrentUser> {
         console.log('login..', userLogin);
         // // open the waiting dialog, keep the reference object to close when request completes
         // const dialogRef = this.waitingDialog.open(WaitingDialogComponent, {
         //     panelClass: 'dialog-waiting',
         //     disableClose: true
         // });
-        return this.http.post<IUserStatus>(this.urlLogin, userLogin, { withCredentials: true })
+        return this.http.post<ICurrentUser>(this.urlLogin, userLogin, { withCredentials: true })
             .pipe(
-                // finalize(() => dialogRef.close()),
-                map((results: IUserStatus) => {
+                map((results: ICurrentUser) => {
                     console.log('success!!', results);
-                    this.userStatus = results.status;
-                    console.log('new status = ', this.userStatus);
-                    this.userStatusSubject.next(this.userStatus);
-                    return results;
+                    this._currentUser = new CurrentUser(results);
+                    this.currentUserSubject.next(this._currentUser);
+                    console.log(`${this.constructor.name} new currentUser = `, this._currentUser);
+                    return this._currentUser;
                 }
             ));
     }
 
     public logout(): Observable<any> {
         console.log('call logout');
-        return this.http.get<any>(this.urlLogout, { withCredentials: true })
-        .pipe(map((results: any) => {
+        return this.http.get<ICurrentUser>(this.urlLogout, { withCredentials: true })
+        .pipe(map((results: ICurrentUser) => {
             console.log(`${this.constructor.name}: logout success`);
-            this.userStatus = UserStatus.NotLoggedIn;
-            this.userStatusSubject.next(this.userStatus);
+            this._currentUser = CurrentUser.makeDefaultUser();
+            this._currentUserSubject.next(this._currentUser);
             return true;
         }));
     }
@@ -97,34 +98,29 @@ export class AuthService {
      * @param newAccount
      * @returns account
      */
-    public requestAccount(newAccount: NewAccount): Observable<IUserStatus> {
+    public requestAccount(newAccount: NewAccount): Observable<any> {
         console.log('new account...', newAccount);
-        return this.http.post<IUserStatus>(this.urlNewAccount, newAccount, { withCredentials: true })
-            .pipe(
-                map((results: IUserStatus) => {
-                    console.log('new account success!!', results);
-                    return results;
-                }
-            ));
+        return this.http.post<any>(this.urlNewAccount, newAccount, { withCredentials: true });
     }
 
     public checkLoginStatus(): Promise<any> {
         console.log('checkStatus...');
         return new Promise<any>((resolve, reject) => {
-            this.http.get<IUserStatus>(this.urlStatus, { withCredentials: true })
-            .subscribe((results: IUserStatus) => {
+            this.http.get<ICurrentUser>(this.urlStatus, { withCredentials: true })
+            .subscribe((results: ICurrentUser) => {
                 console.log('checkLoginStatus complete...', results);
-                if (results && results.status) {
-                    this.userStatus = results.status;
+                if (results && results._status) {
+                    this._currentUser = new CurrentUser(results);
                 }
                 else {
-                    this.userStatus = UserStatus.NotLoggedIn;
+                    this._currentUser = CurrentUser.makeDefaultUser();
                 }
-                this.userStatusSubject.next(this.userStatus);
+                this._currentUserSubject.next(this._currentUser);
                 resolve();
             },
             (error) => {
-                this.userStatus = UserStatus.NotLoggedIn;
+                this._currentUser = CurrentUser.makeDefaultUser();
+                this._currentUserSubject.next(this._currentUser);
                 resolve(error);
             })
         })
@@ -149,32 +145,30 @@ export class AuthService {
 
     }
 
+    /**
+     * Verify a new user account.
+     */
     public verifyAccount(verificationCode: string): Observable<any> {
-        return this.http.put<IUserStatus>(this.urlValidate, {verificationCode: verificationCode}, { withCredentials: true })
-        .pipe(tap((data: IUserStatus) => {
+        return this.http.put<ICurrentUser>(this.urlValidate, {verificationCode: verificationCode}, { withCredentials: true })
+        .pipe(tap((data: ICurrentUser) => {
             // console.log('veriy status', data);
-            if (data && data.status) {
-                this.userStatus = data.status;
+            if (data && data._status) {
+                this._currentUser = new CurrentUser(data);
             }
             else {
-                // throw an error here?
-                this.userStatus = UserStatus.NotLoggedIn;
+                this._currentUser = CurrentUser.makeDefaultUser();
             }
-            // console.log('user status', this.userStatus);
-            // console.log('logged in... next', this.redirectUrl);
-            this.userStatusSubject.next(this.userStatus);
-            // this.checkForRedirect();
+            this._currentUserSubject.next(this._currentUser);
         },
         (error) => {
-            this.userStatus = UserStatus.NotLoggedIn;
-            this.userStatusSubject.next(this.userStatus);
-            // this.loggedInSubject.next(this.is_logged_in);
+            this._currentUser = CurrentUser.makeDefaultUser();
+            this._currentUserSubject.next(this._currentUser);
         }));
     }
 
     public newVerificationCode(): Observable<any> {
         try {
-            return this.http.get<IUserStatus>(this.urlVerificationCode, { withCredentials: true });
+            return this.http.get<ICurrentUser>(this.urlVerificationCode, { withCredentials: true });
         }
         catch (error) {
             console.log(`${this.constructor.name}: error in newVerificationCode()`);
@@ -189,9 +183,17 @@ export class AuthService {
      * @param {UserStatus} newStatus
      * @memberof AuthService
      */
-    public updateUserStatus(newStatus: UserStatus): void {
-        this.userStatus = newStatus;
-        this.userStatusSubject.next(this.userStatus);
+    // public updateUserStatus(newStatus: UserStatus): void {
+    //     this.userStatus = newStatus;
+    //     this.userStatusSubject.next(this.userStatus);
+    // }
+
+    /**
+     * Sets the currentUser to a default Guest user.
+     */
+    public setUnauthorizedUser(): void {
+        this._currentUser = CurrentUser.makeDefaultUser();
+        this._currentUserSubject.next(this._currentUser);
     }
 
     public needsRedirect(): boolean {
@@ -199,15 +201,15 @@ export class AuthService {
     }
 
     public isLoggedIn(): boolean {
-        return this.userStatus === UserStatus.IsLoggedIn ? true : false;
+        return this._currentUser.isLoggedIn();
     }
 
     public needsVerify(): boolean {
-        return this.userStatus === UserStatus.NeedsVerify ? true : false;
+        return this._currentUser.needsVerify();
     }
 
     public needsPasswordReset(): boolean {
-        return this.userStatus === UserStatus.PasswordResetRequired ? true : false;
+        return this._currentUser.needsPasswordReset();
     }
 
 }

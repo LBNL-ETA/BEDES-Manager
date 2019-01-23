@@ -1,4 +1,4 @@
-import { UserStatus } from '@bedes-common/enums/user-status.enum';
+import { UserStatus } from '../../../enums/user-status.enum';
 
 export interface IUserProfile {
     id: number;

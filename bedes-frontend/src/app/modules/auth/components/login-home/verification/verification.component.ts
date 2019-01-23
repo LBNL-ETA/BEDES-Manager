@@ -17,6 +17,7 @@ import { takeUntil } from 'rxjs/operators';
 
 // import { Subject } from 'rxjs/Subject';
 // import 'rxjs/add/operator/takeUntil';
+import { CurrentUser } from '@bedes-common/models/current-user/current-user';
 
 @Component({
     selector: 'app-verification',
@@ -26,6 +27,7 @@ import { takeUntil } from 'rxjs/operators';
 export class VerificationComponent implements OnInit, OnDestroy {
     public verifySuccess = false;
     public verifyError = false;
+    public newCodeSuccess = false;
     public verificationCode = '';
     private ngUnsubscribe: Subject<void> = new Subject<void>();
 
@@ -40,9 +42,9 @@ export class VerificationComponent implements OnInit, OnDestroy {
         // get the verification code from the url if it's there
         this.verificationCode = this.route.snapshot.paramMap.get('verificationCode');
         console.log('verification code', this.verificationCode);
-        this.authService.userStatusSubject
+        this.authService.currentUserSubject
             .pipe(takeUntil(this.ngUnsubscribe))
-            .subscribe((currentStatus: UserStatus) => {
+            .subscribe((currentUser: CurrentUser) => {
                 // // console.log('needs verification ?', this.authService.needsVerify());
                 // if (!this.authService.needsVerify()) {
                 //     // console.log('not logged in, redirecint to login...', this.router.url);
@@ -91,10 +93,16 @@ export class VerificationComponent implements OnInit, OnDestroy {
         );
     }
 
+    /**
+     * Request a new verification code.
+     */
     public newVerificationCode(): void {
         this.authService.newVerificationCode()
         .subscribe((results: any) => {
             console.log(`${this.constructor.name}: received newVerificationCode results`, results);
+            this.newCodeSuccess = true;
+        }, (error: any) => {
+            console.log('Error sending new verification code', error);
         })
     }
 

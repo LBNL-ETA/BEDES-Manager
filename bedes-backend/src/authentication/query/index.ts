@@ -6,7 +6,7 @@ import { db, sqlLoader } from '@bedes-backend/db';
 
 import { UserProfileUpdate } from '../models/user-profile-update';
 import { UserProfileNew } from '../models/user-profile-new';
-import { IUserStatus } from '@bedes-common/interfaces/user-status';
+import { ICurrentUser } from '@bedes-common/models/current-user';
 
 import { createLogger } from '@bedes-backend/logging';
 const logger = createLogger(module);
@@ -160,13 +160,13 @@ class AuthQuery {
      * @returns {*}
      * @memberof AuthQuery
      */
-    public getUserStatus(userId: number): Promise<IUserStatus> {
+    public getUserStatus(userId: number): Promise<ICurrentUser> {
         console.log('getUserStatus');
         console.log(userId);
         return db.one(this.sqlGetUserStatus, {userId: userId});
     }
 
-    public updateUserStatus(userId: number, status: number): Promise<IUserStatus> {
+    public updateUserStatus(userId: number, status: number): Promise<ICurrentUser> {
         return db.one(this.sqlUpdateUserStatus, {userId: userId, status: status});
     }
 
@@ -208,18 +208,22 @@ class AuthQuery {
         }
     }
 
-    public async validateRegistrationCode(userId: number, registrationCode: string): Promise<IUserStatus> {
+    public async validateRegistrationCode(userId: number, registrationCode: string): Promise<ICurrentUser> {
         try {
             const params = {
                 userId: userId,
                 registrationCode: registrationCode
             };
-            const validationResult: IValidateRegistrationCodeResult = await db.one(this.sqlGetRegistrationCode, params);
+            const validationResult: IValidateRegistrationCodeResult = await db.oneOrNone(this.sqlGetRegistrationCode, params);
             console.log('validation success');
             console.log(validationResult);
             if (!validationResult || !validationResult.id) {
                 logger.error(`${this.constructor.name}: expected getRegistrationCode(${userId}, '${registrationCode}'`);
-                throw new Error('Error comparing registration codes.');
+                throw new BedesError(
+                    `${this.constructor.name}: expected getRegistrationCode(${userId}, '${registrationCode}'`,
+                    HttpStatusCodes.BadRequest_400,
+                    'Invalid or Expired Registration Code'
+                )
             }
             else if (!validationResult.isValid) {
                 // this.removeRegistrationCode(validationResult.id);

@@ -2,18 +2,14 @@ import { Request, Response } from 'express';
 import * as util from 'util';
 import { createLogger } from '@bedes-backend/logging';
 import { authQuery } from '../query';
-import { IUserStatus } from '@bedes-common/interfaces/user-status';
+import { ICurrentUser } from '@bedes-common/models/current-user';
 import { UserStatus } from '@bedes-common/enums/user-status.enum';
+import { CurrentUser } from '../../../../bedes-common/models/current-user/current-user';
 const logger = createLogger(module);
 
 
 /**
  * Retrieves the the login-status of the user, if applicable
- *
- * @export
- * @param {Request} req
- * @param {Response} res
- * @returns {void}
  */
 export function status(req: Request, res: Response): void {
     try {
@@ -21,9 +17,11 @@ export function status(req: Request, res: Response): void {
         console.log(req.user);
         if (req.isAuthenticated()) {
             authQuery.getUserStatus(req.user.id)
-                .then((results: IUserStatus) => {
-                    logger.debug('checked login status...');
+                .then((results: ICurrentUser) => {
+                    logger.debug('checked login status...', req.user.email);
                     logger.debug(util.inspect(results));
+                    // Add in the current user email
+                    results._name = req.user.email;
                     res.status(200).json(results);
                 })
                 .catch((error: any) => {
@@ -35,7 +33,7 @@ export function status(req: Request, res: Response): void {
         }
         else {
             console.log('not logged in');
-            res.status(200).send(<IUserStatus>{ status: UserStatus.NotLoggedIn });
+            res.status(200).send(CurrentUser.makeDefaultUser());
         }
     }
     catch (error) {

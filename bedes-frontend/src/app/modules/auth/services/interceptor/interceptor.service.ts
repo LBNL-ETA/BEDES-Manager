@@ -26,7 +26,7 @@ export class InterceptorService implements HttpInterceptor {
                     console.log(`Request for ${req.urlWithParams} took ${elapsed} ms.`);
                     if (event.status === 401) {
                         console.log('**unauthorized**');
-                        this.authService.updateUserStatus(UserStatus.NotLoggedIn);
+                        this.authService.setUnauthorizedUser();
                     }
                 }
             }, (error: any) => {

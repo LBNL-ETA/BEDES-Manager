@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from 'src/app/modules/auth/services/auth/auth.service';
 import { UserStatus } from '@bedes-common/enums/user-status.enum';
+import { CurrentUser } from '@bedes-common/models/current-user';
 
 @Component({
     selector: 'app-navbar',
@@ -8,7 +9,7 @@ import { UserStatus } from '@bedes-common/enums/user-status.enum';
     styleUrls: ['./navbar.component.scss']
 })
 export class NavbarComponent implements OnInit {
-    public currentStatus: UserStatus = UserStatus.NotLoggedIn;
+    public currentUser: CurrentUser | undefined;
     public UserStatus = UserStatus;
 
     constructor(
@@ -16,9 +17,11 @@ export class NavbarComponent implements OnInit {
     ) { }
 
     ngOnInit() {
-        this.authService.userStatusSubject
-        .subscribe((currentStatus: UserStatus) => {
-            this.currentStatus = currentStatus;
+        // get updates on the authentication status of the user.
+        this.authService.currentUserSubject
+        .subscribe((currentUser: CurrentUser) => {
+            console.log(`${this.constructor.name}: received new user, isLoggedIn = ${currentUser.isLoggedIn()}`, currentUser);
+            this.currentUser = currentUser;
         });
     }
 

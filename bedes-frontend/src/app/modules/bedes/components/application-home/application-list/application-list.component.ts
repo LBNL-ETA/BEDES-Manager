@@ -15,6 +15,9 @@ import { TableCellTermNameComponent } from '../../bedes-term-search/bedes-search
 import { ApplicationService } from '../../../services/application/application.service';
 import { ApplicationScope } from '../../../../../../../../bedes-common/enums/application-scope.enum';
 import { TableCellNameNavComponent } from './table-cell-name-nav/table-cell-name-nav.component';
+import { AuthService } from '../../../../auth/services/auth/auth.service';
+import { UserStatus } from '../../../../../../../../bedes-common/enums/user-status.enum';
+import { CurrentUser } from '../../../../../../../../bedes-common/models/current-user/current-user';
 
 /**
  * Defines the interface for the rows of grid objects.
@@ -46,6 +49,8 @@ export class ApplicationListComponent implements OnInit {
     // errors
     public hasError = false;
     public errorMessage: string;
+    public isEditable: boolean;
+    public currentUser: CurrentUser;
 
     constructor(
         private router: Router,
@@ -53,15 +58,16 @@ export class ApplicationListComponent implements OnInit {
         private termSearchService: BedesTermSearchService,
         private termService: BedesTermService,
         private appService: ApplicationService,
-        private supportListService: SupportListService
+        private supportListService: SupportListService,
+        private authService: AuthService
     ) {}
 
     ngOnInit() {
         this.gridInitialized = false;
+        this.subscribeToUserStatus();
         this.loadApplicationList();
         this.gridSetup();
         this.setTableContext();
-
     }
 
     ngOnDestroy() {
@@ -70,6 +76,19 @@ export class ApplicationListComponent implements OnInit {
         this.ngUnsubscribe.complete();
     }
 
+    /**
+     * Subscribe to the user status Observable to get keep the user status up to date.
+     *
+     */
+    private subscribeToUserStatus(): void {
+        this.authService.currentUserSubject
+            .pipe(takeUntil(this.ngUnsubscribe))
+            .subscribe((currentUser: CurrentUser) => {
+                console.log(`${this.constructor.name}: received user status`, currentUser);
+                this.currentUser = currentUser;
+                this.isEditable = currentUser.isLoggedIn();
+            });
+    }
     /**
      * Subscribe to the application list observable.
      * Set's the initial list, and will update the list

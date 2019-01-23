@@ -23,7 +23,7 @@ export async function sendVerificationCode(user: IUserProfile): Promise<boolean>
                 then enter the validation code below when requested.
             </p>
             <p>
-                <a href="${host}/login/verify;verificationCode=${verificationCode}">Click here to verify</a>
+                <a href="${host}/home/verify/${verificationCode}">Click here to verify</a>
             </p>
             <p>
                 Verification code: ${verificationCode}

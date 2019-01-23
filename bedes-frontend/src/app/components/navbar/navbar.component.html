@@ -25,27 +25,33 @@
         </span>
         <span style="flex:1;"></span>
         <!-- <span style="padding-right:15px;">currentStatus = {{currentStatus}} === {{UserStatus.IsLoggedIn}}</span> -->
-        <span *ngIf="currentStatus === UserStatus.NotLoggedIn">
+        <span *ngIf="currentUser.isGuest()">
             <!-- <button mat-button (click)="logout()">Login</button> -->
             <a mat-button [routerLink]="['/home']" routerLinkActive="active">
                 <fa-icon [icon]="['fas', 'sign-in-alt']" size="lg"></fa-icon>
+                Guest
             </a>
         </span>
 
-        <span *ngIf="currentStatus === UserStatus.NeedsVerify || currentStatus === UserStatus.IsLoggedIn">
+        <span *ngIf="currentUser.needsVerify()">
+            <fa-icon [icon]="['fas', 'exclamationTriangle']" size="lg"></fa-icon>
+            Verify Account
+        </span>
+        <span *ngIf="currentUser.isLoggedIn()">
             <!-- <button mat-button (click)="logout()">Logout</button> -->
-            <button mat-icon-button [matMenuTriggerFor]="menu">
-                <fa-icon [icon]="['fas', 'user-plus']" size="lg" *ngIf="currentStatus === UserStatus.NeedsVerify"></fa-icon>
-                <fa-icon [icon]="['fas', 'shield-check']" size="lg" *ngIf="currentStatus === UserStatus.IsLoggedIn"></fa-icon>
+            <button mat-button [matMenuTriggerFor]="menu">
+                <!-- <fa-icon [icon]="['fas', 'user-plus']" size="lg"
+                *ngIf="currentUser.needsVerify()">
+                </fa-icon> -->
+                <fa-icon [icon]="['fas', 'shield-alt']" size="lg">
+                </fa-icon>
+                {{currentUser.name}}
             </button>
             <mat-menu #menu="matMenu">
                 <button mat-menu-item (click)="logout()">
-                    <!-- <mat-icon>dialpad</mat-icon> -->
+                    <fa-icon [icon]="['fas', 'sign-out-alt']">
+                    </fa-icon>
                     <span>Logout</span>
-                </button>
-                <button mat-menu-item>
-                    <!-- <mat-icon>notifications_off</mat-icon> -->
-                    <span>Disable alerts</span>
                 </button>
             </mat-menu>
         </span>

@@ -22,10 +22,10 @@ export class AuthGuardService implements CanActivate {
         else if (this.authService.needsVerify()) {
             console.log(`${ this.constructor.name }: user needs activation`);
             console.log(url);
-            if (!url.match(/^\/login\/verify/)) {
+            if (!url.match(/^\/home\/verify/)) {
                 console.log('redirect...', url);
                 this.authService.redirectUrl = url;
-                this.router.navigate(['/login/verify']);
+                this.router.navigate(['/home/verify']);
                 return false;
             }
             else {
@@ -36,7 +36,7 @@ export class AuthGuardService implements CanActivate {
         else {
             console.warn(`${ this.constructor.name }: user not logged in, redirecting`);
             this.authService.redirectUrl = url;
-            this.router.navigate(['/login']);
+            this.router.navigate(['/home']);
             return false;
         }
     }

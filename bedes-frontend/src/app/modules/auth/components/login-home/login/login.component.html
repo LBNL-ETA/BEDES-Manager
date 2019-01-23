@@ -1,51 +1,6 @@
-<mat-card class="bedes-card mat-typography" style="flex:1; padding:0">
-    <mat-card-header class="color-accent">
-        <mat-card-title>
-            <h2 class="mat-h2">
-                <fa-icon [icon]="['fas', 'sign-in-alt']"></fa-icon>
-                Login
-            </h2>
-        </mat-card-title>
-    </mat-card-header>
-    <mat-card-content style="padding:1rem; flex:1">
-        <form novalidate #myForm="ngForm">
-            <div style="display:flex">
-                <mat-form-field style="flex:1; padding: 7px" appearance="outline">
-                    <mat-label>Email</mat-label>
-                    <input matInput placeholder="Email" type="text" name="emailInput" #emailInput="ngModel" required
-                        [(ngModel)]="userLogin.email">
-                </mat-form-field>
-            </div>
-            <div style="display:flex">
-                <mat-form-field style="flex:1; padding: 7px" appearance="outline">
-                    <mat-label>Password</mat-label>
-                    <input matInput placeholder="Password" type="password" name="passwordInput" #passwordInput="ngModel"
-                        required [(ngModel)]="userLogin.password">
-                </mat-form-field>
-            </div>
-            <div class="error-container" *ngIf="loginErrorMessage">
-                <i class="far fa-exclamation-triangle"></i>
-                {{ loginErrorMessage }}
-            </div>
-            <div id="loginSuccessMessage" class="success-container" *ngIf="loginSuccess">
-                <i class="far fa-check"></i>
-                Login successfull!
-            </div>
-            <div style="flex: 1; display: flex; margin-top: 10px;">
-                <button style="flex: 1;" mat-stroked-button id="loginBtn" color="primary" [disabled]="myForm.invalid"
-                    (click)="login()">
-                    <i class="far fa-sign-in"></i>
-                    Submit
-                </button>
-            </div>
-        </form>
-        <mat-card-actions style="display:flex; padding-left:16px; padding-right: 16px;">
-            <button mat-stroked-button color="primary" style="flex: 1;" (click)="forgotPassword()">
-                Forgot Password?
-            </button>
-            <button mat-stroked-button color="primary" style="flex:1;" [routerLink]="['request-account']">
-                Request an Account
-            </button>
-        </mat-card-actions>
-    </mat-card-content>
-</mat-card>
+<div *ngIf="!isLoggedIn()">
+    <app-not-logged-in></app-not-logged-in>
+</div>
+<div *ngIf="isLoggedIn()">
+    <app-is-logged-in></app-is-logged-in>
+</div>

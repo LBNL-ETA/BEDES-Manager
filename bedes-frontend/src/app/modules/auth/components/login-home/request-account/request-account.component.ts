@@ -3,7 +3,6 @@ import { FormBuilder, Validators } from '@angular/forms';
 import { NewAccount } from '../../../models/auth/new-account';
 import { AuthService } from '../../../services/auth/auth.service';
 import { HttpErrorResponse } from '@angular/common/http';
-import { IUserStatus } from '@bedes-common/interfaces/user-status';
 
 @Component({
     selector: 'app-request-account',
@@ -11,6 +10,8 @@ import { IUserStatus } from '@bedes-common/interfaces/user-status';
     styleUrls: ['./request-account.component.scss']
 })
 export class RequestAccountComponent implements OnInit {
+    //
+    public requestSuccess = false;
     // error indicators
     public hasError = false;
     public errorMessage = '';
@@ -33,6 +34,9 @@ export class RequestAccountComponent implements OnInit {
     ngOnInit() {
     }
 
+    /**
+     * Submit the request for creating a new account.
+     */
     public submitForm(): void {
         const account = new NewAccount({
             firstName: this.requestForm.get('firstName').value,
@@ -43,16 +47,17 @@ export class RequestAccountComponent implements OnInit {
             passwordConfirm: this.requestForm.get('passwordConfirm').value
         });
         console.log('create account', account);
+        this.resetErrorIndicators();
 
         this.authService.requestAccount(account).subscribe(
-            (results: IUserStatus) => {
+            (results: any) => {
                 console.log(`${this.constructor.name}: results`, results);
+                this.requestSuccess = true;
+                this.requestForm.disable();
             },
             (error: HttpErrorResponse) => {
                 console.log(`${this.constructor.name}: Error creating new account`);
                 console.log(error);
-                this.errorMessage = "I have an error";
-                this.hasError = true;
                 if (error.status === 400 && error.error) {
                     this.errorMessage = String(error.error);
                 }
@@ -61,6 +66,12 @@ export class RequestAccountComponent implements OnInit {
                 }
             }
         );
+    }
+
+    private resetErrorIndicators(): void {
+        this.requestSuccess = false;
+        this.hasError = false;
+        this.errorMessage = '';
     }
 
 }

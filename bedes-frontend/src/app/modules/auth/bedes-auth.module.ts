@@ -18,6 +18,8 @@ import { RequestAccountComponent } from './components/login-home/request-account
 import { LoginHomeComponent } from './components/login-home/login-home.component';
 import { VerificationComponent } from './components/login-home/verification/verification.component';
 import { InterceptorService } from './services/interceptor/interceptor.service';
+import { IsLoggedInComponent } from './components/login-home/is-logged-in/is-logged-in.component';
+import { NotLoggedInComponent } from './components/login-home/not-logged-in/not-logged-in.component';
 
 @NgModule({
     imports: [
@@ -35,7 +37,9 @@ import { InterceptorService } from './services/interceptor/interceptor.service';
         LoginComponent,
         RequestAccountComponent,
         LoginHomeComponent,
-        VerificationComponent
+        VerificationComponent,
+        IsLoggedInComponent,
+        NotLoggedInComponent
     ],
     providers: [
         AuthService,
