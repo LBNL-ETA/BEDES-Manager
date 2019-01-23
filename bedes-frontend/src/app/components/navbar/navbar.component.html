@@ -27,10 +27,30 @@
         <!-- <span style="padding-right:15px;">currentStatus = {{currentStatus}} === {{UserStatus.IsLoggedIn}}</span> -->
         <span *ngIf="currentUser.isGuest()">
             <!-- <button mat-button (click)="logout()">Login</button> -->
-            <a mat-button [routerLink]="['/home']" routerLinkActive="active">
+            <!-- <a mat-button [routerLink]="['/home']" routerLinkActive="active">
                 <fa-icon [icon]="['fas', 'sign-in-alt']" size="lg"></fa-icon>
                 Guest
-            </a>
+            </a> -->
+            <!-- <a mat-button [routerLink]="['/home']" routerLinkActive="active">
+                <fa-icon [icon]="['fas', 'sign-in-alt']" size="lg"></fa-icon>
+            </a> -->
+            <button mat-button [matMenuTriggerFor]="menu">
+                <fa-icon [icon]="['fas', 'sign-in-alt']" size="lg">
+                </fa-icon>
+                Guest
+                <!-- <fa-icon [icon]="['fas', 'angle-down']" size="lg">
+                </fa-icon> -->
+            </button>
+            <mat-menu #menu="matMenu">
+                <a mat-menu-item [routerLink]="['/home']">
+                    <!-- <fa-icon [icon]="['fas', 'sign-in-alt']" size="lg"></fa-icon> -->
+                    <span>Login</span>
+                </a>
+                <a mat-menu-item [routerLink]="['/home/request-account']">
+                    <!-- <fa-icon [icon]="['fas', 'sign-in-alt']" size="lg"></fa-icon> -->
+                    <span>New Account</span>
+                </a>
+            </mat-menu>
         </span>
 
         <span *ngIf="currentUser.needsVerify()">

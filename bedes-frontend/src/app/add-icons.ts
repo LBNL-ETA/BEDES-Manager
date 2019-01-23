@@ -15,6 +15,7 @@ import {
     faCaretDown,
     faBars,
     faAngleRight,
+    faAngleDown,
     faPlusCircle,
     faTrash,
     faEllipsisV,
@@ -57,6 +58,7 @@ export function addIcons (): void {
     // library.add(faLightbulbDollar);
     // library.add(faCalculatorAlt);
     library.add(faCaretDown);
+    library.add(faAngleDown);
     library.add(faBars);
     library.add(faAngleRight);
     library.add(faPlusCircle);

@@ -50,6 +50,7 @@ export class ApplicationListComponent implements OnInit {
     public hasError = false;
     public errorMessage: string;
     public isEditable: boolean;
+    /* The current user */
     public currentUser: CurrentUser;
 
     constructor(

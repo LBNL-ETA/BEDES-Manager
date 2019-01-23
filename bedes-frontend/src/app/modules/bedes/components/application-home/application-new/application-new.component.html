@@ -11,6 +11,11 @@
         <mat-card-content style="padding: 10px;">
             <div style="max-width: 700px; margin: 0 auto 0 auto;">
                 <div style="display:flex;">
+                    <a mat-stroked-button [routerLink]="['../']"
+                    [disabled]="currentControlState === ControlState.Disabled">
+                        <fa-icon [icon]="['fas', 'chevron-circle-left']"></fa-icon>
+                        Back
+                    </a>
                     <button mat-stroked-button color="primary"
                     [disabled]="dataForm.invalid || currentControlState !== ControlState.Normal"
                     (click)="createNewApplication()"
@@ -18,11 +23,6 @@
                         <fa-icon [icon]="['fas', 'save']"></fa-icon>
                         Create new Application
                     </button>
-                    <a mat-stroked-button color="primary" [routerLink]="['../']"
-                    [disabled]="currentControlState === ControlState.Disabled">
-                        <fa-icon [icon]="['fas', 'chevron-circle-left']"></fa-icon>
-                        Back
-                    </a>
                 </div>
 
                 <!-- Messages -->
