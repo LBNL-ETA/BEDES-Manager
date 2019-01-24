@@ -71,6 +71,7 @@ import { DisplayListOptionsComponent } from './components/app-term/app-term-edit
 import { CompositeTermListComponent } from './components/term-builder-home/composite-term-list/composite-term-list.component';
 import { compositeTermFactory } from './services/composite-term/composite-term-factory.service';
 import { CompositeTermService } from './services/composite-term/composite-term.service';
+import { SelectedTermsOrderComponent } from './components/term-builder-home/selected-terms-order/selected-terms-order.component';
 
 @NgModule({
     imports: [
@@ -137,6 +138,7 @@ import { CompositeTermService } from './services/composite-term/composite-term.s
         EditListOptionComponent,
         DisplayListOptionsComponent,
         CompositeTermListComponent,
+        SelectedTermsOrderComponent,
     ],
     entryComponents: [
         BedesTermSearchDialogComponent,

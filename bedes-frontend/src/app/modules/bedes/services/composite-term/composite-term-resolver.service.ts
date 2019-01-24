@@ -23,16 +23,39 @@ export class CompositeTermResolverService {
      * a specific CompositeTerm.
      */
     resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<BedesCompositeTerm> {
-        const newId: number = Number(route.paramMap.get('id'));
+        // const newId: number = Number(route.paramMap.get('id'));
+        const routeId: string | null = route.paramMap.get('id');
+        // if (routeId == null) {
+        //     return of(new BedesCompositeTerm())
+        // }
+        const newId = Number(routeId);
         // check the current selected term for a matching id
         // don't make the http request if we already have the term selected
         const selectedItem = this.compositeTermService.selectedTerm;
-        if (selectedItem && selectedItem.id === newId) {
+        if (selectedItem && newId  && selectedItem.id === newId) {
             return of(selectedItem);
         }
+        else if (newId) {
+            // this is an actual number
+
+            // this.compositeTermService.setActiveCompositeTermById(+newId);
+            // return of(this.compositeTermService.selectedTerm);
+
+            this.compositeTermService.getTerm(newId)
+            .subscribe((compositeTerm: BedesCompositeTerm) => {
+                // set the active composite term
+                this.compositeTermService.setActiveCompositeTerm(compositeTerm);
+                return of(compositeTerm);
+            });
+        }
+        else if (state.url.match(/\/term-builder\/edit\/?$/)) {
+            // create a new CompositeTerm
+            const newTerm = this.compositeTermService.activateNewCompositeTerm();
+            return of(newTerm);
+        }
         else {
-            this.compositeTermService.setActiveCompositeTermById(+newId);
-            return of(this.compositeTermService.selectedTerm);
+            this.compositeTermService.setActiveCompositeTerm(undefined);
+            return of(undefined);
         }
     }
 

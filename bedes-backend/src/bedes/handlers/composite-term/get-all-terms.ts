@@ -4,6 +4,7 @@ import { createLogger } from '@bedes-backend/logging';
 import { HttpStatusCodes } from '@bedes-common/enums/http-status-codes';
 import { BedesError } from '@bedes-common/bedes-error';
 import { bedesQuery } from '../../query';
+import { IBedesCompositeTermShort } from '@bedes-common/models/bedes-composite-term-short/bedes-composite-term-short.interface';
 const logger = createLogger(module);
 
 /**
@@ -11,7 +12,7 @@ const logger = createLogger(module);
  */
 export async function compositeTermGetAllHandler(request: Request, response: Response): Promise<any> {
     try {
-        let results = await bedesQuery.compositeTerm.getAllTerms();
+        let results: Array<IBedesCompositeTermShort> = await bedesQuery.compositeTerm.getAllTerms();
         logger.debug('compositeTermHandler resuts');
         logger.debug(util.inspect(results));
         response.json(results)

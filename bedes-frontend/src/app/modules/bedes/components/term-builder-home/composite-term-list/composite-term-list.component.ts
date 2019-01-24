@@ -1,16 +1,18 @@
 import { Component, OnInit } from '@angular/core';
+import { Router, ActivatedRoute } from '@angular/router';
 import { takeUntil } from 'rxjs/operators';
 import { Subject } from 'rxjs';
 import { GridOptions, SelectionChangedEvent, ColDef } from 'ag-grid-community';
 import { BedesCompositeTerm } from '@bedes-common/models/bedes-composite-term';
 import { CompositeTermService } from '../../../services/composite-term/composite-term.service';
 import { AuthService } from '../../../../auth/services/auth/auth.service';
-import { CurrentUser } from '../../../../../../../../bedes-common/models/current-user/current-user';
+import { CurrentUser } from '@bedes-common/models/current-user/current-user';
+import { BedesCompositeTermShort } from '@bedes-common/models/bedes-composite-term-short/bedes-composite-term-short';
 
 interface IGridRow {
     name: string;
     scope: string;
-    ref: BedesCompositeTerm;
+    ref: BedesCompositeTermShort;
 }
 
 @Component({
@@ -20,7 +22,7 @@ interface IGridRow {
 })
 export class CompositeTermListComponent implements OnInit {
     /* Array that holds the list of CompositeTerms */
-    public termList: Array<BedesCompositeTerm>;
+    public termList: Array<BedesCompositeTermShort>;
     private ngUnsubscribe: Subject<void> = new Subject<void>();
     // ag-grid
     public gridOptions: GridOptions;
@@ -38,6 +40,8 @@ export class CompositeTermListComponent implements OnInit {
     public isEditable = false;
 
     constructor(
+        private router: Router,
+        private route: ActivatedRoute,
         private compositeTermService: CompositeTermService,
         private authService: AuthService
     ) { }
@@ -46,6 +50,7 @@ export class CompositeTermListComponent implements OnInit {
         this.subscribeToUserStatus();
         this.subscribeToTermList();
         this.gridSetup();
+        this.setTableContext();
     }
 
     /**
@@ -53,7 +58,7 @@ export class CompositeTermListComponent implements OnInit {
      */
     private subscribeToTermList(): void {
         this.compositeTermService.termListSubject.subscribe(
-            (termList: Array<BedesCompositeTerm>) => {
+            (termList: Array<BedesCompositeTermShort>) => {
                 this.termList = termList;
                 this.gridDataNeedsSet = true;
                 this.setGridData();
@@ -128,7 +133,7 @@ export class CompositeTermListComponent implements OnInit {
     private setGridData() {
         if (this.gridInitialized && this.gridDataNeedsSet) {
             const gridData = new Array<IGridRow>();
-            this.termList.forEach((item: BedesCompositeTerm) => {
+            this.termList.forEach((item: BedesCompositeTermShort) => {
                 gridData.push(<IGridRow>{
                     name: item.name,
                     ref: item
@@ -148,6 +153,14 @@ export class CompositeTermListComponent implements OnInit {
         this.tableContext = {
             parent: this
         };
+    }
+
+    /**
+     * View the selected CompositeTerm, which is set from the grid configuration.
+     */
+    public viewSelectedItem(): void {
+        // navigate to the route
+        this.router.navigate(['../edit', this.selectedItem.ref.id], { relativeTo: this.route});
     }
 
 }

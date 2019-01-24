@@ -4,6 +4,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, BehaviorSubject } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { BedesCompositeTerm, IBedesCompositeTerm } from '@bedes-common/models/bedes-composite-term';
+import { BedesCompositeTermShort, IBedesCompositeTermShort } from '@bedes-common/models/bedes-composite-term-short';
 
 @Injectable({
     providedIn: 'root'
@@ -27,10 +28,10 @@ export class CompositeTermService {
     }
     // list of terms
     /* Array that holds the list of composite terms */
-    private termList: Array<BedesCompositeTerm>;
+    private termList: Array<BedesCompositeTermShort>;
     /* BehaviorSubject that emits the current list of composite terms */
-    private _termListSubject = new BehaviorSubject<Array<BedesCompositeTerm>>([]);
-    public get termListSubject(): BehaviorSubject<Array<BedesCompositeTerm>> {
+    private _termListSubject = new BehaviorSubject<Array<BedesCompositeTermShort>>([]);
+    public get termListSubject(): BehaviorSubject<Array<BedesCompositeTermShort>> {
         return this._termListSubject;
     }
 
@@ -43,14 +44,14 @@ export class CompositeTermService {
     }
 
     /**
-     * Load the list of composite terms during initialization.
+     * Load the list of composite terms (short) during initialization.
      */
     public load(): Promise<boolean> {
         try {
             console.log(`${this.constructor.name}: retrieving composite term list...`)
             return new Promise((resolve, reject) => {
                 this.getAll().subscribe(
-                    (terms: Array<BedesCompositeTerm>) => {
+                    (terms: Array<BedesCompositeTermShort>) => {
                         console.log(`${this.constructor.name}: received composite term list`, terms);
                         this.termList = terms;
                         this.termListSubject.next(this.termList);
@@ -73,14 +74,14 @@ export class CompositeTermService {
     /**
      * Get all of the BEDES composite terms from the API.
      */
-    public getAll(): Observable<Array<BedesCompositeTerm>> {
-        return this.http.get<Array<IBedesCompositeTerm>>(this.urlNew, { withCredentials: true })
-            .pipe(map((results: Array<IBedesCompositeTerm>) => {
+    public getAll(): Observable<Array<BedesCompositeTermShort>> {
+        return this.http.get<Array<IBedesCompositeTermShort>>(this.urlNew, { withCredentials: true })
+            .pipe(map((results: Array<IBedesCompositeTermShort>) => {
                 console.log(`${this.constructor.name}: received results`, results);
                 if (!Array.isArray(results)) {
                     throw new Error(`${this.constructor.name}: getAll expected to receive an array of composite terms`);
                 }
-                return results.map((d) => new BedesCompositeTerm(d));
+                return results.map((d) => new BedesCompositeTermShort(d));
             }));
     }
 
@@ -153,6 +154,18 @@ export class CompositeTermService {
     }
 
     /**
+     * Create a new CompositeTerm object and set it as the active term.
+     *
+     * @returns The new BedesCompositeTerm object that was just created and activated.
+     */
+    public activateNewCompositeTerm(): BedesCompositeTerm {
+        // pass a new object to the existing method
+        const newTerm = new BedesCompositeTerm();
+        this.setActiveCompositeTerm(newTerm);
+        return newTerm;
+    }
+
+    /**
      * Set's the active composite term to the term with a matching id.
      */
     public setActiveCompositeTermById(id: number): void {
@@ -161,7 +174,7 @@ export class CompositeTermService {
         }
         const found = this.termList.find((d) => d.id === id)
         if (found) {
-            this.setActiveCompositeTerm(found);
+            // this.setActiveCompositeTerm(found);
         }
         else {
             throw new Error(`Invalid BedesCompositeTerm.id ${id}`);
