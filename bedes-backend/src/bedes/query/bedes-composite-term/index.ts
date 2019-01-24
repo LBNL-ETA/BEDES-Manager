@@ -7,24 +7,23 @@ const logger = createLogger(module);
 import * as util from 'util';
 import { IBedesCompositeTerm, ICompositeTermDetail } from '@bedes-common/models/bedes-composite-term';
 import { bedesQuery } from '@bedes-backend/bedes/query';
+import { IBedesCompositeTermShort } from '../../../../../bedes-common/models/bedes-composite-term-short/bedes-composite-term-short.interface';
 
 export class BedesCompositeTermQuery {
-    private sqlGetBySignature!: QueryFile;
-    private sqlGetById!: QueryFile;
-    private sqlGetAllTerms!: QueryFile;
-    private sqlInsert!: QueryFile;
-    private sqlGetCompositeTermComplete!: QueryFile;
+    private sqlGetBySignature: QueryFile;
+    private sqlGetById: QueryFile;
+    private sqlGetAllTerms: QueryFile;
+    private sqlInsert: QueryFile;
+    private sqlGetCompositeTermComplete: QueryFile;
+    private sqlDelete: QueryFile;
 
     constructor() { 
-        this.initSql();
-    }
-
-    private initSql(): void {
         this.sqlGetBySignature = sql_loader(path.join(__dirname, 'get.sql'));
         this.sqlGetById = sql_loader(path.join(__dirname, 'get-by-id.sql'));
         this.sqlGetAllTerms = sql_loader(path.join(__dirname, 'get-all-terms.sql'));
         this.sqlGetCompositeTermComplete = sql_loader(path.join(__dirname, 'get-composite-term-complete.sql'));
         this.sqlInsert = sql_loader(path.join(__dirname, 'insert.sql'))
+        this.sqlDelete = sql_loader(path.join(__dirname, 'delete.sql'))
     }
 
     /**
@@ -146,7 +145,7 @@ export class BedesCompositeTermQuery {
      * 
      * @returns Returns an array of all the composite terms.
      */
-    public getAllTerms( transaction?: any): Promise<Array<IBedesCompositeTerm>> {
+    public getAllTerms( transaction?: any): Promise<Array<IBedesCompositeTermShort>> {
         try {
             if (transaction) {
                 return transaction.manyOrNone(this.sqlGetAllTerms);
@@ -183,6 +182,31 @@ export class BedesCompositeTermQuery {
             }
         } catch (error) {
             logger.error(`${this.constructor.name}: Error in getRecordComplete`);
+            logger.error(util.inspect(error));
+            throw error;
+        }
+    }
+
+    /**
+     * Delete a complete composite term.
+     */
+    public async deleteRecord(id: number, transaction?: any): Promise<number> {
+        try {
+            if (!id) {
+                logger.error(`${this.constructor.name}: deleteRecord expected an id, none found.`);
+                throw new Error('Missing required parameters.');
+            }
+            const params = {
+                _id: id
+            };
+            if (transaction) {
+                return transaction.result(this.sqlDelete, params, (r: any) => r.rowCount);
+            }
+            else {
+                return db.result(this.sqlDelete, params, (r: any) => r.rowCount);
+            }
+        } catch (error) {
+            logger.error(`${this.constructor.name}: Error in deleteRecord`);
             logger.error(util.inspect(error));
             throw error;
         }

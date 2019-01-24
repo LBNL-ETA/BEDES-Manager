@@ -27,6 +27,7 @@ function mountRoutes(router: Router) {
     router.get('/composite-term/:id', handlers.compositeTerm.get);
     router.get('/composite-term', handlers.compositeTerm.getAll);
     router.post('/composite-term', handlers.compositeTerm.post);
+    router.delete('/composite-term/:id', handlers.compositeTerm.delete);
     // BedesTermOption
     router.post('/bedes-term-list-option', handlers.bedesTermListOption.newListOptionHandler);
     router.put('/bedes-term-list-option/:id', handlers.bedesTermListOption.updateListOptionHandler);

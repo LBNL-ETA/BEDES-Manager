@@ -2,9 +2,11 @@ import { compositeTermPostHandler } from './post-handler';
 import { compositeTermGetHandler } from './get-handler';
 import { compositeTermGetCompleteHandler } from './get-complete-handler';
 import { compositeTermGetAllHandler } from './get-all-terms';
+import { deleteCompositeTermHandler } from './delete-handler';
 
 export {
     compositeTermPostHandler as post,
     compositeTermGetCompleteHandler as get,
-    compositeTermGetAllHandler as getAll
+    compositeTermGetAllHandler as getAll,
+    deleteCompositeTermHandler as delete
 }
