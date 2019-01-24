@@ -13,6 +13,7 @@ import { ISearchOptions } from '@bedes-common/models/search-options/search-optio
 import { ISearchOptionSection } from '@bedes-common/models/search-options/search-option-section.interface';
 import { SearchQueryBuilder } from '../../models/search-query-builder/search-query-builder';
 import { QueryBuilderOutput } from '../../models/search-query-builder/query-builder-output/query-builder.output';
+import { SearchOptions } from '../../../../../bedes-common/models/search-options/search-options';
 
 export class BedesTermSearchQuery {
     private sqlSearchBedesConstrainedList!: QueryFile;
@@ -37,42 +38,42 @@ export class BedesTermSearchQuery {
                 logger.error(`${this.constructor.name}: search strings`);
                 throw new Error('Missing required parameters.');
             }
-            searchOptions = <ISearchOptions>{
-                bedesTerm: {
-                    disabled: false,
-                    nameDisabled: false,
-                    descriptionDisabled: true
+            // TODO: ignore params
+            let searchOptions = new SearchOptions(<ISearchOptions>{
+                _bedesTerm: {
+                    _disabled: false,
+                    _nameDisabled: false,
+                    _descriptionDisabled: true
                 },
-                termListOption: {
-                    disabled: true,
-                    nameDisabled: false,
-                    descriptionDisabled: true
+                _bedesTermListOption: {
+                    _disabled: false,
+                    _nameDisabled: false,
+                    _descriptionDisabled: true
                 },
-                compositeTerm: {
-                    disabled: false,
-                    nameDisabled: true,
-                    descriptionDisabled:true 
+                _compositeTerm: {
+                    _disabled: false,
+                    _nameDisabled: false,
+                    _descriptionDisabled: true 
                 }
-            }
+            });
             // instantiate the sql query condition builder
             const builder = new SearchQueryBuilder(searchOptions);
             // only use the first search string
             // TODO: allow more search strings?
             const builderOutput = builder.run(searchStrings[0]);
+            console.log(builderOutput);
             // create the promise array
             let promises = new Array<Promise<Array<IBedesSearchResult>>>();
-            if (this.shouldSearchBedesTerms(searchOptions)) {
+            if (searchOptions.bedesTerm.isEnabled()) {
                 promises.push(this.searchBedesTerms(searchStrings, builderOutput, transaction))
             }
-            if (this.shouldSearchListTermOption(searchOptions)) {
-                promises.push(this.searchListTermOption(searchStrings, searchOptions, transaction));
+            if (searchOptions.bedesTermListOption.isEnabled()) {
+                promises.push(this.searchListTermOption(searchStrings, builderOutput, transaction));
             }
-            if (this.shouldSearchCompositeTerms(searchOptions)) {
-                promises.push(this.searchCompositeTerms(searchStrings, searchOptions, transaction));
+            if (searchOptions.compositeTerm.isEnabled()) {
+                promises.push(this.searchCompositeTerms(searchStrings, builderOutput, transaction));
             }
             let results = await Promise.all(promises);
-            console.log('results');
-            console.log(results);
             // transform the results from an array of array of IBedesSearchResult objects,
             // into just an array of IBedesSearchResult objects.
             // ie flatten the resulting array of arrays.
@@ -316,13 +317,13 @@ export class BedesTermSearchQuery {
     /**
      * Search list term options.
      */
-    public searchListTermOption(searchStrings: Array<string>, searchOptions?: ISearchOptions, transaction?: any): Promise<Array<IBedesSearchResult>> {
+    public searchListTermOption(searchStrings: Array<string>, builderOutput: QueryBuilderOutput, transaction?: any): Promise<Array<IBedesSearchResult>> {
         try {
             if (!searchStrings || !(searchStrings instanceof Array) || !searchStrings.length) {
                 logger.error(`${this.constructor.name}: searchListTermOption`);
                 throw new Error('Missing required parameters.');
             }
-            const [query, params] = this.buildListTermOptionQuery(searchStrings, searchOptions);
+            const [query, params] = this.buildListTermOptionQuery(searchStrings, builderOutput);
             if (transaction) {
                 return transaction.manyOrNone(query, params);
             }
@@ -340,71 +341,7 @@ export class BedesTermSearchQuery {
         }
     }
 
-    private buildListTermOptionQuery(searchTerms: Array<string>, searchOptions?: ISearchOptions): [string, any] {
-        let searchNumber = 1;
-        let sqlSearchList = new Array<string>();
-        const queryParams:any = {};
-        // for (let searchTerm of searchTerms) {
-        //     const key = `_searchNum${searchNumber++}`;
-        //     sqlSearchList.push(`(t.name ~* \${${key}} or t.description  ~* \${${key}})`);
-        //     queryParams[key] = searchTerm;
-        // }
-        // extract the search options, if they exist;
-        const options = searchOptions && searchOptions._bedesTermListOption
-            ? searchOptions._bedesTermListOption
-            : <ISearchOptionSection>{};
-        console.log('term list option search options', options);
-        if (options._disabled || (options._nameDisabled === false && options._descriptionDisabled === false)) {
-            logger.error('Invalid query parameters for BedesTermOption query');
-            console.log(searchOptions);
-            throw new Error('Invalid query parameters for BedesTermOption');
-        }
-
-        for (let searchTerm of searchTerms) {
-            const key = `_searchNum${searchNumber++}`;
-            const columns: Array<String> = [];
-            if (!searchOptions || options._nameDisabled) {
-                columns.push(`t.name ~* \${${key}}`)
-            }
-            if (!searchOptions || options._descriptionDisabled) {
-                columns.push(`t.description ~* \${${key}}`)
-            }
-            sqlSearchList.push(`(${columns.join(' or ')})`);
-            queryParams[key] = searchTerm;
-        }
-        // const query = `
-        //     select
-        //         id as "_id",
-        //         name as "_name",
-        //         description as "_description",
-        //         term_category_id as "_termCategoryId",
-        //         data_type_id as "_dataTypeId",
-        //         definition_source_id as "_definitionSourceId",
-        //         unit_id as "_unitId",
-        //         bt.uuid as "_uuid",
-        //         bt.url as "_url",
-        //         s.sectors as "_sectors"
-        //     from
-        //         public.bedes_term as bt
-        //     left outer join
-        //         (
-        //             select
-        //                 term_id,
-        //                 json_agg(json_build_object(
-        //                     '_id', id,
-        //                     '_sectorId', sector_id
-        //                 )) as sectors
-        //             from
-        //                 bedes_term_sector_link s
-        //             group by
-        //                 term_id
-        //         ) as s on s.term_id = bt.id
-        //     where
-        //         bt.data_type_id != 1
-        //     and
-        //         ${sqlSearchList.join(' and ')}
-        //     ;
-        // `
+    private buildListTermOptionQuery(searchTerms: Array<string>, builderOutput: QueryBuilderOutput): [string, any] {
         const query = `
             select
                 t.id as "_id",
@@ -420,12 +357,12 @@ export class BedesTermSearchQuery {
             join
                 bedes_term b on b.id = t.term_id
             where
-                ${sqlSearchList.join(' and ')}
+                ${builderOutput.bedesTermListOption.getSqlConditions()}
         `;
         logger.debug(query);
-        console.log(queryParams);
-        return [query, queryParams];
+        return [query, builderOutput.bedesTermListOption.buildSqlVariableObject()];
     }
+    
 
     // private buildConstrainedListSearchQuery(searchTerms: Array<string>): [string, any] {
     //     let searchNumber = 1;
@@ -537,13 +474,13 @@ export class BedesTermSearchQuery {
 
     }
 
-    public searchCompositeTerms(searchStrings: Array<string>, searchOptions?: ISearchOptions, transaction?: any): Promise<Array<IBedesSearchResult>> {
+    public searchCompositeTerms(searchStrings: Array<string>, builderOutput: QueryBuilderOutput, transaction?: any): Promise<Array<IBedesSearchResult>> {
         try {
             if (!searchStrings || !(searchStrings instanceof Array) || !searchStrings.length) {
                 logger.error(`${this.constructor.name}: search strings`);
                 throw new Error('Missing required parameters.');
             }
-            const [query, params] = this.buildBedesCompositeTermQuery(searchStrings, searchOptions);
+            const [query, params] = this.buildBedesCompositeTermQuery(searchStrings, builderOutput);
             if (transaction) {
                 return transaction.manyOrNone(query, params);
             }
@@ -561,34 +498,8 @@ export class BedesTermSearchQuery {
         }
     }
 
-    private buildBedesCompositeTermQuery(searchTerms: Array<string>, searchOptions?: ISearchOptions): [string, any] {
-        let searchNumber = 1;
-        let sqlSearchList = new Array<string>();
-        const queryParams:any = {};
-        // extract the search options, if they exist;
-        const options = searchOptions && searchOptions._compositeTerm
-            ? searchOptions._compositeTerm
-            : <ISearchOptionSection>{};
-        console.log('bedes composite term search options', options);
-        if (options._disabled || (options._nameDisabled === false && options._descriptionDisabled === false)) {
-            logger.error('Invalid query parameters for BedesCompositeTerm');
-            console.log(searchOptions);
-            throw new Error('Invalid query parameters for BedesCompositeTerm');
-        }
-
-        for (let searchTerm of searchTerms) {
-            const key = `_searchNum${searchNumber++}`;
-            const columns: Array<String> = [];
-            if (!searchOptions || options._nameDisabled) {
-                columns.push(`t.name ~* \${${key}}`)
-            }
-            if (!searchOptions || options._descriptionDisabled) {
-                columns.push(`t.description ~* \${${key}}`)
-            }
-            sqlSearchList.push(`(${columns.join(' or ')})`);
-            queryParams[key] = searchTerm;
-        }
-        const query = `
+    private buildBedesCompositeTermQuery(searchTerms: Array<string>, builderOutput: QueryBuilderOutput): [string, any] {
+       const query = `
             select
                 t.id as "_id",
                 t.name as "_name",
@@ -598,11 +509,10 @@ export class BedesTermSearchQuery {
             from
                 public.bedes_composite_term t
             where
-                ${sqlSearchList.join(' and ')}
+            ${builderOutput.compositeTerm.getSqlConditions()}
         `;
         logger.debug(query);
-        console.log(queryParams);
-        return [query, queryParams];
+        return [query, builderOutput.compositeTerm.buildSqlVariableObject()];
     }
 
 }
