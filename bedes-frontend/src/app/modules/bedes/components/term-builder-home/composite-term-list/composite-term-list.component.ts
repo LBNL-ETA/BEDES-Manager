@@ -57,7 +57,9 @@ export class CompositeTermListComponent implements OnInit {
      * Subscribe to the composite term list BehaviorSubject.
      */
     private subscribeToTermList(): void {
-        this.compositeTermService.termListSubject.subscribe(
+        this.compositeTermService.termListSubject
+        .pipe(takeUntil(this.ngUnsubscribe))
+        .subscribe(
             (termList: Array<BedesCompositeTermShort>) => {
                 this.termList = termList;
                 this.gridDataNeedsSet = true;
@@ -121,6 +123,10 @@ export class CompositeTermListComponent implements OnInit {
                 field: 'ref.description'
             },
             {
+                headerName: 'UUID',
+                field: 'ref.uuid'
+            },
+            {
                 headerName: 'Scope',
                 field: 'scopeName'
             }
@@ -133,12 +139,14 @@ export class CompositeTermListComponent implements OnInit {
     private setGridData() {
         if (this.gridInitialized && this.gridDataNeedsSet) {
             const gridData = new Array<IGridRow>();
-            this.termList.forEach((item: BedesCompositeTermShort) => {
-                gridData.push(<IGridRow>{
-                    name: item.name,
-                    ref: item
-                });
-            })
+            if (Array.isArray(this.termList)) {
+                this.termList.forEach((item: BedesCompositeTermShort) => {
+                    gridData.push(<IGridRow>{
+                        name: item.name,
+                        ref: item
+                    });
+                })
+            }
             this.gridOptions.api.setRowData(gridData);
             this.gridDataNeedsSet = false;
         }

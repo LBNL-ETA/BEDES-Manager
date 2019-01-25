@@ -43,7 +43,9 @@ import {
     faChevronCircleDown,
     faCog,
     faSignInAlt,
-    faSignOutAlt
+    faSignOutAlt,
+    faDownload,
+    faCloudDownloadAlt
 } from '@fortawesome/free-solid-svg-icons';
 
 /**
@@ -89,4 +91,6 @@ export function addIcons (): void {
     library.add(faChevronCircleUp);
     library.add(faChevronCircleDown);
     library.add(faCog);
+    library.add(faDownload);
+    library.add(faCloudDownloadAlt);
 }

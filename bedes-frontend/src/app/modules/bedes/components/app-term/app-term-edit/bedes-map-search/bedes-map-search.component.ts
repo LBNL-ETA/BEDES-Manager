@@ -1,26 +1,37 @@
-import { Component, OnInit, Inject } from '@angular/core';
+import { Component, OnInit, Inject, Output, EventEmitter } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material';
 import { GridOptions, SelectionChangedEvent, ColDef } from 'ag-grid-community';
-import { BedesTermSearchService } from '../../../services/bedes-term-search/bedes-term-search.service';
+import { BedesTermSearchService } from '../../../../services/bedes-term-search/bedes-term-search.service';
 import { BedesSearchResult } from '@bedes-common/models/bedes-search-result/bedes-search-result';
 import { BedesConstrainedList, BedesTerm } from '@bedes-common/models/bedes-term';
-import { ISearchResultRow } from '../../../models/ag-table/search-result-row.interface';
-import { SupportListService } from '../../../services/support-list/support-list.service';
-import { SupportListType } from '../../../services/support-list/support-list-type.enum';
-import { getResultTypeName } from '../../../lib/get-result-type-name';
+import { ISearchResultRow } from '../../../../models/ag-table/search-result-row.interface';
+import { SupportListService } from '../../../../services/support-list/support-list.service';
+import { SupportListType } from '../../../../services/support-list/support-list-type.enum';
+import { getResultTypeName } from '../../../../lib/get-result-type-name';
 import { SearchResultType } from '@bedes-common/models/bedes-search-result/search-result-type.enum';
-import { ISearchDialogOptions } from './search-dialog-options.interface';
+import { takeUntil } from 'rxjs/operators';
+import { AppTerm } from '../../../../../../../../../bedes-common/models/app-term/app-term';
+import { AppTermService } from '../../../../services/app-term/app-term.service';
+import { Subject } from 'rxjs';
+import { TermMappingComposite } from '../../../../../../../../../bedes-common/models/term-mapping/term-mapping-composite';
+import { ITermMappingComposite } from '../../../../../../../../../bedes-common/models/term-mapping/term-mapping-composite.interface';
+import { BedesTermService } from '../../../../services/bedes-term/bedes-term.service';
+import { CompositeTermService } from 'src/app/modules/bedes/services/composite-term/composite-term.service';
+import { BedesCompositeTerm } from '../../../../../../../../../bedes-common/models/bedes-composite-term/bedes-composite-term';
+import { ITermMappingAtomic } from '@bedes-common/models/term-mapping/term-mapping-atomic.interface';
+import { TermMappingAtomic } from '@bedes-common/models/term-mapping/term-mapping-atomic';
 
 @Component({
-    selector: 'app-bedes-term-search-dialog',
-    templateUrl: './bedes-term-search-dialog.component.html',
-    styleUrls: ['./bedes-term-search-dialog.component.scss']
+  selector: 'app-bedes-map-search',
+  templateUrl: './bedes-map-search.component.html',
+  styleUrls: ['./bedes-map-search.component.scss']
 })
-export class BedesTermSearchDialogComponent implements OnInit {
+export class BedesMapSearchComponent implements OnInit {
     public searchString: string;
     public waitingForResults = false;;
     public searchResults = new Array<BedesSearchResult>();
-    public selectedItems: Array<ISearchResultRow>;
+    public selectedItem: ISearchResultRow;
+    public appTerm: AppTerm;
     public numResults = 0;
     // result filtering options
     // Array of SearchResultTypes to exclude from the search result.
@@ -35,18 +46,22 @@ export class BedesTermSearchDialogComponent implements OnInit {
     public gridOptions: GridOptions;
     public rowData: Array<BedesTerm | BedesConstrainedList>;
     public tableContext: any;
+    private ngUnsubscribe: Subject<void> = new Subject<void>();
+    @Output()
+    backEvent = new EventEmitter<any>();
 
     constructor(
-        public dialogRef: MatDialogRef<BedesTermSearchDialogComponent>,
         private bedesTermSearchService: BedesTermSearchService,
         private supportListService: SupportListService,
-        @Inject(MAT_DIALOG_DATA) public dialogOptions: ISearchDialogOptions) { }
+        private appTermService: AppTermService,
+        private termService: BedesTermService,
+        private compositeTermService: CompositeTermService
+    ) { }
 
     ngOnInit() {
         this.setDialogOptions();
         this.gridSetup();
         this.setTableContext();
-        console.log('dialog options', this.dialogOptions);
     }
 
     /**
@@ -62,40 +77,36 @@ export class BedesTermSearchDialogComponent implements OnInit {
      * Set's the array of SearchResultType objects to exclude from the result set.
      */
     private setExculdeResultType(): void {
-        if (this.dialogOptions
-            && Array.isArray(this.dialogOptions.excludeResultType)
-            && this.dialogOptions.excludeResultType.length > 0
-        ) {
-            this.excludedResultType = this.dialogOptions.excludeResultType;
-        }
     }
 
     /**
      * Set's the array of uuid strings to exclude from the results set.
      */
     private setExcludeUUID(): void {
-        if (this.dialogOptions
-            && Array.isArray(this.dialogOptions.excludeUUID)
-            && this.dialogOptions.excludeUUID.length
-        ) {
-            this.excludeUUID = this.dialogOptions.excludeUUID;
-        }
     }
 
     /**
      * Set's the indicator for displaying only objects with uuids.
      */
     private setShowOnlyUUID(): void {
-        if (this.dialogOptions && this.dialogOptions.showOnlyUUID) {
-            this.showOnlyUUID = true;
-        }
+        this.showOnlyUUID = true;
     }
 
     /**
-     * Closes the dialog.
+     * Subscribe to the BehaviorSubject that serves the
+     * active Mapping Application's set of AppTerms.
      */
-    public close(): void {
-        this.dialogRef.close();
+    private subscribeToActiveTerm(): void {
+        console.log('subscribe to the active AppTerm')
+        this.appTermService.activeTermSubject
+            .pipe(takeUntil(this.ngUnsubscribe))
+            .subscribe((activeTerm: AppTerm | undefined) => {
+                this.appTerm = activeTerm;
+            });
+    }
+
+    public back(): void {
+        this.backEvent.emit();
     }
 
     /**
@@ -120,12 +131,37 @@ export class BedesTermSearchDialogComponent implements OnInit {
     /**
      * Import the selected BedesTerms.
      */
-    public importSelectedTerms(): void {
-        if (!this.selectedItems || !this.selectedItems.length) {
-            throw new Error(`${this.constructor.name}: importSelectedTerms expected to have valid selectedItems, none found`);
+    public importSelectedTerm(): void {
+        if (!this.selectedItem) {
+            throw new Error(`${this.constructor.name}: no selected term found`);
         }
-        console.log('import sel items', this.selectedItems);
-        this.dialogRef.close(this.selectedItems.map((item) => item.ref));
+        console.log('map the term', this.selectedItem);
+        const item = this.selectedItem.ref;
+        if(item.resultObjectType === SearchResultType.CompositeTerm) {
+            this.compositeTermService.getTerm(item.id)
+            .subscribe((compositeTerm: BedesCompositeTerm) => {
+                const params: ITermMappingComposite = {
+                    _id: undefined,
+                    _appListOption: undefined,
+                    _compositeTerm: compositeTerm.toInterface()
+                }
+                this.appTerm.mapping = new TermMappingComposite(params);
+                this.back();
+            })
+        }
+        else {
+            this.termService.getTerm(item.uuid)
+            .subscribe((term: BedesTerm | BedesConstrainedList) => {
+                const params: ITermMappingAtomic = {
+                    _id: undefined,
+                    _appListOption: undefined,
+                    _bedesTerm: term.toInterface()
+                }
+                this.appTerm.mapping = new TermMappingAtomic(params);
+                this.back();
+
+            });
+        }
     }
 
     /**
@@ -137,7 +173,7 @@ export class BedesTermSearchDialogComponent implements OnInit {
             enableColResize: true,
             enableFilter: true,
             enableSorting: true,
-            rowSelection: 'multiple',
+            rowSelection: 'single',
             columnDefs: this.buildColumnDefs(),
             // getRowNodeId: (data: any) => {
             //     return data.uuid;
@@ -152,7 +188,13 @@ export class BedesTermSearchDialogComponent implements OnInit {
                 params.api.sizeColumnsToFit();
             },
             onSelectionChanged: (event: SelectionChangedEvent) => {
-                this.selectedItems = event.api.getSelectedRows();
+                const rows = event.api.getSelectedRows();
+                if (rows.length) {
+                    this.selectedItem = rows[0];
+                }
+                else {
+                    this.selectedItem = undefined;
+                }
             }
         };
     }

@@ -14,6 +14,16 @@ import { MatDialog } from '@angular/material';
 import { ConfirmDialogComponent } from '../../dialogs/confirm-dialog/confirm-dialog.component';
 import { BedesCompositeTerm } from '@bedes-common/models/bedes-composite-term/bedes-composite-term';
 import { CompositeTermService } from '../../../services/composite-term/composite-term.service';
+import { CompositeTermDetail } from '../../../../../../../../bedes-common/models/bedes-composite-term/composite-term-item/composite-term-detail';
+import { TableCellItemNameComponent } from './table-cell-item-name/table-cell-item-name.component';
+
+interface IGridRow {
+    name: string;
+    description: string | null | undefined;
+    type: string | null | undefined;
+    uuid: string;
+    ref: CompositeTermDetail
+}
 
 @Component({
     selector: 'app-selected-terms-table',
@@ -28,7 +38,9 @@ export class SelectedTermsTableComponent implements OnInit, OnDestroy {
     agGrid: AgGridNg2;
     // grid options
     public gridOptions: GridOptions;
-    public isGridDataSet = false;
+    public tableContext: any;
+    private gridInitialized = false;
+    private gridDataNeedsRefresh = false;
 
     private unitList: Array<BedesUnit>;
     private dataTypeList: Array<BedesDataType>;
@@ -42,10 +54,10 @@ export class SelectedTermsTableComponent implements OnInit, OnDestroy {
     ) { }
 
     ngOnInit() {
-        this.initializeCompositeTerm();
         this.initializeSupportLists();
         this.initializeGrid();
-        this.initTermSelectorSubscriber();
+        this.setTableContext();
+        this.subscribeToActiveTerm();
     }
 
     ngOnDestroy() {
@@ -55,22 +67,26 @@ export class SelectedTermsTableComponent implements OnInit, OnDestroy {
     }
 
     /**
-     * Build the CompositeTerm object.
+     * Subscribe to the active composite term observable.
      */
-    private initializeCompositeTerm(): void {
-        this.compositeTerm = new BedesCompositeTerm();
+    private subscribeToActiveTerm(): void {
+        this.compositeTermService.selectedTermSubject
+        .subscribe((compositeTerm: BedesCompositeTerm) => {
+            console.log(`${this.constructor.name}: received new composite term`, compositeTerm);
+            this.compositeTerm = compositeTerm;
+            this.gridDataNeedsRefresh = true;
+            this.setGridData();
+        })
     }
 
     /**
-     * Add BedesTerms to the current CompositeTerm.
+     * Set the execution context for the table.  Used for cell renderers
+     * to be able to access the parent component methods.
      */
-    private addNewItemsToCompositeTerm(newTerms: Array<BedesTerm | BedesConstrainedList>): void {
-        newTerms.forEach((newTerm) => {
-            if (!this.compositeTerm.termExistsInDefinition(newTerm.toInterface())) {
-                this.compositeTerm.addBedesTerm(newTerm);
-            }
-        });
-        console.log('compositeTerm', this.compositeTerm);
+    private setTableContext(): void {
+        this.tableContext = {
+            parent: this
+        };
     }
 
     /**
@@ -95,51 +111,6 @@ export class SelectedTermsTableComponent implements OnInit, OnDestroy {
     }
 
     /**
-     * Subscribe to the select terms subject.
-     */
-    private initTermSelectorSubscriber(): void {
-        this.termSelectorService.selectedTermsSubject
-            .pipe(takeUntil(this.ngUnsubscribe))
-            .subscribe((results: Array<BedesTerm | BedesConstrainedList>) => {
-                console.log(`${this.constructor.name}: received search results...`, results);
-                this.selectedTerms = results;
-                this.addNewItemsToCompositeTerm(results);
-                if (this.gridOptions.api) {
-                    this.isGridDataSet = true;
-                    this.gridOptions.api.setRowData(results);
-                }
-            },
-            (error: any) => {
-                console.error(`${this.constructor.name}: error in ngOnInit`)
-                console.error(error);
-                throw error;
-            });
-    }
-
-    /**
-     * Save the composite term to the database.
-     */
-    public saveCompositeTerm(): void {
-        console.log('save the composite term');
-        if (this.compositeTerm.id) {
-            // an existing term
-            this.compositeTermService.updateTerm(this.compositeTerm)
-            .subscribe((results: BedesCompositeTerm) => {
-                console.log(`${this.constructor.name}: save compoisite term success`, results);
-                this.compositeTerm = results;
-            });
-        }
-        else {
-            // new term, save it to the database.
-            this.compositeTermService.saveNewTerm(this.compositeTerm)
-            .subscribe((results: BedesCompositeTerm) => {
-                console.log(`${this.constructor.name}: save compoisite term success`, results);
-                this.compositeTerm = results;
-            });
-        }
-    }
-
-    /**
      * Initialize the ag-grid.
      */
     private initializeGrid(): void {
@@ -152,30 +123,12 @@ export class SelectedTermsTableComponent implements OnInit, OnDestroy {
             // rowDragManaged: true,
             // animateRows: true,
             columnDefs: this.buildColumnDefs(),
-            getRowNodeId: (data: any) => {
-                return data.id;
-            },
             onGridReady: () => {
                 console.log('grid ready...');
-                this.gridOptions.api.setRowData(this.selectedTerms);
-                // this.initialRowDataLoad$.subscribe(
-                //     rowData => {
-                //         // the initial full set of data
-                //         // note that we don't need to un-subscribe here as it's a one off data load
-                //         if (this.gridOptions.api) { // can be null when tabbing between the examples
-                //             this.gridOptions.api.setRowData(rowData);
-                //         }
-
-                //         // now listen for updates
-                //         // we process the updates with a transaction - this ensures that only the changes
-                //         // rows will get re-rendered, improving performance
-                //         this.rowDataUpdates$.subscribe((updates) => {
-                //             if (this.gridOptions.api) { // can be null when tabbing between the examples
-                //                 this.gridOptions.api.updateRowData({update: updates})
-                //             }
-                //         });
-                //     }
-                // );
+                this.gridInitialized = true;
+                if (this.gridDataNeedsRefresh) {
+                    this.setGridData();
+                }
             },
             onFirstDataRendered(params) {
                 params.api.sizeColumnsToFit();
@@ -193,8 +146,14 @@ export class SelectedTermsTableComponent implements OnInit, OnDestroy {
      */
     private buildColumnDefs(): Array<ColDef> {
         return [
-            {headerName: 'Name', field: 'name'},
-            {headerName: 'Description', field: 'description'},
+            {
+                headerName: 'Name',
+                field: 'name',
+                cellRendererFramework: TableCellItemNameComponent
+            },
+            {
+                headerName: 'Description', field: 'description'
+            },
             {
                 headerName: 'Term Category',
                 field: 'termCategoryId',
@@ -227,11 +186,11 @@ export class SelectedTermsTableComponent implements OnInit, OnDestroy {
     /**
      * Remove the terms selected by the user.
      */
-    public removeSelectedTerms(): void {
-        console.log('remove selected terms');
+    public removeSelectedItem(gridRow: IGridRow): void {
+        console.log('remove selected terms', gridRow.ref);
         const dialogRef = this.dialog.open(ConfirmDialogComponent, {
             panelClass: 'dialog-no-padding',
-            width: '650px',
+            width: '450px',
             position: {top: '20px'},
             data: {
                 dialogTitle: 'Confirm?',
@@ -240,21 +199,45 @@ export class SelectedTermsTableComponent implements OnInit, OnDestroy {
         });
         dialogRef.afterClosed().subscribe(result => {
             console.log('dialogRef.afterClosed()', result);
+            this.removeDetailItem(gridRow.ref);
         });
     }
 
-    public drop(event: CdkDragDrop<string[]>) {
-        moveItemInArray(this.selectedTerms, event.previousIndex, event.currentIndex);
-        console.log('new array?', this.selectedTerms);
-        let newIndex = 1;
-        this.selectedTerms.forEach((item) => {
-            const term = this.compositeTerm.items.find((d) => d.term.id === item.id);
-            if (!term) {
-                throw new Error(`Invalid termId encountered in term reordering`);
-            }
-            term.orderNumber = newIndex++;
-        });
-        // refresh the compositeTerm to reflect the new term ordering.
-        this.compositeTerm.refresh();
+    /**
+     * Call the backend to remove the record from the database.
+     */
+    private removeDetailItem(detailItem: CompositeTermDetail): void {
+        console.log(`${this.constructor.name}: remove detail record`, detailItem);
+        this.compositeTerm.removeDetailItem(detailItem);
+        this.compositeTermService.setActiveCompositeTerm(this.compositeTerm);
+        // this.compositeTermService.removeCompositeTermDetail(detailItem)
+        // .subscribe((results: number) => {
+        //     console.log(`${this.constructor.name}: delete success`, results);
+        // }, (error: any) => {
+        //     console.log('Error removing detail item');
+        // });
     }
+
+    /**
+     * Set's the grid data.
+     */
+    public setGridData(): void {
+        if (this.gridInitialized && this.gridDataNeedsRefresh) {
+            const results = new Array<IGridRow>();
+            if  (this.compositeTerm) {
+                this.compositeTerm.items.forEach((item: CompositeTermDetail) => {
+                    results.push(<IGridRow>{
+                        name: item.listOption ? item.listOption.name : item.term.name,
+                        description: item.listOption ? item.listOption.description : item.term.description,
+                        type: item.listOption ? 'List Option' : 'BEDES Term',
+                        ref: item
+                    });
+                });
+            }
+            this.gridOptions.api.setRowData(results);
+            console.log('set grid data', results);
+            this.gridDataNeedsRefresh = false;
+        }
+    }
+
 }

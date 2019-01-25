@@ -2,9 +2,13 @@ import { Injectable, Inject } from '@angular/core';
 import { API_URL_TOKEN } from '../url/url.service';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, BehaviorSubject } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { map, tap } from 'rxjs/operators';
 import { BedesCompositeTerm, IBedesCompositeTerm } from '@bedes-common/models/bedes-composite-term';
 import { BedesCompositeTermShort, IBedesCompositeTermShort } from '@bedes-common/models/bedes-composite-term-short';
+import { ICompositeTermDetailRequestParam } from '@bedes-common/models/composite-term-detail-request-param';
+import { ICompositeTermDetailRequestResult } from '@bedes-common/models/composite-term-detail-request-result';
+import { CompositeTermDetailRequestResult } from '../../../../../../../bedes-common/models/composite-term-detail-request-result/composite-term-detail-request-result';
+import { CompositeTermDetail } from '../../../../../../../bedes-common/models/bedes-composite-term/composite-term-item/composite-term-detail';
 
 @Injectable({
     providedIn: 'root'
@@ -16,6 +20,12 @@ export class CompositeTermService {
     // api endpoint info for updating existing terms
     private apiEndpointUpdate = 'api/composite-term/:id';
     private urlUpdate: string = null;
+    // api endpoint info for the composite term detail info requests
+    private apiEndpointDetailInfo = 'api/composite-term/detail-info';
+    private urlDetailInfo: string = null;
+    // api endpoint info for composite-term-detail
+    private apiEndpointDetail = 'api/composite-term-detail/:id';
+    private urlDetail: string = null;
     // Subject that emits the currently selected CompositeTerm.
     private _selectedTermSubject = new BehaviorSubject<BedesCompositeTerm>(undefined);
     get selectedTermSubject(): BehaviorSubject<BedesCompositeTerm | undefined> {
@@ -41,6 +51,8 @@ export class CompositeTermService {
     ) {
         this.urlNew = `${this.apiUrl}${this.apiEndpointNew}`;
         this.urlUpdate = `${this.apiUrl}${this.apiEndpointUpdate}`;
+        this.urlDetailInfo = `${this.apiUrl}${this.apiEndpointDetailInfo}`;
+        this.urlDetail = `${this.apiUrl}${this.apiEndpointDetail}`;
     }
 
     /**
@@ -100,6 +112,32 @@ export class CompositeTermService {
             }));
     }
 
+    public getCompositeTermDetailRequest(
+        queryParams: Array<ICompositeTermDetailRequestParam>
+    ): Observable<Array<CompositeTermDetailRequestResult>> {
+        const params = {
+            queryParams: queryParams
+        };
+        return this.http.post<Array<ICompositeTermDetailRequestResult>>(this.urlDetailInfo, params, { withCredentials: true })
+            .pipe(map((results: Array<ICompositeTermDetailRequestResult>) => {
+                console.log(`${this.constructor.name}: received results`, results);
+                // transform the interface into a class object instance
+                return results.map((item) => new CompositeTermDetailRequestResult(item));
+            }));
+    }
+
+    /**
+     * Calls the backend to remove the composite term detail record from the composite term.
+     */
+    public removeCompositeTermDetail(detailItem: CompositeTermDetail): Observable<number> {
+        const url = this.urlDetail.replace(/:id$/, String(detailItem.id));
+        return this.http.delete<number>(url, { withCredentials: true })
+            .pipe(tap((results: any) => {
+                // reload the bedes term list
+                this.load();
+            }));
+    }
+
     /**
      * Saves a new CompositeTerm to the database.
      */
@@ -107,6 +145,8 @@ export class CompositeTermService {
         return this.http.post<IBedesCompositeTerm>(this.urlNew, compositeTerm)
         .pipe(map((results: IBedesCompositeTerm) => {
             console.log(`${this.constructor.name}: received results`, results);
+            // reload the bedes term list
+            this.load();
             return new BedesCompositeTerm(results);
         }));
     }
@@ -122,6 +162,8 @@ export class CompositeTermService {
         return this.http.put<IBedesCompositeTerm>(url, compositeTerm)
         .pipe(map((results: IBedesCompositeTerm) => {
             console.log(`${this.constructor.name}: received results`, results);
+            // reload the bedes term list
+            this.load();
             return new BedesCompositeTerm(results);
         }));
     }

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input, ElementRef } from '@angular/core';
 import { BedesTermSearchService } from '../../../services/bedes-term-search/bedes-term-search.service';
 import { BedesTerm, BedesConstrainedList } from '@bedes-common/models/bedes-term';
 import { BedesSearchResult } from '@bedes-common/models/bedes-search-result/bedes-search-result';
@@ -14,12 +14,16 @@ export class BedesSearchParametersComponent implements OnInit {
     public searchError = false;
     public errorMessage: string;
     public numResults = 0;
+    // get a reference to the search input control
+    @Input('searchInput')
+    private searchInput: ElementRef;
 
     constructor(
         private bedesTermSearchService: BedesTermSearchService,
     ) { }
 
     ngOnInit() {
+        console.log('search input init!!!');
     }
 
     /**
@@ -27,6 +31,7 @@ export class BedesSearchParametersComponent implements OnInit {
      */
     public searchForTerms(): void {
         console.log('search for terms...', this.searchString);
+        console.log(this.searchInput);
         this.waitingForResults = true;
         this.bedesTermSearchService.searchAndNotify([this.searchString])
             .subscribe((results: Array<BedesSearchResult>) => {

@@ -36,11 +36,8 @@ export class CompositeTermResolverService {
             return of(selectedItem);
         }
         else if (newId) {
-            // this is an actual number
-
-            // this.compositeTermService.setActiveCompositeTermById(+newId);
-            // return of(this.compositeTermService.selectedTerm);
-
+            // an id was passed in the url and not the currently active composite term
+            // load the term details from the api
             this.compositeTermService.getTerm(newId)
             .subscribe((compositeTerm: BedesCompositeTerm) => {
                 // set the active composite term
@@ -48,7 +45,7 @@ export class CompositeTermResolverService {
                 return of(compositeTerm);
             });
         }
-        else if (state.url.match(/\/term-builder\/edit\/?$/)) {
+        else if (state.url.match(/\/composite-term\/edit\/?$/)) {
             // create a new CompositeTerm
             const newTerm = this.compositeTermService.activateNewCompositeTerm();
             return of(newTerm);

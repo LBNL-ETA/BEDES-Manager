@@ -1,3 +1,8 @@
-<p>
-  selected-terms-order works!
-</p>
+
+<div style="margin-bottom:10px;" *ngIf="compositeTerm">
+    <div cdkDropList cdkDropListOrientation="horizontal" class="example-list" (cdkDropListDropped)="drop($event)">
+        <div class="example-box" *ngFor="let term of compositeTerm.items" cdkDrag>
+            {{term.listOption ? term.listOption.name : term.term.name}}
+        </div>
+    </div>
+</div>

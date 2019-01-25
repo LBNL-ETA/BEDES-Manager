@@ -72,6 +72,9 @@ import { CompositeTermListComponent } from './components/term-builder-home/compo
 import { compositeTermFactory } from './services/composite-term/composite-term-factory.service';
 import { CompositeTermService } from './services/composite-term/composite-term.service';
 import { SelectedTermsOrderComponent } from './components/term-builder-home/selected-terms-order/selected-terms-order.component';
+import { TableCellItemNameComponent } from './components/term-builder-home/selected-terms-table/table-cell-item-name/table-cell-item-name.component';
+import { BedesMapSearchComponent } from './components/app-term/app-term-edit/bedes-map-search/bedes-map-search.component';
+import { MappingViewComponent } from './components/app-term/app-term-edit/mapping-view/mapping-view.component';
 
 @NgModule({
     imports: [
@@ -139,13 +142,17 @@ import { SelectedTermsOrderComponent } from './components/term-builder-home/sele
         DisplayListOptionsComponent,
         CompositeTermListComponent,
         SelectedTermsOrderComponent,
+        TableCellItemNameComponent,
+        BedesMapSearchComponent,
+        MappingViewComponent,
     ],
     entryComponents: [
         BedesTermSearchDialogComponent,
         ConfirmDialogComponent,
         TableCellBedesCategoryComponent,
         TableCellTermNameComponent,
-        TableCellNameNavComponent
+        TableCellNameNavComponent,
+        TableCellItemNameComponent
     ],
     providers: [
         BedesTermSearchService,

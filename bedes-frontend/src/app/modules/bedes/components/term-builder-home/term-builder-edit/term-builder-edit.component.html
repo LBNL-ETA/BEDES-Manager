@@ -1,61 +1,43 @@
-<div style="display:flex; flex-direction: row;">
+<div style="display:flex; flex-direction: row; margin-bottom: 10px;">
     <a mat-stroked-button routerLink="/composite-term">
         <fa-icon [icon]="['fas', 'chevron-circle-left']"></fa-icon>
         Back to List
     </a>
-    <button mat-stroked-button color="primary" (click)="updateTerm()">
-        <!-- <fa-icon [icon]="['fas', 'plus-circle']"></fa-icon> -->
+    <button mat-stroked-button color="primary" (click)="updateCompositeTerm()">
+        <fa-icon [icon]="['fas', 'save']"></fa-icon>
         Update
     </button>
+    <button mat-stroked-button color="primary" (click)="openTermSearchDialog()">
+        <fa-icon [icon]="['fas', 'cloud-download-alt']"></fa-icon>
+        Import BEDES Terms
+    </button>
 </div>
+<h1>
+    {{compositeTerm ? compositeTerm.name : ''}}
+</h1>
 <div>
-    <mat-accordion multi="true">
-        <mat-expansion-panel expanded="true">
-            <mat-expansion-panel-header>
-                <mat-panel-title>
-                    1) Search for BEDES Terms
-                </mat-panel-title>
-                <mat-panel-description>
-                    Select BEDES Terms from the table below
-                    to add to your composite term.
-                </mat-panel-description>
-            </mat-expansion-panel-header>
-            <div class="content-container">
-                <app-selected-terms-table></app-selected-terms-table>
-            </div>
-        </mat-expansion-panel>
-    </mat-accordion>
+    <form [formGroup]="dataForm" style="display:flex; flex-direction: row; margin-top:10px">
+        <!-- Description -->
+        <mat-form-field style="flex:1; margin-bottom:5px;" appearance="outline">
+            <mat-label>Description</mat-label>
+            <textarea matInput placeholder="Enter a Description" formControlName="description" rows="5">
+            </textarea>
+        </mat-form-field>
+        <mat-form-field style="flex:1;" appearance="outline">
+            <mat-label>Unit</mat-label>
+            <mat-select placeholder="Unit" formControlName="unitId" *ngIf="unitList.length">
+                <mat-option *ngFor="let item of unitList" [value]="item.id">
+                    {{item.name}}
+                </mat-option>
+            </mat-select>
+        </mat-form-field>
+    </form>
 </div>
-<div>
-    <app-bedes-search-parameters></app-bedes-search-parameters>
-    <app-select-terms-table></app-select-terms-table>
+
+<div *ngIf="compositeTerm && compositeTerm.items.length">
+    <app-selected-terms-order></app-selected-terms-order>
 </div>
-<!-- <div class="stepper-container">
-    <mat-accordion multi="true">
-        <mat-expansion-panel expanded="true">
-            <mat-expansion-panel-header>
-                <mat-panel-title>
-                    1) Search for BEDES Terms
-                </mat-panel-title>
-                <mat-panel-description>
-                    Select BEDES Terms from the table below
-                    to add to your composite term.
-                </mat-panel-description>
-            </mat-expansion-panel-header>
-            <div class="content-container">
-            </div>
-        </mat-expansion-panel>
-        <mat-expansion-panel expanded="true">
-            <mat-expansion-panel-header>
-                <mat-panel-title>
-                    2) Order Terms
-                </mat-panel-title>
-                <mat-panel-description>
-                    Order terms after you've selected.
-                </mat-panel-description>
-            </mat-expansion-panel-header>
-            <div class="content-container">
-            </div>
-        </mat-expansion-panel>
-    </mat-accordion>
-</div> -->
+
+<app-selected-terms-table></app-selected-terms-table>
+
+

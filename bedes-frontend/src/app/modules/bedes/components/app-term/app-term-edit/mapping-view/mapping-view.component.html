@@ -1,0 +1,36 @@
+<div style="display: flex;">
+    <mat-card style="flex: 1;" class="bedes-content-card mat-elevation-z0 mat-typography">
+        <mat-card-content>
+            <h1 style="text-align: center;">BEDES Mapping</h1>
+
+            <div *ngIf="!isSearchDisplayed">
+                <!-- Button toolbar -->
+                <div style="display:flex;">
+                    <button mat-stroked-button color="primary" (click)="showTermSearch()">
+                        <fa-icon [icon]="['fas', 'cloud-download-alt']"></fa-icon>
+                        Import BEDES Term
+                    </button>
+                    <button mat-stroked-button color="primary"
+                    [disabled]="!appTerm || !appTerm.mapping"
+                    (click)="clearMapping()">
+                        <fa-icon [icon]="['fas', 'times']"></fa-icon>
+                        Clear Current Mapping
+                    </button>
+                </div>
+
+                <div class="alert-accent" style="margin-top:10px;" *ngIf="!appTermList || !appTermList.length">
+                    <h3 style="margin: 0; padding:0;">
+                        <fa-icon [icon]="['fas', 'exclamation-triangle']"></fa-icon>
+                        The application term has not been mapped to a BEDES Term.
+                        Click the <strong>Import BEDES Term</strong> button to find a term.
+                    </h3>
+                </div>
+            </div>
+
+            <div *ngIf="isSearchDisplayed">
+                <app-bedes-map-search (backEvent)="backFromSearch()"></app-bedes-map-search>
+            </div>
+        </mat-card-content>
+    </mat-card>
+
+</div>
