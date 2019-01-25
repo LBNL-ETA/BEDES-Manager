@@ -33,6 +33,7 @@
     "swagger-ui-express": "^4.0.1",
     "ts-node": "^7.0.1",
     "typescript": "^3.1.1",
+    "uuid": "^3.3.2",
     "winston": "^3.1.0"
   },
   "devDependencies": {
@@ -51,6 +52,7 @@
     "@types/randomstring": "^1.1.6",
     "@types/swagger-jsdoc": "0.0.2",
     "@types/swagger-ui-express": "^3.0.0",
+    "@types/uuid": "^3.4.4",
     "@types/winston": "^2.4.4",
     "jasmine-console-reporter": "^3.1.0"
   },
