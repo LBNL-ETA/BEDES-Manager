@@ -97,13 +97,14 @@ create table public.bedes_composite_term (
     name text,
     description text,
     unit_id int references public.unit (id),
+    uuid varchar(50),
     created_date timestamp default now(),
     modified_date timestamp default now()
 );
 
 create table public.bedes_composite_term_details (
     id serial primary key,
-    composite_term_id int not null references public.bedes_composite_term (id),
+    composite_term_id int not null references public.bedes_composite_term (id) on delete cascade,
     bedes_term_id int not null references public.bedes_term (id),
     list_option_id int references public.bedes_term_list_option (id),
     order_number int not null,
@@ -212,17 +213,12 @@ create table public.app_term_additional_data (
 -- );
 -- create unique index on public.app_enumerated_values (app_term_id, md5(value));
 
-create table public.mapped_terms (
+create table public.atomic_term_maps (
     id serial primary key,
-    app_id int references public.mapping_application (id) on delete cascade not null
-);
-
-create table public.app_term_maps (
-    id serial primary key,
-    mapped_term_id int not null references public.mapped_terms (id) on delete cascade,
-    app_term_id int not null references public.app_term (id) on delete cascade,
-    order_number int not null,
-    unique (mapped_term_id, order_number)
+    bedes_term_id int not null references public.bedes_term (id),
+    bedes_list_option_id int not null references public.bedes_term_list_option (id),
+    app_term_id int not null references public.app_term (id),
+    app_list_option_id int references public.app_term_list_option (id)
 );
 
 -- create table public.bedes_term_maps (
@@ -233,17 +229,10 @@ create table public.app_term_maps (
 --     unique (mapped_term_id, order_number)
 -- );
 
-create table public.bedes_composite_term_maps (
+create table public.composite_term_maps (
     id serial primary key,
     mapped_term_id int not null references public.mapped_terms (id) on delete cascade,
     bedes_composite_term_id int not null references public.bedes_composite_term (id) on delete cascade,
-    unique (mapped_term_id)
-);
-
-create table public.bedes_atomic_term_maps (
-    id serial primary key,
-    mapped_term_id int not null references public.mapped_terms (id) on delete cascade,
-    bedes_term_id int not null references public.bedes_term (id) on delete cascade,
     unique (mapped_term_id)
 );
 

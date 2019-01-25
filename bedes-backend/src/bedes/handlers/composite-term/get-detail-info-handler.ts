@@ -6,27 +6,26 @@ import { BedesError } from '@bedes-common/bedes-error';
 import { bedesQuery } from '../../query';
 const logger = createLogger(module);
 
-export async function compositeTermPostHandler(request: Request, response: Response): Promise<any> {
+/**
+ * Route handler retrieving ICompositeTermDetail records from ICompositeTermDetailRequestParam objects.
+ */
+export async function getCompositeTermDetailInfoHandler(request: Request, response: Response): Promise<any> {
     try {
-        logger.debug(util.inspect(request.params));
-        const compositeTerm = request.body;
-        if (!compositeTerm) {
+        logger.debug(util.inspect(request.body));
+        const queryParams = request.body.queryParams;
+        if (!queryParams || !Array.isArray(queryParams)) {
             throw new BedesError(
                 'Invalid parameters',
                 HttpStatusCodes.BadRequest_400,
                 "Invalid parameters"
             );
         }
-        logger.debug(`save a new composite term`);
-        logger.debug(util.inspect(compositeTerm));
-        let savedTerm = await bedesQuery.compositeTerm.newCompositeTerm(compositeTerm);
-        if (!savedTerm || !savedTerm._id) {
-            throw new Error('Error creating new composite term');
-        }
-        let newTerm = await bedesQuery.compositeTerm.getRecordComplete(savedTerm._id);
+        logger.debug(`get composite term details query`);
+        console.log(queryParams);
+        let results = await bedesQuery.compositeTerm.getCompositeTermDetailInfo(queryParams);
         logger.debug('compositeTermHandler resuts');
-        logger.debug(util.inspect(newTerm));
-        response.json(newTerm)
+        logger.debug(util.inspect(results));
+        response.json(results)
     }
     catch (error) {
         logger.error('Error in compositeTermHandler');
@@ -39,3 +38,6 @@ export async function compositeTermPostHandler(request: Request, response: Respo
         }
     }
 }
+
+
+

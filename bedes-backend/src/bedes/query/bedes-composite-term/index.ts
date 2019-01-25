@@ -7,13 +7,19 @@ const logger = createLogger(module);
 import * as util from 'util';
 import { IBedesCompositeTerm, ICompositeTermDetail } from '@bedes-common/models/bedes-composite-term';
 import { bedesQuery } from '@bedes-backend/bedes/query';
-import { IBedesCompositeTermShort } from '../../../../../bedes-common/models/bedes-composite-term-short/bedes-composite-term-short.interface';
+import { IBedesCompositeTermShort } from '@bedes-common/models/bedes-composite-term-short';
+import { ICompositeTermDetailRequestParam } from '@bedes-common/models/composite-term-detail-request-param';
+import { ICompositeTermDetailRequestResult } from '@bedes-common/models/composite-term-detail-request-result';
+import { BedesError } from '@bedes-common/bedes-error/bedes-error';
+import { HttpStatusCodes } from '@bedes-common/enums/http-status-codes';
+import { v4 } from 'uuid';
 
 export class BedesCompositeTermQuery {
     private sqlGetBySignature: QueryFile;
     private sqlGetById: QueryFile;
     private sqlGetAllTerms: QueryFile;
     private sqlInsert: QueryFile;
+    private sqlUpdate: QueryFile;
     private sqlGetCompositeTermComplete: QueryFile;
     private sqlDelete: QueryFile;
 
@@ -23,6 +29,7 @@ export class BedesCompositeTermQuery {
         this.sqlGetAllTerms = sql_loader(path.join(__dirname, 'get-all-terms.sql'));
         this.sqlGetCompositeTermComplete = sql_loader(path.join(__dirname, 'get-composite-term-complete.sql'));
         this.sqlInsert = sql_loader(path.join(__dirname, 'insert.sql'))
+        this.sqlUpdate = sql_loader(path.join(__dirname, 'update.sql'))
         this.sqlDelete = sql_loader(path.join(__dirname, 'delete.sql'))
     }
 
@@ -32,18 +39,34 @@ export class BedesCompositeTermQuery {
      */
     public async newCompositeTerm(item: IBedesCompositeTerm, transaction?: any): Promise<IBedesCompositeTerm> {
         try {
+            console.log('newCompositeTerm');
             // create the composite term record
-            const newRec = await this.newRecord(item, transaction);
-            if (!newRec._id) {
+            let newRec: IBedesCompositeTerm | undefined;
+            item._uuid = v4();
+            try {
+                newRec = await this.newRecord(item, transaction);
+            }
+            catch (error) {
+                if (error && error.code === "23505") {
+                    throw new BedesError(
+                        'Composite term already exists.',
+                        HttpStatusCodes.BadRequest_400,
+                        'Composite term already exists.'
+                    )
+                }
+                throw error;
+            }
+            if (!newRec || !newRec._id) {
                 throw new Error(`${this.constructor.name}: missing _id returned from newCompositeTerm query`);
             }
-            newRec._items = new Array<ICompositeTermDetail>();
+            const detailItems = new Array<ICompositeTermDetail>();
+            newRec._items = detailItems;
             const promises = new Array<Promise<ICompositeTermDetail>>();
             // save all of the detail items.
             for (let detailItem of item._items) {
                 promises.push(bedesQuery.compositeTermDetail.newRecord(newRec._id, detailItem, transaction)
                     .then((newDetailRec: ICompositeTermDetail) => {
-                        newRec._items.push(newDetailRec);
+                        detailItems.push(newDetailRec);
                         return newDetailRec;
                     }));
             }
@@ -72,7 +95,9 @@ export class BedesCompositeTermQuery {
             const params = {
                 _signature: item._signature,
                 _name: item._name,
-                _unitId: item._unitId
+                _description: item._description,
+                _unitId: item._unitId,
+                _uuid: item._uuid
             };
             // first create the composite term record
             if (transaction) {
@@ -86,6 +111,127 @@ export class BedesCompositeTermQuery {
             logger.error(util.inspect(error));
             logger.error('data = ')
             logger.error(util.inspect(item));
+            throw error;
+        }
+    }
+
+    /**
+     * Update an existing composite term.
+     *
+     * @param item The object record to update.
+     * @returns The record that was just updated.
+     */
+    public async updateCompositeTerm(item: IBedesCompositeTerm, transaction?: any): Promise<IBedesCompositeTerm> {
+        try {
+            console.log('update composite term');
+            // make sure this runs in a transaction if it isn't
+            if (!transaction) {
+                return db.tx((newTransaction: any) => {
+                    return this.updateCompositeTerm(item, newTransaction);
+                });
+            }
+            // update the composite term record
+            let newRec: IBedesCompositeTerm | undefined;
+            try {
+                newRec = await this.updateRecord(item, transaction);
+            }
+            catch (error) {
+                logger.error('error in updatecompositeTerm');
+                console.log(error);
+            }
+            if (!newRec) {
+                throw new Error(`${this.constructor.name}: updateRecord should have returned an object, none received`);
+            }
+            if (!newRec._id) {
+                throw new Error(`${this.constructor.name}: missing _id returned from newCompositeTerm query`);
+            }
+            // delete the existing detail items
+            let numRemoved = await bedesQuery.compositeTermDetail.deleteByCompositeTermId(newRec._id, transaction);
+            console.log(`removed ${numRemoved} recs`);
+            newRec._items = new Array<ICompositeTermDetail>();
+            const promises = new Array<Promise<ICompositeTermDetail>>();
+            // save all of the detail items.
+            for (let detailItem of item._items) {
+                promises.push(bedesQuery.compositeTermDetail.newRecord(newRec._id, detailItem, transaction)
+                    .then((newDetailRec: ICompositeTermDetail) => {
+                        // @ts-ignore - 
+                        newRec._items.push(newDetailRec);
+                        return newDetailRec;
+                    }));
+            }
+            await Promise.all(promises);
+            return newRec;
+
+        } catch (error) {
+            logger.error(`${this.constructor.name}: Error in updateCompositeTerm`);
+            logger.error(util.inspect(error));
+            logger.error('data = ')
+            logger.error(util.inspect(item));
+            throw error;
+        }
+    }
+
+    /**
+     * Updates an existing BedesCompositeTermRecord.
+     */
+    public async updateRecord(item: IBedesCompositeTerm, transaction?: any): Promise<IBedesCompositeTerm> {
+        try {
+            if (!item._signature) {
+                logger.error(`${this.constructor.name}: Missing unitName in BedesUnit-updateRecord`);
+                throw new Error('Missing required parameters.');
+            }
+            const params = {
+                _id: item._id,
+                _signature: item._signature,
+                _name: item._name,
+                _description: item._description,
+                _unitId: item._unitId
+            };
+            console.log('params');
+            console.log(params)
+            // first create the composite term record
+            if (transaction) {
+                return await transaction.one(this.sqlUpdate, params);
+            }
+            else {
+                return await db.one(this.sqlUpdate, params);
+            }
+        } catch (error) {
+            logger.error(`${this.constructor.name}: Error in updateRecord`);
+            logger.error(util.inspect(error));
+            logger.error(util.inspect(item));
+            throw error;
+        }
+    }
+
+    /**
+     * Build ICompositeTermDetail objects from the given uuids listed in the queryParams object.
+     */
+    public async getCompositeTermDetailInfo(
+        queryParams: Array<ICompositeTermDetailRequestParam>,
+        transaction?: any
+    ): Promise<Array<ICompositeTermDetailRequestResult>> {
+        try {
+            if (!queryParams || !Array.isArray(queryParams)) {
+                logger.error(`${this.constructor.name}: buildTermDetails expends an array of queryParams, none found.`);
+                throw new Error('Missing required parameters.');
+            }
+            const results = new Array<ICompositeTermDetailRequestResult>();
+            for (let queryParam of queryParams) {
+                // fetch a bedes term and list option record, if it
+                const newRec: ICompositeTermDetailRequestResult = {
+                    term: await bedesQuery.terms.getRecordByUUID(queryParam.termUUID, transaction),
+                    listOption: queryParam.listOptionUUID
+                        ? await bedesQuery.termListOption.getRecordByUUID(queryParam.listOptionUUID, transaction)
+                        : undefined
+                };
+                results.push(newRec);
+            }
+            return results;
+        } catch (error) {
+            logger.error(`${this.constructor.name}: Error in buildCompositeTermDetails`);
+            logger.error(util.inspect(error));
+            logger.error(util.inspect(queryParams));
             throw error;
         }
     }

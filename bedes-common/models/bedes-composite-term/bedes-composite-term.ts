@@ -13,6 +13,7 @@ export class BedesCompositeTerm {
     private _name: string | null | undefined;
     private _description: string | null | undefined;
     private _unitId: number | null | undefined;
+    private _uuid: string | null | undefined;
     private _items: Array<CompositeTermDetail>
 
     constructor(data?: IBedesCompositeTerm) {
@@ -23,9 +24,12 @@ export class BedesCompositeTerm {
             this._name = data._name;
             this._description = data._description;
             this._unitId = data._unitId;
+            this._uuid = data._uuid;
             if (data._items && data._items.length) {
                 data._items.forEach((item: ICompositeTermDetail) => {
                     if (!item._term._id) {
+                        console.log(this);
+                        console.log(item);
                         throw new Error('BedesTerms must have valid _id to be used in composite');
                     }
                     this.addTerm(new CompositeTermDetail(item))
@@ -74,6 +78,12 @@ export class BedesCompositeTerm {
     }
     set unitId(value:  number | null | undefined) {
         this._unitId = value;
+    }
+    get uuid():  string | null | undefined {
+        return this._uuid;
+    }
+    set uuid(value:  string | null | undefined) {
+        this._uuid = value;
     }
     get items():  Array<CompositeTermDetail> {
         return this._items;
@@ -157,10 +167,24 @@ export class BedesCompositeTerm {
         let index = this._items.findIndex((d) => d.term.id === bedesTermId);
         if (index >= 0) {
             this._items.splice(index, 1);
-            this.signature = buildCompositeTermSignature(this);
+            this.refresh();
         }
         else {
             throw new Error(`Attempted to remove a BedesTerm (${bedesTermId}) that doesn't exist`);
+        }
+    }
+
+    /**
+     * Remove an atomic term from the composite instance.
+     */
+    public removeDetailItem(item: CompositeTermDetail): void {
+        let index = this._items.findIndex((d) => d === item);
+        if (index >= 0) {
+            this._items.splice(index, 1);
+            this.refresh();
+        }
+        else {
+            throw new Error(`Attempted to remove a CompositeTermDetail object that doesn't exist`);
         }
     }
 
@@ -224,6 +248,7 @@ export class BedesCompositeTerm {
             _id: this.id,
             _signature: this.signature,
             _name: this.name,
+            _description: this.description,
             _unitId: this.unitId,
             _items: this._items.map((d) => d.toInterface())
         }

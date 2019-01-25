@@ -27,7 +27,10 @@ function mountRoutes(router: Router) {
     router.get('/composite-term/:id', handlers.compositeTerm.get);
     router.get('/composite-term', handlers.compositeTerm.getAll);
     router.post('/composite-term', handlers.compositeTerm.post);
+    router.put('/composite-term/:id', handlers.compositeTerm.put);
     router.delete('/composite-term/:id', handlers.compositeTerm.delete);
+    router.post('/composite-term/detail-info', handlers.compositeTerm.getDetailInfo);
+    router.delete('/composite-term-detail/:id', handlers.compositeTerm.deleteDetail);
     // BedesTermOption
     router.post('/bedes-term-list-option', handlers.bedesTermListOption.newListOptionHandler);
     router.put('/bedes-term-list-option/:id', handlers.bedesTermListOption.updateListOptionHandler);

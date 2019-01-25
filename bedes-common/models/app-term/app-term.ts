@@ -4,6 +4,8 @@ import { TermType } from '../../enums/term-type.enum';
 import { IAppTermAdditionalInfo } from './app-term-additional-info.interface';
 import { IAppTermList } from ".";
 import { AppTermList } from './app-term-list';
+import { TermMappingAtomic } from '../term-mapping/term-mapping-atomic';
+import { TermMappingComposite } from '../term-mapping/term-mapping-composite';
 
 export class AppTerm {
     protected _id: number | null | undefined;
@@ -14,6 +16,7 @@ export class AppTerm {
     protected _additionalInfo: Array<AppTermAdditionalInfo>;
     protected _uuid: string | null | undefined;
     protected _unitId: number | null | undefined;
+    protected _mapping: TermMappingAtomic | TermMappingComposite | null | undefined;
 
     constructor(data: IAppTerm) {
         this._id = data._id;
@@ -77,6 +80,12 @@ export class AppTerm {
     set unitId(value: number | null | undefined) {
         this._unitId = value;
     }
+    get mapping(): TermMappingAtomic | TermMappingComposite | null | undefined {
+        return this._mapping;
+    }
+    set mapping(value: TermMappingAtomic | TermMappingComposite | null | undefined) {
+        this._mapping = value;
+    }
 
     private validate(): void {
         if (!this._name || typeof this.name !== 'string' || !this._name.trim()) {
@@ -97,10 +106,25 @@ export class AppTerm {
             _termTypeId: this._termTypeId,
             _uuid: this._uuid,
             _unitId: this._unitId,
+            _mapping: this._mapping ? this._mapping.toInterface() : undefined
         };
         return params;
         // const newTerm = new AppTermList(params);
         // newTerm.additionalInfo = this.additionalInfo;
         // return newTerm;
+    }
+
+    /**
+     * Set the mapping for this atomic term instance.
+     */
+    public setMapping(mapping: TermMappingAtomic | TermMappingComposite | undefined): void {
+        this._mapping = mapping;
+    }
+
+    /**
+     * Clear the app term mapping.
+     */
+    public clearMapping(): void {
+        this.setMapping(undefined);
     }
 }

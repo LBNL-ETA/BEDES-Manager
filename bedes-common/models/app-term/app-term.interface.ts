@@ -1,5 +1,7 @@
 import { IAppTermAdditionalInfo } from "./app-term-additional-info.interface";
 import { TermType } from '../../enums/term-type.enum';
+import { ITermMappingAtomic } from '../term-mapping/term-mapping-atomic.interface';
+import { ITermMappingComposite } from '../term-mapping/term-mapping-composite.interface';
 
 export interface IAppTerm {
     _id?: number | null | undefined;
@@ -10,4 +12,5 @@ export interface IAppTerm {
     _additionalInfo?: Array<IAppTermAdditionalInfo>;
     _uuid?: string | null | undefined;
     _unitId?: number | null | undefined;
+    _mapping?: ITermMappingAtomic | ITermMappingComposite | null | undefined;
 }

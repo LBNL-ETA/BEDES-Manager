@@ -24,7 +24,7 @@ export async function getBedesTermsMultipleHandler(request: Request, response: R
             );
         }
         // array of promises to resolve before returning.
-        const promises = new Array<Promise<IBedesTerm | IBedesConstrainedList>>();
+        const promises = new Array<Promise<IBedesTerm | IBedesConstrainedList | null>>();
         // loop through each termId,
         // call the appropriate query (id or uuid) to retrieve the object.
         termIds.forEach((termId: number | string) => {

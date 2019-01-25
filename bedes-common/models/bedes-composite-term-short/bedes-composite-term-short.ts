@@ -6,6 +6,7 @@ export class BedesCompositeTermShort {
     private _name: string | null | undefined;
     private _description: string | null | undefined;
     private _unitId: number | null | undefined;
+    private _uuid: string | null | undefined;
 
     constructor(data?: IBedesCompositeTermShort) {
         if (data) {
@@ -14,6 +15,7 @@ export class BedesCompositeTermShort {
             this._name = data._name;
             this._description = data._description;
             this._unitId = data._unitId;
+            this._uuid = data._uuid;
         }
     }
 
@@ -46,6 +48,12 @@ export class BedesCompositeTermShort {
     }
     set unitId(value:  number | null | undefined) {
         this._unitId = value;
+    }
+    get uuid():  string | null | undefined {
+        return this._uuid;
+    }
+    set uuid(value:  string | null | undefined) {
+        this._uuid = value;
     }
 
     public toInterface(): IBedesCompositeTermShort {

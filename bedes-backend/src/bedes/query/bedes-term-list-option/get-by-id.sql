@@ -1,6 +1,6 @@
 select
     d.id as "_id",
-    d.name as "_name",
+    d.name as "_name"
     d.description as "_description",
     d.unit_id as "_unitId",
     d.definition_source_id as "_definitionSourceId",
@@ -9,5 +9,5 @@ select
 from
     public.bedes_term_list_option as d
 where
-    uuid = ${_uuid}
+    id = ${_id}
 ;

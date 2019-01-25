@@ -6,7 +6,10 @@ import { BedesError } from '@bedes-common/bedes-error';
 import { bedesQuery } from '../../query';
 const logger = createLogger(module);
 
-export async function compositeTermPostHandler(request: Request, response: Response): Promise<any> {
+/**
+ * Handler for updating existing BEDES composite terms, ie the PUT handler.
+ */
+export async function compositeTermPutHandler(request: Request, response: Response): Promise<any> {
     try {
         logger.debug(util.inspect(request.params));
         const compositeTerm = request.body;
@@ -17,11 +20,11 @@ export async function compositeTermPostHandler(request: Request, response: Respo
                 "Invalid parameters"
             );
         }
-        logger.debug(`save a new composite term`);
+        logger.debug(`save an existing composite term`);
         logger.debug(util.inspect(compositeTerm));
-        let savedTerm = await bedesQuery.compositeTerm.newCompositeTerm(compositeTerm);
+        let savedTerm = await bedesQuery.compositeTerm.updateCompositeTerm(compositeTerm);
         if (!savedTerm || !savedTerm._id) {
-            throw new Error('Error creating new composite term');
+            throw new Error('Error updating composite term');
         }
         let newTerm = await bedesQuery.compositeTerm.getRecordComplete(savedTerm._id);
         logger.debug('compositeTermHandler resuts');

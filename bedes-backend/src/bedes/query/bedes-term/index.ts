@@ -187,7 +187,7 @@ export class BedesTermQuery {
      * Retrieves a IBedesTerm or IBedesConstrainedList object,
      * given an id
      */
-    public getTermOrListById(id: number, transaction?: any): Promise<IBedesTerm | IBedesConstrainedList> {
+    public getTermOrListById(id: number, transaction?: any): Promise<IBedesTerm | IBedesConstrainedList | null> {
         try {
             if (!id) {
                 logger.error(`${this.constructor.name}: Missing id`);
@@ -197,10 +197,10 @@ export class BedesTermQuery {
                 _id: id
             };
             if (transaction) {
-                return transaction.one(this.sqlGetTermOrListById, params);
+                return transaction.oneOrNone(this.sqlGetTermOrListById, params);
             }
             else {
-                return db.one(this.sqlGetTermOrListById, params);
+                return db.oneOrNone(this.sqlGetTermOrListById, params);
             }
         } catch (error) {
             logger.error(`${this.constructor.name}: Error in getTermOrListById`);
@@ -212,7 +212,7 @@ export class BedesTermQuery {
     /**
      * Get a BedesTerm or BedesConstrainedList by uuid.
      */
-    public getTermOrListByUUID(uuid: string, transaction?: any): Promise<IBedesTerm | IBedesConstrainedList> {
+    public getTermOrListByUUID(uuid: string, transaction?: any): Promise<IBedesTerm | IBedesConstrainedList | null> {
         try {
             if (!uuid) {
                 logger.error(`${this.constructor.name}: Missing uuid`);
@@ -222,10 +222,10 @@ export class BedesTermQuery {
                 _uuid: uuid
             };
             if (transaction) {
-                return transaction.one(this.sqlGetTermOrListByUUID, params);
+                return transaction.oneOrNone(this.sqlGetTermOrListByUUID, params);
             }
             else {
-                return db.one(this.sqlGetTermOrListByUUID, params);
+                return db.oneOrNone(this.sqlGetTermOrListByUUID, params);
             }
         } catch (error) {
             logger.error(`${this.constructor.name}: Error in getTermOrListByUUID`);
