@@ -181,9 +181,9 @@ insert into public.term_type (id, name) values
 create table public.app_term (
     id serial primary key,
     name varchar(100) not null,
-    description text,
+    description varchar(900),
     app_id int references public.mapping_application (id) on delete cascade not null,
-    field_code text not null,
+    field_code varchar(200),
     uuid uuid,
     term_type_id int not null references public.term_type (id),
     unit_id int references public.unit(id),
@@ -195,6 +195,7 @@ create table public.app_term_list_option (
     app_term_id int references public.app_term (id) on delete cascade not null,
     name varchar(500) not null,
     unit_id int references public.unit(id),
+    uuid uuid,
     unique (app_term_id, name)
 );
 
@@ -231,9 +232,9 @@ create table public.atomic_term_maps (
 
 create table public.composite_term_maps (
     id serial primary key,
-    mapped_term_id int not null references public.mapped_terms (id) on delete cascade,
-    bedes_composite_term_id int not null references public.bedes_composite_term (id) on delete cascade,
-    unique (mapped_term_id)
+    app_term_id int not null references public.app_term (id),
+    app_list_option_id int references public.app_term_list_option (id),
+    bedes_composite_term_id int not null references public.bedes_composite_term (id) on delete cascade
 );
 
 -- table that containst he different states an application can be in as it's waiting
