@@ -1,9 +1,10 @@
-insert into public.app_term (
-    app_id, field_code, name, description, term_type_id, unit_id, uuid
-)
-values (
-    ${_appId}, ${_fieldCode}, ${_name}, ${_description}, ${_termTypeId}, ${_unitId}, ${_uuid}
-)
+update public.app_term set
+    name = ${_name},
+    description = ${_description},
+    term_type_id = ${_termTypeId},
+    unit_id = ${_unitId}
+where
+    id = ${_id}
 returning
     id as "_id",
     app_id as "_appId",

@@ -20,6 +20,8 @@ function mountRoutes(router: Router) {
     router.delete('/mapping-application/:id', handlers.applications.deleteMappingApplicationHandler);
     // Mapping Application Terms
     router.post('/mapping-application/:id/term', handlers.appTerm.insertAppTermHandler);
+    router.put('/mapping-application/:appId/term/:appTermId', handlers.appTerm.updateAppTermHandler);
+    router.delete('/mapping-application/:appId/term/:appTermId', handlers.appTerm.deleteAppTermHandler);
     router.get('/mapping-application/:id/term', handlers.appTerm.getAppTermsHandler);
     router.get('/mapping-application/term/:id', handlers.appTerm.getAppTermHandler);
     router.get('/mapping-application/sibling/:id', handlers.appTerm.getAppTermsSiblingHandler);

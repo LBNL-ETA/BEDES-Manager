@@ -15,27 +15,34 @@ import { TermType } from '@bedes-common/enums/term-type.enum';
 import { bedesQuery } from '..';
 import { BedesError } from '@bedes-common/bedes-error/bedes-error';
 import { HttpStatusCodes } from '@bedes-common/enums/http-status-codes';
-import { IMappingApplication } from '@bedes-common/models/mapping-application';
 
 export class AppTermQuery {
     private sqlInsertTerm: QueryFile;
+    private sqlUpdateTerm: QueryFile;
     private sqlInsertAdditionalData: QueryFile;
     private sqlGetAppTermsByAppId: QueryFile;
     private sqlGetAppTermById: QueryFile;
     private sqlGetAppTermBySibling: QueryFile;
+    private sqlDeleteAppTermById: QueryFile;
+    private sqlDeleteAppTermByUUID: QueryFile;
 
     constructor() { 
         // load the queries
         this.sqlInsertTerm = sql_loader(path.join(__dirname, 'insert-app-term.sql'))
+        this.sqlUpdateTerm = sql_loader(path.join(__dirname, 'update-app-term.sql'))
         this.sqlInsertAdditionalData = sql_loader(path.join(__dirname, 'insert-additional-data.sql'))
         this.sqlGetAppTermsByAppId = sql_loader(path.join(__dirname, 'get-app-terms.sql'))
         this.sqlGetAppTermById = sql_loader(path.join(__dirname, 'get-app-term.sql'))
         this.sqlGetAppTermBySibling = sql_loader(path.join(__dirname, 'get-app-terms-by-sibling.sql'))
+        this.sqlDeleteAppTermById = sql_loader(path.join(__dirname, 'delete-app-term-by-id.sql'))
+        this.sqlDeleteAppTermByUUID = sql_loader(path.join(__dirname, 'delete-app-term-by-uuid.sql'))
     }
 
 
     /**
      * Saves a new AppTerm record to the database.
+     * 
+     * TODO: this needs to be refactored, too much going on here
      */
     public async newAppTerm(appId: number, item: IAppTerm | IAppTermList, transaction?: any): Promise<IAppTerm | IAppTermList> {
         try {
@@ -56,7 +63,8 @@ export class AppTermQuery {
                     _name: item._name.trim() || null,
                     _description: item._description || null,
                     _termTypeId: item._termTypeId,
-                    _unitId: item._unitId || null
+                    _unitId: item._unitId || null,
+                    _uuid: item._uuid || null
                 }
                 let newAppTerm: IAppTerm | IAppTermList;
                 if (transaction) {
@@ -195,6 +203,102 @@ export class AppTermQuery {
     }
 
     /**
+     * Update an existing AppTerm.
+     */
+    public async updateAppTerm(appId: number, item: IAppTerm, transaction?: any): Promise<IAppTerm | IAppTermList> {
+        try {
+            // Make sure this is wrapped in a transaction context
+            if (!transaction) {
+                // create the transaction if it doesn't exist
+                return db.tx('update AppTerm trans', (newTrans: any) => {
+                    // once the transaction is created, call again
+                    return this.updateAppTerm(appId, item, newTrans);
+                });
+            }
+            // continue with transaction...
+            // create the query params
+            const params = {
+                _id: item._id,
+                _name: item._name.trim() || null,
+                _description: item._description || null,
+                _termTypeId: item._termTypeId,
+                _unitId: item._unitId || null,
+                _uuid: item._uuid || null
+            }
+            let newAppTerm: IAppTerm | IAppTermList;
+            newAppTerm = await transaction.one(this.sqlUpdateTerm, params);
+            if (!newAppTerm._id) {
+                throw new Error(`${this.constructor.name}: _id missing from new AppTerm`);
+            }
+            logger.debug('Updated AppTerm');
+            logger.debug(util.inspect(newAppTerm));
+            return newAppTerm;
+        } catch (error) {
+            logger.error(`${this.constructor.name}: Error in updateAppTerm`);
+            logger.error(util.inspect(error));
+            throw error;
+        }
+    }
+
+    /**
+     * Delete an AppTerm object record by its numeric id.
+     *
+     * @param id The id of the AppTerm object.
+     * @param [transaction] The optional transaction context.
+     * @returns The number of records deleted.
+     */
+    public async deleteAppTermById(id: number, transaction?: any): Promise<number> {
+        try {
+            if (!id) {
+                logger.error(`${this.constructor.name}: deleteAppTermById expected an id, none found.`);
+                throw new Error('Missing required parameters.');
+            }
+            const params = {
+                _id: id
+            };
+            if (transaction) {
+                return transaction.result(this.sqlDeleteAppTermById, params, (r: any) => r.rowCount);
+            }
+            else {
+                return db.result(this.sqlDeleteAppTermById, params, (r: any) => r.rowCount);
+            }
+        } catch (error) {
+            logger.error(`${this.constructor.name}: Error in deleteAppTermById`);
+            logger.error(util.inspect(error));
+            throw error;
+        }
+    }
+
+    /**
+     * Delete an AppTerm object record by its uuid.
+     *
+     * @param uuid The uuid of the AppTerm object.
+     * @param [transaction] The optional transaction context.
+     * @returns The number of records deleted.
+     */
+    public async deleteAppTermByUUID(uuid: string, transaction?: any): Promise<number> {
+        try {
+            if (!uuid) {
+                logger.error(`${this.constructor.name}: deleteAppTermByUUId expected an uuid, none found.`);
+                throw new Error('Missing required parameters.');
+            }
+            const params = {
+                _uuid: uuid
+            };
+            if (transaction) {
+                return transaction.result(this.sqlDeleteAppTermByUUID, params, (r: any) => r.rowCount);
+            }
+            else {
+                return db.result(this.sqlDeleteAppTermByUUID, params, (r: any) => r.rowCount);
+            }
+        } catch (error) {
+            logger.error(`${this.constructor.name}: Error in deleteAppTermByUUID`);
+            logger.error(util.inspect(error));
+            throw error;
+        }
+    }
+
+    /**
      * Retrieves an array of AppTerm objects for a given appId
      */
     public async getAppTermsByAppId(appId: number, transaction?: any): Promise<Array<IAppTerm | IAppTermList>> {
@@ -241,7 +345,7 @@ export class AppTermQuery {
                 _id: id
             }
             if (transaction) {
-                return transaction.oneOrNone(this.getAppTermById, params);
+                return transaction.oneOrNone(this.sqlGetAppTermById, params);
             }
             else {
                 return db.oneOrNone(this.sqlGetAppTermById, params);
