@@ -6,10 +6,11 @@ import { IAppTermList } from ".";
 import { AppTermList } from './app-term-list';
 import { TermMappingAtomic } from '../term-mapping/term-mapping-atomic';
 import { TermMappingComposite } from '../term-mapping/term-mapping-composite';
+import { UUIDGenerator } from '../uuid-generator/uuid-generator';
 
-export class AppTerm {
+export class AppTerm extends UUIDGenerator {
     protected _id: number | null | undefined;
-    protected _fieldCode: string;
+    protected _fieldCode: string | null | undefined;
     protected _name: string;
     protected _description: string | null | undefined;
     protected _termTypeId: TermType;
@@ -19,6 +20,7 @@ export class AppTerm {
     protected _mapping: TermMappingAtomic | TermMappingComposite | null | undefined;
 
     constructor(data: IAppTerm) {
+        super();
         this._id = data._id;
         this._fieldCode = data._fieldCode;
         this._name = data._name;
@@ -30,7 +32,8 @@ export class AppTerm {
                 (item: IAppTermAdditionalInfo) => this._additionalInfo.push(new AppTermAdditionalInfo(item))
             );
         }
-        this._uuid = data._uuid || undefined;
+        // assign a uuid or generate a new one
+        this._uuid = data._uuid || this.generateUUID();
         this._unitId = data._unitId;
         this.validate();
     }
@@ -41,10 +44,10 @@ export class AppTerm {
     set id(value: number | null | undefined) {
         this._id = value;
     }
-    get fieldCode(): string {
+    get fieldCode(): string | null | undefined {
         return this._fieldCode;
     }
-    set fieldCode(value: string) {
+    set fieldCode(value: string | null | undefined) {
         this._fieldCode = value;
     }
     get name(): string {
