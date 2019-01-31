@@ -46,6 +46,14 @@ export class AppTermQuery {
      */
     public async newAppTerm(appId: number, item: IAppTerm | IAppTermList, transaction?: any): Promise<IAppTerm | IAppTermList> {
         try {
+            // make sure this is part of a db transaction
+            // create one if not and call again
+            if (!transaction) {
+                return db.tx('newAppTerm trans', (trans: any) => {
+                    return this.newAppTerm(appId, item, trans);
+                })
+            }
+            // make sure the list option name is present
             if (!item._name || !item._name.trim()) {
                 logger.error(`${this.constructor.name}: Missing name`);
                 throw new BedesError(
@@ -54,117 +62,85 @@ export class AppTermQuery {
                     'Missing required parameters'
                 );
             }
-            // wrap a set of database calls in a transaction context
-            const saveFunction = async (transaction: any): Promise<any> => {
-                // build the query parameters
-                const params = {
-                    _appId: appId,
-                    _fieldCode: item._fieldCode,
-                    _name: item._name.trim() || null,
-                    _description: item._description || null,
-                    _termTypeId: item._termTypeId,
-                    _unitId: item._unitId || null,
-                    _uuid: item._uuid || null
-                }
-                let newAppTerm: IAppTerm | IAppTermList;
-                if (transaction) {
-                    newAppTerm = await transaction.one(this.sqlInsertTerm, params);
-                }
-                else {
-                    newAppTerm = await db.one(this.sqlInsertTerm, params);
-                }
-                if (!newAppTerm._id) {
-                    throw new Error(`${this.constructor.name}: _id missing from new AppTerm`);
-                }
-                logger.debug('Created AppTerm');
-                logger.debug(util.inspect(newAppTerm));
-                newAppTerm._additionalInfo = new Array<IAppTermAdditionalInfo>();
-                // Created a variable for additinalInfo to stop the compiler from complaining.
-                const additionalInfo = newAppTerm._additionalInfo;
-                // write the additional data, if any
-                if (Array.isArray(item._additionalInfo) && item._additionalInfo.length) {
-                    let promises =  new Array<Promise<any>>();
-                    // @ts-ignore
-                    item._additionalInfo.forEach(
-                        (item: IAppTermAdditionalInfo) => {
-                            promises.push(
-                                // @ts-ignore
-                                this.newAppTermAdditionalData(newAppTerm._id, item, transaction)
-                                .then((newInfo: IAppTermAdditionalInfo) => {
-                                    // additionalInfo is the same array of additionalInfo
-                                    // that's attached to the newAppTerm.  See a few lines above.
-                                    additionalInfo.push(newInfo);
-                                    return newInfo;
-                                })
-                            );
-                        });
-                    newAppTerm._additionalInfo = await Promise.all(promises);
-                    
-                    logger.debug(`${this.constructor.name}: successfully wrote additional data`);
-                    logger.debug(util.inspect(newAppTerm));
-                }
-                // setup the list options if its a constrained list
-                if (newAppTerm._termTypeId === TermType.ConstrainedList) {
-                    // setup the returned object's list option array
-                    const appTermList = <IAppTermList>newAppTerm;
-                    const itemList = <IAppTermList>item;
-                    appTermList._listOptions = new Array<IAppTermListOption>();
-                    console.log('save the list options');
-                    console.log(itemList);
-                    console.log(appTermList);
-                    // save the list options if they're there
-                    if (
-                        Array.isArray(itemList._listOptions)
-                        && itemList._listOptions.length
-                    ) {
-                        let promises = new Array<Promise<any>>();
-                        for (let option of itemList._listOptions) {
-                            promises.push(
-                                bedesQuery.appTermListOption.newRecord(newAppTerm._id, option, transaction)
-                                .then((newOption: IAppTermListOption) => {
-                                    // @ts-ignore
-                                    appTermList._listOptions.push(newOption);
-                                    return newOption;
-                                }, (error: any) => {
-                                    logger.error('Error creation list option');
-                                    console.log(option);
-                                    console.log(error);
-                                    if (error && error.code === "23505") {
-                                        throw new BedesError(
-                                            'Duplicate list option',
-                                            HttpStatusCodes.BadRequest_400,
-                                            'Duplicate list option.'
-                                        );
-                                    }
-                                    else {
-                                        throw error;
-                                    }
-                                })
-                            );
-                        }
-                        // wait for the list option queries to finish
-                        await Promise.all(promises);;
-                    }
-                    return appTermList;
-                }
-                else {
-                    // return an IAppTerm
-                    return <IAppTerm>newAppTerm;
-                }
+            // build the query parameters
+            const params = {
+                _appId: appId,
+                _fieldCode: item._fieldCode,
+                _name: item._name.trim() || null,
+                _description: item._description || null,
+                _termTypeId: item._termTypeId,
+                _unitId: item._unitId || null,
+                _uuid: item._uuid || null
             }
-            logger.debug('wait for transaction to finish...');
-            let appTerm: IAppTerm | IAppTermList;
-            if (transaction) {
-                // use an existing transaction context
-                appTerm = await saveFunction(transaction);
+            // insert the record, should get back the new object record saved
+            const newAppTerm: IAppTerm | IAppTermList = await transaction.one(this.sqlInsertTerm, params);
+            if (!newAppTerm || !newAppTerm._id) {
+                throw new Error(`${this.constructor.name}: _id missing from new AppTerm`);
+            }
+            // create the AdditionalInfo object
+            newAppTerm._additionalInfo = new Array<IAppTermAdditionalInfo>();
+            // Created a variable for additinalInfo to stop the linter from complaining.
+            const additionalInfo = newAppTerm._additionalInfo;
+            // write the additional data, if any
+            if (Array.isArray(item._additionalInfo) && item._additionalInfo.length) {
+                let promises =  new Array<Promise<any>>();
+                additionalInfo.forEach((item: IAppTermAdditionalInfo) => {
+                    promises.push(
+                        // @ts-ignore
+                        this.newAppTermAdditionalData(newAppTerm._id, item, transaction)
+                        .then((newInfo: IAppTermAdditionalInfo) => {
+                            // additionalInfo is the same array of additionalInfo
+                            // that's attached to the newAppTerm.  See a few lines above.
+                            additionalInfo.push(newInfo);
+                            return newInfo;
+                        })
+                    );
+                });
+                newAppTerm._additionalInfo = await Promise.all(promises);
+            }
+            // setup the list options if its a constrained list
+            if (newAppTerm._termTypeId === TermType.ConstrainedList) {
+                // setup the returned object's list option array
+                const appTermList = <IAppTermList>newAppTerm;
+                const itemList = <IAppTermList>item;
+                appTermList._listOptions = new Array<IAppTermListOption>();
+                // save the list options if they're there
+                if (
+                    Array.isArray(itemList._listOptions)
+                    && itemList._listOptions.length
+                ) {
+                    let promises = new Array<Promise<any>>();
+                    for (let option of itemList._listOptions) {
+                        promises.push(
+                            bedesQuery.appTermListOption.newRecord(newAppTerm._id, option, transaction)
+                            .then((newOption: IAppTermListOption) => {
+                                // @ts-ignore
+                                appTermList._listOptions.push(newOption);
+                                return newOption;
+                            }, (error: any) => {
+                                logger.error('Error creation list option');
+                                if (error && error.code === "23505") {
+                                    throw new BedesError(
+                                        'Duplicate list option',
+                                        HttpStatusCodes.BadRequest_400,
+                                        'Duplicate list option.'
+                                    );
+                                }
+                                else {
+                                    throw error;
+                                }
+                            })
+                        );
+                    }
+                    // wait for the list option queries to finish
+                    await Promise.all(promises);;
+                }
+                return appTermList;
             }
             else {
-                // otherwise run the set of database calls as a transaction
-                appTerm = await db.tx('epb-project-trans', saveFunction);
+                // return an IAppTerm
+                return <IAppTerm>newAppTerm;
             }
-            logger.debug('done with transaction');
-            console.log(appTerm);
-            return appTerm; 
 
         } catch (error) {
             logger.error(`${this.constructor.name}: Error in newAppTerm`);
@@ -203,7 +179,7 @@ export class AppTermQuery {
     }
 
     /**
-     * Update an existing AppTerm.
+     * Update an existing AppTerm record.
      */
     public async updateAppTerm(appId: number, item: IAppTerm, transaction?: any): Promise<IAppTerm | IAppTermList> {
         try {
@@ -215,8 +191,13 @@ export class AppTermQuery {
                     return this.updateAppTerm(appId, item, newTrans);
                 });
             }
-            // continue with transaction...
-            // create the query params
+            const appTermId = item._id || undefined;
+            if (!appTermId) {
+                logger.error(`${this.constructor.name}: updateAppTerm expected a valid appTermId, none found`);
+                console.log(item);
+                throw new Error('Invalid updated on AppTerm object');
+            }
+            // create the query params for updating the AppTerm record.
             const params = {
                 _id: item._id,
                 _name: item._name.trim() || null,
@@ -225,14 +206,48 @@ export class AppTermQuery {
                 _unitId: item._unitId || null,
                 _uuid: item._uuid || null
             }
-            let newAppTerm: IAppTerm | IAppTermList;
-            newAppTerm = await transaction.one(this.sqlUpdateTerm, params);
-            if (!newAppTerm._id) {
+            // update the record, should get back the new updated record
+            const newAppTerm: IAppTerm | IAppTermList = await transaction.one(this.sqlUpdateTerm, params, transaction);
+            if (!newAppTerm || !newAppTerm._id) {
                 throw new Error(`${this.constructor.name}: _id missing from new AppTerm`);
             }
-            logger.debug('Updated AppTerm');
-            logger.debug(util.inspect(newAppTerm));
-            return newAppTerm;
+            // update the list options
+            if (newAppTerm._termTypeId === TermType.Atomic) {
+                // AppTerm is a [value] term
+                // remove all listOptions in case any exist
+                bedesQuery.appTermListOption.deleteByTermTypeId(appTermId, transaction);
+                return <IAppTerm>newAppTerm;
+            }
+            else {
+                // new AppTerm is a constrained list
+                // save/update app terms
+                bedesQuery.appTermListOption.deleteByTermTypeId(appTermId, transaction);
+                // get a reference to the AppTerm as an AppTermList
+                const itemList = <IAppTermList>item;
+                // create the array of list options
+                itemList._listOptions = new Array<IAppTermListOption>();
+                // get a reference to the new list option array
+                const newListOptions = itemList._listOptions;
+                // keeps track of the listOption query promises
+                const promises = new Array<Promise<IAppTermListOption>>();
+                if (itemList._listOptions && Array.isArray(itemList._listOptions)) {
+                    // Write the listOptions
+                    for (let listOption of itemList._listOptions) {
+                        // write the individual listOption
+                        promises.push(
+                            bedesQuery.appTermListOption.newRecord(appTermId, listOption, transaction)
+                            .then((newListOption: IAppTermListOption) => {
+                                // add the updated listOption record to the new AppTermList
+                                newListOptions.push(newListOption);
+                                return newListOption;
+                            })
+                        );
+                    }
+                    // wait for list option promises to resolve
+                    await Promise.all(promises);
+                }
+                return <IAppTermList>newAppTerm;
+            }
         } catch (error) {
             logger.error(`${this.constructor.name}: Error in updateAppTerm`);
             logger.error(util.inspect(error));

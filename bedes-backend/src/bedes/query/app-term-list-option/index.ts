@@ -13,16 +13,20 @@ export class AppTermListOptionQuery {
     private sqlInsert: QueryFile;
     private sqlUpdate: QueryFile;
     private sqlDelete: QueryFile;
+    private sqlDeleteByAppTermId: QueryFile;
 
     constructor() { 
         this.sqlInsert = sql_loader(path.join(__dirname, 'insert.sql'))
         this.sqlUpdate = sql_loader(path.join(__dirname, 'update.sql'))
         this.sqlDelete = sql_loader(path.join(__dirname, 'delete.sql'))
+        this.sqlDeleteByAppTermId = sql_loader(path.join(__dirname, 'delete-by-app-term-id.sql'))
     }
 
     /**
      * Insert a new AppTermListOption record.
-     * @param appTermId - The id of the term the option is linked to.
+     * @param appTermId The id of the AppTerm the listOption is linked to.
+     * @param item The IAppTermListOption object to save.
+     * @returns The new IAppTermListOption that was just created.
      */
     public newRecord(appTermId: number, item: IAppTermListOption, transaction?: any): Promise<IAppTermListOption> {
         try {
@@ -99,6 +103,36 @@ export class AppTermListOptionQuery {
             };
             const dbContext = transaction ? transaction : db;
             return dbContext.result(this.sqlDelete, params, (a: any) => a.rowCount)
+        } catch (error) {
+            logger.error(`${this.constructor.name}: Error in deleteRecord`);
+            logger.error(util.inspect(error));
+            throw error;
+        }
+    }
+
+    /**
+     * Removes all AppTermListOption records linked to an AppTerm.
+     *
+     * @param termTypeId The id of the AppTerm for which all of the listOptions are being removed.
+     * @param [transaction] Optional database transaction context.
+     * @returns The number of records deleted.
+     */
+    public deleteByTermTypeId(termTypeId: number, transaction?: any): Promise<number> {
+        try {
+            if (!termTypeId) {
+                logger.error(`${this.constructor.name}: Missing termTypeId`);
+                throw new BedesError(
+                    'Missing required parameters.',
+                    HttpStatusCodes.BadRequest_400,
+                    'Missing required parameters.'
+                );
+            }
+            const params = {
+                _termTyped: termTypeId
+            };
+            // set the db context
+            const dbContext = transaction ? transaction : db;
+            return dbContext.result(this.sqlDeleteByAppTermId, params, (a: any) => a.rowCount)
         } catch (error) {
             logger.error(`${this.constructor.name}: Error in deleteRecord`);
             logger.error(util.inspect(error));
