@@ -14,6 +14,10 @@ import { BedesUnit } from '@bedes-common/models/bedes-unit/bedes-unit';
 import { AppTermService } from '../../../services/app-term/app-term.service';
 import { TableCellNameNavComponent } from '../../application-home/application-list/table-cell-name-nav/table-cell-name-nav.component';
 import { TermType } from '@bedes-common/enums/term-type.enum';
+import { TableCellAppTermNavComponent } from './table-cell-app-term-nav/table-cell-app-term-nav.component';
+import { TableCellMessageType } from './table-cell-message-type.enum';
+import { MatDialog } from '@angular/material';
+import { ConfirmDialogComponent } from '../../dialogs/confirm-dialog/confirm-dialog.component';
 
 /**
  * Interface for the rows of grid objects.
@@ -34,6 +38,10 @@ export class AppTermListComponent implements OnInit {
     // When a new appTermList is received, this flag is set to true
     private gridDataNeedsSet: boolean
     private ngUnsubscribe: Subject<void> = new Subject<void>();
+    // the active MappingApplication
+    public app: MappingApplication;
+    // the selected row in the grid,
+    // ie the selected AppTerm (row.ref)
     public selectedItem: IAppRow;
     // lists
     public appTermList: Array<AppTerm | AppTermList> | undefined;
@@ -47,7 +55,9 @@ export class AppTermListComponent implements OnInit {
         private router: Router,
         private route: ActivatedRoute,
         private activatedRoute: ActivatedRoute,
-        private appTermService: AppTermService
+        private appService: ApplicationService,
+        private appTermService: AppTermService,
+        private dialog: MatDialog
     ) {}
 
     ngOnInit() {
@@ -55,6 +65,7 @@ export class AppTermListComponent implements OnInit {
         this.gridDataNeedsSet = false;
         this.gridSetup();
         this.setTableContext();
+        this.subscrbeToApplicationData();
         this.subscribeToAppTermList();
     }
 
@@ -62,6 +73,17 @@ export class AppTermListComponent implements OnInit {
         // unsubscribe from the subjects
         this.ngUnsubscribe.next();
         this.ngUnsubscribe.complete();
+    }
+
+    /**
+     * Subscribe to the active MappingApplication object.
+     */
+    private subscrbeToApplicationData(): void {
+        this.appService.selectedItemSubject
+            .pipe(takeUntil(this.ngUnsubscribe))
+            .subscribe((app: MappingApplication) => {
+                this.app = app;
+            });
     }
 
     /**
@@ -99,21 +121,6 @@ export class AppTermListComponent implements OnInit {
         const newTerm = new AppTerm(params);
         this.appTermService.setActiveTerm(newTerm);
         this.router.navigate(['new'], {relativeTo: this.route});
-    }
-
-    /**
-     * Edit the selected AppTerm.
-     * Set's the selectedTerm as the active term,
-     * and navigates to the AppTerm/edit route.
-     */
-    public editSelectedTerm(): void {
-
-    }
-
-    /**
-     * Remove the selected AppTerm.
-     */
-    public removeSelectedTerm(): void {
     }
 
     /**
@@ -173,22 +180,69 @@ export class AppTermListComponent implements OnInit {
     // }
 
     /**
+     * Confirm the removal of an AppTerm before calling the backend API.
+     */
+    private confirmRemoveSelectedItem(appTerm: AppTerm | AppTermList): void {
+        const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+            panelClass: 'dialog-no-padding',
+            width: '450px',
+            position: {top: '20px'},
+            data: {
+                dialogTitle: 'Confirm?',
+                dialogContent: 'Remove the selected terms?',
+            }
+        });
+        dialogRef.afterClosed().subscribe((results: boolean) => {
+            console.log('dialogRef.afterClosed()', results);
+            if (results) {
+                this.removeSelectedItem(appTerm);
+            }
+        });
+    }
+
+    /**
      * Remove the application that's currently selected in the table.
      */
-    public removeSelectedItem(): void {
-        console.log(`${this.constructor.name}: removeSelectedItem`);
+    private removeSelectedItem(appTerm: AppTerm | AppTermList): void {
+        // get the reference to the selected AppTerm, if there is one
+        if (appTerm && appTerm.id) {
+            // remove the term
+            this.appTermService.removeTerm(this.app.id, appTerm)
+            .subscribe((results: number) => {
+                console.log(`${this.constructor.name}: delete appTerm success`, results);
+            }, (error: any) => {
+                console.log('An error occurred removing AppTerm', error);
+            });
+        }
+        else {
+            throw new Error('removeSelectedItem expected a valid AppTerm and id');
+        }
     }
 
     /**
      * Edit the selectedItem App object,
      * ie changes the view to app-edit/:id
      */
-    public editSelectedItem(): void {
-        console.log(`${this.constructor.name}: edit selected item`, this.selectedItem);
+    private editSelectedItem(appTerm: AppTerm | AppTermList): void {
+        console.log(`${this.constructor.name}: edit selected item`, appTerm);
         // set the activeTerm in the service
-        this.appTermService.setActiveTerm(this.selectedItem.ref);
+        this.appTermService.setActiveTerm(appTerm);
         // navigate to the term-edit view
         this.router.navigate([this.selectedItem.ref.id], {relativeTo: this.activatedRoute});
+    }
+
+    /**
+     * Receives messages from the grid from interactions with AppTerm row buttons.
+     */
+    public messageFromGrid(messageType: TableCellMessageType, selectedRow: IAppRow): void {
+        console.log(`${this.constructor.name}: received message from grid`, messageType, selectedRow);
+        this.selectedItem = selectedRow;
+        if (messageType === TableCellMessageType.View) {
+            this.editSelectedItem(selectedRow.ref);
+        }
+        else if (messageType === TableCellMessageType.Remove) {
+            this.confirmRemoveSelectedItem(selectedRow.ref);
+        }
     }
 
     /**
@@ -205,15 +259,9 @@ export class AppTermListComponent implements OnInit {
     private buildColumnDefs(): Array<ColDef> {
         return [
             {
-                headerName: 'Name',
+                headerName: 'Application Term Name',
                 field: 'ref.name',
-                checkboxSelection: true
-                // minWidth: 250,
-                // cellRendererFramework: TableCellNameNavComponent
-            },
-            {
-                headerName: 'Description',
-                field: 'ref.description'
+                cellRendererFramework: TableCellAppTermNavComponent
             },
             {
                 headerName: 'Mapped BEDES Term Name',

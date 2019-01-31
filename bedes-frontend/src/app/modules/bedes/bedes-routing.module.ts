@@ -12,9 +12,6 @@ import { ManageDefinitionSourceListComponent } from './components/list-managemen
 import { BedesTermDetailsListOptionsComponent } from './components/bedes-term-details/bedes-term-details-list-options/bedes-term-details-list-options.component';
 import { EditTermListOptionComponent } from './components/bedes-term-details/bedes-term-details-list-options/edit-term-list-option/edit-term-list-option.component';
 import { NewTermListOptionComponent } from './components/bedes-term-details/bedes-term-details-list-options/new-term-list-option/new-term-list-option.component';
-import { CompositeTermComponent } from './components/composite-term/composite-term.component';
-import { SelectTermsComponent } from './components/composite-term/select-terms/select-terms.component';
-import { CompositeTermEditComponent } from './components/composite-term/composite-term-edit/composite-term-edit.component';
 import { ApplicationListComponent } from './components/application-home/application-list/application-list.component';
 import { ApplicationNewComponent } from './components/application-home/application-new/application-new.component';
 import { ApplicationEditComponent } from './components/application-home/application-edit/application-edit.component';
@@ -22,10 +19,9 @@ import { ApplicationResolverService } from './services/application/application-r
 import { ApplicationHomeComponent } from './components/application-home/application-home.component';
 import { AppTermListComponent } from './components/app-term/app-term-list/app-term-list.component';
 import { AppTermEditComponent } from './components/app-term/app-term-edit/app-term-edit.component';
-import { AppTermListResolverService } from './services/app-term-list/app-term-list-resolver.service';
-import { AppTermResolverService } from './services/app-term/app-term-resolver.service';
 import { CompositeTermListComponent } from './components/term-builder-home/composite-term-list/composite-term-list.component';
 import { CompositeTermResolverService } from './services/composite-term/composite-term-resolver.service';
+import { AppTermListResolverService } from './services/app-term-list/app-term-list-resolver.service';
 
 const appRoutes: Routes = [
     { path: 'search', component: BedesTermSearchComponent },

@@ -1,7 +1,7 @@
 <div style="display: flex;">
     <mat-card style="flex: 1;" class="bedes-content-card mat-elevation-z0 mat-typography">
         <mat-card-content>
-            <h1 style="text-align: center;">Implementation Term</h1>
+            <h1 style="text-align: center;">Application Term</h1>
             <!-- Button toolbar -->
             <div style="display:flex;">
                 <a mat-stroked-button
@@ -11,6 +11,7 @@
                     Back
                 </a>
                 <button mat-stroked-button color="primary"
+                (click)="saveAppTerm()"
                 [disabled]="dataForm.invalid" >
                     <fa-icon [icon]="['fas', 'save']"></fa-icon>
                     Save
@@ -19,13 +20,22 @@
             <!-- Messages -->
             <!-- Missing required fields -->
             <!-- <div class="alert-warn" style="margin: 10px 0 10px 0; text-align:left;"
-                *ngIf="currentRequestStatus === RequestStatus.Idle && dataForm.invalid">
-                    <span style="font-weight:bold; padding-right:10px;">Status:</span>
-                    <span>
-                        <fa-icon [icon]="['fas', 'exclamation-triangle']"></fa-icon>
-                        Missing required fields.
-                    </span>
-                </div> -->
+                *ngIf="true">
+                <span style="font-weight:bold; padding-right:10px;">Status:</span>
+                <span>
+                    <fa-icon [icon]="['fas', 'exclamation-triangle']"></fa-icon>
+                    Missing required fields.
+                </span>
+            </div> -->
+            <!-- Known Error-->
+            <div class="alert-warn" style="margin: 10px 0 10px 0; text-align:left;"
+                *ngIf="hasError">
+                <span style="font-weight:bold; padding-right:10px;">Status:</span>
+                <span>
+                    <fa-icon [icon]="['fas', 'exclamation-triangle']"></fa-icon>
+                    {{ errorMessage }}
+                </span>
+            </div>
 
 
 
@@ -42,6 +52,21 @@
                     <textarea matInput placeholder="Enter a Description" formControlName="description" rows="5">
                     </textarea>
                 </mat-form-field>
+                <!-- Units -->
+                <div style="display:flex;" *ngIf="unitList">
+                    <mat-form-field style="flex:1; margin-bottom:5px;" appearance="outline">
+                        <mat-label>Unit</mat-label>
+                        <mat-select #unitInput placeholder="Select a Unit" formControlName="unitId">
+                            <mat-option *ngFor="let item of unitList" [value]="item.id">
+                                {{item.name}}
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                </div>
+                <mat-form-field style="flex:1; margin-bottom:5px;" appearance="outline" *ngIf="appTerm.uuid || true">
+                    <mat-label>UUID</mat-label>
+                    <input matInput formControlName="uuid">
+                </mat-form-field>
                 <!-- Type of Term dropdown -->
                 <div style="display:flex;">
                     <mat-form-field style="flex:1; margin-bottom:5px;" appearance="outline">
@@ -55,10 +80,12 @@
                 </div>
             </form>
 
-            <!-- List options -->
 
-            <!-- The grid -->
-            <div style=" overflow: hidden; flex-grow: 1" *ngIf="typeOfTerm.value === TermType.ConstrainedList">
+            <!-- List options -->
+            <!-- List option container-->
+            <div style=" overflow: hidden; flex-grow: 1"
+            *ngIf="appTerm && appTerm.termTypeId === TermType.ConstrainedList && shouldShowListOptionGrid()">
+                <mat-divider></mat-divider>
                 <h2 style="text-align: center;">List Options</h2>
                 <!-- Button toolbar -->
                 <div>
@@ -66,16 +93,18 @@
                         <fa-icon [icon]="['fas', 'plus-circle']"></fa-icon>
                         New
                     </button>
-                    <button mat-stroked-button color="primary" (click)="editListOption()" [disabled]="!selectedOption">
+                    <!-- <button mat-stroked-button color="primary" (click)="editListOption()" [disabled]="!selectedOption">
                         <fa-icon [icon]="['fas', 'edit']"></fa-icon>
                         Edit
                     </button>
                     <button mat-stroked-button color="primary" [disabled]="!selectedOption" (click)="removeListOption()">
                         <fa-icon [icon]="['fas', 'trash']"></fa-icon>
                         Remove Selected
-                    </button>
+                    </button> -->
                 </div>
 
+                <!-- Messages -->
+                <!-- No list options -->
                 <div class="alert-accent" style="margin-top:10px;"
                 *ngIf="!appTerm?.listOptions.length">
                     <h3 style="margin: 0; padding:0;">
@@ -93,6 +122,15 @@
                 [context]="tableContext"
                 class="ag-theme-balham">
                 </ag-grid-angular>
+
+            </div>
+
+            <!-- New list option view -->
+            <div *ngIf="shouldShowNewListOption()">
+                <mat-divider></mat-divider>
+                <!-- EditListOptionComponent - new list option -->
+                <app-edit-list-option (backEvent)="backToListView()">
+            </app-edit-list-option>
             </div>
 
             <!-- List options -->

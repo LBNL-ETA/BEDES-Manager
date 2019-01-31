@@ -75,6 +75,8 @@ import { SelectedTermsOrderComponent } from './components/term-builder-home/sele
 import { TableCellItemNameComponent } from './components/term-builder-home/selected-terms-table/table-cell-item-name/table-cell-item-name.component';
 import { BedesMapSearchComponent } from './components/app-term/app-term-edit/bedes-map-search/bedes-map-search.component';
 import { MappingViewComponent } from './components/app-term/app-term-edit/mapping-view/mapping-view.component';
+import { TableCellAppTermNavComponent } from './components/app-term/app-term-list/table-cell-app-term-nav/table-cell-app-term-nav.component';
+import { AppTermListOptionService } from './services/app-term-list-option/app-term-list-option.service';
 
 @NgModule({
     imports: [
@@ -145,6 +147,7 @@ import { MappingViewComponent } from './components/app-term/app-term-edit/mappin
         TableCellItemNameComponent,
         BedesMapSearchComponent,
         MappingViewComponent,
+        TableCellAppTermNavComponent
     ],
     entryComponents: [
         BedesTermSearchDialogComponent,
@@ -152,7 +155,8 @@ import { MappingViewComponent } from './components/app-term/app-term-edit/mappin
         TableCellBedesCategoryComponent,
         TableCellTermNameComponent,
         TableCellNameNavComponent,
-        TableCellItemNameComponent
+        TableCellItemNameComponent,
+        TableCellAppTermNavComponent
     ],
     providers: [
         BedesTermSearchService,
@@ -180,7 +184,8 @@ import { MappingViewComponent } from './components/app-term/app-term-edit/mappin
         BedesTermSelectorService,
         BedesTermListOptionService,
         ApplicationService,
-        CompositeTermService
+        CompositeTermService,
+        AppTermListOptionService
     ]
 })
 export class BedesModule { }

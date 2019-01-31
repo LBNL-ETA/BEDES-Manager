@@ -10,14 +10,14 @@ import { SupportListType } from '../../../../services/support-list/support-list-
 import { getResultTypeName } from '../../../../lib/get-result-type-name';
 import { SearchResultType } from '@bedes-common/models/bedes-search-result/search-result-type.enum';
 import { takeUntil } from 'rxjs/operators';
-import { AppTerm } from '../../../../../../../../../bedes-common/models/app-term/app-term';
+import { AppTerm } from '@bedes-common/models/app-term/app-term';
 import { AppTermService } from '../../../../services/app-term/app-term.service';
 import { Subject } from 'rxjs';
-import { TermMappingComposite } from '../../../../../../../../../bedes-common/models/term-mapping/term-mapping-composite';
-import { ITermMappingComposite } from '../../../../../../../../../bedes-common/models/term-mapping/term-mapping-composite.interface';
+import { TermMappingComposite } from '@bedes-common/models/term-mapping/term-mapping-composite';
+import { ITermMappingComposite } from '@bedes-common/models/term-mapping/term-mapping-composite.interface';
 import { BedesTermService } from '../../../../services/bedes-term/bedes-term.service';
 import { CompositeTermService } from 'src/app/modules/bedes/services/composite-term/composite-term.service';
-import { BedesCompositeTerm } from '../../../../../../../../../bedes-common/models/bedes-composite-term/bedes-composite-term';
+import { BedesCompositeTerm } from '@bedes-common/models/bedes-composite-term/bedes-composite-term';
 import { ITermMappingAtomic } from '@bedes-common/models/term-mapping/term-mapping-atomic.interface';
 import { TermMappingAtomic } from '@bedes-common/models/term-mapping/term-mapping-atomic';
 

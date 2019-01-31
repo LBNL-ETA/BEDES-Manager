@@ -9,27 +9,29 @@
                 </button>
                 <button mat-stroked-button color="primary"
                 [disabled]="dataForm.invalid || currentControlState !== ControlState.Normal"
-                (click)="updateListOption()"
+                (click)="saveListOption()"
                 *ngIf="currentRequestStatus !== RequestStatus.Success">
                     <fa-icon [icon]="['fas', 'save']"></fa-icon>
-                    Save
+                    Save New List Option
                 </button>
             </div>
+            <!-- Messages -->
             <div style="min-height: 38px;">
-                <div class="alert-warn" style="margin: 10px 0 10px 0; text-align:left;" *ngIf="currentRequestStatus === RequestStatus.Idle && dataForm.invalid">
+                <!-- Required fields Message -->
+                <div class="alert-warn" style="margin: 10px 0 10px 0; text-align:left;"*ngIf="currentRequestStatus === RequestStatus.Idle && dataForm.invalid">
                     <span style="font-weight:bold; padding-right:10px;">Status:</span>
                     <span>
                         <fa-icon [icon]="['fas', 'exclamation-triangle']"></fa-icon>
                         Missing required fields.
                     </span>
                 </div>
-                <div class="alert-accent" style="margin: 10px 0 10px 0; text-align:left;" *ngIf="currentRequestStatus === RequestStatus.Idle && dataForm.valid">
+                <!-- <div class="alert-accent" style="margin: 10px 0 10px 0; text-align:left;" *ngIf="currentRequestStatus === RequestStatus.Idle && dataForm.valid">
                     <span style="font-weight:bold; padding-right:10px;">Status:</span>
                     <span>
                         <fa-icon [icon]="['fas', 'check']"></fa-icon>
                         Ready to save.
                     </span>
-                </div>
+                </div> -->
                 <div class="alert-success" style="margin: 10px 0 10px 0; text-align:left;" *ngIf="currentRequestStatus === RequestStatus.Success">
                     <span style="font-weight:bold; padding-right:10px;">Status:</span>
                     <span>
@@ -44,14 +46,14 @@
                         An error occured creating the list option.
                     </span>
                 </div>
-                <div class="alert-accent" style="margin: 10px 0 10px 0; text-align:left;"
+                <!-- <div class="alert-accent" style="margin: 10px 0 10px 0; text-align:left;"
                 *ngIf="currentRequestStatus === RequestStatus.Pending">
                     <span style="font-weight:bold; padding-right:10px;">Status:</span>
                     <span>
                         <fa-icon [icon]="['fas', 'spinner']" [spin]="true" [size]="lg"></fa-icon>
                         Waiting...
                     </span>
-                </div>
+                </div> -->
             </div>
             <form [formGroup]="dataForm" style="display:flex; flex-direction: column; margin-top:10px">
                 <mat-form-field style="flex:1; margin-bottom:5px;" appearance="outline" hintLabel="* Required">
@@ -62,16 +64,6 @@
                     <mat-label>Description</mat-label>
                     <textarea matInput placeholder="Description" formControlName="description" rows="5"></textarea>
                 </mat-form-field>
-                <div style="display:flex; flex-direction: row;">
-                    <mat-form-field style="flex:1;" appearance="outline">
-                        <mat-label>Unit</mat-label>
-                        <mat-select placeholder="Unit" formControlName="unitId" *ngIf="unitList.length">
-                            <mat-option *ngFor="let item of unitList" [value]="item.id">
-                                {{item.name}}
-                            </mat-option>
-                        </mat-select>
-                    </mat-form-field>
-                </div>
             </form>
         </mat-card-content>
     </mat-card>
