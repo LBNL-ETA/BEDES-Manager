@@ -25,10 +25,12 @@ export class TermMappingComposite {
         this._compositeTerm = value;
     }
     
-    constructor(data: ITermMappingComposite) {
-        this._id = data._id;
-        this._appListOption = new AppTermListOption(data._appListOption);
-        this._compositeTerm = new BedesCompositeTerm(data._compositeTerm);
+    constructor(data?: ITermMappingComposite) {
+        if (data) {
+            this._id = data._id;
+            this._appListOption = data._appListOption ? new AppTermListOption(data._appListOption) : undefined;
+            this._compositeTerm = data._compositeTerm ? new BedesCompositeTerm(data._compositeTerm) : undefined;
+        }
     }
 
     public toInterface(): ITermMappingComposite {

@@ -33,11 +33,13 @@ export class TermMappingAtomic {
         this._bedesListOption = value;
     }
     
-    constructor(data: ITermMappingAtomic) {
-        this._id = data._id;
-        this._appListOption = new AppTermListOption(data._appListOption);
-        this._bedesTerm = new BedesTerm(data._bedesTerm);
-        this._bedesListOption = new BedesTermOption(data._bedesListOption);
+    constructor(data?: ITermMappingAtomic) {
+        if (data) {
+            this._id = data._id;
+            this._appListOption = data._appListOption ? new AppTermListOption(data._appListOption) : undefined;
+            this._bedesTerm = data._bedesTerm ? new BedesTerm(data._bedesTerm) : undefined;
+            this._bedesListOption = data._bedesListOption ? new BedesTermOption(data._bedesListOption) : undefined;
+        }
     }
 
     public toInterface(): ITermMappingAtomic {

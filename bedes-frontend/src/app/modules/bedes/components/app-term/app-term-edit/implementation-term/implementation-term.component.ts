@@ -21,6 +21,22 @@ import { TableCellMessageType } from '../../app-term-list/table-cell-message-typ
 import { AppTermListOptionService } from '../../../../services/app-term-list-option/app-term-list-option.service';
 import { MatDialog } from '@angular/material';
 import { ConfirmDialogComponent } from '../../../dialogs/confirm-dialog/confirm-dialog.component';
+import { BedesTermSearchDialogComponent } from '../../../dialogs/bedes-term-search-dialog/bedes-term-search-dialog.component';
+import { ISearchDialogOptions } from '../../../dialogs/bedes-term-search-dialog/search-dialog-options.interface';
+import { BedesSearchResult } from '@bedes-common/models/bedes-search-result/bedes-search-result';
+import { SearchResultType } from '@bedes-common/models/bedes-search-result/search-result-type.enum';
+import { BedesCompositeTerm } from '@bedes-common/models/bedes-composite-term/bedes-composite-term';
+import { BedesConstrainedList } from '@bedes-common/models/bedes-term/bedes-constrained-list';
+import { BedesTerm } from '@bedes-common/models/bedes-term/bedes-term';
+import { TermMappingComposite } from '@bedes-common/models/term-mapping/term-mapping-composite';
+import { CompositeTermService } from '../../../../services/composite-term/composite-term.service';
+import { BedesTermService } from '../../../../services/bedes-term/bedes-term.service';
+import { TermMappingAtomic } from '@bedes-common/models/term-mapping/term-mapping-atomic';
+import { TableCellMapListOptionComponent } from '../table-cell-map-list-option/table-cell-map-list-option.component';
+import { MappingTableMessageType } from '../mapping-table-message-type.enum';
+import { ListOptionMapDialogComponent } from '../../../dialogs/list-option-map-dialog/list-option-map-dialog.component';
+import { BedesTermOption } from '../../../../../../../../../bedes-common/models/bedes-term-option/bedes-term-option';
+import { TermMappingListOption } from '../../../../../../../../../bedes-common/models/term-mapping/term-mapping-list-option';
 
 
 enum RequestStatus {
@@ -37,7 +53,10 @@ enum ControlState {
 interface IGridRow {
     implFieldName: string | null | undefined;
     implUnitId: number | null | undefined;
-    ref: AppTermListOption
+    ref: AppTermListOption;
+    showMappingButtons: boolean;
+    hasMapping: boolean;
+    mappedName: string | null | undefined;
 }
 
 
@@ -114,6 +133,8 @@ export class ImplementationTermComponent implements OnInit {
         private appService: ApplicationService,
         private appTermService: AppTermService,
         private listOptionService: AppTermListOptionService,
+        private bedesTermService: BedesTermService,
+        private compositeTermService: CompositeTermService,
         private supportListService: SupportListService,
         private dialog: MatDialog
     ) { }
@@ -454,8 +475,9 @@ export class ImplementationTermComponent implements OnInit {
                 // cellRendererFramework: TableCellNameNavComponent
             },
             {
-                headerName: 'Mapped BEDES Term Name',
-                field: 'mappedBedesTerm.name'
+                headerName: 'BEDES Option Mapping',
+                field: 'mappedName',
+                cellRendererFramework: TableCellMapListOptionComponent
             }
         ];
     }
@@ -473,18 +495,37 @@ export class ImplementationTermComponent implements OnInit {
             //         mappedBedesTerm: {name: 'Some mapped BEDES Term'}
             //     });
             // })
+            const shouldShowMappingButtons = this.shouldShowMappingButtons();
             if (this.appTerm instanceof AppTermList && this.appTerm.listOptions.length) {
                 this.appTerm.listOptions.forEach((item: AppTermListOption) => {
+                    console.log(item);
+                    console.log(item.mapping && item.mapping.listOption ? item.mapping.listOption.name : '');
                     gridData.push(<IGridRow>{
-                        ref: item
+                        ref: item,
+                        showMappingButtons: shouldShowMappingButtons,
+                        hasMapping: item.mapping && item.mapping.listOption ? true : false,
+                        mappedName: item.mapping && item.mapping.listOption ? item.mapping.listOption.name : ''
                     })
                 })
             }
             this.gridOptions.api.setRowData(gridData);
+            console.log('grid data');
+            console.log(gridData);
             this.gridDataNeedsSet = false;
         }
     }
 
+    public shouldShowMappingButtons(): boolean {
+        if (this.appTerm
+            && this.appTerm.mapping instanceof TermMappingAtomic
+            && this.appTerm.mapping.bedesTerm instanceof BedesConstrainedList
+        ) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
     /**
      * Set the execution context for the table.  Used for cell renderers
      * to be able to access the parent component methods.
@@ -509,6 +550,25 @@ export class ImplementationTermComponent implements OnInit {
             }
             else if (messageType === TableCellMessageType.Remove) {
                 this.confirmRemoveListOption(listOption);
+            }
+        }
+    }
+
+    /**
+     * Receives a message from the mapped BEDES term grid cell.
+     *
+     * TODO: refactor message passing between grid and parent component
+     */
+    public mappingMessageFromGrid(messageType: MappingTableMessageType, selectedRow: IGridRow): void {
+        console.log(`${this.constructor.name}: received grid message`, messageType, selectedRow);
+        const listOption = selectedRow ? selectedRow.ref : undefined;
+
+        if (listOption) {
+            if (messageType === MappingTableMessageType.AssignMapping) {
+                this.listOptionMapping(listOption);
+            }
+            else if (messageType === MappingTableMessageType.ClearMapping) {
+                this.confirmClearMapping(listOption);
             }
         }
     }
@@ -591,6 +651,41 @@ export class ImplementationTermComponent implements OnInit {
         });
     }
 
+    /**
+     * Open a confirm dialog when clearing out term mappings.
+     */
+    public confirmClearMapping(listOption?: AppTermListOption): void {
+        const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+            panelClass: 'dialog-no-padding',
+            width: '450px',
+            position: {top: '20px'},
+            data: {
+                dialogTitle: 'Confirm?',
+                dialogContent: 'Remove the selected terms?',
+            }
+        });
+        dialogRef.afterClosed()
+        .subscribe((results: boolean) => {
+            if (results) {
+                this.clearMapping(listOption);
+            }
+        });
+    }
+
+    /**
+     * Clear the term mapping, notify all service subscribers of the active term update.
+     */
+    private clearMapping(listOption?: AppTermListOption): void {
+        if (listOption) {
+            listOption.mapping = undefined;
+        }
+        else {
+            this.appTerm.mapping = undefined;
+        }
+        this.appTermService.activeTermSubject.next(this.appTerm);
+        this.gridDataNeedsSet = true;
+        this.setGridData();
+    }
 
     /**
      * Use the service to remove the list option.
@@ -616,6 +711,161 @@ export class ImplementationTermComponent implements OnInit {
                 this.hasError = true;
                 this.errorMessage = "An error occurred removing the application.";
             });
+    }
+
+    /**
+     * Open the dialog to assign the BEDES List options.
+     */
+    public listOptionMapping(listOption: AppTermListOption): void {
+        console.log(listOption);
+        console.log(this.appTerm.mapping);
+        if (!(this.appTerm
+            && this.appTerm.mapping
+            && this.appTerm.mapping instanceof TermMappingAtomic
+            && this.appTerm.mapping.bedesTerm instanceof BedesConstrainedList
+        )) {
+            throw new Error('A BedesConstrainedList term is required.');
+        }
+        const sourceList = this.appTerm.mapping.bedesTerm.options;
+        const dialogRef = this.dialog.open(ListOptionMapDialogComponent, {
+            panelClass: 'dialog-no-padding',
+            width: '650px',
+            position: {top: '20px'},
+            data: {
+                constrainedList: this.appTerm.mapping.bedesTerm,
+                dialogContent: 'Remove the selected terms?',
+            }
+        });
+        dialogRef.afterClosed().subscribe((selectedOption: BedesTermOption) => {
+            console.log(selectedOption);
+            if (selectedOption) {
+                this.setMappedListOption(listOption, selectedOption);
+            }
+        });
+    }
+
+    /**
+     * Open the dialog to import the mapped BEDES term.
+     */
+    public openTermSearchDialog(): void {
+        // open the dialog
+        const dialogRef = this.dialog.open(BedesTermSearchDialogComponent, {
+            panelClass: 'dialog-no-padding',
+            width: '80%',
+            position: {top: '20px'},
+            data: <ISearchDialogOptions>{
+                // excludeResultType: [SearchResultType.CompositeTerm],
+                // excludeUUID: this.compositeTerm.items.map((d) => d.term.uuid),
+                showOnlyUUID: true
+            }
+        });
+        // After the dialog is close...
+        dialogRef.afterClosed()
+        .subscribe((results: Array<BedesSearchResult> | undefined) => {
+            console.log('dialogRef.afterClosed()', results);
+            if (Array.isArray(results) && results.length) {
+                this.setMappedTermFromSearchResult(results[0]);
+            }
+        });
+    }
+
+    /**
+     * Set's the BEDES term from a BedesSearchResult object.
+     */
+    private setMappedTermFromSearchResult(searchResult: BedesSearchResult): void {
+        if (searchResult.resultObjectType === SearchResultType.CompositeTerm) {
+            this.setMappedCompositeTerm(searchResult);
+        }
+        else {
+            this.setMappedAtomicTerm(searchResult);
+        }
+    }
+
+    /**
+     * Maps the active AppTerm to the composite term search result.
+     */
+    private setMappedCompositeTerm(searchResult: BedesSearchResult): void {
+        // only handle composite term requests
+        if (searchResult.resultObjectType !== SearchResultType.CompositeTerm) {
+            throw new Error('CompositeTerm expected in setMappedCompositeTerm');
+        }
+        // make sure to get the uuid of the term and not the list option
+        this.compositeTermService.getTerm(searchResult.id)
+        .subscribe((compositeTerm: BedesCompositeTerm) => {
+            // received the compositeTerm
+            console.log(`${this.constructor.name}: received the compositeTerm`);
+            // create the new mapping object and assign it to the active appTerm
+            const mapping = new TermMappingComposite()
+            this.appTerm.mapping = mapping;
+            // assign the active AppTermListOption if it's set
+            if (this.activeListOption) {
+                mapping.appListOption = this.activeListOption;
+            }
+            // assign the bedesTerm
+            mapping.compositeTerm = compositeTerm;
+            this.appTermService.activeTermSubject.next(this.appTerm);
+            this.gridDataNeedsSet = true;
+            this.setGridData();
+            console.log('done', mapping);
+        })
+
+    }
+
+    /**
+     * Set's the mapped term to a atomic term from a given searchResult.
+     */
+    private setMappedAtomicTerm(searchResult: BedesSearchResult): void {
+        // don't handle composite term requests
+        if (searchResult.resultObjectType === SearchResultType.CompositeTerm) {
+            throw new Error('setMappedAtomicTerm expected to map an atomic term, composite term found');
+        }
+        // make sure to get the uuid of the term and not the list option
+        const termUUID = searchResult.termUUID ? searchResult.termUUID : searchResult.uuid;
+        // get the listOption UUID if there is one
+        const optionUUID = searchResult.termUUID && searchResult.uuid ? searchResult.uuid : undefined;
+        // get the atomic term from the backend
+        this.bedesTermService.getTerm(termUUID)
+        .subscribe((bedesTerm: BedesTerm | BedesConstrainedList) => {
+            // create the new mapping object and assign it to the active appTerm
+            const mapping = new TermMappingAtomic()
+            this.appTerm.mapping = mapping;
+            // assign the active AppTermListOption if it's set
+            if (this.activeListOption) {
+                mapping.appListOption = this.activeListOption;
+            }
+            // assign the bedesTerm
+            mapping.bedesTerm = bedesTerm;
+            // assign the listOption to the mapping
+            if(optionUUID && bedesTerm instanceof BedesConstrainedList) {
+                // find the matching listOption by UUID
+                const found = bedesTerm.options.find((item) => item.uuid === optionUUID);
+                if (found) {
+                    // assign the bedesListOption if there is one
+                    mapping.bedesListOption = found;
+                }
+                else {
+                    throw new Error(`Couldn't find term ${optionUUID}`)
+                }
+            }
+            this.appTermService.activeTermSubject.next(this.appTerm);
+            this.gridDataNeedsSet = true;
+            this.setGridData();
+            console.log('done', mapping);
+        }, (error: any) => {
+            console.error(`${this.constructor.name}: error mapping the atomic term`, error);
+        });
+    }
+
+    /**
+     * Set's the mapping on the active list option to the bedesTermOption parameter.
+     */
+    private setMappedListOption(appTermOption: AppTermListOption, bedesTermOption: BedesTermOption): void {
+        appTermOption.mapping = new TermMappingListOption();
+        appTermOption.mapping.listOption = bedesTermOption;
+        this.appTermService.activeTermSubject.next(this.appTerm);
+        this.gridDataNeedsSet = true;
+        this.setGridData();
+        console.log(appTermOption);
     }
 
 }

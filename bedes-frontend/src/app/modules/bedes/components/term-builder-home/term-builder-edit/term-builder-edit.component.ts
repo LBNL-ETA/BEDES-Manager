@@ -1,6 +1,5 @@
 import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
 import { BedesTermSearchDialogComponent } from '../../dialogs/bedes-term-search-dialog/bedes-term-search-dialog.component';
 import { MatDialog } from '@angular/material';
 import { BedesCompositeTerm } from '@bedes-common/models/bedes-composite-term/bedes-composite-term';
@@ -10,15 +9,9 @@ import { SupportListService } from '../../../services/support-list/support-list.
 import { BedesUnit } from '@bedes-common/models/bedes-unit';
 import { SearchResultType } from '@bedes-common/models/bedes-search-result/search-result-type.enum';
 import { ISearchDialogOptions } from '../../dialogs/bedes-term-search-dialog/search-dialog-options.interface';
-import { SearchOptions } from '@bedes-common/models/search-options/search-options';
-import { ISearchOptionSection } from '@bedes-common/models/search-options/search-option-section.interface';
-import { ISearchOptions } from '@bedes-common/models/search-options/search-options.interface';
 import { BedesSearchResult } from '@bedes-common/models/bedes-search-result/bedes-search-result';
-import { CompositeTermDetail } from '@bedes-common/models/bedes-composite-term/composite-term-item/composite-term-detail';
 import { BedesTermService } from '../../../services/bedes-term/bedes-term.service';
-import { BedesConstrainedList } from '../../../../../../../../bedes-common/models/bedes-term/bedes-constrained-list';
-import { BedesTerm } from '../../../../../../../../bedes-common/models/bedes-term/bedes-term';
-import { ICompositeTermDetailRequestParam } from '../../../../../../../../bedes-common/models/composite-term-detail-request-param/composite-term-detail-request-param.interface';
+import { ICompositeTermDetailRequestParam } from '@bedes-common/models/composite-term-detail-request-param/composite-term-detail-request-param.interface';
 import { CompositeTermDetailRequestResult } from '@bedes-common/models/composite-term-detail-request-result/composite-term-detail-request-result';
 
 @Component({

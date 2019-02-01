@@ -1,15 +1,20 @@
 import { IAppTermListOption } from './app-term-list-option.interface';
+import { TermMappingListOption } from '../term-mapping/term-mapping-list-option';
 
 export class AppTermListOption {
     private _id: number | null | undefined;
     private _name: string;
     private _description: string | null | undefined;
     private _unitId: number | null | undefined;
+    private _mapping: TermMappingListOption | null | undefined;
 
     constructor(data: IAppTermListOption) {
         this._id = data._id;
         this._name = data._name;
         this._unitId = data._unitId;
+        if (data._mapping) {
+            this._mapping = new TermMappingListOption(data._mapping);
+        }
     }
 
     get id(): number | null | undefined {
@@ -36,6 +41,12 @@ export class AppTermListOption {
     set unitId(value: number | null | undefined ) {
         this._unitId = value;
     }
+    get mapping(): TermMappingListOption | null | undefined {
+        return this._mapping;
+    }
+    set mapping(value: TermMappingListOption | null | undefined ) {
+        this._mapping = value;
+    }
 
     /**
      * Transforms the object to an IAppTermadditionalInfo object.
@@ -45,7 +56,8 @@ export class AppTermListOption {
             _id: this._id,
             _name: this._name,
             _description: this._description,
-            _unitId: this._unitId
+            _unitId: this._unitId,
+            _mapping: this._mapping ? this._mapping.toInterface() : undefined
         };
     }
 }

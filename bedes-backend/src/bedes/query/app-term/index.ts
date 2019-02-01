@@ -15,6 +15,8 @@ import { TermType } from '@bedes-common/enums/term-type.enum';
 import { bedesQuery } from '..';
 import { BedesError } from '@bedes-common/bedes-error/bedes-error';
 import { HttpStatusCodes } from '@bedes-common/enums/http-status-codes';
+import { ITermMappingAtomic } from '../../../../../bedes-common/models/term-mapping/term-mapping-atomic.interface';
+import { ITermMappingComposite } from '../../../../../bedes-common/models/term-mapping/term-mapping-composite.interface';
 
 export class AppTermQuery {
     private sqlInsertTerm: QueryFile;
@@ -77,6 +79,10 @@ export class AppTermQuery {
             if (!newAppTerm || !newAppTerm._id) {
                 throw new Error(`${this.constructor.name}: _id missing from new AppTerm`);
             }
+            const appTermId = newAppTerm._id;
+            if (!appTermId) {
+                throw new Error('id expected');
+            }
             // create the AdditionalInfo object
             newAppTerm._additionalInfo = new Array<IAppTermAdditionalInfo>();
             // Created a variable for additinalInfo to stop the linter from complaining.
@@ -135,9 +141,31 @@ export class AppTermQuery {
                     // wait for the list option queries to finish
                     await Promise.all(promises);;
                 }
+                if (item._mapping) {
+                    const mapping = item._mapping;
+                    const atomicMapping = <ITermMappingAtomic>mapping;
+                    const compositeMapping = <ITermMappingComposite>mapping;
+                    if (compositeMapping._compositeTerm) {
+                        bedesQuery.mappedTerm.newTermMappingComposite(appTermId, compositeMapping, transaction)
+                    }
+                    else if (atomicMapping._bedesTerm) {
+                        bedesQuery.mappedTerm.newTermMappingAtomic(appTermId, compositeMapping, transaction)
+                    }
+                }
                 return appTermList;
             }
             else {
+                if (item._mapping) {
+                    const mapping = item._mapping;
+                    const atomicMapping = <ITermMappingAtomic>mapping;
+                    const compositeMapping = <ITermMappingComposite>mapping;
+                    if (compositeMapping._compositeTerm) {
+                        bedesQuery.mappedTerm.newTermMappingComposite(appTermId, compositeMapping, transaction)
+                    }
+                    else if (atomicMapping._bedesTerm) {
+                        bedesQuery.mappedTerm.newTermMappingAtomic(appTermId, compositeMapping, transaction)
+                    }
+                }
                 // return an IAppTerm
                 return <IAppTerm>newAppTerm;
             }

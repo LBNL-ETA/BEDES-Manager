@@ -216,7 +216,14 @@ create table public.app_term_additional_data (
 
 create table public.atomic_term_maps (
     id serial primary key,
-    bedes_term_id int not null references public.bedes_term (id),
+    bedes_term_id int references public.bedes_term (id),
+    bedes_list_option_id int references public.bedes_term_list_option (id),
+    app_term_id int not null references public.app_term (id) on delete cascade,
+    app_list_option_id int references public.app_term_list_option (id)
+);
+
+create table public.atomic_term_list_option_maps (
+    id serial primary key,
     bedes_list_option_id int not null references public.bedes_term_list_option (id),
     app_term_id int not null references public.app_term (id),
     app_list_option_id int references public.app_term_list_option (id)
@@ -232,7 +239,7 @@ create table public.atomic_term_maps (
 
 create table public.composite_term_maps (
     id serial primary key,
-    app_term_id int not null references public.app_term (id),
+    app_term_id int not null references public.app_term (id) on delete cascade,
     app_list_option_id int references public.app_term_list_option (id),
     bedes_composite_term_id int not null references public.bedes_composite_term (id) on delete cascade
 );

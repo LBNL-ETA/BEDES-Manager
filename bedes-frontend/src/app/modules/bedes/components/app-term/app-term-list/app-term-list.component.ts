@@ -18,13 +18,15 @@ import { TableCellAppTermNavComponent } from './table-cell-app-term-nav/table-ce
 import { TableCellMessageType } from './table-cell-message-type.enum';
 import { MatDialog } from '@angular/material';
 import { ConfirmDialogComponent } from '../../dialogs/confirm-dialog/confirm-dialog.component';
+import { TermMappingAtomic } from '../../../../../../../../bedes-common/models/term-mapping/term-mapping-atomic';
+import { TermMappingComposite } from '../../../../../../../../bedes-common/models/term-mapping/term-mapping-composite';
 
 /**
  * Interface for the rows of grid objects.
  */
 interface IAppRow {
     ref: AppTerm | AppTermList;
-    mappedBedesTerm: any;
+    mappedName: string;
 }
 
 @Component({
@@ -265,7 +267,7 @@ export class AppTermListComponent implements OnInit {
             },
             {
                 headerName: 'Mapped BEDES Term Name',
-                field: 'mappedBedesTerm.name'
+                field: 'mappedName'
             }
         ];
     }
@@ -277,10 +279,18 @@ export class AppTermListComponent implements OnInit {
         if (this.gridInitialized && this.gridDataNeedsSet) {
             // const gridData = this.applicationList;
             const gridData = new Array<IAppRow>();
-            this.appTermList.forEach((app: AppTerm | AppTermList) => {
+            this.appTermList.forEach((appTerm: AppTerm | AppTermList) => {
+                let mappingName = '';
+                if (appTerm && appTerm.mapping instanceof TermMappingAtomic && appTerm.mapping.bedesTerm) {
+                    mappingName = appTerm.mapping.bedesTerm.name
+                }
+                else if (appTerm && appTerm.mapping instanceof TermMappingComposite && appTerm.mapping.compositeTerm.name) {
+                    mappingName = appTerm.mapping.compositeTerm.name
+                }
+
                 gridData.push(<IAppRow>{
-                    ref: app,
-                    mappedBedesTerm: {name: 'Some mapped BEDES Term'}
+                    ref: appTerm,
+                    mappedName: mappingName
                 });
             })
             this.gridOptions.api.setRowData(gridData);

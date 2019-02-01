@@ -1,0 +1,34 @@
+<div style="display:flex;">
+    <mat-card class="bedes-card mat-typography" style="flex: 1;">
+        <mat-card-header class="color-accent">
+            <mat-card-title style="display:flex; flex-direction:row;">
+                <h2 style="flex: 1;">
+                    Select a BEDES List Option
+                </h2>
+                <button mat-icon-button (click)="close()">
+                    <fa-icon [icon]="['fas', 'times']"></fa-icon>
+                </button>
+            </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+            <ag-grid-angular #agGrid
+                style="width: 100%; height: 400px;"
+                id="myGrid"
+                [gridOptions]="gridOptions"
+                [context]="tableContext"
+                class="ag-theme-balham">
+            </ag-grid-angular>
+            <div>
+                <button mat-stroked-button (click)="selectListOption()" color="primary" [disabled]="!selectedOption">
+                    <fa-icon [icon]="['fas', 'check']"></fa-icon>
+                    Map to Selected Term
+                </button>
+                <button mat-stroked-button (click)="close()">
+                    <fa-icon [icon]="['fas', 'times']"></fa-icon>
+                    Cancel
+                </button>
+            </div>
+
+        </mat-card-content>
+    </mat-card>
+</div>

@@ -74,6 +74,8 @@ import { BedesMapSearchComponent } from './components/app-term/app-term-edit/bed
 import { MappingViewComponent } from './components/app-term/app-term-edit/mapping-view/mapping-view.component';
 import { TableCellAppTermNavComponent } from './components/app-term/app-term-list/table-cell-app-term-nav/table-cell-app-term-nav.component';
 import { AppTermListOptionService } from './services/app-term-list-option/app-term-list-option.service';
+import { TableCellMapListOptionComponent } from './components/app-term/app-term-edit/table-cell-map-list-option/table-cell-map-list-option.component';
+import { ListOptionMapDialogComponent } from './components/dialogs/list-option-map-dialog/list-option-map-dialog.component';
 
 @NgModule({
     imports: [
@@ -141,16 +143,20 @@ import { AppTermListOptionService } from './services/app-term-list-option/app-te
         TableCellItemNameComponent,
         BedesMapSearchComponent,
         MappingViewComponent,
-        TableCellAppTermNavComponent
+        TableCellAppTermNavComponent,
+        TableCellMapListOptionComponent,
+        ListOptionMapDialogComponent
     ],
     entryComponents: [
         BedesTermSearchDialogComponent,
         ConfirmDialogComponent,
+        ListOptionMapDialogComponent,
         TableCellBedesCategoryComponent,
         TableCellTermNameComponent,
         TableCellNameNavComponent,
         TableCellItemNameComponent,
-        TableCellAppTermNavComponent
+        TableCellAppTermNavComponent,
+        TableCellMapListOptionComponent
     ],
     providers: [
         BedesTermSearchService,
