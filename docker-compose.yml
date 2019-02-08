@@ -34,8 +34,6 @@ services:
   db:
     image: postgres:11.0
     container_name: "bedes_db_compose_container"
-    build:
-      context: "."
     env_file:
       - "./environment/backend.env"
       - "./environment/postgres.env"
