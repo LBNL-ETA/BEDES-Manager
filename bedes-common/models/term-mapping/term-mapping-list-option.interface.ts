@@ -1,5 +1,5 @@
-import { IBedesTermOption } from "../bedes-term-option/bedes-term-option.interface";
 
 export interface ITermMappingListOption {
-    _listOption: IBedesTermOption | null | undefined;
+    _bedesTermOptionUUID: string | null | undefined;
+    _bedesOptionName: string | null | undefined;
 }

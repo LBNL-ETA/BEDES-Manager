@@ -1,9 +1,9 @@
-import { AppTermListOption } from '../app-term/app-term-list-option';
-import { IAppTermListOption } from '../app-term/app-term-list-option.interface';
-import { IBedesCompositeTerm } from '../bedes-composite-term/bedes-composite-term.interface';
-
+/**
+ * Defines the mappings between an AppTerm and a BedesCompositeTerm.
+ */
 export interface ITermMappingComposite {
     _id?: number | null | undefined;
-    _appListOption?: IAppTermListOption | null | undefined;
-    _compositeTerm?: IBedesCompositeTerm | null | undefined;
+    _appListOptionUUID?: string | null | undefined;
+    _bedesName: string;
+    _compositeTermUUID: string;
 }

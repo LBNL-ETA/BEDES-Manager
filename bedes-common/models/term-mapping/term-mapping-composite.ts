@@ -1,8 +1,11 @@
 import { ITermMappingComposite } from './term-mapping-composite.interface';
 import { AppTermListOption } from '../app-term/app-term-list-option';
-import { BedesCompositeTerm } from '../bedes-composite-term/bedes-composite-term';
 
+/**
+ * Defines the mapping from the parent AppTerm to a BedesCompositeTerm.
+ */
 export class TermMappingComposite {
+    /** The unique id of the mapping object */
     private _id: number | null | undefined;
     get id(): number | null | undefined {
         return this._id;
@@ -10,34 +13,54 @@ export class TermMappingComposite {
     set id(value: number | null | undefined) {
         this._id = value;
     }
-    private _appListOption: AppTermListOption | null | undefined;
-    get appListOption(): AppTermListOption | null | undefined {
-        return this._appListOption;
+    /**
+     * The uuid of the mapped AppTermListOption, if applicable
+     */
+    private _appListOptionUUID: string | null | undefined;
+    get appListOptionUUID(): string | null | undefined {
+        return this._appListOptionUUID;
     }
-    set appListOption(value: AppTermListOption | null | undefined) {
-        this._appListOption = value;
+    set appListOptionUUID(value: string | null | undefined) {
+        this._appListOptionUUID = value;
     }
-    private _compositeTerm: BedesCompositeTerm | null | undefined;
-    get compositeTerm(): BedesCompositeTerm | null | undefined {
-        return this._compositeTerm;
+    /** The name of the mapping */
+    private _bedesName: string;
+    get bedesName(): string {
+        return this._bedesName;
     }
-    set compositeTerm(value: BedesCompositeTerm | null | undefined) {
-        this._compositeTerm = value;
+    set bedesName(value: string) {
+        this._bedesName = value;
+    }
+    /** The uuid of the mapped BedesCompositeTerm */
+    private _compositeTermUUID: string;
+    get compositeTermUUID(): string {
+        return this._compositeTermUUID;
+    }
+    set compositeTermUUID(value: string) {
+        this._compositeTermUUID = value;
     }
     
-    constructor(data?: ITermMappingComposite) {
-        if (data) {
-            this._id = data._id;
-            this._appListOption = data._appListOption ? new AppTermListOption(data._appListOption) : undefined;
-            this._compositeTerm = data._compositeTerm ? new BedesCompositeTerm(data._compositeTerm) : undefined;
-        }
+    /**
+     * Build the Object instance.
+     * @param data The object for defining the object's initial state.
+     */
+    constructor(data: ITermMappingComposite) {
+        this._id = data._id;
+        this._appListOptionUUID = data._appListOptionUUID;
+        this._compositeTermUUID = data._compositeTermUUID;
+        this._bedesName = data._bedesName;
     }
 
+    /**
+     * Return's the object instance's data as a JavaScript Object.
+     * @returns The instance data as an JavaScript Object conforming to ITermMappingComposite.
+     */
     public toInterface(): ITermMappingComposite {
         return <ITermMappingComposite>{
             _id: this._id,
-            _appListOption: this._appListOption ? this._appListOption.toInterface() : undefined,
-            _compositeTerm: this._compositeTerm ? this._compositeTerm.toInterface() : undefined,
+            _appListOptionUUID: this._appListOptionUUID,
+            _compositeTermUUID: this._compositeTermUUID,
+            _bedesName: this._bedesName
         }
     }
 

@@ -2,28 +2,40 @@ import { ITermMappingListOption } from './term-mapping-list-option.interface';
 import { BedesTermOption } from '../bedes-term-option/bedes-term-option';
 
 export class TermMappingListOption {
-    // listOption
-    private _listOption: BedesTermOption | null | undefined;
-    get listOption(): BedesTermOption | null | undefined {
-        return this._listOption;
+    // bedesTermOptionUUID
+    private _bedesTermOptionUUID: string | null | undefined;
+    get bedesTermOptionUUID(): string | null | undefined {
+        return this._bedesTermOptionUUID;
     }
-    set listOption(value: BedesTermOption | null | undefined) {
-        this._listOption = value;
+    set bedesTermOptionUUID(value: string | null | undefined) {
+        this._bedesTermOptionUUID = value;
+    }
+    // bedesOptionName
+    private _bedesOptionName: string | null | undefined;
+    get bedesOptionName(): string | null | undefined {
+        return this._bedesOptionName;
+    }
+    set bedesOptionName(value: string | null | undefined) {
+        this._bedesOptionName = value;
     }
 
+    /**
+     * Build the object instance.
+     */
     constructor(data?: ITermMappingListOption) {
-        if (data && data._listOption) {
-            this._listOption = new BedesTermOption(data._listOption);
+        if (data) {
+            this._bedesTermOptionUUID = data._bedesTermOptionUUID;
+            this._bedesOptionName = data._bedesOptionName;
         }
     }
 
-    isValid(): boolean {
-        return this._listOption ? true : false;
+    public isValid(): boolean {
+        return this._bedesTermOptionUUID ? true : false;
     }
 
     public toInterface(): ITermMappingListOption {
         return <ITermMappingListOption>{
-            _listOption: this._listOption ? this._listOption.toInterface() : undefined
+            _bedesTermOptionUUID: this._bedesTermOptionUUID
         };
     }
 }

@@ -1,9 +1,14 @@
 import { ITermMappingAtomic } from './term-mapping-atomic.interface';
-import { AppTermListOption } from '../app-term/app-term-list-option';
-import { BedesTerm } from '../bedes-term';
-import { BedesTermOption } from '../bedes-term-option/bedes-term-option';
+import { TermType } from '../../enums/term-type.enum';
 
+/**
+ * Defines a mapping between the parent atomic term
+ * and a bedes term.
+ */
 export class TermMappingAtomic {
+    /**
+     * The id of the term mapping record
+     */
     private _id: number | null | undefined;
     get id(): number | null | undefined {
         return this._id;
@@ -11,44 +16,83 @@ export class TermMappingAtomic {
     set id(value: number | null | undefined) {
         this._id = value;
     }
-    private _appListOption: AppTermListOption | null | undefined;
-    get appListOption(): AppTermListOption | null | undefined {
-        return this._appListOption;
+    /**
+     * The uuid of the mapped AppTermListOption, if applicable
+     */
+    private _appListOptionUUID: string | null | undefined;
+    get appListOptionUUID(): string | null | undefined {
+        return this._appListOptionUUID;
     }
-    set appListOption(value: AppTermListOption | null | undefined) {
-        this._appListOption = value;
+    set appListOptionUUID(value: string | null | undefined) {
+        this._appListOptionUUID = value;
     }
-    private _bedesTerm: BedesTerm | null | undefined;
-    get bedesTerm(): BedesTerm | null | undefined {
-        return this._bedesTerm;
+    /**
+     * Name of the bedes term in the mapping.
+     */
+    private _bedesName: string;
+    get bedesName(): string {
+        return this._bedesName;
     }
-    set bedesTerm(value: BedesTerm | null | undefined) {
-        this._bedesTerm = value;
+    set bedesName(value: string) {
+        this._bedesName = value;
     }
-    private _bedesListOption: BedesTermOption | null | undefined;
-    get bedesListOption(): BedesTermOption | null | undefined {
-        return this._bedesListOption;
+    /**
+     * The bedes term's TermType, ie constrained list or value
+     */
+    private _bedesTermType: TermType;
+    get bedesTermType(): TermType {
+        return this._bedesTermType;
     }
-    set bedesListOption(value: BedesTermOption | null | undefined) {
-        this._bedesListOption = value;
+    set bedesTermType(value: TermType) {
+        this._bedesTermType = value;
+    }
+    /**
+     * The uuid of the mapped bedes term.
+     */
+    private _bedesTermUUID: string;
+    get bedesTermUUID(): string {
+        return this._bedesTermUUID;
+    }
+    set bedesTermUUID(value: string) {
+        this._bedesTermUUID = value;
+    }
+    /**
+     * The uuid of the mapped bedes term list option.
+     */
+    private _bedesListOptionUUID: string | null | undefined;
+    get bedesListOptionUUID(): string | null | undefined {
+        return this._bedesListOptionUUID;
+    }
+    set bedesListOptionUUID(value: string | null | undefined) {
+        this._bedesListOptionUUID = value;
     }
     
-    constructor(data?: ITermMappingAtomic) {
-        if (data) {
-            this._id = data._id;
-            this._appListOption = data._appListOption ? new AppTermListOption(data._appListOption) : undefined;
-            this._bedesTerm = data._bedesTerm ? new BedesTerm(data._bedesTerm) : undefined;
-            this._bedesListOption = data._bedesListOption ? new BedesTermOption(data._bedesListOption) : undefined;
-        }
+    /**
+     * Creates an instance of term mapping atomic.
+     * @param data The initial values to use for the object instance.
+     */
+    constructor(data: ITermMappingAtomic) {
+        this._id = data._id;
+        this._appListOptionUUID = data._appListOptionUUID;
+        this._bedesTermUUID = data._bedesTermUUID
+        this._bedesTermType = data._bedesTermType;
+        this._bedesListOptionUUID = data._bedesListOptionUUID;
+        this._bedesName = data._bedesName;
     }
 
+    /**
+     * Returns the object instance as a regular Object conforming to ITermMappingAtomic.
+     * @returns The class instance a a JavaScript object conforming to ITermMappingAtomic.
+     */
     public toInterface(): ITermMappingAtomic {
         return <ITermMappingAtomic>{
             _id: this._id,
-            _appListOption: this._appListOption ? this._appListOption.toInterface() : undefined,
-            _bedesListOption: this._bedesListOption ? this._bedesListOption.toInterface() : undefined,
-            _bedesTerm: this._bedesTerm ? this._bedesTerm.toInterface() : undefined
-        }
+            _appListOptionUUID: this._appListOptionUUID,
+            _bedesListOptionUUID: this._bedesListOptionUUID,
+            _bedesTermUUID: this._bedesTermUUID,
+            _bedesTermType: this._bedesTermType,
+            _bedesName: this._bedesName
+        };
     }
 
 }

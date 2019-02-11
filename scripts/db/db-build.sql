@@ -62,6 +62,7 @@ create index on public.bedes_term (term_category_id);
 create index on public.bedes_term (data_type_id);
 create index on public.bedes_term (definition_source_id);
 create index on public.bedes_term (unit_id);
+create index on public.bedes_term (uuid);
 
 create table public.bedes_term_list_option (
     id serial primary key,
@@ -71,7 +72,7 @@ create table public.bedes_term_list_option (
     unit_id int references public.unit (id) not null,
     definition_source_id int references public.definition_source (id),
     url varchar(250),
-    uuid uuid
+    uuid uuid unique
 );
 -- Want to ensure uniqueness, but some terms have the same name and different descriptions
 -- Use an md5 hash of the text field instead of using the actual text as the unique constraint.
@@ -79,6 +80,7 @@ create table public.bedes_term_list_option (
 create unique index on public.bedes_term_list_option (term_id, name, md5(description));
 create index on public.bedes_term_list_option (unit_id);
 create index on public.bedes_term_list_option (definition_source_id);
+create index on public.bedes_term_list_option (uuid);
 
 -- Term Sector Assignment
 create table public.bedes_term_sector_link (
@@ -97,10 +99,11 @@ create table public.bedes_composite_term (
     name text,
     description text,
     unit_id int references public.unit (id),
-    uuid varchar(50),
+    uuid uuid not null unique,
     created_date timestamp default now(),
     modified_date timestamp default now()
 );
+create index on public.bedes_composite_term (uuid);
 
 create table public.bedes_composite_term_details (
     id serial primary key,
@@ -184,18 +187,20 @@ create table public.app_term (
     description varchar(900),
     app_id int references public.mapping_application (id) on delete cascade not null,
     field_code varchar(200),
-    uuid uuid,
+    uuid uuid not null unique,
     term_type_id int not null references public.term_type (id),
     unit_id int references public.unit(id),
     unique (app_id, name)
 );
+create index on public.app_term (uuid);
 
 create table public.app_term_list_option (
     id serial primary key,
     app_term_id int references public.app_term (id) on delete cascade not null,
     name varchar(500) not null,
+    description varchar(1000),
     unit_id int references public.unit(id),
-    uuid uuid,
+    uuid uuid not null unique,
     unique (app_term_id, name)
 );
 
@@ -216,17 +221,17 @@ create table public.app_term_additional_data (
 
 create table public.atomic_term_maps (
     id serial primary key,
-    bedes_term_id int references public.bedes_term (id),
-    bedes_list_option_id int references public.bedes_term_list_option (id),
+    bedes_term_uuid uuid not null references public.bedes_term (uuid),
+    bedes_list_option_uuid uuid references public.bedes_term_list_option (uuid),
     app_term_id int not null references public.app_term (id) on delete cascade,
-    app_list_option_id int references public.app_term_list_option (id)
+    app_list_option_uuid uuid references public.app_term_list_option (uuid)
 );
 
 create table public.atomic_term_list_option_maps (
     id serial primary key,
-    bedes_list_option_id int not null references public.bedes_term_list_option (id),
+    bedes_list_option_uuid uuid not null references public.bedes_term_list_option (uuid),
     app_term_id int not null references public.app_term (id),
-    app_list_option_id int references public.app_term_list_option (id)
+    app_list_option_uuid uuid references public.app_term_list_option (uuid)
 );
 
 -- create table public.bedes_term_maps (
@@ -240,8 +245,8 @@ create table public.atomic_term_list_option_maps (
 create table public.composite_term_maps (
     id serial primary key,
     app_term_id int not null references public.app_term (id) on delete cascade,
-    app_list_option_id int references public.app_term_list_option (id),
-    bedes_composite_term_id int not null references public.bedes_composite_term (id) on delete cascade
+    app_list_option_uuid uuid references public.app_term_list_option (uuid),
+    bedes_composite_term_uuid uuid not null references public.bedes_composite_term (uuid) on delete cascade
 );
 
 -- table that containst he different states an application can be in as it's waiting

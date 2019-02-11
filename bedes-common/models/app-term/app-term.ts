@@ -7,6 +7,15 @@ import { AppTermList } from './app-term-list';
 import { TermMappingAtomic } from '../term-mapping/term-mapping-atomic';
 import { TermMappingComposite } from '../term-mapping/term-mapping-composite';
 import { UUIDGenerator } from '../uuid-generator/uuid-generator';
+import { BedesConstrainedList } from '../bedes-term/bedes-constrained-list';
+import { BedesCompositeTerm } from '../bedes-composite-term/bedes-composite-term';
+import { BedesTerm } from "../bedes-term";
+import { BedesTermOption } from '../bedes-term-option/bedes-term-option';
+import { isITermMappingAtomic } from '../term-mapping/term-mapping-atomic-guard';
+import { isITermMappingComposite } from '../term-mapping/term-mapping-composite-guard';
+import { TermMappingComponent } from '../../../bedes-frontend/src/app/modules/bedes/components/app-term/app-term-edit/term-mapping/term-mapping.component';
+import { ITermMappingAtomic } from '../term-mapping/term-mapping-atomic.interface';
+import { ITermMappingComposite } from '../term-mapping/term-mapping-composite.interface';
 
 export class AppTerm extends UUIDGenerator {
     protected _id: number | null | undefined;
@@ -35,6 +44,18 @@ export class AppTerm extends UUIDGenerator {
         // assign a uuid or generate a new one
         this._uuid = data._uuid || this.generateUUID();
         this._unitId = data._unitId;
+        if (data._mapping) {
+            if (isITermMappingAtomic(data._mapping)) {
+                this._mapping = new TermMappingAtomic(data._mapping);
+            }
+            else if (isITermMappingComposite(data._mapping)) {
+                this._mapping = new TermMappingComposite(data._mapping);
+            }
+            else {
+                throw new Error(`${this.constructor.name}: unknown mapping object.`);
+            }
+
+        }
         this.validate();
     }
 
@@ -115,6 +136,44 @@ export class AppTerm extends UUIDGenerator {
         // const newTerm = new AppTermList(params);
         // newTerm.additionalInfo = this.additionalInfo;
         // return newTerm;
+    }
+
+    /**
+     * Maps a BedesTerm|BedesConstrainedList|BedescompositeTerm,
+     * to the AppTerm instance.
+     * @param bedesTerm The BedesTerm being mapped to the AppTerm instance.
+     * @param [bedesTermOption] An optional BedesTermOption object.
+     */
+    public map(
+        bedesTerm: BedesTerm | BedesConstrainedList  | BedesCompositeTerm,
+        bedesTermOption?: BedesTermOption | undefined
+    ): void {
+        if (bedesTerm instanceof BedesCompositeTerm) {
+            // map a BEDES Composite Term
+            this._mapping = new TermMappingComposite(<ITermMappingComposite>{
+                _bedesName: bedesTerm.name,
+                _compositeTermUUID: bedesTerm.uuid
+            });
+            this._mapping.compositeTermUUID = bedesTerm.uuid;
+            this._mapping.bedesName = bedesTerm.name;
+        }
+        else if (bedesTerm instanceof BedesConstrainedList) {
+            // map a BEDES Constrained List - an atomic term
+            this._mapping = new TermMappingAtomic(<ITermMappingAtomic>{
+                _bedesName: bedesTerm.name,
+                _bedesTermUUID: bedesTerm.uuid,
+                _bedesListOptionUUID: bedesTermOption ? bedesTermOption.uuid : undefined,
+                _bedesTermType: TermType.ConstrainedList
+            });
+        }
+        else if (bedesTerm instanceof BedesTerm) {
+            // map a atomic BedesTerm
+            this._mapping = new TermMappingAtomic(<ITermMappingAtomic>{
+                _bedesName: bedesTerm.name,
+                _bedesTermUUID: bedesTerm.uuid,
+                _bedesTermType: TermType.Atomic
+            });
+        }
     }
 
     /**
