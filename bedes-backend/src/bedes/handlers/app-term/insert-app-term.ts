@@ -5,9 +5,14 @@ import { HttpStatusCodes } from '@bedes-common/enums/http-status-codes';
 import { BedesError } from '@bedes-common/bedes-error';
 import { bedesQuery } from '../../query';
 import { IAppTermList } from '@bedes-common/models/app-term';
-import { IAppTerm } from '../../../../../bedes-common/models/app-term/app-term.interface';
+import { IAppTerm } from '@bedes-common/models/app-term/app-term.interface';
 const logger = createLogger(module);
 
+/**
+ * Handler for saving AppTerm objects to the database.
+ * @param request The Express Request object.
+ * @param response The Express Response object.
+ */
 export async function insertAppTermHandler(request: Request, response: Response): Promise<any> {
     try {
         logger.debug('insert AppTerm...');
@@ -30,7 +35,7 @@ export async function insertAppTermHandler(request: Request, response: Response)
         }
         let results = await bedesQuery.appTerm.newAppTerm(appId, newItem);
         logger.debug('insertAppTermHandler resuts');
-        logger.debug(util.inspect(results));
+        console.log(results);
         response.json(results)
     }
     catch (error) {

@@ -14,7 +14,6 @@ const logger = createLogger(module);
 export async function updateAppTermHandler(request: Request, response: Response): Promise<any> {
     try {
         logger.debug('update AppTerm...');
-        logger.debug(util.inspect(request.body));
         const appId = request.params.appId;
         const appTermId = request.params.appTermId;
         if (!appId || !appTermId) {
@@ -32,6 +31,7 @@ export async function updateAppTermHandler(request: Request, response: Response)
                 "Invalid parameters"
             );
         }
+        console.log(newItem);
         let results = await bedesQuery.appTerm.updateAppTerm(appId, newItem);
         logger.debug('insertAppTermHandler resuts');
         logger.debug(util.inspect(results));

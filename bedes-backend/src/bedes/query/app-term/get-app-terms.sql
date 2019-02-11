@@ -31,13 +31,42 @@ select
             wo.items
         else
             null
-    end as "_listOptions"
-        
+    end as "_listOptions",
+    -- build the _mapping object
+    case
+        -- atomic term maps
+        when atm.id is not null and bt.id is not null then
+			json_build_object(
+				'_id', atm.id,
+				'_bedesTermUUID', atm.bedes_term_uuid,
+				'_bedesTermType', 1,
+				'_bedesListOptionUUID', null,
+				'_bedesName', bt.name,
+				'_appListOptionUUID', atm.app_list_option_uuid
+			)
+		when ctm.id is not null and bct.id is not null then
+			json_build_object(
+				'_id', ctm.id,
+				'_compositeTermUUID', ctm.bedes_composite_term_uuid,
+				'_bedesName', bct.name,
+				'_appListOptionUUID', ctm.app_list_option_uuid
+			)
+		else
+			null
+	end as "_mapping"
 from
     app_term as t
 left outer join
     -- link the term with its options, if it exists
     w_list_options as wo on wo.app_term_id = t.id
+left outer join
+	public.atomic_term_maps as atm on atm.app_term_id = t.id
+left outer join
+	public.bedes_term as bt on bt.uuid = atm.bedes_term_uuid
+left outer join
+	public.composite_term_maps as ctm on ctm.app_term_id = t.id
+left outer join
+    public.bedes_composite_term as bct on bct.uuid = ctm.bedes_composite_term_uuid
 where
     t.app_id = ${_appId}
 ;

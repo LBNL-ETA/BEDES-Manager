@@ -10,11 +10,22 @@ import { IBedesCompositeTerm } from '@bedes-common/models/bedes-composite-term/b
 import { IBedesTerm } from '@bedes-common/models/bedes-term/bedes-term.interface';
 import { isBedesAtomicTermMap, isBedesCompositeTermMap } from '@bedes-common/models/mapped-term/mapped-term-type-guard';
 import { IBedesCompositeTermMap } from '@bedes-common/models/mapped-term/bedes-composite-term-map.interface';
-import { ITermMappingAtomic } from '../../../../../bedes-common/models/term-mapping/term-mapping-atomic.interface';
-import { ITermMappingComposite } from '../../../../../bedes-common/models/term-mapping/term-mapping-composite.interface';
+import { ITermMappingAtomic } from '@bedes-common/models/term-mapping/term-mapping-atomic.interface';
+import { ITermMappingComposite } from '@bedes-common/models/term-mapping/term-mapping-composite.interface';
 import { ITermMappingListOption } from '@bedes-common/models/term-mapping/term-mapping-list-option.interface';
-import { AppTermListOption } from '../../../../../bedes-common/models/app-term/app-term-list-option';
-import { IAppTermListOption } from '../../../../../bedes-common/models/app-term/app-term-list-option.interface';
+import { AppTermListOption } from '@bedes-common/models/app-term/app-term-list-option';
+import { IAppTermListOption } from '@bedes-common/models/app-term/app-term-list-option.interface';
+import { bedesQuery } from '..';
+import { BedesTerm } from '@bedes-common/models/bedes-term/bedes-term';
+import { BedesTermOption } from '@bedes-common/models/bedes-term-option/bedes-term-option';
+import { IBedesTermOption } from '@bedes-common/models/bedes-term-option/bedes-term-option.interface';
+import { BedesError } from '@bedes-common/bedes-error/bedes-error';
+import { HttpStatusCodes } from '@bedes-common/enums/http-status-codes';
+import { BedesCompositeTerm } from '@bedes-common/models/bedes-composite-term/bedes-composite-term';
+import { IAtomicTermMapRecord } from './atomic_term_map_record.interface';
+import { ICompositeTermMapRecord } from './composite_term_map_record.interface';
+import { isITermMappingAtomic } from '@bedes-common/models/term-mapping/term-mapping-atomic-guard';
+import { isITermMappingComposite } from '../../../../../bedes-common/models/term-mapping/term-mapping-composite-guard';
 
 export class MappedTermQuery {
     private sqlInsertAtomic!: QueryFile;
@@ -47,6 +58,50 @@ export class MappedTermQuery {
         this.sqlDeleteCompositeByAppTerm = sql_loader(path.join(__dirname, 'delete-composite-term-map.sql'))
     }
 
+    /**
+     * Saves a TermMappingAtomic object record to the database.
+     * @param appTermId The database id of the parent AppTerm.
+     * @param mapping 
+     * @param [transaction] 
+     * @returns mapping record 
+     */
+    public async newMappingRecord(
+        appTermId: number,
+        mapping: ITermMappingAtomic | ITermMappingComposite,
+        transaction?: any
+    ): Promise<ITermMappingAtomic | ITermMappingComposite> {
+        try {
+            if (isITermMappingAtomic(mapping)) {
+                return this.newTermMappingAtomic(appTermId, mapping, transaction);
+                
+            }
+            else if (isITermMappingComposite(mapping)) {
+                return this.newTermMappingComposite(appTermId, mapping, transaction);
+            }
+            else {
+                logger.error('encountered invalid mapping');
+                throw new BedesError(
+                    'Invalid mapping',
+                    HttpStatusCodes.BadRequest_400,
+                    'Invalid mapping'
+                )
+            }
+        }
+        catch (error) {
+            logger.error(`${this.constructor.name}: Error in newMappingRecord`);
+            logger.error(util.inspect(error));
+            logger.error(util.inspect(mapping));
+            throw error;
+        }
+    }
+
+    /**
+     * Saves a new TermMappingAtomic record in the database.
+     * @param appTermId The parent appTerm this mapping describes
+     * @param item The object being written to the database.
+     * @param [transaction] Optional transaction context to run the query in.
+     * @returns The new record object just written.
+     */
     public async newTermMappingAtomic(appTermId: number, item: ITermMappingAtomic, transaction?: any): Promise<ITermMappingAtomic> {
         try {
             // verify the newMappedTerm parameters
@@ -56,13 +111,15 @@ export class MappedTermQuery {
             }
             // build the query parameters
             const params = {
-                _bedesTermId: item._bedesTerm ? item._bedesTerm._id : null,
-                _bedesListOptionId: item._bedesListOption ? item._bedesListOption._id : null,
+                _bedesTermUUID: item._bedesTermUUID,
+                _bedesListOptionUUID: item._bedesListOptionUUID,
                 _appTermId: appTermId,
-                _appListOptionId: item._appListOption ? item._appListOption._id : null
+                _appListOptionUUID: item._appListOptionUUID
             };
-            const ctx = transaction ? transaction : db;
-            return ctx.one(this.sqlInsertAtomic, params, transaction);
+            const ctx = transaction || db;
+            const result: ITermMappingAtomic = await ctx.one(this.sqlInsertAtomic, params, transaction);
+            result._bedesName = item._bedesName;
+            return result;
         } catch (error) {
             logger.error(`${this.constructor.name}: Error in newMappedTerm`);
             logger.error(util.inspect(error));
@@ -71,6 +128,13 @@ export class MappedTermQuery {
         }
     }
 
+    /**
+     * Saves a new TermMappingComposite record in the database.
+     * @param appTermId The parent appTerm the mapping describes.
+     * @param item The object being written to the database.
+     * @param [transaction] Optional transaction context to run the query in.
+     * @returns The new record object just written.
+     */
     public async newTermMappingComposite(appTermId: number, item: ITermMappingComposite, transaction?: any): Promise<ITermMappingComposite> {
         try {
             // verify the newMappedTerm parameters
@@ -78,16 +142,41 @@ export class MappedTermQuery {
                 logger.error(`${this.constructor.name}: invalid app term parameters.`);
                 throw new Error('Missing required parameters.');
             }
+            // find the composite term from it's uuid
+            // const compositeTerm = item._compositeTermUUID
+            //     ? await bedesQuery.compositeTerm.getRecordByUUID(item._compositeTermUUID)
+            //     : undefined;
+            // // make sure the object was found
+            // if (!compositeTerm || !compositeTerm._id) {
+            //     logger.error(`${this.constructor.name}: newTermMappingComposite `)
+            //     throw new BedesError(
+            //         'An error occurred searching for the composite term.',
+            //         HttpStatusCodes.ServerError_500,
+            //         'An error occurred searching for the composite term.'
+            //     )
+            // }
             // build the query parameters
             const params = {
-                _bedesCompositeTermId: item._compositeTerm ? item._compositeTerm._id : null,
+                _bedesCompositeTermUUID: item._compositeTermUUID,
                 _appTermId: appTermId,
-                _appListOptionId: item._appListOption ? item._appListOption._id : null
+                _appListOptionUUID: item._appListOptionUUID
             };
-            console.log('new term mapping composite');
-            console.log(params);
-            const ctx = transaction ? transaction : db;
-            return ctx.one(this.sqlInsertComposite, params, transaction);
+            const ctx = transaction || db;
+            // return ctx.one(this.sqlInsertComposite, params, transaction);
+            const result: ITermMappingComposite = await ctx.one(this.sqlInsertComposite, params, transaction);
+            result._bedesName = item._bedesName;
+            return result;
+            // return ctx.one(this.sqlInsertComposite, params, transaction);
+            // wait for the query to finish
+            // using the uuid's and not the id's in the mapping objects,
+            // so use the query result to create a new object with uuids.
+            // const result: ICompositeTermMapRecord = await ctx.one(this.sqlInsertComposite, params, transaction);
+            // return <ITermMappingComposite>{
+            //     _id: result._id,
+            //     _appListOption: item._appListOption,
+            //     _compositeTermUUID: item._compositeTermUUID,
+            //     _bedesName: item._bedesName
+            // }
         } catch (error) {
             logger.error(`${this.constructor.name}: Error in newTermMappingComposite`);
             logger.error(util.inspect(error));
@@ -96,19 +185,42 @@ export class MappedTermQuery {
         }
     }
 
-    public async newTermMappingListOption(appTermId: number, listOption: IAppTermListOption, item: ITermMappingListOption, transaction?: any): Promise<ITermMappingListOption> {
+    /**
+     * Saves a new TermMappingListOption object to the database.
+     * @param appTermId The id of the parent AppTerm.
+     * @param listOption The appTerm's listOption being mapped.
+     * @param item The object defining the bedes terms being mapped to.
+     * @param [transaction] Optional transaction context to run the query in.
+     * @returns The new ITermMappingListOption object record written to the database.
+     */
+    public async newTermMappingListOption(
+        appTermId: number,
+        listOption: IAppTermListOption,
+        item: ITermMappingListOption,
+        transaction?: any
+    ): Promise<ITermMappingListOption> {
         try {
             // verify the newMappedTerm parameters
-            if (!item || !appTermId) {
+            if (!item || !appTermId || !item || !item._bedesTermOptionUUID) {
                 logger.error(`${this.constructor.name}: invalid app term parameters.`);
                 throw new Error('Missing required parameters.');
             }
+            const bedesListOption = await bedesQuery.termListOption.getRecordByUUID(item._bedesTermOptionUUID);
+            if (!bedesListOption || !bedesListOption._id) {
+                logger.error(`${this.constructor.name}: newTermMappingListOption couldn't the matching BedesTermListOption.`);
+                throw new BedesError(
+                    'An error occurred searching for the bedes list option.',
+                    HttpStatusCodes.ServerError_500,
+                    'An error occurred searching for the bedes list option.'
+                )
+            }
             // build the query parameters
             const params = {
-                _bedesListOptionId: item._listOption ? item._listOption._id : null,
+                _bedesListOptionId: bedesListOption._id,
                 _appTermId: appTermId,
                 _appListOptionId: listOption._id
             };
+            // get the db context to run the query
             const ctx = transaction ? transaction : db;
             return ctx.one(this.sqlInsertListOption, params, transaction);
         } catch (error) {

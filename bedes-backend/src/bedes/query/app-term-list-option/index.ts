@@ -6,8 +6,8 @@ import { createLogger }  from '@bedes-backend/logging';
 const logger = createLogger(module);
 import * as util from 'util';
 import { IAppTermListOption } from '@bedes-common/models/app-term/app-term-list-option.interface';
-import { BedesError } from '../../../../../bedes-common/bedes-error/bedes-error';
-import { HttpStatusCodes } from '../../../../../bedes-common/enums/http-status-codes';
+import { BedesError } from '@bedes-common/bedes-error/bedes-error';
+import { HttpStatusCodes } from '@bedes-common/enums/http-status-codes';
 
 export class AppTermListOptionQuery {
     private sqlInsert: QueryFile;
@@ -23,6 +23,56 @@ export class AppTermListOptionQuery {
     }
 
     /**
+     * Saves an array of AppTermListOption objects to the database.
+     * @param appTermId The id of the parent AppTerm.
+     * @param items The array of IAppTermListOption objects.
+     * @param [transaction] The optional transaction context to run the query in.
+     * @returns The array of AppTermListOption objects just written to the database.
+     */
+    public async newRecords(
+        appTermId: number,
+        items: Array<IAppTermListOption>,
+        transaction?: any
+    ): Promise<Array<IAppTermListOption>> {
+        try {
+            const listOptionArray = new Array<IAppTermListOption>();
+            const promises = new Array<Promise<IAppTermListOption>>();
+            // save the list options if they're there
+            if (Array.isArray(items) && items.length) {
+                for (let option of items) {
+                    promises.push(
+                        this.newRecord(appTermId, option, transaction)
+                        .then((newOption: IAppTermListOption) => {
+                            listOptionArray.push(newOption);
+                            return newOption;
+                        }, (error: any) => {
+                            logger.error('Error creation list option');
+                            if (error && error.code === "23505") {
+                                throw new BedesError(
+                                    'Duplicate list option',
+                                    HttpStatusCodes.BadRequest_400,
+                                    'Duplicate list option.'
+                                );
+                            }
+                            else {
+                                throw error;
+                            }
+                        })
+                    );
+                }
+                // wait for the list option queries to finish
+                await Promise.all(promises);;
+            }
+            return listOptionArray;
+        } catch (error) {
+            logger.error(`${this.constructor.name}: Error in newRecords`);
+            console.log(items);
+            logger.error(util.inspect(error));
+            throw error;
+        }
+
+    }
+    /**
      * Insert a new AppTermListOption record.
      * @param appTermId The id of the AppTerm the listOption is linked to.
      * @param item The IAppTermListOption object to save.
@@ -37,8 +87,9 @@ export class AppTermListOptionQuery {
             const params = {
                 _appTermId: appTermId,
                 _name: item._name,
+                _description: item._description || null,
                 _unitId: item._unitId || null,
-                _uuid: null
+                _uuid: item._uuid
             };
             if (transaction) {
                 return transaction.one(this.sqlInsert, params);

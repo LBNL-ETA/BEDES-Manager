@@ -1,12 +1,12 @@
 insert into public.composite_term_maps (
-    bedes_composite_term_id, app_term_id, app_list_option_id
+    bedes_composite_term_uuid, app_term_id, app_list_option_uuid
 )
 values (
-    ${_bedesCompositeTermId}, ${_appTermId}, ${_appListOptionId}
+    ${_bedesCompositeTermUUID}, ${_appTermId}, ${_appListOptionUUID}
 )
 returning
     id as "_id",
-    bedes_composite_term_id as "_bedesCompositeTermId",
+    bedes_composite_term_uuid as "_bedesCompositeTermUUID",
     app_term_id as "_appTermId",
-    app_list_option_id as "_appListOptionId"
+    app_list_option_uuid as "_appListOptionUUID"
 ;

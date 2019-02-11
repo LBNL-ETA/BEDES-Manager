@@ -17,6 +17,7 @@ import { v4 } from 'uuid';
 export class BedesCompositeTermQuery {
     private sqlGetBySignature: QueryFile;
     private sqlGetById: QueryFile;
+    private sqlGetByUUID: QueryFile;
     private sqlGetAllTerms: QueryFile;
     private sqlInsert: QueryFile;
     private sqlUpdate: QueryFile;
@@ -26,6 +27,7 @@ export class BedesCompositeTermQuery {
     constructor() { 
         this.sqlGetBySignature = sql_loader(path.join(__dirname, 'get.sql'));
         this.sqlGetById = sql_loader(path.join(__dirname, 'get-by-id.sql'));
+        this.sqlGetByUUID = sql_loader(path.join(__dirname, 'get-by-uuid.sql'));
         this.sqlGetAllTerms = sql_loader(path.join(__dirname, 'get-all-terms.sql'));
         this.sqlGetCompositeTermComplete = sql_loader(path.join(__dirname, 'get-composite-term-complete.sql'));
         this.sqlInsert = sql_loader(path.join(__dirname, 'insert.sql'))
@@ -278,6 +280,39 @@ export class BedesCompositeTermQuery {
             }
             else {
                 return db.oneOrNone(this.sqlGetById, params);
+            }
+        } catch (error) {
+            logger.error(`${this.constructor.name}: Error in getRecordById`);
+            logger.error(util.inspect(error));
+            throw error;
+        }
+    }
+
+    /**
+     * Retrieves an IBedesCompositeTerm record from the database given a uuid.
+     *
+     * @param uuid The uuid of the composite term record to retrieve.
+     * @param [transaction] Optional database transaction context.
+     * @returns Promise that resolves to the IBedesCompositeTerm record.
+     */
+    public getRecordByUUID(uuid: string, transaction?: any): Promise<IBedesCompositeTerm> {
+        try {
+            if (!uuid) {
+                logger.error(`${this.constructor.name}: getRecordByUUID expecs a uuid`);
+                throw new BedesError(
+                    'Invalid parameters',
+                    HttpStatusCodes.BadRequest_400,
+                    'Invalid parameters'
+                );
+            }
+            const params = {
+                _uuid: uuid
+            };
+            if (transaction) {
+                return transaction.oneOrNone(this.sqlGetByUUID, params);
+            }
+            else {
+                return db.oneOrNone(this.sqlGetByUUID, params);
             }
         } catch (error) {
             logger.error(`${this.constructor.name}: Error in getRecordById`);
