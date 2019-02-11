@@ -22,14 +22,14 @@
             <button mat-menu-item (click)="newAtomicTerm()">New Constrained List</button>
             <button mat-menu-item (click)="newAtomicTerm()">Multiple Terms</button>
         </mat-menu> -->
-        <button mat-stroked-button color="primary" (click)="editSelectedItem()" [disabled]="!selectedItem">
+        <!-- <button mat-stroked-button color="primary" (click)="editSelectedItem()" [disabled]="!selectedItem">
             <fa-icon [icon]="['fas', 'edit']"></fa-icon>
             Edit Selected Term
         </button>
         <button mat-stroked-button color="primary" [disabled]="!selectedItem" (click)="removeSelectedItem()">
             <fa-icon [icon]="['fas', 'trash']"></fa-icon>
             Remove Selected
-        </button>
+        </button> -->
     </div>
 
     <div class="alert-accent" style="margin-top:10px;" *ngIf="!appTermList || !appTermList.length">

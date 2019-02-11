@@ -4,7 +4,7 @@ import { GridOptions, SelectionChangedEvent, ColDef } from 'ag-grid-community';
 import { BedesTermSearchService } from '../../../services/bedes-term-search/bedes-term-search.service';
 import { BedesSearchResult } from '@bedes-common/models/bedes-search-result/bedes-search-result';
 import { BedesConstrainedList, BedesTerm } from '@bedes-common/models/bedes-term';
-import { ISearchResultRow } from '../../../models/ag-table/search-result-row.interface';
+import { ISearchResultRow } from '../../../models/ag-grid/search-result-row.interface';
 import { SupportListService } from '../../../services/support-list/support-list.service';
 import { SupportListType } from '../../../services/support-list/support-list-type.enum';
 import { getResultTypeName } from '../../../lib/get-result-type-name';

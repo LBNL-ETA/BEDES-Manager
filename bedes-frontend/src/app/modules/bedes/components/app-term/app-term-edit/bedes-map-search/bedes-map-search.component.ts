@@ -4,7 +4,7 @@ import { GridOptions, SelectionChangedEvent, ColDef } from 'ag-grid-community';
 import { BedesTermSearchService } from '../../../../services/bedes-term-search/bedes-term-search.service';
 import { BedesSearchResult } from '@bedes-common/models/bedes-search-result/bedes-search-result';
 import { BedesConstrainedList, BedesTerm } from '@bedes-common/models/bedes-term';
-import { ISearchResultRow } from '../../../../models/ag-table/search-result-row.interface';
+import { ISearchResultRow } from '../../../../models/ag-grid/search-result-row.interface';
 import { SupportListService } from '../../../../services/support-list/support-list.service';
 import { SupportListType } from '../../../../services/support-list/support-list-type.enum';
 import { getResultTypeName } from '../../../../lib/get-result-type-name';
@@ -20,6 +20,8 @@ import { CompositeTermService } from 'src/app/modules/bedes/services/composite-t
 import { BedesCompositeTerm } from '@bedes-common/models/bedes-composite-term/bedes-composite-term';
 import { ITermMappingAtomic } from '@bedes-common/models/term-mapping/term-mapping-atomic.interface';
 import { TermMappingAtomic } from '@bedes-common/models/term-mapping/term-mapping-atomic';
+import { BedesDataType } from '@bedes-common/enums';
+import { TermType } from '@bedes-common/enums/term-type.enum';
 
 @Component({
   selector: 'app-bedes-map-search',
@@ -138,28 +140,31 @@ export class BedesMapSearchComponent implements OnInit {
         console.log('map the term', this.selectedItem);
         const item = this.selectedItem.ref;
         if(item.resultObjectType === SearchResultType.CompositeTerm) {
+            // get the composite term from the backend
             this.compositeTermService.getTerm(item.id)
             .subscribe((compositeTerm: BedesCompositeTerm) => {
+                // create the mapping from the composite term
                 const params: ITermMappingComposite = {
-                    _id: undefined,
-                    _appListOption: undefined,
-                    _compositeTerm: compositeTerm.toInterface()
+                    _compositeTermUUID: compositeTerm.uuid,
+                    _bedesName: compositeTerm.name
                 }
                 this.appTerm.mapping = new TermMappingComposite(params);
                 this.back();
             })
         }
         else {
+            // get the BedesTerm from the backend
             this.termService.getTerm(item.uuid)
             .subscribe((term: BedesTerm | BedesConstrainedList) => {
                 const params: ITermMappingAtomic = {
-                    _id: undefined,
-                    _appListOption: undefined,
-                    _bedesTerm: term.toInterface()
+                    _bedesName: term.name,
+                    _bedesTermUUID: term.uuid,
+                    _bedesTermType: BedesDataType.ConstrainedList
+                        ? TermType.ConstrainedList
+                        : TermType.Atomic
                 }
                 this.appTerm.mapping = new TermMappingAtomic(params);
                 this.back();
-
             });
         }
     }

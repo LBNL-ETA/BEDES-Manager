@@ -18,6 +18,11 @@ import { TableCellNameNavComponent } from './table-cell-name-nav/table-cell-name
 import { AuthService } from '../../../../auth/services/auth/auth.service';
 import { UserStatus } from '@bedes-common/enums/user-status.enum';
 import { CurrentUser } from '@bedes-common/models/current-user/current-user';
+import { TableCellNavComponent } from '../../../models/ag-grid/table-cell-nav/table-cell-nav.component';
+import { MessageFromGrid } from '../../../models/ag-grid/message-from-grid';
+import { TableCellMessageType } from '../../../models/ag-grid/enums/table-cell-message-type.enum';
+import { ConfirmDialogComponent } from '../../dialogs/confirm-dialog/confirm-dialog.component';
+import { MatDialog } from '@angular/material';
 
 /**
  * Defines the interface for the rows of grid objects.
@@ -32,7 +37,7 @@ interface IAppRow {
   templateUrl: './application-list.component.html',
   styleUrls: ['./application-list.component.scss']
 })
-export class ApplicationListComponent implements OnInit {
+export class ApplicationListComponent extends MessageFromGrid<IAppRow> implements OnInit {
     public RequestStatus = RequestStatus;
     public currentRequestStatus: RequestStatus;
     private ngUnsubscribe: Subject<void> = new Subject<void>();
@@ -60,8 +65,11 @@ export class ApplicationListComponent implements OnInit {
         private termService: BedesTermService,
         private appService: ApplicationService,
         private supportListService: SupportListService,
-        private authService: AuthService
-    ) {}
+        private authService: AuthService,
+        private dialog: MatDialog
+    ) {
+        super();
+    }
 
     ngOnInit() {
         this.gridInitialized = false;
@@ -120,6 +128,22 @@ export class ApplicationListComponent implements OnInit {
     }
 
     /**
+     * Override the abstract class MessageFromGrid.
+     *
+     * Process the messages from the ag-grid AppTerm list.
+     */
+    public messageFromGrid(messageType: TableCellMessageType, selectedRow: IAppRow): void {
+        console.log(`${this.constructor.name}: received message from grid`, messageType, selectedRow);
+        this.selectedItem = selectedRow;
+        if (messageType === TableCellMessageType.View) {
+            this.viewItem(selectedRow);
+        }
+        else if (messageType === TableCellMessageType.Remove) {
+            this.confirmRemoveSelectedItem(selectedRow.ref);
+        }
+    }
+
+    /**
      * Setup the ag-grid for the list of projects.
      */
     private gridSetup(): void {
@@ -147,26 +171,36 @@ export class ApplicationListComponent implements OnInit {
         };
     }
 
-    /**
-     * Set the execution context for the table.  Used for cell renderers
-     * to be able to access the parent component methods.
-     */
-    private setTableContext(): void {
-        this.tableContext = {
-            parent: this
-        };
-    }
-
     // public viewTerm(selectedItem: any): void {
     //     console.log(`${this.constructor.name}: view the selected item`);
     // }
 
     /**
+     * Confirm the removal of a MappingApplication before calling the backend API.
+     */
+    private confirmRemoveSelectedItem(item: MappingApplication): void {
+        const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+            panelClass: 'dialog-no-padding',
+            width: '450px',
+            position: {top: '20px'},
+            data: {
+                dialogTitle: 'Confirm?',
+                dialogContent: 'Remove the selected terms?',
+            }
+        });
+        dialogRef.afterClosed().subscribe((results: boolean) => {
+            if (results) {
+                this.removeSelectedItem(item);
+            }
+        });
+    }
+
+    /**
      * Remove the application that's currently selected in the table.
      */
-    public removeSelectedItem(): void {
+    private removeSelectedItem(item: MappingApplication): void {
         console.log(`${this.constructor.name}: removeSelectedItem`);
-        this.appService.deleteApplication(this.selectedItem.ref)
+        this.appService.deleteApplication(item)
         .subscribe(
             (results: boolean) => {
                 console.log(`${this.constructor.name}: received results`);
@@ -229,9 +263,9 @@ export class ApplicationListComponent implements OnInit {
             {
                 headerName: 'Name',
                 field: 'ref.name',
-                checkboxSelection: true
+                // checkboxSelection: true
                 // minWidth: 250,
-                // cellRendererFramework: TableCellNameNavComponent
+                cellRendererFramework: TableCellNavComponent
             },
             {
                 headerName: 'Description',

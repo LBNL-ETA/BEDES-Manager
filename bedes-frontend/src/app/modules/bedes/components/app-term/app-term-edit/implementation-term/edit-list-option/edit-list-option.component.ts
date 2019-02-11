@@ -56,7 +56,11 @@ export class EditListOptionComponent implements OnInit {
 
     public dataForm = this.formBuilder.group({
         name: ['', Validators.required],
-        description: ['']
+        description: [''],
+        uuid: [{
+            value: null,
+            disabled: true
+        }],
       });
 
     constructor(
@@ -127,6 +131,7 @@ export class EditListOptionComponent implements OnInit {
         if (this.listOption) {
             this.dataForm.controls.name.setValue(this.listOption.name);
             this.dataForm.controls.description.setValue(this.listOption.description);
+            this.dataForm.controls.uuid.setValue(this.listOption.uuid);
         }
     }
 

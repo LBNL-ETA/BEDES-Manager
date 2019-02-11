@@ -14,12 +14,13 @@ import { BedesUnit } from '@bedes-common/models/bedes-unit/bedes-unit';
 import { AppTermService } from '../../../services/app-term/app-term.service';
 import { TableCellNameNavComponent } from '../../application-home/application-list/table-cell-name-nav/table-cell-name-nav.component';
 import { TermType } from '@bedes-common/enums/term-type.enum';
-import { TableCellAppTermNavComponent } from './table-cell-app-term-nav/table-cell-app-term-nav.component';
-import { TableCellMessageType } from './table-cell-message-type.enum';
+import { TableCellNavComponent } from '../../../models/ag-grid/table-cell-nav/table-cell-nav.component';
+import { TableCellMessageType } from '../../../models/ag-grid/enums/table-cell-message-type.enum';
 import { MatDialog } from '@angular/material';
 import { ConfirmDialogComponent } from '../../dialogs/confirm-dialog/confirm-dialog.component';
-import { TermMappingAtomic } from '../../../../../../../../bedes-common/models/term-mapping/term-mapping-atomic';
-import { TermMappingComposite } from '../../../../../../../../bedes-common/models/term-mapping/term-mapping-composite';
+import { TermMappingAtomic } from '@bedes-common/models/term-mapping/term-mapping-atomic';
+import { TermMappingComposite } from '@bedes-common/models/term-mapping/term-mapping-composite';
+import { MessageFromGrid } from '../../../models/ag-grid/message-from-grid';
 
 /**
  * Interface for the rows of grid objects.
@@ -34,7 +35,7 @@ interface IAppRow {
   templateUrl: './app-term-list.component.html',
   styleUrls: ['./app-term-list.component.scss']
 })
-export class AppTermListComponent implements OnInit {
+export class AppTermListComponent extends MessageFromGrid<IAppRow> implements OnInit {
     private gridInitialized: boolean;
     // Boolean that indicates if the grid's data needs to be set.
     // When a new appTermList is received, this flag is set to true
@@ -60,7 +61,9 @@ export class AppTermListComponent implements OnInit {
         private appService: ApplicationService,
         private appTermService: AppTermService,
         private dialog: MatDialog
-    ) {}
+    ) {
+        super();
+    }
 
     ngOnInit() {
         this.gridInitialized = false;
@@ -167,16 +170,6 @@ export class AppTermListComponent implements OnInit {
         };
     }
 
-    /**
-     * Set the execution context for the table.  Used for cell renderers
-     * to be able to access the parent component methods.
-     */
-    private setTableContext(): void {
-        this.tableContext = {
-            parent: this
-        };
-    }
-
     // public viewTerm(selectedItem: any): void {
     //     console.log(`${this.constructor.name}: view the selected item`);
     // }
@@ -234,7 +227,9 @@ export class AppTermListComponent implements OnInit {
     }
 
     /**
-     * Receives messages from the grid from interactions with AppTerm row buttons.
+     * Override the abstract class MessageFromGrid.
+     *
+     * Process the messages from the ag-grid AppTerm list.
      */
     public messageFromGrid(messageType: TableCellMessageType, selectedRow: IAppRow): void {
         console.log(`${this.constructor.name}: received message from grid`, messageType, selectedRow);
@@ -263,7 +258,7 @@ export class AppTermListComponent implements OnInit {
             {
                 headerName: 'Application Term Name',
                 field: 'ref.name',
-                cellRendererFramework: TableCellAppTermNavComponent
+                cellRendererFramework: TableCellNavComponent
             },
             {
                 headerName: 'Mapped BEDES Term Name',
@@ -281,11 +276,11 @@ export class AppTermListComponent implements OnInit {
             const gridData = new Array<IAppRow>();
             this.appTermList.forEach((appTerm: AppTerm | AppTermList) => {
                 let mappingName = '';
-                if (appTerm && appTerm.mapping instanceof TermMappingAtomic && appTerm.mapping.bedesTerm) {
-                    mappingName = appTerm.mapping.bedesTerm.name
+                if (appTerm && appTerm.mapping instanceof TermMappingAtomic && appTerm.mapping.bedesTermUUID) {
+                    mappingName = appTerm.mapping.bedesName
                 }
-                else if (appTerm && appTerm.mapping instanceof TermMappingComposite && appTerm.mapping.compositeTerm.name) {
-                    mappingName = appTerm.mapping.compositeTerm.name
+                else if (appTerm && appTerm.mapping instanceof TermMappingComposite && appTerm.mapping.bedesName) {
+                    mappingName = appTerm.mapping.bedesName
                 }
 
                 gridData.push(<IAppRow>{

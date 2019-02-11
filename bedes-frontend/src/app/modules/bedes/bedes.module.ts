@@ -72,7 +72,7 @@ import { SelectedTermsOrderComponent } from './components/term-builder-home/sele
 import { TableCellItemNameComponent } from './components/term-builder-home/selected-terms-table/table-cell-item-name/table-cell-item-name.component';
 import { BedesMapSearchComponent } from './components/app-term/app-term-edit/bedes-map-search/bedes-map-search.component';
 import { MappingViewComponent } from './components/app-term/app-term-edit/mapping-view/mapping-view.component';
-import { TableCellAppTermNavComponent } from './components/app-term/app-term-list/table-cell-app-term-nav/table-cell-app-term-nav.component';
+import { TableCellNavComponent } from './models/ag-grid/table-cell-nav/table-cell-nav.component';
 import { AppTermListOptionService } from './services/app-term-list-option/app-term-list-option.service';
 import { TableCellMapListOptionComponent } from './components/app-term/app-term-edit/table-cell-map-list-option/table-cell-map-list-option.component';
 import { ListOptionMapDialogComponent } from './components/dialogs/list-option-map-dialog/list-option-map-dialog.component';
@@ -143,7 +143,7 @@ import { ListOptionMapDialogComponent } from './components/dialogs/list-option-m
         TableCellItemNameComponent,
         BedesMapSearchComponent,
         MappingViewComponent,
-        TableCellAppTermNavComponent,
+        TableCellNavComponent,
         TableCellMapListOptionComponent,
         ListOptionMapDialogComponent
     ],
@@ -155,7 +155,7 @@ import { ListOptionMapDialogComponent } from './components/dialogs/list-option-m
         TableCellTermNameComponent,
         TableCellNameNavComponent,
         TableCellItemNameComponent,
-        TableCellAppTermNavComponent,
+        TableCellNavComponent,
         TableCellMapListOptionComponent
     ],
     providers: [

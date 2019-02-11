@@ -15,7 +15,7 @@ import { SupportListType } from '../../../services/support-list/support-list-typ
 import { TableCellTermNameComponent } from './table-cell-term-name/table-cell-term-name.component';
 import { BedesSearchResult } from '@bedes-common/models/bedes-search-result/bedes-search-result';
 import { SearchResultType } from '@bedes-common/models/bedes-search-result/search-result-type.enum';
-import { ISearchResultRow } from '../../../models/ag-table/search-result-row.interface';
+import { ISearchResultRow } from '../../../models/ag-grid/search-result-row.interface';
 import { getResultTypeName } from '../../../lib/get-result-type-name';
 
 @Component({

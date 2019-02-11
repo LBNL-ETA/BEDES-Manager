@@ -1,16 +1,16 @@
 import { Component, OnInit } from '@angular/core';
 import { ICellRendererAngularComp } from 'ag-grid-angular';
-import { TableCellMessageType } from '../table-cell-message-type.enum';
+import { TableCellMessageType } from '../enums/table-cell-message-type.enum';
 
 /**
  * Component implementation for an ag-grid cell.
  */
 @Component({
-  selector: 'app-table-cell-app-term-nav',
-  templateUrl: './table-cell-app-term-nav.component.html',
-  styleUrls: ['./table-cell-app-term-nav.component.scss']
+  selector: 'app-table-cell-nav',
+  templateUrl: './table-cell-nav.component.html',
+  styleUrls: ['./table-cell-nav.component.scss']
 })
-export class TableCellAppTermNavComponent implements ICellRendererAngularComp {
+export class TableCellNavComponent implements ICellRendererAngularComp {
     public params: any;
     public displayLabel: string;
     public MessageType = TableCellMessageType;

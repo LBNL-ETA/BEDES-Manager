@@ -10,30 +10,30 @@ import { TermType } from '@bedes-common/enums/term-type.enum';
     providedIn: 'root'
 })
 export class AppTermService {
-    // api endpoint for the AppTerm|AppTermList objects.
+    /** api endpoint for the AppTerm|AppTermList objects. */
     private apiEndpointTerm = 'api/mapping-application/:appId/term/:termId';
     private urlTerm: string = null;
-    // api endoing for retrieving the list of AppTerm objects from a sibling id.
+    /** api endoing for retrieving the list of AppTerm objects from a sibling id. */
     private apiEndpointSibling = 'api/mapping-application/sibling/:termId';
     private urlSibling: string = null;
-    // the id of the active MappingApplication
+    /** the id of the active MappingApplication */
     private _activeAppId: number | undefined;
     get activeAppId(): number | undefined {
         return this._activeAppId;
     }
-    // the list of AppTerms for the active MappingApplication
+    /** the list of AppTerms for the active MappingApplication */
     private termList: Array<AppTerm | AppTermList>;
-    // the BehaviorSubject for the active AppTerm list
+    /** the BehaviorSubject for the active AppTerm list */
     private _termListSubject: BehaviorSubject<Array<AppTerm | AppTermList>>
     get termListSubject(): BehaviorSubject<Array<AppTerm | AppTermList>> {
         return this._termListSubject;
     }
-    // The selected AppTerm/AppTermList
+    /** The selected AppTerm/AppTermList */
     private _activeTerm: AppTerm | AppTermList | undefined;
     get activeTerm(): AppTerm | AppTermList | undefined {
         return this._activeTerm;
     }
-    // BehaviorSubject for the current activeTerm
+    /** BehaviorSubject for the current activeTerm */
     private _activeTermSubject: BehaviorSubject<AppTerm | AppTermList | undefined>;
     get activeTermSubject(): BehaviorSubject<AppTerm | AppTermList> {
         return this._activeTermSubject;
@@ -140,6 +140,10 @@ export class AppTermService {
     /**
      * Calls the backend API to save the new appTerm, and link it to the
      * MappingApplication's appId.
+     *
+     * @param appId The id of the MappingApplicatoin the AppTerm belongs to.
+     * @param appTerm The new AppTerm to be saved.
+     * @returns The new AppTerm object just saved to the database.
      */
     public newAppTerm(appId: number, appTerm: AppTerm): Observable<AppTerm> {
         // create the url
@@ -147,6 +151,7 @@ export class AppTermService {
         return this.http.post<IAppTerm>(url, appTerm, { withCredentials: true })
         .pipe(
             map((results: IAppTerm) => {
+                console.log(`${this.constructor.name}: newAppTerm received results`, results);
                 // create the new class object from the interface
                 // add it to the current applications term list
                 // pass on the newTerm
@@ -158,7 +163,10 @@ export class AppTermService {
     }
 
     /**
-     * Update an existing AppTerm.
+     * Updates an existing AppTerm object.
+     * @param appId
+     * @param appTerm
+     * @returns app term
      */
     public updateAppTerm(appId: number, appTerm: AppTerm): Observable<AppTerm> {
         // make sure an id is present on the object
