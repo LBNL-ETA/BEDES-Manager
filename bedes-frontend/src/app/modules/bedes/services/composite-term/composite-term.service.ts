@@ -102,8 +102,8 @@ export class CompositeTermService {
      * @param id
      * @returns term
      */
-    public getTerm(id: number): Observable<BedesCompositeTerm> {
-        const url = this.urlUpdate.replace(/:id$/, String(id));
+    public getTerm(uuid: string): Observable<BedesCompositeTerm> {
+        const url = this.urlUpdate.replace(/:id$/, uuid);
         console.log(`url = ${url}`);
         return this.http.get<IBedesCompositeTerm>(url, { withCredentials: true })
             .pipe(map((results: IBedesCompositeTerm) => {

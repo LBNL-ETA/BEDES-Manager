@@ -28,15 +28,13 @@ import { SearchResultType } from '@bedes-common/models/bedes-search-result/searc
 import { BedesCompositeTerm } from '@bedes-common/models/bedes-composite-term/bedes-composite-term';
 import { BedesConstrainedList } from '@bedes-common/models/bedes-term/bedes-constrained-list';
 import { BedesTerm } from '@bedes-common/models/bedes-term/bedes-term';
-import { TermMappingComposite } from '@bedes-common/models/term-mapping/term-mapping-composite';
 import { CompositeTermService } from '../../../../services/composite-term/composite-term.service';
 import { BedesTermService } from '../../../../services/bedes-term/bedes-term.service';
 import { TermMappingAtomic } from '@bedes-common/models/term-mapping/term-mapping-atomic';
 import { TableCellMapListOptionComponent } from '../table-cell-map-list-option/table-cell-map-list-option.component';
 import { MappingTableMessageType } from '../mapping-table-message-type.enum';
 import { ListOptionMapDialogComponent } from '../../../dialogs/list-option-map-dialog/list-option-map-dialog.component';
-import { BedesTermOption } from '../../../../../../../../../bedes-common/models/bedes-term-option/bedes-term-option';
-import { TermMappingListOption } from '../../../../../../../../../bedes-common/models/term-mapping/term-mapping-list-option';
+import { BedesTermOption } from '@bedes-common/models/bedes-term-option/bedes-term-option';
 
 
 enum RequestStatus {
@@ -784,7 +782,7 @@ export class ImplementationTermComponent implements OnInit {
             throw new Error('CompositeTerm expected in setMappedCompositeTerm');
         }
         // make sure to get the uuid of the term and not the list option
-        this.compositeTermService.getTerm(searchResult.id)
+        this.compositeTermService.getTerm(searchResult.uuid)
         .subscribe((compositeTerm: BedesCompositeTerm) => {
             // received the compositeTerm
             console.log(`${this.constructor.name}: received the compositeTerm`);

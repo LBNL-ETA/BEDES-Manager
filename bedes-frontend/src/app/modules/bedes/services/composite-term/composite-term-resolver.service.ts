@@ -28,17 +28,17 @@ export class CompositeTermResolverService {
         // if (routeId == null) {
         //     return of(new BedesCompositeTerm())
         // }
-        const newId = Number(routeId);
+        // const newId = Number(routeId);
         // check the current selected term for a matching id
         // don't make the http request if we already have the term selected
         const selectedItem = this.compositeTermService.selectedTerm;
-        if (selectedItem && newId  && selectedItem.id === newId) {
+        if (selectedItem && routeId && selectedItem.uuid === routeId) {
             return of(selectedItem);
         }
-        else if (newId) {
-            // an id was passed in the url and not the currently active composite term
+        else if (routeId) {
+            // a uuid was passed in the url and not the currently active composite term
             // load the term details from the api
-            this.compositeTermService.getTerm(newId)
+            this.compositeTermService.getTerm(routeId)
             .subscribe((compositeTerm: BedesCompositeTerm) => {
                 // set the active composite term
                 this.compositeTermService.setActiveCompositeTerm(compositeTerm);

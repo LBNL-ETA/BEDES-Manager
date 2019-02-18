@@ -6,17 +6,57 @@ import { BedesConstrainedList } from '../bedes-term/bedes-constrained-list';
 import { IBedesTerm } from '../bedes-term/bedes-term.interface';
 import { buildCompositeTermSignature } from '../../util/build-composite-term-signature';
 import { IBedesConstrainedList } from '../bedes-term/bedes-constrained-list.interface';
+import { UUIDGenerator } from '../uuid-generator/uuid-generator';
 
-export class BedesCompositeTerm {
+export class BedesCompositeTerm extends UUIDGenerator {
     private _id: number | null | undefined;
+    get id():  number | null | undefined {
+        return this._id;
+    }
+    set id(value:  number | null | undefined) {
+        this._id = value;
+    }
     private _signature: string;
+    get signature():  string {
+        return this._signature;
+    }
+    set signature(value:  string) {
+        this._signature = value;
+    }
     private _name: string | null | undefined;
+    get name():  string | null | undefined {
+        return this._name;
+    }
+    set name(value:  string | null | undefined) {
+        this._name = value;
+    }
     private _description: string | null | undefined;
+    get description():  string | null | undefined {
+        return this._description;
+    }
+    set description(value:  string | null | undefined) {
+        this._description = value;
+    }
     private _unitId: number | null | undefined;
-    private _uuid: string | null | undefined;
+    get unitId():  number | null | undefined {
+        return this._unitId;
+    }
+    set unitId(value:  number | null | undefined) {
+        this._unitId = value;
+    }
+    /** UUID */
+    private _uuid: string;
+    get uuid():  string | null | undefined {
+        return this._uuid;
+    }
+    /** CompositeTermDetail items */
     private _items: Array<CompositeTermDetail>
+    get items():  Array<CompositeTermDetail> {
+        return this._items;
+    }
 
     constructor(data?: IBedesCompositeTerm) {
+        super();
         this._items = new Array<CompositeTermDetail>();
         if (data) {
             this._id = data._id || undefined;
@@ -24,11 +64,10 @@ export class BedesCompositeTerm {
             this._name = data._name;
             this._description = data._description;
             this._unitId = data._unitId;
-            this._uuid = data._uuid;
+            this._uuid = data._uuid || this.generateUUID();
             if (data._items && data._items.length) {
                 data._items.forEach((item: ICompositeTermDetail) => {
                     if (!item._term._id) {
-                        console.log(this);
                         console.log(item);
                         throw new Error('BedesTerms must have valid _id to be used in composite');
                     }
@@ -46,47 +85,8 @@ export class BedesCompositeTerm {
         }
         else {
             this._signature = '';
+            this._uuid = this.generateUUID();
         }
-    }
-
-    get id():  number | null | undefined {
-        return this._id;
-    }
-    set id(value:  number | null | undefined) {
-        this._id = value;
-    }
-    get signature():  string {
-        return this._signature;
-    }
-    set signature(value:  string) {
-        this._signature = value;
-    }
-    get name():  string | null | undefined {
-        return this._name;
-    }
-    set name(value:  string | null | undefined) {
-        this._name = value;
-    }
-    get description():  string | null | undefined {
-        return this._description;
-    }
-    set description(value:  string | null | undefined) {
-        this._description = value;
-    }
-    get unitId():  number | null | undefined {
-        return this._unitId;
-    }
-    set unitId(value:  number | null | undefined) {
-        this._unitId = value;
-    }
-    get uuid():  string | null | undefined {
-        return this._uuid;
-    }
-    set uuid(value:  string | null | undefined) {
-        this._uuid = value;
-    }
-    get items():  Array<CompositeTermDetail> {
-        return this._items;
     }
 
     /**
@@ -250,6 +250,7 @@ export class BedesCompositeTerm {
             _name: this.name,
             _description: this.description,
             _unitId: this.unitId,
+            _uuid: this.uuid,
             _items: this._items.map((d) => d.toInterface())
         }
     }

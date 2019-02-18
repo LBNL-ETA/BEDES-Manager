@@ -13,11 +13,8 @@ import { SearchResultType } from '@bedes-common/models/bedes-search-result/searc
 import { BedesCompositeTerm } from '@bedes-common/models/bedes-composite-term/bedes-composite-term';
 import { BedesConstrainedList } from '@bedes-common/models/bedes-term/bedes-constrained-list';
 import { BedesTerm } from '@bedes-common/models/bedes-term/bedes-term';
-import { TermMappingAtomic } from '@bedes-common/models/term-mapping/term-mapping-atomic';
 import { AppTermListOptionService } from '../../../../services/app-term-list-option/app-term-list-option.service';
 import { AppTermListOption } from '@bedes-common/models/app-term/app-term-list-option';
-import { ITermMappingAtomic } from '@bedes-common/models/term-mapping/term-mapping-atomic.interface';
-import { TermMappingComposite } from '@bedes-common/models/term-mapping/term-mapping-composite';
 
 @Component({
     selector: 'app-mapping-view',
@@ -117,7 +114,7 @@ export class MappingViewComponent implements OnInit {
             throw new Error('CompositeTerm expected in setMappedCompositeTerm');
         }
         // make sure to get the uuid of the term and not the list option
-        this.compositeTermService.getTerm(searchResult.id)
+        this.compositeTermService.getTerm(searchResult.uuid)
         .subscribe((compositeTerm: BedesCompositeTerm) => {
             this.activeAppTerm.map(compositeTerm);
             // received the compositeTerm

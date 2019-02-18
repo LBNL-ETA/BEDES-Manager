@@ -3,11 +3,13 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { takeUntil } from 'rxjs/operators';
 import { Subject } from 'rxjs';
 import { GridOptions, SelectionChangedEvent, ColDef } from 'ag-grid-community';
-import { BedesCompositeTerm } from '@bedes-common/models/bedes-composite-term';
 import { CompositeTermService } from '../../../services/composite-term/composite-term.service';
 import { AuthService } from '../../../../auth/services/auth/auth.service';
 import { CurrentUser } from '@bedes-common/models/current-user/current-user';
 import { BedesCompositeTermShort } from '@bedes-common/models/bedes-composite-term-short/bedes-composite-term-short';
+import { MessageFromGrid } from '../../../models/ag-grid/message-from-grid';
+import { TableCellMessageType } from '../../../models/ag-grid/enums/table-cell-message-type.enum';
+import { TableCellNavComponent } from '../../../models/ag-grid/table-cell-nav/table-cell-nav.component';
 
 interface IGridRow {
     name: string;
@@ -20,7 +22,7 @@ interface IGridRow {
     templateUrl: './composite-term-list.component.html',
     styleUrls: ['./composite-term-list.component.scss']
 })
-export class CompositeTermListComponent implements OnInit {
+export class CompositeTermListComponent extends MessageFromGrid<IGridRow> implements OnInit {
     /* Array that holds the list of CompositeTerms */
     public termList: Array<BedesCompositeTermShort>;
     private ngUnsubscribe: Subject<void> = new Subject<void>();
@@ -44,7 +46,9 @@ export class CompositeTermListComponent implements OnInit {
         private route: ActivatedRoute,
         private compositeTermService: CompositeTermService,
         private authService: AuthService
-    ) { }
+    ) {
+        super();
+    }
 
     ngOnInit() {
         this.subscribeToUserStatus();
@@ -52,6 +56,23 @@ export class CompositeTermListComponent implements OnInit {
         this.gridSetup();
         this.setTableContext();
     }
+
+    /**
+     * Override the abstract class MessageFromGrid.
+     *
+     * Process the messages from the ag-grid AppTerm list.
+     */
+    public messageFromGrid(messageType: TableCellMessageType, selectedRow: IGridRow): void {
+        console.log(`${this.constructor.name}: received message from grid`, messageType, selectedRow);
+        this.selectedItem = selectedRow;
+        if (messageType === TableCellMessageType.View) {
+            this.viewSelectedItem(selectedRow.ref);
+        }
+        else if (messageType === TableCellMessageType.Remove) {
+            // this.confirmRemoveSelectedItem(selectedRow.ref);
+        }
+    }
+
 
     /**
      * Subscribe to the composite term list BehaviorSubject.
@@ -114,17 +135,13 @@ export class CompositeTermListComponent implements OnInit {
             {
                 headerName: 'Name',
                 field: 'ref.name',
-                checkboxSelection: true
+                // checkboxSelection: true,
                 // minWidth: 250,
-                // cellRendererFramework: TableCellNameNavComponent
+                cellRendererFramework: TableCellNavComponent
             },
             {
                 headerName: 'Description',
                 field: 'ref.description'
-            },
-            {
-                headerName: 'UUID',
-                field: 'ref.uuid'
             },
             {
                 headerName: 'Scope',
@@ -152,23 +169,12 @@ export class CompositeTermListComponent implements OnInit {
         }
     }
 
-
-    /**
-     * Set the execution context for the table.  Used for cell renderers
-     * to be able to access the parent component methods.
-     */
-    private setTableContext(): void {
-        this.tableContext = {
-            parent: this
-        };
-    }
-
     /**
      * View the selected CompositeTerm, which is set from the grid configuration.
      */
-    public viewSelectedItem(): void {
+    public viewSelectedItem(term: BedesCompositeTermShort): void {
         // navigate to the route
-        this.router.navigate(['../edit', this.selectedItem.ref.id], { relativeTo: this.route});
+        this.router.navigate(['../edit', term.uuid], { relativeTo: this.route});
     }
 
 }

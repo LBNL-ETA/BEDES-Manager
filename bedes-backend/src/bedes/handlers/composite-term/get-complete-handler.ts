@@ -4,6 +4,7 @@ import { createLogger } from '@bedes-backend/logging';
 import { HttpStatusCodes } from '@bedes-common/enums/http-status-codes';
 import { BedesError } from '@bedes-common/bedes-error';
 import { bedesQuery } from '../../query';
+import { isUUID } from '@bedes-common/util/is-uuid';
 const logger = createLogger(module);
 
 /**
@@ -12,8 +13,8 @@ const logger = createLogger(module);
 export async function compositeTermGetCompleteHandler(request: Request, response: Response): Promise<any> {
     try {
         logger.debug(util.inspect(request.params));
-        const id = request.params.id;
-        if (!id) {
+        const uuid: string = request.params.id;
+        if (!uuid || !isUUID(uuid)) {
             throw new BedesError(
                 'Invalid parameters',
                 HttpStatusCodes.BadRequest_400,
@@ -21,8 +22,9 @@ export async function compositeTermGetCompleteHandler(request: Request, response
             );
         }
         logger.debug(`get a composite term`);
-        logger.debug(util.inspect(id));
-        let results = await bedesQuery.compositeTerm.getRecordComplete(id);
+        logger.debug(util.inspect(uuid));
+        logger.debug(`isUUID = ${isUUID(uuid)}`);
+        let results = await bedesQuery.compositeTerm.getRecordCompleteByUUID(uuid);
         logger.debug('compositeTermHandler resuts');
         logger.debug(util.inspect(results));
         response.json(results)

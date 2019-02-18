@@ -141,7 +141,7 @@ export class BedesMapSearchComponent implements OnInit {
         const item = this.selectedItem.ref;
         if(item.resultObjectType === SearchResultType.CompositeTerm) {
             // get the composite term from the backend
-            this.compositeTermService.getTerm(item.id)
+            this.compositeTermService.getTerm(item.uuid)
             .subscribe((compositeTerm: BedesCompositeTerm) => {
                 // create the mapping from the composite term
                 const params: ITermMappingComposite = {

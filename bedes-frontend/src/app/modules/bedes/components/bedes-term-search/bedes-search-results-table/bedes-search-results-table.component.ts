@@ -124,8 +124,11 @@ export class BedesSearchResultsTableComponent implements OnInit, OnDestroy {
         else if (selectedItem.ref.resultObjectType === SearchResultType.BedesTermOption) {
             // navigate to bedes-term/term_uuid_or_id/edit/option_uuid_or_id
             const termId = selectedItem.ref.termUUID || selectedItem.ref.termId;
-            // const optionId = selectedItem.ref.uuid || selectedItem.ref.id;
             this.router.navigate(['/bedes-term', termId]);
+        }
+        else if (selectedItem.ref.resultObjectType === SearchResultType.CompositeTerm) {
+            const termId = selectedItem.ref.uuid || selectedItem.ref.termId;
+            this.router.navigate(['/composite-term/edit', termId]);
         }
         else {
             console.error('unable to find route for selectedRow', selectedItem);
@@ -187,10 +190,6 @@ export class BedesSearchResultsTableComponent implements OnInit, OnDestroy {
             {
                 headerName: 'Type',
                 field: 'searchResultTypeName'
-            },
-            {
-                headerName: 'UUID',
-                field: 'uuid'
             },
             {
                 headerName: 'Category',

@@ -22,6 +22,7 @@ export class BedesCompositeTermQuery {
     private sqlInsert: QueryFile;
     private sqlUpdate: QueryFile;
     private sqlGetCompositeTermComplete: QueryFile;
+    private sqlGetCompositeTermCompleteUUID: QueryFile;
     private sqlDelete: QueryFile;
 
     constructor() { 
@@ -30,6 +31,7 @@ export class BedesCompositeTermQuery {
         this.sqlGetByUUID = sql_loader(path.join(__dirname, 'get-by-uuid.sql'));
         this.sqlGetAllTerms = sql_loader(path.join(__dirname, 'get-all-terms.sql'));
         this.sqlGetCompositeTermComplete = sql_loader(path.join(__dirname, 'get-composite-term-complete.sql'));
+        this.sqlGetCompositeTermCompleteUUID = sql_loader(path.join(__dirname, 'get-composite-term-complete-uuid.sql'));
         this.sqlInsert = sql_loader(path.join(__dirname, 'insert.sql'))
         this.sqlUpdate = sql_loader(path.join(__dirname, 'update.sql'))
         this.sqlDelete = sql_loader(path.join(__dirname, 'delete.sql'))
@@ -308,12 +310,8 @@ export class BedesCompositeTermQuery {
             const params = {
                 _uuid: uuid
             };
-            if (transaction) {
-                return transaction.oneOrNone(this.sqlGetByUUID, params);
-            }
-            else {
-                return db.oneOrNone(this.sqlGetByUUID, params);
-            }
+            const ctx = transaction || db;
+            return ctx.oneOrNone(this.sqlGetByUUID, params);
         } catch (error) {
             logger.error(`${this.constructor.name}: Error in getRecordById`);
             logger.error(util.inspect(error));
@@ -367,6 +365,28 @@ export class BedesCompositeTermQuery {
             throw error;
         }
     }
+
+    /**
+     * Retrieves a complete IBedesCpompositeTerm object for the given uuid.
+     */
+    public getRecordCompleteByUUID(uuid: string, transaction?: any): Promise<IBedesCompositeTerm> {
+        try {
+            if (!uuid) {
+                logger.error(`${this.constructor.name}: Missing unitName in BedesUnit-getRecordByName`);
+                throw new Error('Missing required parameters.');
+            }
+            const params = {
+                _uuid: uuid
+            };
+            const ctx = transaction || db;
+            return ctx.oneOrNone(this.sqlGetCompositeTermCompleteUUID, params);
+        } catch (error) {
+            logger.error(`${this.constructor.name}: Error in getRecordComplete`);
+            logger.error(util.inspect(error));
+            throw error;
+        }
+    }
+
 
     /**
      * Delete a complete composite term.
