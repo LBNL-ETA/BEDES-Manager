@@ -124,8 +124,8 @@ export class BedesSearchResultsTableComponent implements OnInit, OnDestroy {
         else if (selectedItem.ref.resultObjectType === SearchResultType.BedesTermOption) {
             // navigate to bedes-term/term_uuid_or_id/edit/option_uuid_or_id
             const termId = selectedItem.ref.termUUID || selectedItem.ref.termId;
-            const optionId = selectedItem.ref.uuid || selectedItem.ref.id;
-            this.router.navigate(['/bedes-term', termId, 'edit', optionId]);
+            // const optionId = selectedItem.ref.uuid || selectedItem.ref.id;
+            this.router.navigate(['/bedes-term', termId]);
         }
         else {
             console.error('unable to find route for selectedRow', selectedItem);
