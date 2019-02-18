@@ -1,12 +1,12 @@
 <mat-toolbar color="primary" style="display:flex; position:fixed; z-index:1000">
     <mat-toolbar-row style="display:flex;">
-        <span style="margin-right:7px;">
+        <span style="margin-right:7px;" style="cursor: pointer;" (click)="home()">
             BEDES Mapping Manager
         </span>
         <span>
-            <a  mat-button [routerLink]="['search']" routerLinkActive="active-route">
+            <button  mat-button [routerLink]="['search']" routerLinkActive="active-route">
                 Search for Terms
-            </a>
+            </button>
             <button mat-button [routerLink]="['composite-term']" routerLinkActive="active-route">
                 Composite Term
             </button>
