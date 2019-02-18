@@ -213,8 +213,8 @@ export class BedesSearchResultsTableComponent implements OnInit, OnDestroy {
                 return <ISearchResultRow>{
                     name: searchResult.name,
                     uuid: searchResult.uuid,
-                    // categoryName: this.supportListService.transformIdToName(SupportListType.BedesCategory, term.termCategoryId),
-                    // dataTypeName: this.supportListService.transformIdToName(SupportListType.BedesDataType, term.dataTypeId),
+                    categoryName: this.supportListService.transformIdToName(SupportListType.BedesCategory, searchResult.termCategoryId),
+                    dataTypeName: this.supportListService.transformIdToName(SupportListType.BedesDataType, searchResult.dataTypeId),
                     unitName: this.supportListService.transformIdToName(SupportListType.BedesUnit, searchResult.unitId),
                     ref: searchResult,
                     searchResultTypeName: getResultTypeName(searchResult.resultObjectType)
