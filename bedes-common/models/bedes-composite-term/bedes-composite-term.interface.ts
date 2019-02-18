@@ -7,5 +7,5 @@ export interface IBedesCompositeTerm {
     _description?: string | null | undefined;
     _unitId?: number | null | undefined;
     _items: Array<ICompositeTermDetail>;
-    _uuid: string | null | undefined;
+    _uuid?: string | null | undefined;
 }

@@ -4,6 +4,8 @@ import { TermCategory } from '../enums/term-category';
 import { BedesDataType } from '../enums/bedes-data-type';
 import { buildCompositeTermSignature } from './build-composite-term-signature';
 import { ICompositeTermDetail } from '../models/bedes-composite-term/composite-term-item/composite-term-detail.interface';
+import { IBedesTerm } from '../models/bedes-term/bedes-term.interface';
+import { IBedesTermOption } from '../models/bedes-term-option/bedes-term-option.interface';
 
 describe("buildCompositeTermSignature", () => {
     it('Should correctly generate a signature string', () => {
@@ -12,7 +14,7 @@ describe("buildCompositeTermSignature", () => {
             _signature: '1:300-2',
             _items: [
                 <ICompositeTermDetail>{
-                    _term: {
+                    _term: <IBedesTerm>{
                         _id: 2,
                         _termCategoryId: TermCategory.Contact,
                         _name: 'Bedes Term 1',
@@ -22,14 +24,14 @@ describe("buildCompositeTermSignature", () => {
                     _orderNumber: 2
                 },
                 <ICompositeTermDetail>{
-                    _term: {
+                    _term: <IBedesTerm>{
                         _id: 1,
                         _termCategoryId: TermCategory.ControlsAndOperation,
                         _name: 'AnotherThingy',
                         _description: 'fakey fakey',
                         _dataTypeId: BedesDataType.ConstrainedList
                     },
-                    _termOption: {
+                    _listOption: <IBedesTermOption>{
                         _id: 300,
                         _name: 'namey',
                         _description: 'namey description'
