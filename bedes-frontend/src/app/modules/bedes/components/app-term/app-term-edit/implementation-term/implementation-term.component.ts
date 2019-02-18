@@ -178,16 +178,23 @@ export class ImplementationTermComponent implements OnInit {
      * active Mapping Application's set of AppTerms.
      */
     private subscribeToActiveTerm(): void {
+        this.route.data
+            .subscribe((data: { appTerm: AppTerm | AppTermList }) => {
+                console.log('%cReceived route AppTerm', 'background-color: red', data);
+            });
         this.appTermService.activeTermSubject
             .pipe(takeUntil(this.ngUnsubscribe))
             .subscribe((activeTerm: AppTerm | AppTermList | undefined) => {
                 this.appTerm = activeTerm;
                 // if the appTerm is undefined create a new one
                 if (!this.appTerm) {
-                    this.setNewAppTerm();
+                    this.router.navigate(['..'], {relativeTo: this.route})
+                    // this.setNewAppTerm();
                 }
-                // set the form data
-                this.setFormData();
+                else {
+                    // set the form data
+                    this.setFormData();
+                }
             });
     }
 
@@ -293,7 +300,7 @@ export class ImplementationTermComponent implements OnInit {
     }
 
     /**
-     * Save a new AppTerm.
+     * Saves a new AppTerm.
      */
     private saveNewAppTerm(): void {
         console.log(`${this.constructor.name}: app term, `, this.appTerm);
@@ -302,9 +309,13 @@ export class ImplementationTermComponent implements OnInit {
         this.appTermService.newAppTerm(this.app.id, this.appTerm)
         .subscribe((newTerm: AppTerm) => {
             console.log('successfully created the new appTerm',  newTerm)
+            // update the existing AppTerm object.
+            console.log('change <->', newTerm, this.appTerm);
+            AppTerm.updateObjectValues(newTerm, this.appTerm);
             // set the newTerm as the active term and change the route
-            this.appTermService.setActiveTerm(newTerm);
-            this.router.navigate(['..', newTerm.id], {relativeTo: this.route});
+            // this.appTermService.setActiveTerm(this.appTerm);
+            this.appTermService.refreshActiveTerms();
+            // add the new term to the current list of terms
         }, (error: any) => {
             console.log('Error saving appTerm', error);
             this.setErrorMessage(error);
@@ -360,15 +371,6 @@ export class ImplementationTermComponent implements OnInit {
         );
 
 
-    }
-
-    /**
-     * Updates the active MappingApplication object with the
-     * values from the dataForm.
-     */
-    private updateTermFromForm(): void {
-        const values = this.getAppTermFromForm();
-        console.log('values', values);
     }
 
     /**
@@ -491,12 +493,6 @@ export class ImplementationTermComponent implements OnInit {
         if (this.gridInitialized && this.gridDataNeedsSet) {
             // const gridData = this.applicationList;
             const gridData = new Array<IGridRow>();
-            // this.appTermList.forEach((app: AppTerm | AppTermList) => {
-            //     gridData.push(<IGridRow>{
-            //         ref: app,
-            //         mappedBedesTerm: {name: 'Some mapped BEDES Term'}
-            //     });
-            // })
             const shouldShowMappingButtons = this.shouldShowMappingButtons();
             if (this.appTerm instanceof AppTermList && this.appTerm.listOptions.length) {
                 this.appTerm.listOptions.forEach((item: AppTermListOption) => {
@@ -509,8 +505,6 @@ export class ImplementationTermComponent implements OnInit {
                 })
             }
             this.gridOptions.api.setRowData(gridData);
-            console.log('grid data');
-            console.log(gridData);
             this.gridDataNeedsSet = false;
         }
     }

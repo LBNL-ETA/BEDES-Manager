@@ -46,7 +46,9 @@ import {
     faSignOutAlt,
     faDownload,
     faCloudDownloadAlt,
-    faMapMarkedAlt
+    faMapMarkedAlt,
+    faFileImport,
+    faCheckCircle
 } from '@fortawesome/free-solid-svg-icons';
 
 /**
@@ -95,4 +97,6 @@ export function addIcons (): void {
     library.add(faDownload);
     library.add(faCloudDownloadAlt);
     library.add(faMapMarkedAlt);
+    library.add(faFileImport);
+    library.add(faCheckCircle);
 }

@@ -1,10 +1,23 @@
 import { Injectable, Inject } from '@angular/core';
 import { API_URL_TOKEN } from '../url/url.service';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, BehaviorSubject } from 'rxjs';
+import { Observable, BehaviorSubject, of } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 import { AppTerm, AppTermList, IAppTerm, IAppTermList } from '@bedes-common/models/app-term';
 import { TermType } from '@bedes-common/enums/term-type.enum';
+
+/** Transforms IAppTerm and IAppTermList objects into AppTerm | AppTermList objects. */
+const appTermTransformer = (item: IAppTerm | IAppTermList): AppTerm | AppTermList =>{
+    if (item._termTypeId === TermType.Atomic) {
+        return new AppTerm(item);
+    }
+    else if(item._termTypeId === TermType.ConstrainedList) {
+        return new AppTermList(<IAppTermList>item);
+    }
+    else {
+        throw new Error(`Invalid TypeType (${item._termTypeId})`);
+    }
+}
 
 @Injectable({
     providedIn: 'root'
@@ -12,17 +25,20 @@ import { TermType } from '@bedes-common/enums/term-type.enum';
 export class AppTermService {
     /** api endpoint for the AppTerm|AppTermList objects. */
     private apiEndpointTerm = 'api/mapping-application/:appId/term/:termId';
-    private urlTerm: string = null;
+    private urlTerm: string;
     /** api endoing for retrieving the list of AppTerm objects from a sibling id. */
     private apiEndpointSibling = 'api/mapping-application/sibling/:termId';
-    private urlSibling: string = null;
+    private urlSibling: string;
+    /** api endpoint for uploading csv file for template definitions. */
+    private apiEndpointUpload = 'api/mapping-application/:appId/import';
+    private urlUpload: string;
     /** the id of the active MappingApplication */
     private _activeAppId: number | undefined;
     get activeAppId(): number | undefined {
         return this._activeAppId;
     }
     /** the list of AppTerms for the active MappingApplication */
-    private termList: Array<AppTerm | AppTermList>;
+    private termList: Array<AppTerm | AppTermList> | undefined;
     /** the BehaviorSubject for the active AppTerm list */
     private _termListSubject: BehaviorSubject<Array<AppTerm | AppTermList>>
     get termListSubject(): BehaviorSubject<Array<AppTerm | AppTermList>> {
@@ -35,7 +51,7 @@ export class AppTermService {
     }
     /** BehaviorSubject for the current activeTerm */
     private _activeTermSubject: BehaviorSubject<AppTerm | AppTermList | undefined>;
-    get activeTermSubject(): BehaviorSubject<AppTerm | AppTermList> {
+    get activeTermSubject(): BehaviorSubject<AppTerm | AppTermList | undefined> {
         return this._activeTermSubject;
     }
 
@@ -51,10 +67,11 @@ export class AppTermService {
 
     constructor(
         private http: HttpClient,
-        @Inject(API_URL_TOKEN) private apiUrl
+        @Inject(API_URL_TOKEN) private apiUrl: string
     ) {
         this.urlTerm = `${this.apiUrl}${this.apiEndpointTerm}`;
         this.urlSibling = `${this.apiUrl}${this.apiEndpointSibling}`;
+        this.urlUpload = `${this.apiUrl}${this.apiEndpointUpload}`;
         this._termListSubject = new BehaviorSubject<Array<AppTerm | AppTermList>>([]);
         this._activeTermSubject = new BehaviorSubject<AppTerm | AppTermList | undefined>(undefined);
     }
@@ -68,21 +85,8 @@ export class AppTermService {
         return this.http.get<Array<IAppTerm | IAppTermList>>(url, { withCredentials: true })
             .pipe(
                 map((results: Array<IAppTerm | IAppTermList>) => {
-                    console.log(`${this.constructor.name}: received results`, results);
-                    // convert IAppTerm to AppTerm objects (or AppTermList).
-                    return results.map((item: IAppTerm | IAppTermList) =>{
-                        if (item._termTypeId === TermType.Atomic) {
-                            return new AppTerm(item);
-                        }
-                        else if(item._termTypeId === TermType.ConstrainedList) {
-                            return new AppTermList(<IAppTermList>item);
-                        }
-                        else {
-                            throw new Error(`Invalid TypeType (${item._termTypeId})`);
-                        }
-                    });
-                })
-            );
+                return results.map(appTermTransformer);
+            }));
     }
 
     /**
@@ -91,24 +95,13 @@ export class AppTermService {
      * Used to set the initial state of the AppTermList when a route for a specific
      * AppTerm is navigated to directly.
      */
-    public getAppTermSiblings(appTermId: number): Observable<Array<AppTerm | AppTermList>> {
-        const url = this.urlSibling.replace(':termId', String(appTermId));
+    public getAppTermSiblings(uuid: string): Observable<Array<AppTerm | AppTermList>> {
+        const url = this.urlSibling.replace(':termId', String(uuid));
         return this.http.get<Array<IAppTerm | IAppTermList>>(url, { withCredentials: true })
             .pipe(
                 map((results: Array<IAppTerm | IAppTermList>) => {
-                    console.log(`${this.constructor.name}: received results`, results);
                     // convert IAppTerm to AppTerm objects (or AppTermList).
-                    return results.map((item: IAppTerm | IAppTermList) =>{
-                        if (item._termTypeId === TermType.Atomic) {
-                            return new AppTerm(item);
-                        }
-                        else if(item._termTypeId === TermType.ConstrainedList) {
-                            return new AppTermList(<IAppTermList>item);
-                        }
-                        else {
-                            throw new Error(`Invalid TypeType (${item._termTypeId})`);
-                        }
-                    });
+                    return results.map(appTermTransformer);
                 })
             );
 
@@ -119,12 +112,21 @@ export class AppTermService {
     }
 
     /**
-     * Find an AppTerm in the active list of AppTerms.
+     * Calls `next()` on the active AppTerm and AppTermList
+     * Behavior subjects to update views.
+     */
+    public refreshActiveTerms(): void {
+        this._activeTermSubject.next(this._activeTerm);
+        this._termListSubject.next(this.termList);
+    }
+
+    /**
+     * Find an AppTerm in the active list of AppTerms by uuid.
      * Return an undefined if not found.
      */
-    public findTermInList(appTermId: number): AppTerm | AppTermList | undefined {
+    public findTermInList(uuid: string): AppTerm | AppTermList | undefined {
         return this.termList
-            ? this.termList.find((d) => d.id === appTermId)
+            ? this.termList.find((item) => item.uuid === uuid)
             : undefined;
     }
 
@@ -145,19 +147,22 @@ export class AppTermService {
      * @param appTerm The new AppTerm to be saved.
      * @returns The new AppTerm object just saved to the database.
      */
-    public newAppTerm(appId: number, appTerm: AppTerm): Observable<AppTerm> {
+    public newAppTerm(appId: number, appTerm: AppTerm): Observable<AppTerm | AppTermList> {
         // create the url
         const url = this.getAppTermUrl(appId);
-        return this.http.post<IAppTerm>(url, appTerm, { withCredentials: true })
+        return this.http.post<IAppTerm | IAppTermList>(url, appTerm, { withCredentials: true })
         .pipe(
-            map((results: IAppTerm) => {
+            map((results: IAppTerm | IAppTermList) => {
                 console.log(`${this.constructor.name}: newAppTerm received results`, results);
-                // create the new class object from the interface
-                // add it to the current applications term list
-                // pass on the newTerm
-                const newTerm = new AppTerm(results);
-                this.addAppTermToList(newTerm);
-                return newTerm;
+                if(results._termTypeId === TermType.Atomic) {
+                   return new AppTerm(results);
+                }
+                else if(results._termTypeId === TermType.ConstrainedList) {
+                    return new AppTermList(results);
+                }
+                else {
+                    throw new Error(`Invalid TermType encountered`);
+                }
             })
         );
     }
@@ -175,7 +180,6 @@ export class AppTermService {
         }
         // create the url
         const url = this.getAppTermUrl(appId, appTerm.id);
-        console.log('url', url);
         return this.http.put<IAppTerm>(url, appTerm, { withCredentials: true })
         .pipe(
             map((results: IAppTerm) => {
@@ -195,13 +199,32 @@ export class AppTermService {
      * @returns The number of records removed.
      */
     public removeTerm(appId: number, appTerm: AppTerm): Observable<number> {
-        // make sure an id is present on the object
+        if(!appId || !appTerm) {
+            throw new Error('Invalid AppTerm object, an existing object was expected.');
+        }
+        if (appTerm.id) {
+            // id's there so remove the record from the database
+            return this.removeExistingTerm(appId, appTerm);
+        }
+        else {
+            // if there's no id it's not in the database
+            // only remove it from the view
+            return this.removeNewTerm(appTerm);
+        }
+    }
+
+    /**
+     * Removes an existing AppTerm from the database.
+     * @param appId The id of the MappingApplication that the AppTerm belongs to.
+     * @param appTerm
+     * @returns existing term
+     */
+    public removeExistingTerm(appId: number, appTerm: AppTerm): Observable<number> {
         if(!appId || !appTerm || !appTerm.id) {
             throw new Error('Invalid AppTerm object, an existing object was expected.');
         }
         // create the url
         const url = this.getAppTermUrl(appId, appTerm.id);
-        console.log('url', url);
         // call the api to remove the record
         return this.http.delete<number>(url, { withCredentials: true })
             .pipe(
@@ -213,6 +236,27 @@ export class AppTermService {
                     }
                 })
             );
+    }
+
+    /**
+     * Removes a "new" AppTerm from the termList, ie does not call the
+     * backend to remove the object from the database, only the frontend
+     * views are updated.
+     * @param appTerm The new AppTerm object to remove from the application.
+     * @returns The number of objects removed.
+     */
+    public removeNewTerm(appTerm: AppTerm): Observable<number> {
+        if (!appTerm) {
+            throw new Error(`Can't remove an undefined AppTerm.`);
+        }
+        else if (!this.termList) {
+            throw new Error(`termList not defined.`);
+        }
+        else if (!this.termList.includes(appTerm)) {
+            throw new Error(`AppTerm not in the termList.`);
+        }
+        this.appTermRecordRemoved(appTerm);
+        return of(1);
     }
 
     /**
@@ -247,13 +291,34 @@ export class AppTermService {
     }
 
     /**
+     */
+    /**
      * Add a new AppTerm to the AppTerm list.
      * Call the BehaviorSubject.next method to broadcast
      * the new list.
+     * @param appTerm The AppTerm to add to the list.
+     * @param [addToFront] Indicates where to add the object: the front or back of the list.
+     * Default is `addToFront=false`, so a new AppTerm is put at the end of the list by default.
      */
-    private addAppTermToList(appTerm: AppTerm | AppTermList): void {
-        this.termList.push(appTerm);
-        this.termListSubject.next(this.termList);
+    public addAppTermToList(appTerm: AppTerm | AppTermList, addToFront=false): void {
+        if (this.termList) {
+            // don't include the same object
+            if (!this.termList.includes(appTerm)) {
+                if (!addToFront) {
+                    // add the object to the end of the list
+                    this.termList.push(appTerm);
+                }
+                else {
+                    // put the object at the front of the list
+                    this.termList.splice(0, 0, appTerm);
+                }
+            }
+            // notify subscribers of the list change
+            this.termListSubject.next(this.termList);
+        }
+        else {
+            throw new Error('Unable to add an AppTerm to an undefined termList');
+        }
     }
 
     /**
@@ -262,11 +327,45 @@ export class AppTermService {
      * @param appTerm The AppTerm|AppTermList object to remove.
      */
     private removeAppTermFromList(appTerm: AppTerm | AppTermList): void {
-        const index = this.termList.indexOf(appTerm);
-        if (index >= 0) {
-            this.termList.splice(index, 1);
-            this.termListSubject.next(this.termList);
+        if (this.termList) {
+            const index = this.termList.indexOf(appTerm);
+            if (index >= 0) {
+                this.termList.splice(index, 1);
+                this.termListSubject.next(this.termList);
+            }
         }
     }
 
+    /**
+     * Sends a csv file with AppTerm and AppTermList definitions,
+     * and returns them as AppTerm | AppTermList objects
+     * @param file
+     * @returns An array of AppTerm | AppTermList objects
+     */
+    public uploadAppTerms(appId: number, file: any): Observable<Array<AppTerm | AppTermList>> {
+        const formData = new FormData();
+        formData.append('appTermImport', file);
+        const url = this.getUploadUrl(appId);
+        return this.http.post<Array<IAppTerm | IAppTermList>>(url, formData)
+            .pipe(
+                map((results: Array<IAppTerm | IAppTermList>) => {
+                    const appTerms = results.map(appTermTransformer);
+                    // appTerms.forEach(item => this.addAppTermToList(item, true));
+                    for (let index = appTerms.length - 1; index >= 0; index--) {
+                        this.addAppTermToList(appTerms[index], true);
+                    }
+                    return appTerms;
+                }
+            ));
+    }
+
+    /**
+     * Returns the url for uploading a csv file of AppTerm definitions
+     * for a specific MappingApplication.
+     * @param appId
+     * @returns upload url
+     */
+    private getUploadUrl(appId: number): string {
+        return this.urlUpload.replace(':appId', String(appId));
+    }
 }

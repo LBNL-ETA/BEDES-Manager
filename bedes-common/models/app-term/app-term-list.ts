@@ -6,6 +6,8 @@ import { BedesTerm } from '../bedes-term/bedes-term';
 import { BedesConstrainedList } from '../bedes-term/bedes-constrained-list';
 import { BedesCompositeTerm } from '../bedes-composite-term/bedes-composite-term';
 import { BedesTermOption } from '../bedes-term-option/bedes-term-option';
+import { BedesError } from '../../bedes-error/bedes-error';
+import { HttpStatusCodes } from '../../enums/http-status-codes';
 
 /**
  * A constrained list is an AppTerm with
@@ -47,7 +49,16 @@ export class AppTermList extends AppTerm {
         appListOption?: AppTermListOption | undefined
     ): void {
         super.map(bedesTerm, bedesTermOption);
-        this._mapping.appListOptionUUID = appListOption.uuid;
+        if (this._mapping && appListOption) {
+            this._mapping.appListOptionUUID = appListOption.uuid;
+        }
+        else {
+            throw new BedesError(
+                'System error mapping terms.',
+                HttpStatusCodes.ServerError_500,
+                'System error mapping terms.'
+            );
+        }
     }
 
     /**

@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import * as handlers from './handlers';
+import { uploadMiddleware } from './uploads';
 
 function mountRoutes(router: Router) {
     router.get('/bedes-term/:id', handlers.getBedesTermHandler);
@@ -25,6 +26,8 @@ function mountRoutes(router: Router) {
     router.get('/mapping-application/:id/term', handlers.appTerm.getAppTermsHandler);
     router.get('/mapping-application/term/:id', handlers.appTerm.getAppTermHandler);
     router.get('/mapping-application/sibling/:id', handlers.appTerm.getAppTermsSiblingHandler);
+    // AppTerm Imports
+    router.post('/mapping-application/:id/import', uploadMiddleware, handlers.appTermImportHandler);
     // AppTermListOption
     router.post('/app-term/:appTermId/list-option', handlers.appTermListOption.newListOptionHandler);
     router.delete('/app-term-list-option/:id', handlers.appTermListOption.deleteListOptionHandler);

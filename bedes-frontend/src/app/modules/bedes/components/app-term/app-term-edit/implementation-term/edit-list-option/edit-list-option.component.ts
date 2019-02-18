@@ -190,6 +190,8 @@ export class EditListOptionComponent implements OnInit {
             console.log('app term saved', newTerm);
             // update the term's id
             this.term.id = newTerm.id;
+            // add the new term to the current AppTerm list
+            this.termService.addAppTermToList(newTerm);
             // update the active term BehaviorSubject listeners of the change
             this.termService.setActiveTerm(this.term);
         });

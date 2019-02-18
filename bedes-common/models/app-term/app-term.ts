@@ -16,6 +16,8 @@ import { isITermMappingComposite } from '../term-mapping/term-mapping-composite-
 import { TermMappingComponent } from '../../../bedes-frontend/src/app/modules/bedes/components/app-term/app-term-edit/term-mapping/term-mapping.component';
 import { ITermMappingAtomic } from '../term-mapping/term-mapping-atomic.interface';
 import { ITermMappingComposite } from '../term-mapping/term-mapping-composite.interface';
+import { BedesError } from '../../bedes-error/bedes-error';
+import { HttpStatusCodes } from '../../enums/http-status-codes';
 
 export class AppTerm extends UUIDGenerator {
     protected _id: number | null | undefined;
@@ -27,6 +29,20 @@ export class AppTerm extends UUIDGenerator {
     protected _uuid: string | null | undefined;
     protected _unitId: number | null | undefined;
     protected _mapping: TermMappingAtomic | TermMappingComposite | null | undefined;
+
+    /**
+     * Takes the source AppTerm values and assign them to the
+     * corresponding properties on target.
+     * @param source The object whose values are used to replace values on `target`
+     * @param target The object being updated
+     */
+    public static updateObjectValues(source: AppTerm, target: AppTerm): void {
+        target.id = source.id;
+        target.name = source.name;
+        target.description = source.description;
+        target.termTypeId = source.termTypeId;
+        target.unitId = source.unitId;
+    }
 
     constructor(data: IAppTerm) {
         super();
@@ -148,14 +164,23 @@ export class AppTerm extends UUIDGenerator {
         bedesTerm: BedesTerm | BedesConstrainedList  | BedesCompositeTerm,
         bedesTermOption?: BedesTermOption | undefined
     ): void {
-        if (bedesTerm instanceof BedesCompositeTerm) {
+        if (!bedesTerm.uuid || !bedesTerm.name) {
+            throw new BedesError(
+                'System error mapping terms.',
+                HttpStatusCodes.ServerError_500,
+                'System error mapping terms.'
+            );
+        }
+        else if (bedesTerm instanceof BedesCompositeTerm) {
             // map a BEDES Composite Term
             this._mapping = new TermMappingComposite(<ITermMappingComposite>{
                 _bedesName: bedesTerm.name,
                 _compositeTermUUID: bedesTerm.uuid
             });
-            this._mapping.compositeTermUUID = bedesTerm.uuid;
-            this._mapping.bedesName = bedesTerm.name;
+            if (bedesTerm.uuid && bedesTerm.name) {
+                this._mapping.compositeTermUUID = bedesTerm.uuid;
+                this._mapping.bedesName = bedesTerm.name;
+            }
         }
         else if (bedesTerm instanceof BedesConstrainedList) {
             // map a BEDES Constrained List - an atomic term
@@ -173,6 +198,13 @@ export class AppTerm extends UUIDGenerator {
                 _bedesTermUUID: bedesTerm.uuid,
                 _bedesTermType: TermType.Atomic
             });
+        }
+        else {
+            throw new BedesError(
+                'System error mapping terms.',
+                HttpStatusCodes.ServerError_500,
+                'System error mapping terms.'
+            );
         }
     }
 

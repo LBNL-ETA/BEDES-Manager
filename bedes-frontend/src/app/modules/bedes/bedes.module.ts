@@ -76,6 +76,7 @@ import { TableCellNavComponent } from './models/ag-grid/table-cell-nav/table-cel
 import { AppTermListOptionService } from './services/app-term-list-option/app-term-list-option.service';
 import { TableCellMapListOptionComponent } from './components/app-term/app-term-edit/table-cell-map-list-option/table-cell-map-list-option.component';
 import { ListOptionMapDialogComponent } from './components/dialogs/list-option-map-dialog/list-option-map-dialog.component';
+import { TableCellAppTermStatusComponent } from './components/app-term/app-term-list/table-cell-app-term-status/table-cell-app-term-status.component';
 
 @NgModule({
     imports: [
@@ -145,7 +146,8 @@ import { ListOptionMapDialogComponent } from './components/dialogs/list-option-m
         MappingViewComponent,
         TableCellNavComponent,
         TableCellMapListOptionComponent,
-        ListOptionMapDialogComponent
+        ListOptionMapDialogComponent,
+        TableCellAppTermStatusComponent
     ],
     entryComponents: [
         BedesTermSearchDialogComponent,
@@ -156,7 +158,8 @@ import { ListOptionMapDialogComponent } from './components/dialogs/list-option-m
         TableCellNameNavComponent,
         TableCellItemNameComponent,
         TableCellNavComponent,
-        TableCellMapListOptionComponent
+        TableCellMapListOptionComponent,
+        TableCellAppTermStatusComponent
     ],
     providers: [
         BedesTermSearchService,

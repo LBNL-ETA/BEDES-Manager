@@ -1,0 +1,12 @@
+<!-- <button mat-mini-fab color="accent" (click)="viewItem()"> -->
+    <fa-icon [icon]="['fas', 'check-circle']" size="lg"
+    *ngIf="!isNewTerm()"
+    class="font-color-success">
+    </fa-icon>
+    <fa-icon [icon]="['fas', 'exclamation-triangle']" size="lg"
+    *ngIf="isNewTerm()"
+    class="font-color-warn">
+    </fa-icon>
+<!-- </button> -->
+
+<span style="margin-left:10px;">{{displayLabel}}</span>

@@ -10,6 +10,7 @@ import * as bedesTermListOption from './bedes-term-list-option';
 import * as applications from './applications';
 import * as appTerm from './app-term';
 import * as appTermListOption from './app-term-list-option';
+import { appTermImportHandler } from './app-term-import-handler';
 
 export {
     searchBedesTermHandler,
@@ -23,5 +24,6 @@ export {
     bedesTermListOption,
     applications,
     appTerm,
-    appTermListOption
+    appTermListOption,
+    appTermImportHandler
 }

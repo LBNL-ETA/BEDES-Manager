@@ -15,6 +15,7 @@ import { TermType } from '@bedes-common/enums/term-type.enum';
 import { bedesQuery } from '..';
 import { BedesError } from '@bedes-common/bedes-error/bedes-error';
 import { HttpStatusCodes } from '@bedes-common/enums/http-status-codes';
+import { isUUID } from '../../../../../bedes-common/util/is-uuid';
 
 export class AppTermQuery {
     private sqlInsertTerm: QueryFile;
@@ -23,6 +24,7 @@ export class AppTermQuery {
     private sqlGetAppTermsByAppId: QueryFile;
     private sqlGetAppTermById: QueryFile;
     private sqlGetAppTermBySibling: QueryFile;
+    private sqlGetAppTermBySiblingUUID: QueryFile;
     private sqlDeleteAppTermById: QueryFile;
     private sqlDeleteAppTermByUUID: QueryFile;
 
@@ -34,6 +36,7 @@ export class AppTermQuery {
         this.sqlGetAppTermsByAppId = sql_loader(path.join(__dirname, 'get-app-terms.sql'))
         this.sqlGetAppTermById = sql_loader(path.join(__dirname, 'get-app-term.sql'))
         this.sqlGetAppTermBySibling = sql_loader(path.join(__dirname, 'get-app-terms-by-sibling.sql'))
+        this.sqlGetAppTermBySiblingUUID = sql_loader(path.join(__dirname, 'get-app-terms-by-sibling-uuid.sql'))
         this.sqlDeleteAppTermById = sql_loader(path.join(__dirname, 'delete-app-term-by-id.sql'))
         this.sqlDeleteAppTermByUUID = sql_loader(path.join(__dirname, 'delete-app-term-by-uuid.sql'))
     }
@@ -394,7 +397,7 @@ export class AppTermQuery {
                 _appId: appId
             }
             // set the db context for the query
-            const ctx = transaction ? transaction : db;
+            const ctx = transaction || db;
             // run the query
             return ctx.manyOrNone(this.sqlGetAppTermsByAppId, params);
             // these are going to be missing the mappings, join them in
@@ -469,6 +472,33 @@ export class AppTermQuery {
             else {
                 return db.manyOrNone(this.sqlGetAppTermBySibling, params);
             }
+        } catch (error) {
+            logger.error(`${this.constructor.name}: Error in getAppTermBySibling`);
+            logger.error(util.inspect(error));
+            throw error;
+        }
+
+    }
+
+    /**
+     * Retrieve all AppTerm objects for a given MappingApplication,
+     * given an id from one of the AppTerms.
+     */
+    public async getAppTermBySiblingUUID(uuid: string, transaction?: any): Promise<Array<IAppTerm | IAppTermList>> {
+        try {
+            if (!uuid || !isUUID(uuid)) {
+                logger.error(`${this.constructor.name}: Missing uuid`);
+                throw new BedesError(
+                    'Missing required parameters.',
+                    HttpStatusCodes.BadRequest_400,
+                    'Missing required parameters.'
+                );
+            }
+            const params = {
+                _uuid: uuid
+            }
+            const ctx = transaction || db;
+            return ctx.manyOrNone(this.sqlGetAppTermBySiblingUUID, params);
         } catch (error) {
             logger.error(`${this.constructor.name}: Error in getAppTermBySibling`);
             logger.error(util.inspect(error));

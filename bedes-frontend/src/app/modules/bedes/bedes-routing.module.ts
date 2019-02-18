@@ -22,6 +22,7 @@ import { AppTermEditComponent } from './components/app-term/app-term-edit/app-te
 import { CompositeTermListComponent } from './components/term-builder-home/composite-term-list/composite-term-list.component';
 import { CompositeTermResolverService } from './services/composite-term/composite-term-resolver.service';
 import { AppTermListResolverService } from './services/app-term-list/app-term-list-resolver.service';
+import { AppTermResolverService } from './services/app-term/app-term-resolver.service';
 
 const appRoutes: Routes = [
     { path: 'search', component: BedesTermSearchComponent },
@@ -111,11 +112,8 @@ const appRoutes: Routes = [
                 path: 'terms/:termId',
                 component: AppTermEditComponent,
                 resolve: {
-                    appTerms: AppTermListResolverService
+                    appTerm: AppTermResolverService
                 }
-                // resolve: {
-                //     appTerms: AppTermResolverService
-                // }
             }
         ]
     },
