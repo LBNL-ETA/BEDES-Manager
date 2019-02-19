@@ -264,7 +264,7 @@ export class TermLoader {
                 _dataTypeId: dataType.id
             }
             let newTerm = new BedesConstrainedList(params);
-            newTerm.loadOptions(await this.buildCommonListOptions());
+            // newTerm.loadOptions(await this.buildCommonListOptions());
             return newTerm;
         } catch (error) {
             logger.error(`${this.constructor.name}: Error in `);
