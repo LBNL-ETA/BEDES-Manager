@@ -184,10 +184,6 @@ export class BedesTermSearchDialogComponent implements OnInit {
                 field: 'searchResultTypeName'
             },
             {
-                headerName: 'UUID',
-                field: 'uuid'
-            },
-            {
                 headerName: 'Category',
                 field: 'categoryName'
             },
@@ -232,7 +228,9 @@ export class BedesTermSearchDialogComponent implements OnInit {
                         uuid: searchResult.uuid,
                         unitName: this.supportListService.transformIdToName(SupportListType.BedesUnit, searchResult.unitId),
                         ref: searchResult,
-                        searchResultTypeName: getResultTypeName(searchResult.resultObjectType)
+                        searchResultTypeName: getResultTypeName(searchResult.resultObjectType),
+                        categoryName: this.supportListService.transformIdToName(SupportListType.BedesCategory, searchResult.termCategoryId),
+                        dataTypeName: this.supportListService.transformIdToName(SupportListType.BedesDataType, searchResult.dataTypeId),
                     });
                 }
             });

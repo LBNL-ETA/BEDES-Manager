@@ -7,8 +7,8 @@ import { BedesCompositeTerm, IBedesCompositeTerm } from '@bedes-common/models/be
 import { BedesCompositeTermShort, IBedesCompositeTermShort } from '@bedes-common/models/bedes-composite-term-short';
 import { ICompositeTermDetailRequestParam } from '@bedes-common/models/composite-term-detail-request-param';
 import { ICompositeTermDetailRequestResult } from '@bedes-common/models/composite-term-detail-request-result';
-import { CompositeTermDetailRequestResult } from '../../../../../../../bedes-common/models/composite-term-detail-request-result/composite-term-detail-request-result';
-import { CompositeTermDetail } from '../../../../../../../bedes-common/models/bedes-composite-term/composite-term-item/composite-term-detail';
+import { CompositeTermDetailRequestResult } from '@bedes-common/models/composite-term-detail-request-result/composite-term-detail-request-result';
+import { CompositeTermDetail } from '@bedes-common/models/bedes-composite-term/composite-term-item/composite-term-detail';
 
 @Injectable({
     providedIn: 'root'
@@ -167,6 +167,51 @@ export class CompositeTermService {
             return new BedesCompositeTerm(results);
         }));
     }
+
+
+    /**
+     * Removes a composite term from the backend database.
+     * @param compositeTerm The BedesCompositeTerm to delete.
+     * @returns term
+     */
+    public deleteTerm(compositeTerm: BedesCompositeTerm | BedesCompositeTermShort): Observable<number> {
+        if (!compositeTerm || !compositeTerm.id || !compositeTerm.uuid) {
+            throw new Error(`${this.constructor.name}: Attempt to update a new CompositeTerm`)
+        }
+        const url = this.urlUpdate.replace(/:id$/, String(compositeTerm.uuid));
+        return this.http.delete<number>(url)
+        .pipe(map((results: number) => {
+            console.log(`${this.constructor.name}: received results`, results);
+            this.removeTermFromList(compositeTerm);
+            return results;
+        }));
+    }
+
+    /**
+     * Remove a CompositeTerm from the termList.
+     * @param term
+     */
+    public removeTermFromList(term: BedesCompositeTerm | BedesCompositeTermShort): void {
+        // check requirements
+        if (!Array.isArray(this.termList)) {
+            throw new Error('Unable to remove term from uninitialized termList');
+        }
+        else if (!term) {
+            throw new Error('removeTermFromList received an empty term');
+        }
+        // look for the term with matching uuid
+        const index = this.termList.findIndex((item) => item.uuid === term.uuid);
+        if (index >= 0) {
+            // found the term to remove, remove it
+            this.termList.splice(index, 1);
+            this.termListSubject.next(this.termList);
+        }
+        else {
+            throw new Error('Unable to find the CompositeTerm in the termList');
+        }
+
+    }
+
 
     // public search(searchStrings: Array<string>): Observable<Array<BedesTerm | BedesConstrainedList>> {
     //     let httpParams = new HttpParams({

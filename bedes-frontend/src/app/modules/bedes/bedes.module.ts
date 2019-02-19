@@ -21,10 +21,8 @@ import { TermBuilderHomeComponent } from './components/term-builder-home/term-bu
 import { BedesApplicationManagerComponent } from './components/bedes-application-manager/bedes-application-manager.component';
 import { BedesTermSearchDialogComponent } from './components/dialogs/bedes-term-search-dialog/bedes-term-search-dialog.component';
 import { TermBuilderEditComponent } from './components/term-builder-home/term-builder-edit/term-builder-edit.component';
-import { SelectedTermComponent } from './components/term-builder-home/selected-term-container/selected-term/selected-term.component';
 import { SelectTermsTableComponent } from './components/term-builder-home/select-terms-table/select-terms-table.component';
 import { SelectedTermsTableComponent } from './components/term-builder-home/selected-terms-table/selected-terms-table.component';
-import { SelectedTermContainerComponent } from './components/term-builder-home/selected-term-container/selected-term-container.component';
 import { AgGridModule } from 'ag-grid-angular';
 import { BedesTermSelectorService } from './services/bedes-term-selector/bedes-term-selector.service';
 import { ConfirmDialogComponent } from './components/dialogs/confirm-dialog/confirm-dialog.component';
@@ -103,10 +101,8 @@ import { TableCellAppTermStatusComponent } from './components/app-term/app-term-
         BedesApplicationManagerComponent,
         BedesTermSearchDialogComponent,
         TermBuilderEditComponent,
-        SelectedTermComponent,
         SelectTermsTableComponent,
         SelectedTermsTableComponent,
-        SelectedTermContainerComponent,
         ConfirmDialogComponent,
         BedesTermDetailsDefinitionComponent,
         BedesTermDetailsListOptionsComponent,

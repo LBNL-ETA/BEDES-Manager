@@ -26,7 +26,11 @@ export class TermBuilderEditComponent implements OnInit {
 
     public dataForm = this.formBuilder.group({
         description: [''],
-        unitId: ['']
+        unitId: [''],
+        uuid: [{
+            value: null,
+            disabled: true
+        }],
     });
 
     constructor(
@@ -154,13 +158,15 @@ export class TermBuilderEditComponent implements OnInit {
         this.dataForm.controls['unitId'].setValue(
             this.compositeTerm ? this.compositeTerm.unitId : undefined
         );
+        this.dataForm.controls['uuid'].setValue(
+            this.compositeTerm ? this.compositeTerm.uuid : undefined
+        );
     }
 
     private subscribeToFormChanges(): void {
         // description
         this.dataForm.controls['description'].valueChanges
         .subscribe((newValue: string) => {
-            console.log(`${this.constructor.name}: new description '${newValue}'`)
             if (this.compositeTerm) {
                 this.compositeTerm.description = newValue || undefined;
             }
@@ -168,7 +174,6 @@ export class TermBuilderEditComponent implements OnInit {
         // unit id
         this.dataForm.controls['unitId'].valueChanges
         .subscribe((newValue: string) => {
-            console.log(`${this.constructor.name}: unitId '${newValue}'`)
             if (this.compositeTerm && newValue) {
                 this.compositeTerm.unitId = +newValue
             }
@@ -198,5 +203,16 @@ export class TermBuilderEditComponent implements OnInit {
                 this.compositeTermService.setActiveCompositeTerm(this.compositeTerm);
             });
         }
+    }
+
+    /**
+     * Determines if the current CompositeTerm has any
+     * terms included.
+     * @returns true if there are BEDES terms included in the definition.
+     */
+    public hasSelectedTerms(): boolean {
+        return this.compositeTerm && this.compositeTerm.items.length
+            ? true
+            : false;
     }
 }

@@ -1,53 +1,47 @@
 <div style="display:flex; flex-direction: column; margin: 10px;">
-    <mat-card class="bedes-content-card mat-typography" style="flex: 1;">
-        <mat-card-content>
-            <!-- <div style="display:flex;" *ngIf="currentUser.isLoggedIn()"> -->
-            <div style="display:flex;">
-                <a mat-stroked-button color="primary" [routerLink]="['../edit']">
-                    <fa-icon [icon]="['fas', 'plus-circle']"></fa-icon>
-                    New
-                </a>
-                <button mat-stroked-button color="primary" (click)="viewSelectedItem()" [disabled]="!selectedItem">
-                    <fa-icon [icon]="['fas', 'edit']"></fa-icon>
-                    Edit
-                </button>
-                <button mat-stroked-button color="primary" [disabled]="!selectedItem" (click)="removeSelectedItem()">
-                    <fa-icon [icon]="['fas', 'trash']"></fa-icon>
-                    Remove Selected
-                </button>
-            </div>
-            <div class="alert-danger" style="margin-top:10px;" *ngIf="hasError && errorMessage">
-                <h3 style="margin: 0; padding:0;">
-                    <fa-icon [icon]="['fas', 'exclamation-triangle']"></fa-icon>
-                    An error occurred removing the application.
-                </h3>
-            </div>
-            <!-- Guest and no applications -->
-            <div class="alert-danger" style="margin-top:10px;"
-            *ngIf="currentUser.isGuest() && (!termList || !termList?.length)">
-                <h3 style="margin: 0; padding:0;">
-                    <fa-icon [icon]="['fas', 'exclamation-triangle']"></fa-icon>
-                    There are no public composite terms available for view.
-                    You can <a [routerLink]="['/home/request-account']">click here to request an account</a>
-                    to begin mapping your own applications and terms.
-                </h3>
-            </div>
-            <div class="alert-danger" style="margin-top:10px;"
-            *ngIf="currentUser.isLoggedIn() && (!termList || !termList?.length)">
-                <h3 style="margin: 0; padding:0;">
-                    <fa-icon [icon]="['fas', 'exclamation-triangle']"></fa-icon>
-                    There are no public/private composite terms available.
-                </h3>
-            </div>
-            <div style="display: flex; flex-direction: row" *ngIf="termList && termList.length">
-                <div style=" overflow: hidden; flex-grow: 1">
-                    <ag-grid-angular #agGrid style="width: 100%; height: 700px;" id="myGrid" [gridOptions]="gridOptions"
-                        [context]="tableContext" class="ag-theme-balham">
-                    </ag-grid-angular>
-                </div>
-            </div>
-
-
-        </mat-card-content>
-    </mat-card>
+    <!-- <div style="display:flex;" *ngIf="currentUser.isLoggedIn()"> -->
+    <div style="display:flex; margin-bottom:10px;">
+        <a mat-stroked-button color="primary" [routerLink]="['../edit']">
+            <fa-icon [icon]="['fas', 'plus-circle']"></fa-icon>
+            New
+        </a>
+        <!-- <button mat-stroked-button color="primary" (click)="viewSelectedItem()" [disabled]="!selectedItem">
+            <fa-icon [icon]="['fas', 'edit']"></fa-icon>
+            Edit
+        </button>
+        <button mat-stroked-button color="primary" [disabled]="!selectedItem" (click)="removeSelectedItem()">
+            <fa-icon [icon]="['fas', 'trash']"></fa-icon>
+            Remove Selected
+        </button> -->
+    </div>
+    <div class="alert-danger" style="margin-top:10px;" *ngIf="hasError && errorMessage">
+        <h3 style="margin: 0; padding:0;">
+            <fa-icon [icon]="['fas', 'exclamation-triangle']"></fa-icon>
+            An error occurred removing the application.
+        </h3>
+    </div>
+    <!-- Guest and no applications -->
+    <div class="alert-danger" style="margin-top:10px;"
+    *ngIf="currentUser.isGuest() && (!termList || !termList?.length)">
+        <h3 style="margin: 0; padding:0;">
+            <fa-icon [icon]="['fas', 'exclamation-triangle']"></fa-icon>
+            There are no public composite terms available for view.
+            You can <a [routerLink]="['/home/request-account']">click here to request an account</a>
+            to begin mapping your own applications and terms.
+        </h3>
+    </div>
+    <div class="alert-danger" style="margin-top:10px;"
+    *ngIf="currentUser.isLoggedIn() && (!termList || !termList?.length)">
+        <h3 style="margin: 0; padding:0;">
+            <fa-icon [icon]="['fas', 'exclamation-triangle']"></fa-icon>
+            There are no public/private composite terms available.
+        </h3>
+    </div>
+    <div style="display: flex; flex-direction: row" *ngIf="termList && termList.length">
+        <div style=" overflow: hidden; flex-grow: 1">
+            <ag-grid-angular #agGrid style="width: 100%; height: 700px;" id="myGrid" [gridOptions]="gridOptions"
+                [context]="tableContext" class="ag-theme-balham">
+            </ag-grid-angular>
+        </div>
+    </div>
 </div>

@@ -10,6 +10,9 @@ import { BedesCompositeTermShort } from '@bedes-common/models/bedes-composite-te
 import { MessageFromGrid } from '../../../models/ag-grid/message-from-grid';
 import { TableCellMessageType } from '../../../models/ag-grid/enums/table-cell-message-type.enum';
 import { TableCellNavComponent } from '../../../models/ag-grid/table-cell-nav/table-cell-nav.component';
+import { MatDialog } from '@angular/material';
+import { ConfirmDialogComponent } from '../../dialogs/confirm-dialog/confirm-dialog.component';
+import { BedesCompositeTerm } from '../../../../../../../../bedes-common/models/bedes-composite-term/bedes-composite-term';
 
 interface IGridRow {
     name: string;
@@ -45,7 +48,8 @@ export class CompositeTermListComponent extends MessageFromGrid<IGridRow> implem
         private router: Router,
         private route: ActivatedRoute,
         private compositeTermService: CompositeTermService,
-        private authService: AuthService
+        private authService: AuthService,
+        private dialog: MatDialog
     ) {
         super();
     }
@@ -57,19 +61,66 @@ export class CompositeTermListComponent extends MessageFromGrid<IGridRow> implem
         this.setTableContext();
     }
 
+    ngOnDestroy() {
+        // unsubscribe from the subjects
+        this.ngUnsubscribe.next();
+        this.ngUnsubscribe.complete();
+    }
+
     /**
      * Override the abstract class MessageFromGrid.
      *
      * Process the messages from the ag-grid AppTerm list.
      */
     public messageFromGrid(messageType: TableCellMessageType, selectedRow: IGridRow): void {
-        console.log(`${this.constructor.name}: received message from grid`, messageType, selectedRow);
         this.selectedItem = selectedRow;
         if (messageType === TableCellMessageType.View) {
+            // view the composite term
             this.viewSelectedItem(selectedRow.ref);
         }
         else if (messageType === TableCellMessageType.Remove) {
-            // this.confirmRemoveSelectedItem(selectedRow.ref);
+            // show the term removal confirmation dialog
+            this.confirmRemoveSelectedItem(selectedRow.ref);
+        }
+    }
+
+    /**
+     * Confirm the removal of an AppTerm before calling the backend API.
+     */
+    private confirmRemoveSelectedItem(term: BedesCompositeTermShort): void {
+        const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+            panelClass: 'dialog-no-padding',
+            width: '450px',
+            position: {top: '20px'},
+            data: {
+                dialogTitle: 'Confirm?',
+                dialogContent: 'Remove the selected terms?',
+            }
+        });
+        dialogRef.afterClosed().subscribe((results: boolean) => {
+            console.log('dialogRef.afterClosed()', results);
+            if (results) {
+                this.removeSelectedItem(term);
+            }
+        });
+    }
+
+    /**
+     * Remove the composite term that's currently selected in the table.
+     */
+    private removeSelectedItem(term: BedesCompositeTermShort): void {
+        // get the reference to the selected AppTerm, if there is one
+        if (term) {
+            // remove the term
+            this.compositeTermService.deleteTerm(term)
+            .subscribe((results: number) => {
+                console.log(`${this.constructor.name}: delete appTerm success`, results);
+            }, (error: any) => {
+                console.log('An error occurred removing AppTerm', error);
+            });
+        }
+        else {
+            throw new Error('removeSelectedItem expected a valid AppTerm and id');
         }
     }
 
@@ -89,6 +140,9 @@ export class CompositeTermListComponent extends MessageFromGrid<IGridRow> implem
         )
     }
 
+    /**
+     * Subscribe to the UserStatus Observable
+     */
     private subscribeToUserStatus(): void {
         this.authService.currentUserSubject
             .pipe(takeUntil(this.ngUnsubscribe))
@@ -154,7 +208,7 @@ export class CompositeTermListComponent extends MessageFromGrid<IGridRow> implem
      * Populates the grid with the data from the applicationList.
      */
     private setGridData() {
-        if (this.gridInitialized && this.gridDataNeedsSet) {
+        if (this.gridInitialized && this.gridDataNeedsSet && this.gridOptions.api) {
             const gridData = new Array<IGridRow>();
             if (Array.isArray(this.termList)) {
                 this.termList.forEach((item: BedesCompositeTermShort) => {

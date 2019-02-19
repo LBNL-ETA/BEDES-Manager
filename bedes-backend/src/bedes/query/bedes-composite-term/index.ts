@@ -389,23 +389,23 @@ export class BedesCompositeTermQuery {
 
 
     /**
-     * Delete a complete composite term.
+     * Deletes a BedesCompositeTerm record by its uuid.
+     * 
+     * @param uuid The UUID of the BedesTerm to delete.
+     * @param [transaction] The optional database transaction context.
+     * @returns A Promise that resolves to the number of rows deleted.
      */
-    public async deleteRecord(id: number, transaction?: any): Promise<number> {
+    public async deleteRecord(uuid: string, transaction?: any): Promise<number> {
         try {
-            if (!id) {
+            if (!uuid) {
                 logger.error(`${this.constructor.name}: deleteRecord expected an id, none found.`);
                 throw new Error('Missing required parameters.');
             }
             const params = {
-                _id: id
+                _uuid: uuid
             };
-            if (transaction) {
-                return transaction.result(this.sqlDelete, params, (r: any) => r.rowCount);
-            }
-            else {
-                return db.result(this.sqlDelete, params, (r: any) => r.rowCount);
-            }
+            const ctx = transaction || db;
+            return ctx.result(this.sqlDelete, params, (r: any) => r.rowCount);
         } catch (error) {
             logger.error(`${this.constructor.name}: Error in deleteRecord`);
             logger.error(util.inspect(error));

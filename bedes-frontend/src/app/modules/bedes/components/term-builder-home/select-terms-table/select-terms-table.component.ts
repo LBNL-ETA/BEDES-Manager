@@ -193,10 +193,6 @@ export class SelectTermsTableComponent implements OnInit, OnDestroy {
                 field: 'searchResultTypeName'
             },
             {
-                headerName: 'UUID',
-                field: 'uuid'
-            },
-            {
                 headerName: 'Category',
                 field: 'categoryName'
             },

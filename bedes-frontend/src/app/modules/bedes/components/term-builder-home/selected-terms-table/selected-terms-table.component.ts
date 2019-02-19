@@ -16,12 +16,16 @@ import { BedesCompositeTerm } from '@bedes-common/models/bedes-composite-term/be
 import { CompositeTermService } from '../../../services/composite-term/composite-term.service';
 import { CompositeTermDetail } from '../../../../../../../../bedes-common/models/bedes-composite-term/composite-term-item/composite-term-detail';
 import { TableCellItemNameComponent } from './table-cell-item-name/table-cell-item-name.component';
+import { SupportListType } from '../../../services/support-list/support-list-type.enum';
 
 interface IGridRow {
     name: string;
     description: string | null | undefined;
     type: string | null | undefined;
     uuid: string;
+    dataTypeName: string | null | undefined;
+    unitName: string | null | undefined;
+    termCategoryName: string | null | undefined;
     ref: CompositeTermDetail
 }
 
@@ -124,7 +128,6 @@ export class SelectedTermsTableComponent implements OnInit, OnDestroy {
             // animateRows: true,
             columnDefs: this.buildColumnDefs(),
             onGridReady: () => {
-                console.log('grid ready...');
                 this.gridInitialized = true;
                 if (this.gridDataNeedsRefresh) {
                     this.setGridData();
@@ -156,29 +159,15 @@ export class SelectedTermsTableComponent implements OnInit, OnDestroy {
             },
             {
                 headerName: 'Term Category',
-                field: 'termCategoryId',
-                valueGetter: (params: ValueGetterParams) => {
-                    if (this.categoryList) {
-                        const item = this.categoryList.find((d) => d.id === params.data.termCategoryId);
-                        if (item) {
-                            return item.name;
-                        }
-                    }
-                }
+                field: 'termCategoryName',
             },
-            {headerName: 'Data Type', field: 'dataTypeId'},
+            {
+                headerName: 'Data Type',
+                field: 'dataTypeName'
+            },
             {
                 headerName: 'Unit',
-                field: 'unitId',
-                valueGetter: (params: ValueGetterParams) => {
-                    if (this.unitList) {
-                        const unit = this.unitList.find((d) => d.id === params.data.unitId);
-                        if (unit) {
-                            return unit.name;
-                        }
-                    }
-                    return ``;
-                }
+                field: 'unitName'
             },
         ]
     }
@@ -187,7 +176,6 @@ export class SelectedTermsTableComponent implements OnInit, OnDestroy {
      * Remove the terms selected by the user.
      */
     public removeSelectedItem(gridRow: IGridRow): void {
-        console.log('remove selected terms', gridRow.ref);
         const dialogRef = this.dialog.open(ConfirmDialogComponent, {
             panelClass: 'dialog-no-padding',
             width: '450px',
@@ -198,31 +186,25 @@ export class SelectedTermsTableComponent implements OnInit, OnDestroy {
             }
         });
         dialogRef.afterClosed().subscribe(result => {
-            console.log('dialogRef.afterClosed()', result);
-            this.removeDetailItem(gridRow.ref);
+            if (result) {
+                this.removeDetailItem(gridRow.ref);
+            }
         });
     }
 
     /**
-     * Call the backend to remove the record from the database.
+     * Remove the DetailItem from the from the BedesCompositeTerm.
      */
     private removeDetailItem(detailItem: CompositeTermDetail): void {
-        console.log(`${this.constructor.name}: remove detail record`, detailItem);
         this.compositeTerm.removeDetailItem(detailItem);
         this.compositeTermService.setActiveCompositeTerm(this.compositeTerm);
-        // this.compositeTermService.removeCompositeTermDetail(detailItem)
-        // .subscribe((results: number) => {
-        //     console.log(`${this.constructor.name}: delete success`, results);
-        // }, (error: any) => {
-        //     console.log('Error removing detail item');
-        // });
     }
 
     /**
      * Set's the grid data.
      */
     public setGridData(): void {
-        if (this.gridInitialized && this.gridDataNeedsRefresh) {
+        if (this.gridInitialized && this.gridDataNeedsRefresh && this.gridOptions.api) {
             const results = new Array<IGridRow>();
             if  (this.compositeTerm) {
                 this.compositeTerm.items.forEach((item: CompositeTermDetail) => {
@@ -230,14 +212,15 @@ export class SelectedTermsTableComponent implements OnInit, OnDestroy {
                         name: item.listOption ? item.listOption.name : item.term.name,
                         description: item.listOption ? item.listOption.description : item.term.description,
                         type: item.listOption ? 'List Option' : 'BEDES Term',
-                        ref: item
+                        ref: item,
+                        termCategoryName: this.supportListService.transformIdToName(SupportListType.BedesCategory, item.term.termCategoryId),
+                        dataTypeName: this.supportListService.transformIdToName(SupportListType.BedesDataType, item.term.dataTypeId),
+                        unitName: this.supportListService.transformIdToName(SupportListType.BedesUnit, item.term.unitId),
                     });
                 });
             }
             this.gridOptions.api.setRowData(results);
-            console.log('set grid data', results);
             this.gridDataNeedsRefresh = false;
         }
     }
-
 }

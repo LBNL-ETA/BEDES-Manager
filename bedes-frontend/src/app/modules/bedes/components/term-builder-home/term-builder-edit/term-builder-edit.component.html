@@ -3,7 +3,9 @@
         <fa-icon [icon]="['fas', 'chevron-circle-left']"></fa-icon>
         Back to List
     </a>
-    <button mat-stroked-button color="primary" (click)="updateCompositeTerm()">
+    <button mat-stroked-button color="primary"
+    [disabled]="!hasSelectedTerms()"
+    (click)="updateCompositeTerm()">
         <fa-icon [icon]="['fas', 'save']"></fa-icon>
         Save
     </button>
@@ -12,17 +14,27 @@
         Import BEDES Terms
     </button>
 </div>
-<h1>
+<!-- <h1>
     {{compositeTerm ? compositeTerm.name : ''}}
-</h1>
-<div>
-    <form [formGroup]="dataForm" style="display:flex; flex-direction: row; margin-top:10px">
+</h1> -->
+
+<div class="alert-accent" *ngIf="!hasSelectedTerms()">
+    <h3 style="margin: 0; padding:0;">
+        <fa-icon [icon]="['fas', 'info-circle']"></fa-icon>
+        Click the <strong>Import BEDES Terms</strong> button to
+        start building the composite term.
+    </h3>
+</div>
+
+<form [formGroup]="dataForm" style="margin-top:10px">
+    <div style="display:flex; flex-direction: row;">
         <!-- Description -->
         <mat-form-field style="flex:1; margin-bottom:5px;" appearance="outline">
             <mat-label>Description</mat-label>
             <textarea matInput placeholder="Enter a Description" formControlName="description" rows="5">
             </textarea>
         </mat-form-field>
+        <!-- Unit -->
         <mat-form-field style="flex:1;" appearance="outline">
             <mat-label>Unit</mat-label>
             <mat-select placeholder="Unit" formControlName="unitId" *ngIf="unitList.length">
@@ -31,8 +43,15 @@
                 </mat-option>
             </mat-select>
         </mat-form-field>
-    </form>
-</div>
+    </div>
+    <!-- uuid -->
+    <div style="display:flex; flex-direction: row;">
+        <mat-form-field style="flex:1; margin-bottom:5px;" appearance="outline">
+            <mat-label>UUID</mat-label>
+            <input matInput formControlName="uuid">
+        </mat-form-field>
+    </div>
+</form>
 
 <div *ngIf="compositeTerm && compositeTerm.items.length">
     <app-selected-terms-order></app-selected-terms-order>
