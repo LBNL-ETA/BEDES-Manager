@@ -8,6 +8,7 @@ import * as util from 'util';
 import { IAppTermListOption } from '@bedes-common/models/app-term/app-term-list-option.interface';
 import { BedesError } from '@bedes-common/bedes-error/bedes-error';
 import { HttpStatusCodes } from '@bedes-common/enums/http-status-codes';
+import { bedesQuery } from '..';
 
 export class AppTermListOptionQuery {
     private sqlInsert: QueryFile;
@@ -78,7 +79,7 @@ export class AppTermListOptionQuery {
      * @param item The IAppTermListOption object to save.
      * @returns The new IAppTermListOption that was just created.
      */
-    public newRecord(appTermId: number, item: IAppTermListOption, transaction?: any): Promise<IAppTermListOption> {
+    public async newRecord(appTermId: number, item: IAppTermListOption, transaction?: any): Promise<IAppTermListOption> {
         try {
             if (!item._name) {
                 logger.error(`${this.constructor.name}: Missing name`);
@@ -91,12 +92,12 @@ export class AppTermListOptionQuery {
                 _unitId: item._unitId || null,
                 _uuid: item._uuid
             };
-            if (transaction) {
-                return transaction.one(this.sqlInsert, params);
+            const ctx = transaction || db;
+            const newItem: IAppTermListOption = await ctx.one(this.sqlInsert, params);
+            if (item._mapping) {
+                bedesQuery.mappedTerm.newTermMappingListOption(appTermId, item._uuid, item._mapping, transaction)
             }
-            else {
-                return db.one(this.sqlInsert, params);
-            }
+            return newItem;
         } catch (error) {
             logger.error(`${this.constructor.name}: Error in newRecord`);
             console.log(item);
@@ -179,7 +180,7 @@ export class AppTermListOptionQuery {
                 );
             }
             const params = {
-                _termTyped: termTypeId
+                _appTermId: termTypeId
             };
             // set the db context
             const dbContext = transaction ? transaction : db;

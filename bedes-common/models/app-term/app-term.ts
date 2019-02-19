@@ -164,6 +164,9 @@ export class AppTerm extends UUIDGenerator {
         bedesTerm: BedesTerm | BedesConstrainedList  | BedesCompositeTerm,
         bedesTermOption?: BedesTermOption | undefined
     ): void {
+        const consoleFormat = 'background-color: darkred; color: white;'
+        console.log(`%c${this.constructor.name}: map`, consoleFormat);
+
         if (!bedesTerm.uuid || !bedesTerm.name) {
             throw new BedesError(
                 'System error mapping terms.',
@@ -206,6 +209,7 @@ export class AppTerm extends UUIDGenerator {
                 'System error mapping terms.'
             );
         }
+        console.log(this);
     }
 
     /**

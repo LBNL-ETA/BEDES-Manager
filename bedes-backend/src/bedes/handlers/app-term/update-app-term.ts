@@ -32,13 +32,13 @@ export async function updateAppTermHandler(request: Request, response: Response)
             );
         }
         console.log(newItem);
-        let results = await bedesQuery.appTerm.updateAppTerm(appId, newItem);
-        logger.debug('insertAppTermHandler resuts');
+        let results = await bedesQuery.appTerm.updateAppTerm(newItem);
+        logger.debug('updateAppTermHandler resuts');
         logger.debug(util.inspect(results));
         response.json(results)
     }
     catch (error) {
-        logger.error('Error in insertAppTermHandler');
+        logger.error('Error in updateAppTermHandler');
         logger.error(util.inspect(error));
         if (error && error.code === "23505") {
             response.status(HttpStatusCodes.BadRequest_400).send('Term already exists.');

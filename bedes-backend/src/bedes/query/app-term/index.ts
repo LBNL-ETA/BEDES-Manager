@@ -69,9 +69,9 @@ export class AppTermQuery {
                 throw new Error('id expected');
             }
             // save the AppTermAdditionalInfo data if present
-            if (item._additionalInfo) {
-                newAppTerm._additionalInfo = await this.newAppTermAdditionalInfoRecords(appTermId, item._additionalInfo, transaction);
-            }
+            // if (item._additionalInfo) {
+            //     newAppTerm._additionalInfo = await this.newAppTermAdditionalInfoRecords(appTermId, item._additionalInfo, transaction);
+            // }
 
             // save the list options if its a constrained list
             if (newAppTerm._termTypeId === TermType.ConstrainedList) {
@@ -234,12 +234,19 @@ export class AppTermQuery {
                 throw new Error(`${this.constructor.name}: _id missing from new AppTerm`);
             }
             // update the mappings
-            // TODO: update mappings
+            // delete the existing mapping
+            await bedesQuery.mappedTerm.deleteMappingsByAppTerm(newAppTerm._id, transaction);
+            console.log('**... mapping...')
+            console.log(item._mapping);
             // update the list options
             if (newAppTerm._termTypeId === TermType.Atomic) {
                 // AppTerm is a [value] term
                 // remove all listOptions in case any exist
                 bedesQuery.appTermListOption.deleteByTermTypeId(appTermId, transaction);
+                if (item._mapping) {
+                    // write a new mapping record if it's there
+                    newAppTerm._mapping = await bedesQuery.mappedTerm.newMappingRecord(appTermId, item._mapping, transaction);
+                }
                 return <IAppTerm>newAppTerm;
             }
             else {
@@ -248,13 +255,14 @@ export class AppTermQuery {
                 bedesQuery.appTermListOption.deleteByTermTypeId(appTermId, transaction);
                 // get a reference to the AppTerm as an AppTermList
                 const itemList = <IAppTermList>item;
+                const newAppTermList = <IAppTermList>newAppTerm;
                 // create the array of list options
-                itemList._listOptions = new Array<IAppTermListOption>();
+                newAppTermList._listOptions = new Array<IAppTermListOption>();
                 // get a reference to the new list option array
-                const newListOptions = itemList._listOptions;
+                const newListOptions = newAppTermList._listOptions;
                 // keeps track of the listOption query promises
                 const promises = new Array<Promise<IAppTermListOption>>();
-                if (itemList._listOptions && Array.isArray(itemList._listOptions)) {
+                if (Array.isArray(itemList._listOptions)) {
                     // Write the listOptions
                     for (let listOption of itemList._listOptions) {
                         // write the individual listOption
@@ -269,6 +277,10 @@ export class AppTermQuery {
                     }
                     // wait for list option promises to resolve
                     await Promise.all(promises);
+                }
+                if (item._mapping) {
+                    // write a new mapping record if it's there
+                    newAppTerm._mapping = await bedesQuery.mappedTerm.newMappingRecord(appTermId, item._mapping, transaction);
                 }
                 return <IAppTermList>newAppTerm;
             }

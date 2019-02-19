@@ -11,9 +11,6 @@ import {
     BedesConstrainedList
 } from '@bedes-common/models/bedes-term';
 import { BedesDataType } from '@bedes-common/enums/bedes-data-type';
-import { ICompositeTermDetailRequestParam } from '@bedes-common/models/composite-term-detail-request-param/composite-term-detail-request-param.interface';
-import { ICompositeTermDetail } from '@bedes-common/models/bedes-composite-term';
-import { CompositeTermDetail } from '../../../../../../../bedes-common/models/bedes-composite-term/composite-term-item/composite-term-detail';
 
 @Injectable({
     providedIn: 'root'

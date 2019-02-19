@@ -52,13 +52,13 @@ export class AppTermList extends AppTerm {
         if (this._mapping && appListOption) {
             this._mapping.appListOptionUUID = appListOption.uuid;
         }
-        else {
-            throw new BedesError(
-                'System error mapping terms.',
-                HttpStatusCodes.ServerError_500,
-                'System error mapping terms.'
-            );
-        }
+        // else {
+        //     throw new BedesError(
+        //         'System error mapping terms.',
+        //         HttpStatusCodes.ServerError_500,
+        //         'System error mapping terms.'
+        //     );
+        // }
     }
 
     /**

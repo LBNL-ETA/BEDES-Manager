@@ -15,7 +15,7 @@ import { AppTermService } from '../../../services/app-term/app-term.service';
 import { TermType } from '@bedes-common/enums/term-type.enum';
 import { TableCellNavComponent } from '../../../models/ag-grid/table-cell-nav/table-cell-nav.component';
 import { TableCellMessageType } from '../../../models/ag-grid/enums/table-cell-message-type.enum';
-import { MatDialog } from '@angular/material';
+import { MatDialog, MatSnackBar } from '@angular/material';
 import { ConfirmDialogComponent } from '../../dialogs/confirm-dialog/confirm-dialog.component';
 import { TermMappingAtomic } from '@bedes-common/models/term-mapping/term-mapping-atomic';
 import { TermMappingComposite } from '@bedes-common/models/term-mapping/term-mapping-composite';
@@ -58,7 +58,8 @@ export class AppTermListComponent extends MessageFromGrid<IAppRow> implements On
         private activatedRoute: ActivatedRoute,
         private appService: ApplicationService,
         private appTermService: AppTermService,
-        private dialog: MatDialog
+        private dialog: MatDialog,
+        private snackBar: MatSnackBar
     ) {
         super();
     }
@@ -206,6 +207,7 @@ export class AppTermListComponent extends MessageFromGrid<IAppRow> implements On
             this.appTermService.removeTerm(this.app.id, appTerm)
             .subscribe((results: number) => {
                 console.log(`${this.constructor.name}: delete appTerm success`, results);
+                this.snackBar.open('AppTerm successfully removed!', undefined, {duration: 3000});
             }, (error: any) => {
                 console.log('An error occurred removing AppTerm', error);
             });

@@ -1,7 +1,7 @@
 <div style="display: flex;">
     <mat-card style="flex: 1;" class="bedes-content-card mat-elevation-z0 mat-typography">
         <mat-card-content>
-            <h1 style="text-align: center;">Application Term</h1>
+            <h1 style="text-align: center;">Application Term ({{mappedTerm?.name}})</h1>
             <!-- Button toolbar -->
             <div style="display:flex;">
                 <a mat-stroked-button
@@ -149,7 +149,7 @@
                     </h3>
                 </div>
                 <div class="alert-danger" style="margin-top:10px;"
-                *ngIf="appTerm && appTerm.listOptions.length && !shouldShowMappingButtons();">
+                *ngIf="isTermList() && !isMappedToConstrainedList()">
                     <h3 style="margin: 0; padding:0;">
                         <fa-icon [icon]="['fas', 'exclamation-triangle']"></fa-icon>
                         To map the application list options, the application term must be mapped to a BEDES Constrained List.

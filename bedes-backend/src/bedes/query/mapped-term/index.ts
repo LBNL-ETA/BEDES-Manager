@@ -35,6 +35,7 @@ export class MappedTermQuery {
     // private sqlInsertBedesAtomicTermMap!: QueryFile;
     // private sqlInsertBedesCompositeTermMap!: QueryFile;
     private sqlDeleteAtomicByAppTerm!: QueryFile;
+    private sqlDeleteAtomicListOptionMap!: QueryFile;
     private sqlDeleteCompositeByAppTerm!: QueryFile;
 
     constructor() { 
@@ -55,6 +56,7 @@ export class MappedTermQuery {
         // this.sqlInsertBedesAtomicTermMap = sql_loader(path.join(__dirname, 'insert-bedes-atomic-term-map.sql'))
         // this.sqlInsertBedesCompositeTermMap = sql_loader(path.join(__dirname, 'insert-bedes-composite-term-map.sql'))
         this.sqlDeleteAtomicByAppTerm = sql_loader(path.join(__dirname, 'delete-atomic-term-map.sql'))
+        this.sqlDeleteAtomicListOptionMap = sql_loader(path.join(__dirname, 'delete-atomic-term-list-option-map.sql'))
         this.sqlDeleteCompositeByAppTerm = sql_loader(path.join(__dirname, 'delete-composite-term-map.sql'))
     }
 
@@ -195,7 +197,7 @@ export class MappedTermQuery {
      */
     public async newTermMappingListOption(
         appTermId: number,
-        listOption: IAppTermListOption,
+        listOptionUUID: string | null | undefined,
         item: ITermMappingListOption,
         transaction?: any
     ): Promise<ITermMappingListOption> {
@@ -205,20 +207,20 @@ export class MappedTermQuery {
                 logger.error(`${this.constructor.name}: invalid app term parameters.`);
                 throw new Error('Missing required parameters.');
             }
-            const bedesListOption = await bedesQuery.termListOption.getRecordByUUID(item._bedesTermOptionUUID);
-            if (!bedesListOption || !bedesListOption._id) {
-                logger.error(`${this.constructor.name}: newTermMappingListOption couldn't the matching BedesTermListOption.`);
-                throw new BedesError(
-                    'An error occurred searching for the bedes list option.',
-                    HttpStatusCodes.ServerError_500,
-                    'An error occurred searching for the bedes list option.'
-                )
-            }
+            // const bedesListOption = await bedesQuery.termListOption.getRecordByUUID(item._bedesTermOptionUUID);
+            // if (!bedesListOption || !bedesListOption._id) {
+            //     logger.error(`${this.constructor.name}: newTermMappingListOption couldn't the matching BedesTermListOption.`);
+            //     throw new BedesError(
+            //         'An error occurred searching for the bedes list option.',
+            //         HttpStatusCodes.ServerError_500,
+            //         'An error occurred searching for the bedes list option.'
+            //     )
+            // }
             // build the query parameters
             const params = {
-                _bedesListOptionId: bedesListOption._id,
+                _bedesListOptionUUID: item._bedesTermOptionUUID,
                 _appTermId: appTermId,
-                _appListOptionId: listOption._id
+                _appListOptionUUID: listOptionUUID
             };
             // get the db context to run the query
             const ctx = transaction ? transaction : db;
@@ -241,14 +243,10 @@ export class MappedTermQuery {
                 _appTermId: appTermId
             };
             const promises = new Array<Promise<any>>();
-            if (transaction) {
-                promises.push(transaction.result(this.sqlDeleteAtomicByAppTerm, params, (r: any) => r.rowCount));
-                promises.push(transaction.result(this.sqlDeleteCompositeByAppTerm, params, (r: any) => r.rowCount));
-            }
-            else {
-                promises.push(db.result(this.sqlDeleteAtomicByAppTerm, params, (r: any) => r.rowCount));
-                promises.push(db.result(this.sqlDeleteCompositeByAppTerm, params, (r: any) => r.rowCount));
-            }
+            const ctx = transaction || db;
+            promises.push(ctx.result(this.sqlDeleteAtomicByAppTerm, params, (r: any) => r.rowCount));
+            promises.push(ctx.result(this.sqlDeleteCompositeByAppTerm, params, (r: any) => r.rowCount));
+            promises.push(ctx.result(this.sqlDeleteAtomicListOptionMap, params, (r: any) => r.rowCount));
             return promises;
         } catch (error) {
             logger.error(`${this.constructor.name}: Error in deleteAppTermById`);

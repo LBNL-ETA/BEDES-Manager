@@ -19,7 +19,7 @@ import { BedesUnit } from '@bedes-common/models/bedes-unit/bedes-unit';
 import { TableCellNavComponent } from '../../../../models/ag-grid/table-cell-nav/table-cell-nav.component';
 import { TableCellMessageType } from '../../../../models/ag-grid/enums/table-cell-message-type.enum';
 import { AppTermListOptionService } from '../../../../services/app-term-list-option/app-term-list-option.service';
-import { MatDialog } from '@angular/material';
+import { MatDialog, MatSnackBar } from '@angular/material';
 import { ConfirmDialogComponent } from '../../../dialogs/confirm-dialog/confirm-dialog.component';
 import { BedesTermSearchDialogComponent } from '../../../dialogs/bedes-term-search-dialog/bedes-term-search-dialog.component';
 import { ISearchDialogOptions } from '../../../dialogs/bedes-term-search-dialog/search-dialog-options.interface';
@@ -35,6 +35,7 @@ import { TableCellMapListOptionComponent } from '../table-cell-map-list-option/t
 import { MappingTableMessageType } from '../mapping-table-message-type.enum';
 import { ListOptionMapDialogComponent } from '../../../dialogs/list-option-map-dialog/list-option-map-dialog.component';
 import { BedesTermOption } from '@bedes-common/models/bedes-term-option/bedes-term-option';
+import { TermMappingComposite } from '../../../../../../../../../bedes-common/models/term-mapping/term-mapping-composite';
 
 
 enum RequestStatus {
@@ -85,7 +86,7 @@ export class ImplementationTermComponent implements OnInit {
     // Enum for TermType
     public TermType = TermType;
     // The BEDES term (atomic or composite) that's currently mapped to this appTerm
-    private mappedTerm: BedesTerm | BedesConstrainedList | BedesCompositeTerm | undefined;
+    public mappedTerm: BedesTerm | BedesConstrainedList | BedesCompositeTerm | undefined;
     // List for the various BedesUnits
     public unitList: Array<BedesUnit>;
     // controls the current state of of the form controls
@@ -136,7 +137,8 @@ export class ImplementationTermComponent implements OnInit {
         private bedesTermService: BedesTermService,
         private compositeTermService: CompositeTermService,
         private supportListService: SupportListService,
-        private dialog: MatDialog
+        private dialog: MatDialog,
+        private snackBar: MatSnackBar
     ) { }
 
     ngOnInit() {
@@ -176,20 +178,25 @@ export class ImplementationTermComponent implements OnInit {
      * active Mapping Application's set of AppTerms.
      */
     private subscribeToActiveTerm(): void {
-        this.route.data
-            .subscribe((data: { appTerm: AppTerm | AppTermList }) => {
-                console.log('%cReceived route AppTerm', 'background-color: red', data);
-            });
+        // this.route.data
+        //     .subscribe((data: { appTerm: AppTerm | AppTermList }) => {
+        //         console.log('%cReceived route AppTerm', 'background-color: red', data);
+        //     });
         this.appTermService.activeTermSubject
             .pipe(takeUntil(this.ngUnsubscribe))
             .subscribe((activeTerm: AppTerm | AppTermList | undefined) => {
                 this.appTerm = activeTerm;
+                console.log(`%c ${this.constructor.name}: AppTerm`, 'background-color: green')
+                console.log(activeTerm);
                 // if the appTerm is undefined create a new one
                 if (!this.appTerm) {
                     this.router.navigate(['..'], {relativeTo: this.route})
                     // this.setNewAppTerm();
                 }
                 else {
+                    if (this.appTerm.mapping) {
+                        this.setMappedTerm()
+                    }
                     // set the form data
                     this.setFormData();
                 }
@@ -224,15 +231,29 @@ export class ImplementationTermComponent implements OnInit {
     }
 
     /**
-     * Assign a new instance of AppTerm to the appTerm object,
-     * we're creating a new appTerm.
+     * Set the current mapped BedesTerm to the term identified by current AppTerm mapping.
      */
-    private setNewAppTerm(): void {
-        const params: IAppTerm = {
-            _name: 'New Mapping Application Term',
-            _termTypeId: TermType.Atomic
+    private setMappedTerm(): void {
+        if (this.appTerm && this.appTerm.mapping) {
+            let uuid: string;
+            if (this.appTerm.mapping instanceof TermMappingAtomic) {
+                uuid = this.appTerm.mapping.bedesTermUUID;
+                this.bedesTermService.getTerm(uuid)
+                .subscribe((bedesTerm: BedesTerm | BedesConstrainedList) => {
+                    this.mappedTerm = bedesTerm;
+                });
+            }
+            else if (this.appTerm.mapping instanceof TermMappingComposite) {
+                uuid = this.appTerm.mapping.compositeTermUUID
+                this.compositeTermService.getTerm(uuid)
+                .subscribe((compositeTerm: BedesCompositeTerm) => {
+                    this.mappedTerm = compositeTerm;
+                })
+            }
         }
-        this.appTerm = new AppTerm(params);
+        else {
+            this.mappedTerm = undefined;
+        }
     }
 
     /**
@@ -301,18 +322,16 @@ export class ImplementationTermComponent implements OnInit {
      * Saves a new AppTerm.
      */
     private saveNewAppTerm(): void {
-        console.log(`${this.constructor.name}: app term, `, this.appTerm);
         this.resetError();
         // call the backend service
         this.appTermService.newAppTerm(this.app.id, this.appTerm)
         .subscribe((newTerm: AppTerm) => {
-            console.log('successfully created the new appTerm',  newTerm)
             // update the existing AppTerm object.
-            console.log('change <->', newTerm, this.appTerm);
             AppTerm.updateObjectValues(newTerm, this.appTerm);
             // set the newTerm as the active term and change the route
             // this.appTermService.setActiveTerm(this.appTerm);
             this.appTermService.refreshActiveTerms();
+            this.snackBar.open('AppTerm successfully saved!', undefined, {duration: 3000});
             // add the new term to the current list of terms
         }, (error: any) => {
             console.log('Error saving appTerm', error);
@@ -333,10 +352,7 @@ export class ImplementationTermComponent implements OnInit {
         // call the backend service
         this.appTermService.updateAppTerm(this.app.id, this.appTerm)
         .subscribe((updatedTerm: AppTerm) => {
-            console.log('successfully updated the appTerm',  updatedTerm)
-            // this.appTerm.id = newTerm.id;
-            // this.appTermService.setActiveTerm(this.appTerm);
-            // this.router.navigate(['..', this.appTerm.id], {relativeTo: this.route});
+            this.snackBar.open('AppTerm successfully saved!', undefined, {duration: 3000});
         }, (error: any) => {
             console.log('Error saving appTerm', error);
             this.setErrorMessage(error);
@@ -504,6 +520,33 @@ export class ImplementationTermComponent implements OnInit {
             }
             this.gridOptions.api.setRowData(gridData);
             this.gridDataNeedsSet = false;
+        }
+    }
+
+    /**
+     * Determines if the current AppTerm is a ConstrainedList.
+     * @returns true if the current AppTerm is a constrained list.
+     */
+    public isTermList(): boolean {
+        return this.appTerm && this.appTerm.termTypeId === TermType.ConstrainedList
+            ? true
+            : false;
+    }
+
+    /**
+     * Determines if the current AppTerm is mapped to a Bedes Constrained List.
+     * @returns true if mapped to constrained list
+     */
+    public isMappedToConstrainedList(): boolean {
+        if (
+            this.appTerm
+            && this.appTerm.mapping instanceof TermMappingAtomic
+            && this.appTerm.mapping.bedesTermType === TermType.ConstrainedList
+        ) {
+            return true;
+        }
+        else {
+            return false;
         }
     }
 
@@ -693,6 +736,7 @@ export class ImplementationTermComponent implements OnInit {
                 console.log(`${this.constructor.name}: received results`);
                 console.log(results);
                 // refresh the activeTerm if context is still the same object.
+                this.snackBar.open('List Option successfully removed', undefined, {duration: 3000});
                 if (this.appTermService.activeTerm === this.appTerm) {
                     this.appTermService.activeTermSubject.next(this.appTerm);
                 }
@@ -711,6 +755,7 @@ export class ImplementationTermComponent implements OnInit {
     public listOptionMapping(listOption: AppTermListOption): void {
         console.log(listOption);
         console.log(this.appTerm.mapping);
+        console.log(this.mappedTerm);
         if (!(this.appTerm
             && this.appTerm.mapping
             && this.appTerm.mapping instanceof TermMappingAtomic
@@ -785,7 +830,6 @@ export class ImplementationTermComponent implements OnInit {
         this.compositeTermService.getTerm(searchResult.uuid)
         .subscribe((compositeTerm: BedesCompositeTerm) => {
             // received the compositeTerm
-            console.log(`${this.constructor.name}: received the compositeTerm`);
             if (this.appTerm instanceof AppTermList) {
                 // if this is an appTermList include the activeListOption
                 this.appTerm.map(compositeTerm, undefined, this.activeListOption);
@@ -794,19 +838,9 @@ export class ImplementationTermComponent implements OnInit {
                 this.appTerm.map(compositeTerm);
 
             }
-            // // create the new mapping object and assign it to the active appTerm
-            // const mapping = new TermMappingComposite()
-            // this.appTerm.mapping = mapping;
-            // // assign the active AppTermListOption if it's set
-            // if (this.activeListOption) {
-            //     mapping.appListOption = this.activeListOption;
-            // }
-            // // assign the bedesTerm
-            // mapping.compositeTermUUID = compositeTerm.uuid;
             this.appTermService.activeTermSubject.next(this.appTerm);
             this.gridDataNeedsSet = true;
             this.setGridData();
-            // console.log('done', mapping);
         })
 
     }
@@ -826,6 +860,7 @@ export class ImplementationTermComponent implements OnInit {
         // get the atomic term from the backend
         this.bedesTermService.getTerm(termUUID)
         .subscribe((bedesTerm: BedesTerm | BedesConstrainedList) => {
+            this.mappedTerm = bedesTerm;
             // holds the reference to the mapped BedesTermOption, if applicable
             let bedesTermOption: BedesTermOption | undefined;
             if(optionUUID && bedesTerm instanceof BedesConstrainedList) {

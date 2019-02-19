@@ -9,13 +9,26 @@ with
                     '_id', o.id,
                     '_name', o.name,
                     '_unitId', o.unit_id,
-                    '_uuid', o.uuid
+                    '_uuid', o.uuid,
+                    '_mapping', case when mp.id is not null then
+                        json_build_object(
+                            '_id', mp.id,
+                            '_bedesTermOptionUUID', mp.bedes_list_option_uuid,
+                            '_bedesOptionName', bto.name
+                        )
+                        else
+                            null
+                        end
                 )
             ) as items
         from
             public.app_term_list_option o
         join
             public.app_term as wt on wt.id = o.app_term_id
+        left outer join
+            public.atomic_term_list_option_maps as mp on mp.app_list_option_uuid = o.uuid
+		left outer join
+			public.bedes_term_list_option bto on bto.uuid = mp.bedes_list_option_uuid
         where
             wt.app_id = ${_appId}
         group by
@@ -41,7 +54,7 @@ select
 			json_build_object(
 				'_id', atm.id,
 				'_bedesTermUUID', atm.bedes_term_uuid,
-				'_bedesTermType', 1,
+				'_bedesTermType', case when bt.data_type_id = 1 then 2 else 1 end,
 				'_bedesListOptionUUID', null,
 				'_bedesName', bt.name,
 				'_appListOptionUUID', atm.app_list_option_uuid

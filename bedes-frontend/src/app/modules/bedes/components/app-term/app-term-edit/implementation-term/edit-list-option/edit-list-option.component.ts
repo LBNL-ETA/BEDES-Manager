@@ -184,10 +184,8 @@ export class EditListOptionComponent implements OnInit {
      * and the term is itself a new AppTermList.
      */
     private saveNewAppTerm(): void {
-        console.log(`save a new appTerm`);
         this.termService.newAppTerm(this.app.id, this.term)
         .subscribe((newTerm: AppTerm | AppTermList) => {
-            console.log('app term saved', newTerm);
             // update the term's id
             this.term.id = newTerm.id;
             // add the new term to the current AppTerm list
@@ -214,7 +212,6 @@ export class EditListOptionComponent implements OnInit {
         this.listOptionService.updateListOption(this.term, this.listOption)
         .subscribe((listOption: AppTermListOption) => {
             this.currentRequestStatus = RequestStatus.Success;
-            console.log(`${this.constructor.name}: createNewListOption success`, listOption);
             this.currentControlState = ControlState.Normal;
             // this.dataForm.controls.name.disable();
             // this.dataForm.disable();
@@ -246,7 +243,6 @@ export class EditListOptionComponent implements OnInit {
         this.listOptionService.newListOption(this.term, this.listOption)
         .subscribe((listOption: AppTermListOption) => {
             this.currentRequestStatus = RequestStatus.Success;
-            console.log(`${this.constructor.name}: createNewListOption success`, listOption);
             this.currentControlState = ControlState.Normal;
             // this.dataForm.controls.name.disable();
             // this.dataForm.disable();

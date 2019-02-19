@@ -178,6 +178,7 @@ export class AppTermService {
         if(!appId || !appTerm || !appTerm.id) {
             throw new Error('Invalid AppTerm object, an existing object was expected.');
         }
+        console.log('save app term', appTerm);
         // create the url
         const url = this.getAppTermUrl(appId, appTerm.id);
         return this.http.put<IAppTerm>(url, appTerm, { withCredentials: true })
