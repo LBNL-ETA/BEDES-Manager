@@ -21,10 +21,8 @@ import { TermBuilderHomeComponent } from './components/term-builder-home/term-bu
 import { BedesApplicationManagerComponent } from './components/bedes-application-manager/bedes-application-manager.component';
 import { BedesTermSearchDialogComponent } from './components/dialogs/bedes-term-search-dialog/bedes-term-search-dialog.component';
 import { TermBuilderEditComponent } from './components/term-builder-home/term-builder-edit/term-builder-edit.component';
-import { SelectedTermComponent } from './components/term-builder-home/selected-term-container/selected-term/selected-term.component';
 import { SelectTermsTableComponent } from './components/term-builder-home/select-terms-table/select-terms-table.component';
 import { SelectedTermsTableComponent } from './components/term-builder-home/selected-terms-table/selected-terms-table.component';
-import { SelectedTermContainerComponent } from './components/term-builder-home/selected-term-container/selected-term-container.component';
 import { AgGridModule } from 'ag-grid-angular';
 import { BedesTermSelectorService } from './services/bedes-term-selector/bedes-term-selector.service';
 import { ConfirmDialogComponent } from './components/dialogs/confirm-dialog/confirm-dialog.component';
@@ -47,9 +45,6 @@ import { TableCellBedesCategoryComponent } from './components/bedes-term-search/
 import { TableCellBedesUnitComponent } from './components/bedes-term-search/bedes-search-results-table/table-cell-bedes-unit/table-cell-bedes-unit.component';
 import { TableCellBedesDataTypeComponent } from './components/bedes-term-search/bedes-search-results-table/table-cell-bedes-data-type/table-cell-bedes-data-type.component';
 import { TableCellTermNameComponent } from './components/bedes-term-search/bedes-search-results-table/table-cell-term-name/table-cell-term-name.component';
-import { CompositeTermComponent } from './components/composite-term/composite-term.component';
-import { SelectTermsComponent } from './components/composite-term/select-terms/select-terms.component';
-import { CompositeTermEditComponent } from './components/composite-term/composite-term-edit/composite-term-edit.component';
 import { ApplicationListComponent } from './components/application-home/application-list/application-list.component';
 import { ApplicationNewComponent } from './components/application-home/application-new/application-new.component';
 import { ApplicationEditComponent } from './components/application-home/application-edit/application-edit.component';
@@ -68,6 +63,18 @@ import { BedesSearchResultsComponent } from './components/bedes-search/bedes-sea
 import { ImplementationTermOptionComponent } from './components/app-term/app-term-edit/implementation-term/implementation-term-option/implementation-term-option.component';
 import { EditListOptionComponent } from './components/app-term/app-term-edit/implementation-term/edit-list-option/edit-list-option.component';
 import { DisplayListOptionsComponent } from './components/app-term/app-term-edit/implementation-term/display-list-options/display-list-options.component';
+import { CompositeTermListComponent } from './components/term-builder-home/composite-term-list/composite-term-list.component';
+import { compositeTermFactory } from './services/composite-term/composite-term-factory.service';
+import { CompositeTermService } from './services/composite-term/composite-term.service';
+import { SelectedTermsOrderComponent } from './components/term-builder-home/selected-terms-order/selected-terms-order.component';
+import { TableCellItemNameComponent } from './components/term-builder-home/selected-terms-table/table-cell-item-name/table-cell-item-name.component';
+import { BedesMapSearchComponent } from './components/app-term/app-term-edit/bedes-map-search/bedes-map-search.component';
+import { MappingViewComponent } from './components/app-term/app-term-edit/mapping-view/mapping-view.component';
+import { TableCellNavComponent } from './models/ag-grid/table-cell-nav/table-cell-nav.component';
+import { AppTermListOptionService } from './services/app-term-list-option/app-term-list-option.service';
+import { TableCellMapListOptionComponent } from './components/app-term/app-term-edit/table-cell-map-list-option/table-cell-map-list-option.component';
+import { ListOptionMapDialogComponent } from './components/dialogs/list-option-map-dialog/list-option-map-dialog.component';
+import { TableCellAppTermStatusComponent } from './components/app-term/app-term-list/table-cell-app-term-status/table-cell-app-term-status.component';
 
 @NgModule({
     imports: [
@@ -94,10 +101,8 @@ import { DisplayListOptionsComponent } from './components/app-term/app-term-edit
         BedesApplicationManagerComponent,
         BedesTermSearchDialogComponent,
         TermBuilderEditComponent,
-        SelectedTermComponent,
         SelectTermsTableComponent,
         SelectedTermsTableComponent,
-        SelectedTermContainerComponent,
         ConfirmDialogComponent,
         BedesTermDetailsDefinitionComponent,
         BedesTermDetailsListOptionsComponent,
@@ -115,9 +120,6 @@ import { DisplayListOptionsComponent } from './components/app-term/app-term-edit
         TableCellBedesUnitComponent,
         TableCellBedesDataTypeComponent,
         TableCellTermNameComponent,
-        CompositeTermComponent,
-        SelectTermsComponent,
-        CompositeTermEditComponent,
         ApplicationListComponent,
         ApplicationNewComponent,
         ApplicationEditComponent,
@@ -133,13 +135,27 @@ import { DisplayListOptionsComponent } from './components/app-term/app-term-edit
         ImplementationTermOptionComponent,
         EditListOptionComponent,
         DisplayListOptionsComponent,
+        CompositeTermListComponent,
+        SelectedTermsOrderComponent,
+        TableCellItemNameComponent,
+        BedesMapSearchComponent,
+        MappingViewComponent,
+        TableCellNavComponent,
+        TableCellMapListOptionComponent,
+        ListOptionMapDialogComponent,
+        TableCellAppTermStatusComponent
     ],
     entryComponents: [
         BedesTermSearchDialogComponent,
         ConfirmDialogComponent,
+        ListOptionMapDialogComponent,
         TableCellBedesCategoryComponent,
         TableCellTermNameComponent,
-        TableCellNameNavComponent
+        TableCellNameNavComponent,
+        TableCellItemNameComponent,
+        TableCellNavComponent,
+        TableCellMapListOptionComponent,
+        TableCellAppTermStatusComponent
     ],
     providers: [
         BedesTermSearchService,
@@ -158,8 +174,17 @@ import { DisplayListOptionsComponent } from './components/app-term/app-term-edit
             deps: [ApplicationService],
             multi: true
         },
+        {
+            provide: APP_INITIALIZER,
+            useFactory: compositeTermFactory,
+            deps: [CompositeTermService],
+            multi: true
+        },
         BedesTermSelectorService,
-        BedesTermListOptionService
+        BedesTermListOptionService,
+        ApplicationService,
+        CompositeTermService,
+        AppTermListOptionService
     ]
 })
 export class BedesModule { }

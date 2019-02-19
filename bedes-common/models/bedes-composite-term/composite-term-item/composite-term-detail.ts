@@ -14,14 +14,14 @@ export class CompositeTermDetail {
 
     constructor(data: BedesTerm, orderNumber: number, termOption?: BedesTermOption, isValueField?: boolean);
     constructor(data: ICompositeTermDetail);
-    constructor(data: ICompositeTermDetail | BedesTerm, orderNumber?: number, termOption?: BedesTermOption, isValueField?: boolean) {
+    constructor(data: ICompositeTermDetail | BedesTerm, orderNumber?: number, listOption?: BedesTermOption, isValueField?: boolean) {
         if (data instanceof BedesTerm) {
             // build the object from a BedesTerm-TermOption object(s)
             if (!data.id) {
                 // all bedes terms need an _id value
                 throw new Error('BedesTerms must have a valid _id to be used in a composite');
             }
-            else if (termOption && !termOption.id) {
+            else if (listOption && !listOption.id) {
                 // all list options must have an _id value
                 throw new Error('BedesConstrainedListOption must have a valid _id to be used in a composite');
             }
@@ -30,7 +30,7 @@ export class CompositeTermDetail {
                 throw new Error(`An orderNumber must be provided when building a ${this.constructor.name} object from a BedesTerm object`);
             }
             this._term = data;
-            this._listOption = termOption;
+            this._listOption = listOption;
             this._orderNumber = orderNumber;
             this._isValueField = isValueField;
         }
@@ -39,7 +39,7 @@ export class CompositeTermDetail {
                 // all bedes terms need an _id value
                 throw new Error('BedesTerms must have a valid _id to be used in a composite');
             }
-            else if (data._termOption && !data._termOption._id) {
+            else if (data._listOption && !data._listOption._id) {
                 // all list options must have an _id value
                 throw new Error('BedesConstrainedListOption must have a valid _id to be used in a composite');
             }
@@ -52,8 +52,8 @@ export class CompositeTermDetail {
             this._term = new BedesTerm(data._term);
             // create the term list option object if it's a constrained list
             // and there's a list option to be mapped
-            if (data._termOption) {
-                this._listOption = new BedesTermOption(data._termOption);
+            if (data._listOption) {
+                this._listOption = new BedesTermOption(data._listOption);
             }
             this._orderNumber = data._orderNumber;
             this._isValueField = data._isValueField;
@@ -98,7 +98,7 @@ export class CompositeTermDetail {
         return <ICompositeTermDetail>{
             _id: this.id,
             _term: this.term.toInterface(),
-            _termOption: this.listOption ? this.listOption.toInterface() : null,
+            _listOption: this.listOption ? this.listOption.toInterface() : null,
             _orderNumber: this.orderNumber,
             _isValueField: this.isValueField
         };

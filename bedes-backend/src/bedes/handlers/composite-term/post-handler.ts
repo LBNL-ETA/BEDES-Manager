@@ -20,9 +20,13 @@ export async function compositeTermPostHandler(request: Request, response: Respo
         logger.debug(`save a new composite term`);
         logger.debug(util.inspect(compositeTerm));
         let savedTerm = await bedesQuery.compositeTerm.newCompositeTerm(compositeTerm);
+        if (!savedTerm || !savedTerm._id) {
+            throw new Error('Error creating new composite term');
+        }
+        let newTerm = await bedesQuery.compositeTerm.getRecordComplete(savedTerm._id);
         logger.debug('compositeTermHandler resuts');
-        logger.debug(util.inspect(savedTerm));
-        response.json(savedTerm)
+        logger.debug(util.inspect(newTerm));
+        response.json(newTerm)
     }
     catch (error) {
         logger.error('Error in compositeTermHandler');

@@ -21,7 +21,7 @@ describe("BedesCompositeTerm", () => {
             _signature: '1:300-2',
             _items: [
                 <ICompositeTermDetail>{
-                    _term: {
+                    _term: <IBedesTerm>{
                         _id: 2,
                         _name: 'Bedes Term 1',
                         _description: 'A fake bedes term'
@@ -29,14 +29,14 @@ describe("BedesCompositeTerm", () => {
                     _orderNumber: 2
                 },
                 <ICompositeTermDetail>{
-                    _term: {
+                    _term: <IBedesTerm>{
                         _id: 1,
                         _termCategoryId: TermCategory.ControlsAndOperation,
                         _name: 'AnotherThingy',
                         _description: 'fakey fakey',
                         _dataTypeId: BedesDataType.ConstrainedList
                     },
-                    _termOption: {
+                    _listOption: <IBedesTermOption>{
                         _id: 300,
                         _name: 'namey',
                         _description: 'namey description'
@@ -46,8 +46,8 @@ describe("BedesCompositeTerm", () => {
             ]
         };
         const term = new BedesCompositeTerm(params);
-        expect(term.id).toBe(params._id);
-        expect(term.signature).toBe(params._signature);
+        expect(term.id).toBe(params._id, 'Id mismatch.');
+        expect(term.signature).toBe(params._signature, 'Term signatures do not match');
         expect(term.items.length).toBe(params._items.length, 'Number of terms not equal');
         expect(term.items[0].orderNumber).toBe(params._items[1]._orderNumber, 'Terms not sorted by orderNumber');
     });

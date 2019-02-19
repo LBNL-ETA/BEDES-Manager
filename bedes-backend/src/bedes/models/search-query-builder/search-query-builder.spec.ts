@@ -1,8 +1,8 @@
 import "jasmine";
 import { SearchQueryBuilder } from './search-query-builder';
-import { ISearchOptions } from '../../../../../bedes-common/models/search-options/search-options.interface';
-import { ISearchOptionSection } from '../../../../../bedes-common/models/search-options/search-option-section.interface';
-import { SearchOptionSection } from "@bedes-common/models/search-options/search-option-section";
+import { ISearchOptions } from '@bedes-common/models/search-options/search-options.interface';
+import { ISearchOptionSection } from '@bedes-common/models/search-options/search-option-section.interface';
+import { SearchOptions } from '@bedes-common/models/search-options/search-options';
 
 describe('SearchQueryBuilder', () => {
     it('Should be able to be instantiated', () => {
@@ -21,7 +21,7 @@ describe('SearchQueryBuilder', () => {
             }
         }
         // build the object
-        const builder = new SearchQueryBuilder(params);
+        const builder = new SearchQueryBuilder(new SearchOptions(params));
         expect(builder).toBeDefined();
         expect(builder.searchOptions.bedesTerm.disabled).toBe(true);
         expect(builder.searchOptions.bedesTerm.nameDisabled).toBe(false);
@@ -64,7 +64,7 @@ describe('SearchQueryBuilder', () => {
             }
         }
         // build the object
-        const builder = new SearchQueryBuilder(params);
+        const builder = new SearchQueryBuilder(new SearchOptions(params));
         expect(builder).toBeDefined();
         // set the search string
         const searchString = 'Renewable Electricity OR Resource OR Value';

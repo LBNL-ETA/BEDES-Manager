@@ -5,6 +5,7 @@ select
     ct.name as "_name",
     ct.description as "_description",
     ct.unit_id as "_unitId",
+    ct.uuid as "_uuid",
     json_agg(
         json_build_object(
             '_id', td.id,
@@ -20,7 +21,7 @@ select
                 '_dataTypeId', bt.data_type_id,
                 '_definitionSourceId', bt.definition_source_id
             ),
-            '_termOption', 
+            '_listOption', 
                 case
                     when lo.id is not null
                         then json_build_object(
@@ -33,7 +34,7 @@ select
                     else
                         null
                 end    
-    ))
+    )) as "_items"
 from
     public.bedes_composite_term as ct
 left outer join

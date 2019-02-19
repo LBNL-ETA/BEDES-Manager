@@ -26,27 +26,22 @@ export class AppTermListResolverService {
     }
 
     resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<Array<AppTerm | AppTermList>> {
-        const appTermId: number = Number(route.paramMap.get('termId'));
+        const appTermUUID: string = route.paramMap.get('termId');
         const activeApp = this.appService.selectedItem;
         const appId: number | undefined = activeApp ? activeApp.id : undefined;
-
-        console.log(`${this.constructor.name}: appId = ${appId}`, route, state);
-        console.log(`active app: ${this.appService.selectedItem}`, this.appService.selectedItem)
         // check the current selected term for a matching id
         // don't make the http request if we already have the term selected
         if (this.appTermService.activeAppId === appId) {
             // console.log('active AppTerms already set', this.appTermService.getActiveTermList());
             const terms = this.appTermService.getActiveTermList();
-            this.setActiveAppTerm(appTermId, terms);
+            this.setActiveAppTerm(appTermUUID, terms);
             return of(terms);
         }
         else {
-            console.log('load appTerms from API');
             this.appTermService.getAppTerms(appId)
             .subscribe((terms: Array<AppTerm | AppTermList>) => {
-                console.log(`${this.constructor.name}: received appTerms`, terms);
                 this.appTermService.setActiveMappingApplication(appId, terms);
-                this.setActiveAppTerm(appTermId, terms);
+                this.setActiveAppTerm(appTermUUID, terms);
                 return of(terms);
             });
         }
@@ -62,7 +57,7 @@ export class AppTermListResolverService {
             return;
         }
         // const termList = this.appTermService.getActiveTermList();
-        const found = terms.find((d) => d.id === appTermId);
+        const found = terms.find((d) => d.uuid === appTermId);
         if (found) {
             this.appTermService.setActiveTerm(found);
             return;

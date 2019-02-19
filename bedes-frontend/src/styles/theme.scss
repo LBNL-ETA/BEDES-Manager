@@ -188,6 +188,14 @@ $custom-success: mat-palette($md-success);
   //   color: white;
   }
 
+.color-success {
+  background-color: mat-color($custom-success);
+}
+
+.color-danger {
+  background-color: mat-color($custom-danger);
+}
+
 .color-accent-200 {
   background-color: mat-color($custom-accent, 200);
 //   color: white;
@@ -202,7 +210,19 @@ $custom-success: mat-palette($md-success);
 }
 
 .font-color-warn {
-  color: mat-color($custom-danger);
+  color: mat-color($custom-warn);
+}
+.border-color-warn {
+    color: mat-color($custom-warn);
+    border: 2px mat-color($custom-warn) solid;
+}
+
+.font-color-success {
+  color: mat-color($custom-success);
+}
+.border-color-success {
+    color: mat-color($custom-success);
+    border: 2px mat-color($custom-success) solid;
 }
 
 $default-anchor-color: mat-color($custom-accent,800);

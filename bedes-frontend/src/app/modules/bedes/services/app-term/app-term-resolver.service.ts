@@ -8,77 +8,61 @@ import { Observable, of, EMPTY } from 'rxjs';
 import { AppTermList, AppTerm } from '@bedes-common/models/app-term';
 import { AppTermService } from './app-term.service';
 import { ApplicationService } from '../application/application.service';
-import { IAppTerm } from '../../../../../../../bedes-common/models/app-term/app-term.interface';
-import { TermType } from '@bedes-common/enums/term-type.enum';
+import { MappingApplication } from '@bedes-common/models/mapping-application';
 
 @Injectable({
     providedIn: 'root',
 })
 export class AppTermResolverService {
     constructor(
-        private ApplicationService: ApplicationService,
+        private appService: ApplicationService,
         private appTermService: AppTermService,
         private router: Router
     ) {
+        this.appService.selectedItemSubject
+            .subscribe((activeApp: MappingApplication) => {
+                console.log(`${this.constructor.name}: activeApp`, activeApp)
+            });
+    }
 
+    resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<AppTerm | AppTermList> {
+        const appTermUUID: string = route.paramMap.get('termId');
+        const appId = Number(route.parent.paramMap.get('appId'));
+        const activeApp = this.appService.selectedItem;
+        // const appId: number | undefined = activeApp ? activeApp.id : undefined;
+        // check the current selected term for a matching id
+        // don't make the http request if we already have the term selected
+        if (activeApp && this.appTermService.activeAppId === appId) {
+            // console.log('active AppTerms already set', this.appTermService.getActiveTermList());
+            const terms = this.appTermService.getActiveTermList();
+            const found = this.setActiveAppTerm(appTermUUID, terms);
+            return of(found);
+        }
+        else {
+            this.appTermService.getAppTerms(appId)
+            .subscribe((terms: Array<AppTerm | AppTermList>) => {
+                this.appTermService.setActiveMappingApplication(appId, terms);
+                const found = this.setActiveAppTerm(appTermUUID, terms);
+                return of(found);
+            });
+        }
     }
 
     /**
-     * Resolve the required data from the API for the aop-term route.
+     * If there's a termId in the url, find the AppTerm with the matching id
+     * in the list of terms.
      */
-    resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<AppTerm | AppTermList | undefined> {
-        const appTermId = Number(route.paramMap.get('termId'));
-        console.log(`${this.constructor.name}: appTermId = ${appTermId}`, route, state);
-        // get a reference to the current active AppTerm
-        let activeItem = appTermId ? this.appTermService.activeTerm : undefined;
-        // check the current selected term for a matching id
-        // don't make the http request if we already have the term selected
-        if (activeItem && appTermId && activeItem.id === appTermId) {
-            // the termId is the same as the activeTerm
-            console.log('active AppTerms already set', activeItem);
-            return of(activeItem);
+    private setActiveAppTerm(appTermId, terms: Array<AppTerm | AppTermList>): AppTerm | AppTermList | undefined {
+        // make sure there's a valid appTerm
+        if (!appTermId) {
+            return;
         }
-        else if (appTermId) {
-            // activeTerm is different from what's requested in the url
-            // first check the existing list of terms, if it exists
-            // if it doesn't, load the complete list of the term and its siblings
-            activeItem = this.appTermService.findTermInList(appTermId);
-            if (activeItem) {
-                // term is in the current active list of AppTerms
-                return of(activeItem);
-            }
-            else {
-                // all else fails, load terms from API
-                console.log('load appTerm from API');
-                this.appTermService.getAppTermSiblings(appTermId)
-                .subscribe((terms: Array<AppTerm | AppTermList>) => {
-                    console.log(`${this.constructor.name}: received appTerms`, terms);
-                    this.appTermService.setActiveMappingApplication(appTermId, terms);
-                    const activeTerm = terms.find((d) => d.id === appTermId);
-                    if (!activeTerm) {
-                        return of(undefined)
-                    }
-                    else {
-                        this.appTermService.setActiveTerm(activeTerm);
-                        return of(activeTerm);
-                    }
-                });
-            }
-        }
-        else if (state.url.match(/\/\d+\/terms\/new/)) {
-            // create a new AppTerm
-            const params: IAppTerm = {
-                _name: 'New App Term',
-                _termTypeId: TermType.Atomic
-            }
-            const newTerm = new AppTerm(params);
-            this.appTermService.setActiveTerm(newTerm);
-            return of(newTerm);
-        }
-        else {
-            this.appTermService.setActiveTerm(undefined);
-            return of(undefined);
-        }
+        // const termList = this.appTermService.getActiveTermList();
+        const found = terms.find((item) => item.uuid === appTermId);
+        this.appTermService.setActiveTerm(found);
+        return found;
     }
 
+
 }
+

@@ -15,7 +15,7 @@ import { SupportListType } from '../../../services/support-list/support-list-typ
 import { TableCellTermNameComponent } from './table-cell-term-name/table-cell-term-name.component';
 import { BedesSearchResult } from '@bedes-common/models/bedes-search-result/bedes-search-result';
 import { SearchResultType } from '@bedes-common/models/bedes-search-result/search-result-type.enum';
-import { ISearchResultRow } from '../../../models/ag-table/search-result-row.interface';
+import { ISearchResultRow } from '../../../models/ag-grid/search-result-row.interface';
 import { getResultTypeName } from '../../../lib/get-result-type-name';
 
 @Component({
@@ -124,8 +124,11 @@ export class BedesSearchResultsTableComponent implements OnInit, OnDestroy {
         else if (selectedItem.ref.resultObjectType === SearchResultType.BedesTermOption) {
             // navigate to bedes-term/term_uuid_or_id/edit/option_uuid_or_id
             const termId = selectedItem.ref.termUUID || selectedItem.ref.termId;
-            const optionId = selectedItem.ref.uuid || selectedItem.ref.id;
-            this.router.navigate(['/bedes-term', termId, 'edit', optionId]);
+            this.router.navigate(['/bedes-term', termId]);
+        }
+        else if (selectedItem.ref.resultObjectType === SearchResultType.CompositeTerm) {
+            const termId = selectedItem.ref.uuid || selectedItem.ref.termId;
+            this.router.navigate(['/composite-term/edit', termId]);
         }
         else {
             console.error('unable to find route for selectedRow', selectedItem);
@@ -189,10 +192,6 @@ export class BedesSearchResultsTableComponent implements OnInit, OnDestroy {
                 field: 'searchResultTypeName'
             },
             {
-                headerName: 'UUID',
-                field: 'uuid'
-            },
-            {
                 headerName: 'Category',
                 field: 'categoryName'
             },
@@ -213,8 +212,8 @@ export class BedesSearchResultsTableComponent implements OnInit, OnDestroy {
                 return <ISearchResultRow>{
                     name: searchResult.name,
                     uuid: searchResult.uuid,
-                    // categoryName: this.supportListService.transformIdToName(SupportListType.BedesCategory, term.termCategoryId),
-                    // dataTypeName: this.supportListService.transformIdToName(SupportListType.BedesDataType, term.dataTypeId),
+                    categoryName: this.supportListService.transformIdToName(SupportListType.BedesCategory, searchResult.termCategoryId),
+                    dataTypeName: this.supportListService.transformIdToName(SupportListType.BedesDataType, searchResult.dataTypeId),
                     unitName: this.supportListService.transformIdToName(SupportListType.BedesUnit, searchResult.unitId),
                     ref: searchResult,
                     searchResultTypeName: getResultTypeName(searchResult.resultObjectType)

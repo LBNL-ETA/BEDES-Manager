@@ -4,6 +4,7 @@ import { createLogger } from '@bedes-backend/logging';
 import { HttpStatusCodes } from '@bedes-common/enums/http-status-codes';
 import { BedesError } from '@bedes-common/bedes-error';
 import { bedesQuery } from '../../query';
+import { isUUID } from '../../../../../bedes-common/util/is-uuid';
 const logger = createLogger(module);
 
 /**
@@ -22,10 +23,21 @@ export async function compositeTermGetHandler(request: Request, response: Respon
         }
         logger.debug(`get a composite term`);
         logger.debug(util.inspect(id));
-        let results = await bedesQuery.compositeTerm.getRecordById(id);
-        logger.debug('compositeTermHandler resuts');
-        logger.debug(util.inspect(results));
-        response.json(results)
+        logger.debug(`isUUID = ${isUUID(id)}`)
+        if (isUUID(id)) {
+            let results = await bedesQuery.compositeTerm.getRecordByUUID(id);
+            logger.debug('compositeTermHandler resuts');
+            logger.debug(util.inspect(results));
+            response.json(results);
+            return;
+        }
+        else {
+            let results = await bedesQuery.compositeTerm.getRecordById(id);
+            logger.debug('compositeTermHandler resuts');
+            logger.debug(util.inspect(results));
+            response.json(results);
+            return;
+        }
     }
     catch (error) {
         logger.error('Error in compositeTermHandler');

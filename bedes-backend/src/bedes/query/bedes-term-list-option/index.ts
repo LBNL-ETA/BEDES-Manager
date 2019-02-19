@@ -11,6 +11,7 @@ import { BedesErrorTermNotFound } from '@bedes-common/errors/bedes-term-not-foun
 export class BedesTermListOptionQuery {
     private sqlGetByName!: QueryFile;
     private sqlGetByUUID!: QueryFile;
+    private sqlGetById!: QueryFile;
     private sqlInsert!: QueryFile;
     private sqlDelete!: QueryFile;
     private sqlUpdate!: QueryFile;
@@ -22,6 +23,7 @@ export class BedesTermListOptionQuery {
     private initSql(): void {
         this.sqlGetByName = sql_loader(path.join(__dirname, 'get-by-name.sql'));
         this.sqlGetByUUID = sql_loader(path.join(__dirname, 'get-by-uuid.sql'));
+        this.sqlGetById = sql_loader(path.join(__dirname, 'get-by-id.sql'));
         this.sqlInsert = sql_loader(path.join(__dirname, 'insert.sql'))
         this.sqlDelete = sql_loader(path.join(__dirname, 'delete.sql'))
         this.sqlUpdate = sql_loader(path.join(__dirname, 'update.sql'))
@@ -137,6 +139,8 @@ export class BedesTermListOptionQuery {
             const params = {
                 _uuid: uuid
             };
+            console.log(params);
+            console.log(this.sqlGetByUUID);
             if (transaction) {
                 return transaction.one(this.sqlGetByUUID, params);
             }
@@ -145,6 +149,31 @@ export class BedesTermListOptionQuery {
             }
         } catch (error) {
             logger.error(`${this.constructor.name}: Error in getRecordByUUID`);
+            logger.error(util.inspect(error));
+            throw error;
+        }
+    }
+
+    /**
+     * Retrieve a TermListOption record by its numeric id.
+     */
+    public getRecordById(id: number, transaction?: any): Promise<IBedesTermOption> {
+        try {
+            if (!id) {
+                logger.error(`${this.constructor.name}: Missing id`);
+                throw new Error('Missing required parameters.');
+            }
+            const params = {
+                _id: id
+            };
+            if (transaction) {
+                return transaction.one(this.sqlGetById, params);
+            }
+            else {
+                return db.one(this.sqlGetById, params);
+            }
+        } catch (error) {
+            logger.error(`${this.constructor.name}: Error in getRecordById`);
             logger.error(util.inspect(error));
             throw error;
         }

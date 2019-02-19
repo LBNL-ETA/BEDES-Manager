@@ -1,36 +1,21 @@
 <div style="padding:10px;">
-    <div *ngIf="selectedTerms?.length">
-        <div style="margin-bottom:10px;">
-            <button mat-stroked-button color="primary" (click)="saveCompositeTerm()">
-                <fa-icon [icon]="['fas', 'save']"></fa-icon>
-                Save
-            </button>
-        </div>
-        <div style="margin-bottom:10px;">
-            {{ compositeTerm.name }}
-        </div>
-        <div style="margin-bottom:10px;">
-            <div cdkDropList cdkDropListOrientation="horizontal" class="example-list" (cdkDropListDropped)="drop($event)">
-                <div class="example-box" *ngFor="let term of selectedTerms " cdkDrag>
-                    {{term.name}}
-                </div>
-            </div>
-        </div>
+    <div *ngIf="compositeTerm?.items.length">
         <div style="display: flex; flex-direction: row">
             <div style=" overflow: hidden; flex-grow: 1">
                 <ag-grid-angular #agGrid
-                style="width: 100%; height: 500px;"
+                style="width: 100%; height: 300px;"
                 id="myGrid"
                 [gridOptions]="gridOptions"
+                [context]="tableContext"
                 class="ag-theme-material">
                 </ag-grid-angular>
             </div>
         </div>
     </div>
-    <div *ngIf="!selectedTerms || !selectedTerms?.length" class="alert-warn" style="margin: 10px 0 10px 0; text-align:left;">
+    <!-- <div *ngIf="!compositeTerm || !compositeTerm.items.length" class="alert-warn" style="margin: 10px 0 10px 0; text-align:left;">
         <span>
             <fa-icon [icon]="['fas', 'exclamation-triangle']"></fa-icon>
             Add terms to start building a composite term.
         </span>
-    </div>
+    </div> -->
 </div>

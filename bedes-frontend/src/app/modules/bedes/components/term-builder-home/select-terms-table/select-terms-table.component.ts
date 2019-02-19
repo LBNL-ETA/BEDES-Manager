@@ -14,7 +14,7 @@ import { BedesDataType } from '@bedes-common/models/bedes-data-type';
 import { BedesTermCategory } from '@bedes-common/models/bedes-term-category/bedes-term-category';
 import { BedesTermSelectorService } from '../../../services/bedes-term-selector/bedes-term-selector.service';
 import { BedesSearchResult } from '@bedes-common/models/bedes-search-result/bedes-search-result';
-import { ISearchResultRow } from '../../../models/ag-table/search-result-row.interface';
+import { ISearchResultRow } from '../../../models/ag-grid/search-result-row.interface';
 import { SupportListType } from '../../../services/support-list/support-list-type.enum';
 import { TableCellTermNameComponent } from '../../bedes-term-search/bedes-search-results-table/table-cell-term-name/table-cell-term-name.component';
 import { getResultTypeName } from '../../../lib/get-result-type-name';
@@ -191,10 +191,6 @@ export class SelectTermsTableComponent implements OnInit, OnDestroy {
             {
                 headerName: 'Type',
                 field: 'searchResultTypeName'
-            },
-            {
-                headerName: 'UUID',
-                field: 'uuid'
             },
             {
                 headerName: 'Category',

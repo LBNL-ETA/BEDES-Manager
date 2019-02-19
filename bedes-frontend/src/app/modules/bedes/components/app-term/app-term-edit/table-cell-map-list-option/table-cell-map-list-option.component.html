@@ -1,0 +1,13 @@
+<span *ngIf="showMappingButtons">
+    <fa-icon [icon]="['fas', 'map-marked-alt']" matTooltip="Map to BEDES Term" size="lg" (click)="assignMapping()">
+    </fa-icon>
+    <fa-icon [icon]="['fas', 'times']" matTooltip="Clear mapping" size="lg" (click)="removeItem()" *ngIf="hasMapping">
+    </fa-icon>
+</span>
+
+<span *ngIf="!hasMapping">
+    No mapping
+</span>
+<span *ngIf="hasMapping">
+    {{mappedName}}
+</span>

@@ -28,9 +28,9 @@ export class SearchQueryBuilder {
      * If no parameters are passed, default search option
      * is to to enable all search fields.
      */
-    constructor(data?: ISearchOptions) {
+    constructor(data?: SearchOptions) {
         // create the SearchOptions object
-        this._searchOptions = new SearchOptions(data);
+        this._searchOptions = data || new SearchOptions();
         this._parser = new SearchStringParser();
     }
 

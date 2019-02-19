@@ -1,6 +1,6 @@
 
 /**
- * Enumeration for Application Term Types,
+ * Enumeration for Term Types,
  * ie atomic term or a constrained list
  */
 export enum TermType {

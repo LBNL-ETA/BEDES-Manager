@@ -1,11 +1,12 @@
-insert into public.bedes_atomic_term_maps (
-    mapped_term_id, bedes_term_id
+insert into public.atomic_term_maps (
+    bedes_term_uuid, bedes_list_option_uuid, app_term_id, app_list_option_uuid
 )
 values (
-    ${_mappedTermId}, ${_bedesTermId}
+    ${_bedesTermUUID}, ${_bedesListOptionUUID}, ${_appTermId}, ${_appListOptionUUID}
 )
 returning
     id as "_id",
-    mapped_term_id as "_mappedTermId",
-    bedes_term_id as "_bedesTermId"
+    bedes_term_uuid as "_bedesTermUUID",
+    bedes_list_option_uuid as "_bedesListOptionUUID",
+    app_list_option_uuid as "_appListOptionUUID"
 ;

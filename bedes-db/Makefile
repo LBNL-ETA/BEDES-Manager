@@ -2,7 +2,7 @@ include ../environment/backend.env
 include ../environment/postgres.env
 include ../environment/docker.env
 
-install_and_run:
+run:
 	docker run --name ${DB_CONTAINER_NAME} \
 		-e POSTGRES_PASSWORD=${POSTGRES_PASSWORD} \
 		-e PGDATA=/var/lib/postgresql/data/pgdata \
@@ -14,14 +14,6 @@ install_and_run:
 		-v ${PWD}/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d \
 		-v ${PWD}/postgres_data:/var/lib/postgresql/data/pgdata \
 		-v ${PWD}/../scripts/db:/create-epb-db \
-		-p ${DB_PORT}:5432 \
-		-d ${DB_IMAGE}
-
-run:
-	docker run --name ${DB_CONTAINER_NAME} \
-		-e POSTGRES_PASSWORD=${POSTGRES_PASSWORD} \
-		-e PGDATA=/var/lib/postgresql/data/pgdata \
-		-v ${PWD}/postgres_data:/var/lib/postgresql/data/pgdata \
 		-p ${DB_PORT}:5432 \
 		-d ${DB_IMAGE}
 

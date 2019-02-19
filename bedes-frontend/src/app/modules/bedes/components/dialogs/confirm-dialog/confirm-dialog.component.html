@@ -1,5 +1,5 @@
   <mat-card class="bedes-card mat-typography">
-        <mat-card-header class="color-accent">
+        <mat-card-header [class]="headerClass ? headerClass : 'color-warn'">
             <mat-card-title>
                 <h2>
                     {{ dialogTitle }}
@@ -12,15 +12,11 @@
         </mat-card-content>
         <mat-card-actions style="display:flex; justify-content: center">
             <button mat-stroked-button color="primary" style="margin-right:5px;" (click)="confirm()">
-                <!-- <span style="margin-right: 5px;">
-                    <fa-icon [icon]="['fas', 'chevron-left']"></fa-icon>
-                </span> -->
+                <fa-icon [icon]="['fas', 'check']"></fa-icon>
                 Yes
             </button>
             <button mat-stroked-button color="primary" (click)="decline()">
-                <!-- <span style="margin-left: 5px;">
-                    <fa-icon [icon]="['fas', 'chevron-right']"></fa-icon>
-                </span> -->
+                <fa-icon [icon]="['fas', 'times']"></fa-icon>
                 No
             </button>
         </mat-card-actions>

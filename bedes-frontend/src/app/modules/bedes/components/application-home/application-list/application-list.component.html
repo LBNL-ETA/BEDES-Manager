@@ -4,25 +4,24 @@
             <mat-card-title>
                 <h1 class="mat-display-1">
                     BEDES Mapping Applications
-                    is editable {{isEditable}}
                 </h1>
             </mat-card-title>
         </mat-card-header>
         <mat-card-content>
+            <!-- <div style="display:flex;" *ngIf="currentUser.isLoggedIn()"> -->
             <div style="display:flex;">
                 <a mat-stroked-button color="primary" [routerLink]="['new']">
                     <fa-icon [icon]="['fas', 'plus-circle']"></fa-icon>
                     New
                 </a>
-                <button mat-stroked-button color="primary" (click)="editSelectedItem()" [disabled]="!selectedItem">
+                <!-- <button mat-stroked-button color="primary" (click)="editSelectedItem()" [disabled]="!selectedItem">
                     <fa-icon [icon]="['fas', 'edit']"></fa-icon>
                     Edit
                 </button>
                 <button mat-stroked-button color="primary" [disabled]="!selectedItem" (click)="removeSelectedItem()">
                     <fa-icon [icon]="['fas', 'trash']"></fa-icon>
                     Remove Selected
-                </button>
-
+                </button> -->
             </div>
             <div class="alert-danger" style="margin-top:10px;" *ngIf="hasError && errorMessage">
                 <h3 style="margin: 0; padding:0;">
@@ -30,11 +29,21 @@
                     An error occurred removing the application.
                 </h3>
             </div>
-            <div class="alert-danger" style="margin-top:10px;" *ngIf="!applicationList || !applicationList?.length">
+            <!-- Guest and no applications -->
+            <div class="alert-danger" style="margin-top:10px;"
+            *ngIf="currentUser.isGuest() && (!applicationList || !applicationList?.length)">
                 <h3 style="margin: 0; padding:0;">
                     <fa-icon [icon]="['fas', 'exclamation-triangle']"></fa-icon>
-                    No list options have been defined, click the <strong>New</strong>
-                    button to create list options.
+                    There are no public mapping applications available for view.
+                    You can <a [routerLink]="['/home/request-account']">click here to request an account</a>
+                    to begin mapping your own applications and terms.
+                </h3>
+            </div>
+            <div class="alert-danger" style="margin-top:10px;"
+            *ngIf="currentUser.isLoggedIn() && (!applicationList || !applicationList?.length)">
+                <h3 style="margin: 0; padding:0;">
+                    <fa-icon [icon]="['fas', 'exclamation-triangle']"></fa-icon>
+                    There are no public/private mapping applications available.
                 </h3>
             </div>
             <div style="display: flex; flex-direction: row" *ngIf="applicationList && applicationList.length">
@@ -44,8 +53,6 @@
                     </ag-grid-angular>
                 </div>
             </div>
-
-
         </mat-card-content>
     </mat-card>
 </div>

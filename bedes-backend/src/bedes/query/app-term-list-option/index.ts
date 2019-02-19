@@ -6,25 +6,80 @@ import { createLogger }  from '@bedes-backend/logging';
 const logger = createLogger(module);
 import * as util from 'util';
 import { IAppTermListOption } from '@bedes-common/models/app-term/app-term-list-option.interface';
-import { BedesError } from '../../../../../bedes-common/bedes-error/bedes-error';
-import { HttpStatusCodes } from '../../../../../bedes-common/enums/http-status-codes';
+import { BedesError } from '@bedes-common/bedes-error/bedes-error';
+import { HttpStatusCodes } from '@bedes-common/enums/http-status-codes';
+import { bedesQuery } from '..';
 
 export class AppTermListOptionQuery {
     private sqlInsert: QueryFile;
     private sqlUpdate: QueryFile;
     private sqlDelete: QueryFile;
+    private sqlDeleteByAppTermId: QueryFile;
 
     constructor() { 
         this.sqlInsert = sql_loader(path.join(__dirname, 'insert.sql'))
         this.sqlUpdate = sql_loader(path.join(__dirname, 'update.sql'))
         this.sqlDelete = sql_loader(path.join(__dirname, 'delete.sql'))
+        this.sqlDeleteByAppTermId = sql_loader(path.join(__dirname, 'delete-by-app-term-id.sql'))
     }
 
     /**
-     * Insert a new AppTermListOption record.
-     * @param appTermId - The id of the term the option is linked to.
+     * Saves an array of AppTermListOption objects to the database.
+     * @param appTermId The id of the parent AppTerm.
+     * @param items The array of IAppTermListOption objects.
+     * @param [transaction] The optional transaction context to run the query in.
+     * @returns The array of AppTermListOption objects just written to the database.
      */
-    public newRecord(appTermId: number, item: IAppTermListOption, transaction?: any): Promise<IAppTermListOption> {
+    public async newRecords(
+        appTermId: number,
+        items: Array<IAppTermListOption>,
+        transaction?: any
+    ): Promise<Array<IAppTermListOption>> {
+        try {
+            const listOptionArray = new Array<IAppTermListOption>();
+            const promises = new Array<Promise<IAppTermListOption>>();
+            // save the list options if they're there
+            if (Array.isArray(items) && items.length) {
+                for (let option of items) {
+                    promises.push(
+                        this.newRecord(appTermId, option, transaction)
+                        .then((newOption: IAppTermListOption) => {
+                            listOptionArray.push(newOption);
+                            return newOption;
+                        }, (error: any) => {
+                            logger.error('Error creation list option');
+                            if (error && error.code === "23505") {
+                                throw new BedesError(
+                                    'Duplicate list option',
+                                    HttpStatusCodes.BadRequest_400,
+                                    'Duplicate list option.'
+                                );
+                            }
+                            else {
+                                throw error;
+                            }
+                        })
+                    );
+                }
+                // wait for the list option queries to finish
+                await Promise.all(promises);;
+            }
+            return listOptionArray;
+        } catch (error) {
+            logger.error(`${this.constructor.name}: Error in newRecords`);
+            console.log(items);
+            logger.error(util.inspect(error));
+            throw error;
+        }
+
+    }
+    /**
+     * Insert a new AppTermListOption record.
+     * @param appTermId The id of the AppTerm the listOption is linked to.
+     * @param item The IAppTermListOption object to save.
+     * @returns The new IAppTermListOption that was just created.
+     */
+    public async newRecord(appTermId: number, item: IAppTermListOption, transaction?: any): Promise<IAppTermListOption> {
         try {
             if (!item._name) {
                 logger.error(`${this.constructor.name}: Missing name`);
@@ -33,15 +88,16 @@ export class AppTermListOptionQuery {
             const params = {
                 _appTermId: appTermId,
                 _name: item._name,
+                _description: item._description || null,
                 _unitId: item._unitId || null,
-                _uuid: null
+                _uuid: item._uuid
             };
-            if (transaction) {
-                return transaction.one(this.sqlInsert, params);
+            const ctx = transaction || db;
+            const newItem: IAppTermListOption = await ctx.one(this.sqlInsert, params);
+            if (item._mapping) {
+                bedesQuery.mappedTerm.newTermMappingListOption(appTermId, item._uuid, item._mapping, transaction)
             }
-            else {
-                return db.one(this.sqlInsert, params);
-            }
+            return newItem;
         } catch (error) {
             logger.error(`${this.constructor.name}: Error in newRecord`);
             console.log(item);
@@ -99,6 +155,36 @@ export class AppTermListOptionQuery {
             };
             const dbContext = transaction ? transaction : db;
             return dbContext.result(this.sqlDelete, params, (a: any) => a.rowCount)
+        } catch (error) {
+            logger.error(`${this.constructor.name}: Error in deleteRecord`);
+            logger.error(util.inspect(error));
+            throw error;
+        }
+    }
+
+    /**
+     * Removes all AppTermListOption records linked to an AppTerm.
+     *
+     * @param termTypeId The id of the AppTerm for which all of the listOptions are being removed.
+     * @param [transaction] Optional database transaction context.
+     * @returns The number of records deleted.
+     */
+    public deleteByTermTypeId(termTypeId: number, transaction?: any): Promise<number> {
+        try {
+            if (!termTypeId) {
+                logger.error(`${this.constructor.name}: Missing termTypeId`);
+                throw new BedesError(
+                    'Missing required parameters.',
+                    HttpStatusCodes.BadRequest_400,
+                    'Missing required parameters.'
+                );
+            }
+            const params = {
+                _appTermId: termTypeId
+            };
+            // set the db context
+            const dbContext = transaction ? transaction : db;
+            return dbContext.result(this.sqlDeleteByAppTermId, params, (a: any) => a.rowCount)
         } catch (error) {
             logger.error(`${this.constructor.name}: Error in deleteRecord`);
             logger.error(util.inspect(error));

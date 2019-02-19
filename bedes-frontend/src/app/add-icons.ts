@@ -15,6 +15,7 @@ import {
     faCaretDown,
     faBars,
     faAngleRight,
+    faAngleDown,
     faPlusCircle,
     faTrash,
     faEllipsisV,
@@ -42,7 +43,12 @@ import {
     faChevronCircleDown,
     faCog,
     faSignInAlt,
-    faSignOutAlt
+    faSignOutAlt,
+    faDownload,
+    faCloudDownloadAlt,
+    faMapMarkedAlt,
+    faFileImport,
+    faCheckCircle
 } from '@fortawesome/free-solid-svg-icons';
 
 /**
@@ -57,6 +63,7 @@ export function addIcons (): void {
     // library.add(faLightbulbDollar);
     // library.add(faCalculatorAlt);
     library.add(faCaretDown);
+    library.add(faAngleDown);
     library.add(faBars);
     library.add(faAngleRight);
     library.add(faPlusCircle);
@@ -87,4 +94,9 @@ export function addIcons (): void {
     library.add(faChevronCircleUp);
     library.add(faChevronCircleDown);
     library.add(faCog);
+    library.add(faDownload);
+    library.add(faCloudDownloadAlt);
+    library.add(faMapMarkedAlt);
+    library.add(faFileImport);
+    library.add(faCheckCircle);
 }
