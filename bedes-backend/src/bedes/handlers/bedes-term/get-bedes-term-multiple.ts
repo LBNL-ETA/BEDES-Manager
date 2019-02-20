@@ -3,7 +3,7 @@ import * as util from 'util';
 import { createLogger } from '@bedes-backend/logging';
 import { HttpStatusCodes } from '@bedes-common/enums/http-status-codes';
 import { BedesError } from '@bedes-common/bedes-error';
-import { bedesQuery } from '../query';
+import { bedesQuery } from '@bedes-backend/bedes/query';
 import { IBedesTerm, IBedesConstrainedList } from '@bedes-common/models/bedes-term';
 const logger = createLogger(module);
 

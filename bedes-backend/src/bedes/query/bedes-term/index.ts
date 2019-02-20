@@ -12,6 +12,7 @@ import { BedesErrorTermNotFound } from '@bedes-common/errors/bedes-term-not-foun
 import { IBedesTermSectorLink } from '@bedes-common/models/bedes-term-sector-link/bedes-term-sector-link.interface';
 
 export class BedesTermQuery {
+    private sqlGetAllTerms!: QueryFile;
     private sqlGetByName!: QueryFile;
     private sqlGetByUUID!: QueryFile;
     private sqlGetTermById!: QueryFile;
@@ -28,6 +29,7 @@ export class BedesTermQuery {
     }
 
     private initSql(): void {
+        this.sqlGetAllTerms = sql_loader(path.join(__dirname, 'get-all-terms.sql'));
         this.sqlGetTermById = sql_loader(path.join(__dirname, 'get-term-by-id.sql'));
         this.sqlGetListById = sql_loader(path.join(__dirname, 'get-list-by-id.sql'));
         this.sqlGetTermOrListById = sql_loader(path.join(__dirname, 'get-term-or-list-by-id.sql'));
@@ -178,6 +180,20 @@ export class BedesTermQuery {
             }
         } catch (error) {
             logger.error(`${this.constructor.name}: Error in getListById`);
+            logger.error(util.inspect(error));
+            throw error;
+        }
+    }
+
+    /**
+     * Retrieve the entire list of BEDES Terms.
+     * @returns An array of all the bedes terms.
+     */
+    public getAllTerms(): Promise<Array<IBedesTerm | IBedesConstrainedList>> {
+        try {
+            return db.manyOrNone(this.sqlGetAllTerms);
+        } catch (error) {
+            logger.error(`${this.constructor.name}: Error in getAllTerms`);
             logger.error(util.inspect(error));
             throw error;
         }

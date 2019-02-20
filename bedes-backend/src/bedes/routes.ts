@@ -4,7 +4,11 @@ import { uploadMiddleware } from './uploads';
 
 function mountRoutes(router: Router) {
     router.get('/bedes-term/:id', handlers.getBedesTermHandler);
-    router.post('/bedes-term', handlers.getBedesTermsMultipleHandler);
+    router.get('/bedes-term', handlers.bedesTerm.getTermListHandler);
+    router.post('/bedes-term', handlers.bedesTerm.newBedesTermHandler);
+    // router.put('/bedes-term', handlers.bedesTerm.updateBedesTermHandler);
+    // router.delete('/bedes-term/:id', handlers.deleteBedesTermHandler);
+    router.post('/get-bedes-terms', handlers.getBedesTermsMultipleHandler);
     // BedesSearch
     router.get('/search-terms', handlers.searchBedesTermHandler);
     router.get('/data-type', handlers.getBedesDataTypeList);
