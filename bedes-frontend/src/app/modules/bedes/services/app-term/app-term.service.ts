@@ -40,8 +40,8 @@ export class AppTermService {
     /** the list of AppTerms for the active MappingApplication */
     private termList: Array<AppTerm | AppTermList> | undefined;
     /** the BehaviorSubject for the active AppTerm list */
-    private _termListSubject: BehaviorSubject<Array<AppTerm | AppTermList>>
-    get termListSubject(): BehaviorSubject<Array<AppTerm | AppTermList>> {
+    private _termListSubject: BehaviorSubject<Array<AppTerm | AppTermList> | undefined>
+    get termListSubject(): BehaviorSubject<Array<AppTerm | AppTermList> | undefined> {
         return this._termListSubject;
     }
     /** The selected AppTerm/AppTermList */
@@ -72,7 +72,7 @@ export class AppTermService {
         this.urlTerm = `${this.apiUrl}${this.apiEndpointTerm}`;
         this.urlSibling = `${this.apiUrl}${this.apiEndpointSibling}`;
         this.urlUpload = `${this.apiUrl}${this.apiEndpointUpload}`;
-        this._termListSubject = new BehaviorSubject<Array<AppTerm | AppTermList>>([]);
+        this._termListSubject = new BehaviorSubject<Array<AppTerm | AppTermList> | undefined>([]);
         this._activeTermSubject = new BehaviorSubject<AppTerm | AppTermList | undefined>(undefined);
     }
 
