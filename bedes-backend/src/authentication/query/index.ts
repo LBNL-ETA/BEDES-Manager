@@ -17,6 +17,7 @@ import { BedesError } from '@bedes-common/bedes-error';
 import { HttpStatusCodes } from '@bedes-common/enums/http-status-codes';
 import { UserStatus } from '@bedes-common/enums/user-status.enum';
 import { IUserProfile } from '@bedes-common/models/authentication/user-profile';
+import { ICurrentUserAuth } from '../models/current-user-auth/current-user-auth.interface';
 
 class AuthQuery {
     private sqlGetByEmail!: QueryFile;
@@ -55,24 +56,55 @@ class AuthQuery {
 
     /**
      * Retrieves a record by email address.
-     *
-     * @param {string} email
-     * @returns {*}
-     * @memberof User
      */
-    public getByEmail(email: string): Promise<IUserProfile> {
-        return db.oneOrNone(this.sqlGetByEmail, {email: email});
+    public getByEmail(email: string, transaction?: any): Promise<ICurrentUserAuth> {
+        try {
+            if (!email || typeof email !== 'string') {
+                logger.error(`${this.constructor.name}: getByEmail expects an email`);
+                throw new BedesError('Invalid parameters.', HttpStatusCodes.BadRequest_400, 'Invalid parameters.');
+            }
+            // build the query params
+            const params = {
+                _email: email.trim()
+            }
+            // set the db context:
+            // either run the query in the given transaction context
+            // or run the query by itself
+            const ctx = transaction || db;
+            return ctx.oneOrNone(this.sqlGetByEmail, params);
+        }
+        catch (error) {
+            logger.error(`${this.constructor.name}: Error in getByEmail.`);
+            console.log(error);
+            throw error;
+        }
     }
 
     /**
      * Get a UserProfile record by id
-     *
-     * @param {number} id
-     * @returns {*}
-     * @memberof AuthQuery
+     * @param id The id of the user to query.
      */
-    public getById(id: number): any {
-        return db.one(this.sqlGetById, {id: +id});
+    public async getById(id: number, transaction?: any): Promise<ICurrentUserAuth> {
+        try {
+            if (!id || typeof id !== 'number') {
+                logger.error(`${this.constructor.name}: getById expects an id`);
+                throw new BedesError('Invalid parameters.', HttpStatusCodes.BadRequest_400, 'Invalid parameters.');
+            }
+            // build the query params
+            const params = {
+                _id: id 
+            }
+            // set the db context:
+            // either run the query in the given transaction context
+            // or run the query by itself
+            const ctx = transaction || db;
+            return ctx.one(this.sqlGetById, params);
+        }
+        catch (error) {
+            logger.error(`${this.constructor.name}: Error in getById.`);
+            console.log(error);
+            throw error;
+        }
     }
 
     /**

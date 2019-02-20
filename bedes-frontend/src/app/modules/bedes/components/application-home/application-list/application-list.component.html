@@ -8,8 +8,7 @@
             </mat-card-title>
         </mat-card-header>
         <mat-card-content>
-            <!-- <div style="display:flex;" *ngIf="currentUser.isLoggedIn()"> -->
-            <div style="display:flex;">
+            <div style="display:flex;" *ngIf="currentUser.isLoggedIn()">
                 <a mat-stroked-button color="primary" [routerLink]="['new']">
                     <fa-icon [icon]="['fas', 'plus-circle']"></fa-icon>
                     New
@@ -31,7 +30,7 @@
             </div>
             <!-- Guest and no applications -->
             <div class="alert-danger" style="margin-top:10px;"
-            *ngIf="currentUser.isGuest() && (!applicationList || !applicationList?.length)">
+            *ngIf="!currentUser.isLoggedIn() && (!applicationList || !applicationList?.length)">
                 <h3 style="margin: 0; padding:0;">
                     <fa-icon [icon]="['fas', 'exclamation-triangle']"></fa-icon>
                     There are no public mapping applications available for view.

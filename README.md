@@ -1,5 +1,5 @@
-# BEDES Mapping Manager
-The Bedes Mapping Manager is a web-based application for managing the superset of BEDES Atomic and Composite Terms and the related application mappings in which they are used.
+# BEDES Manager
+The BEDES Manager is a web-based application for managing the superset of BEDES Atomic and Composite Terms and the related application mappings in which they are used.
 
 ## Setting up the Environment
 
@@ -8,14 +8,14 @@ Environment variables used throughout the app are set in the *.env files located
 There should be a xyz.env file for each xyz.sample.env file in the folder, where all of the
 runtime parameters and passwords should be set to one's own specification.
 
-## Running the BEDES Mapping Manager
+## Running the BEDES Manager
 There are two ways to run the BEDES Mapping Manger in your local environment:
 
 1. Docker Compose - Runs all components in a single command.
 2. Local installation of Node.js and PostgreSQL, running each component seprately.
 
 ### Docker Compose
-To launch the BEDES Mapping Manager using docker-compose:
+To launch the BEDES Manager using docker-compose:
 
 1. All of the environment variables, as indicated above, should be set.
 2. at the project root type:
@@ -57,7 +57,7 @@ This command will:
 
 #### PostgreSQL 11.0
 
-The BEDES Mapping Manager uses PostgreSQL 11.0, which can be running locally or remotely.
+The BEDES Manager uses PostgreSQL 11.0, which can be running locally or remotely.
 
 Docker is not required to run the BEDES Mapping Manger, but there's `Docker run` commands defined in `/bedes-db/Makefile`
 which make using the PostgreSQL Docker image easier than setting it up locally.
@@ -69,7 +69,7 @@ To install and run the official Docker PostgreSQL 11.0 image:
     $ cd bedes-db/
     $ make install_and_run
 
-One could also point the BEDES Mapping Manager database to a different host using the `/.env` file instead of running it locally.
+One could also point the BEDES Manager database to a different host using the `/.env` file instead of running it locally.
 
 #### Building the Tables
 

@@ -64,12 +64,6 @@ export class AuthService {
      * @returns login
      */
     public login(userLogin: UserLogin): Observable<CurrentUser> {
-        console.log('login..', userLogin);
-        // // open the waiting dialog, keep the reference object to close when request completes
-        // const dialogRef = this.waitingDialog.open(WaitingDialogComponent, {
-        //     panelClass: 'dialog-waiting',
-        //     disableClose: true
-        // });
         return this.http.post<ICurrentUser>(this.urlLogin, userLogin, { withCredentials: true })
             .pipe(
                 map((results: ICurrentUser) => {
@@ -110,13 +104,14 @@ export class AuthService {
             .subscribe((results: ICurrentUser) => {
                 console.log('checkLoginStatus complete...', results);
                 if (results && results._status) {
-                    this._currentUser = new CurrentUser(results);
+                    // make the authenticated user info
+                    this.setCurrentUser(new CurrentUser(results));
                 }
                 else {
-                    this._currentUser = CurrentUser.makeDefaultUser();
+                    // make a default unprivilidged user
+                    this.setUnauthorizedUser();
                 }
-                this._currentUserSubject.next(this._currentUser);
-                resolve();
+                resolve(true);
             },
             (error) => {
                 this._currentUser = CurrentUser.makeDefaultUser();
@@ -124,25 +119,22 @@ export class AuthService {
                 resolve(error);
             })
         })
-        // .subscribe((data) => {
-        //     // console.log('login status', data);
-        //     if (data && data.status) {
-        //         this.userStatus = data.status;
-        //     }
-        //     else {
-        //         // throw an error here?
-        //         this.userStatus = UserStatus.NotLoggedIn;
-        //     }
-        //     // console.log('user status', this.userStatus);
-        //     this._userStatusSubject.next(this.userStatus);
-        //     // this.checkForRedirect();
-        // },
-        // (error) => {
-        //     // console.log('error checking status', error);
-        //     this.userStatus = UserStatus.NotLoggedIn;
-        //     this._userStatusSubject.next(this.userStatus);
-        // });
+    }
 
+    /**
+     * Sets the currentUser to a default Guest user.
+     */
+    public setUnauthorizedUser(): void {
+        this.setCurrentUser(CurrentUser.makeDefaultUser());
+    }
+
+    /**
+     * Set's the current authenticated (or not) user,
+     * then calls `next()` on the currentUserSubject BehaviorSubject.
+     */
+    private setCurrentUser(newUser: CurrentUser): void {
+        this._currentUser = newUser;
+        this._currentUserSubject.next(this._currentUser);
     }
 
     /**
@@ -153,16 +145,15 @@ export class AuthService {
         .pipe(tap((data: ICurrentUser) => {
             // console.log('veriy status', data);
             if (data && data._status) {
-                this._currentUser = new CurrentUser(data);
+                this.setCurrentUser(new CurrentUser(data));
             }
             else {
-                this._currentUser = CurrentUser.makeDefaultUser();
+                // make a default unprivilidged user
+                this.setUnauthorizedUser();
             }
-            this._currentUserSubject.next(this._currentUser);
         },
         (error) => {
-            this._currentUser = CurrentUser.makeDefaultUser();
-            this._currentUserSubject.next(this._currentUser);
+            this.setUnauthorizedUser();
         }));
     }
 
@@ -187,14 +178,6 @@ export class AuthService {
     //     this.userStatus = newStatus;
     //     this.userStatusSubject.next(this.userStatus);
     // }
-
-    /**
-     * Sets the currentUser to a default Guest user.
-     */
-    public setUnauthorizedUser(): void {
-        this._currentUser = CurrentUser.makeDefaultUser();
-        this._currentUserSubject.next(this._currentUser);
-    }
 
     public needsRedirect(): boolean {
         return this.redirectUrl ? true : false;

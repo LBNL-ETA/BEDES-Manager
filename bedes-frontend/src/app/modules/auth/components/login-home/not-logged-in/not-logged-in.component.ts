@@ -6,8 +6,7 @@ import { Subject } from 'rxjs';
 
 import { AuthService } from '../../../services/auth/auth.service';
 import { UserLogin } from '../../../models/auth/user-login';
-import { UserStatus } from '@bedes-common/enums/user-status.enum';
-import { CurrentUser } from '../../../../../../../../bedes-common/models/current-user/current-user';
+import { CurrentUser } from '@bedes-common/models/current-user/current-user';
 
 @Component({
   selector: 'app-not-logged-in',
@@ -72,7 +71,7 @@ export class NotLoggedInComponent implements OnInit {
                         setTimeout(() => this.router.navigateByUrl('/home/verify'), 1000);
                     }
                 }
-                else if (currentUser.isGuest()) {
+                else if (currentUser.isNotLoggedIn()) {
                     if (this.authService.needsRedirect()) {
                         setTimeout(() => this.router.navigateByUrl(this.authService.redirectUrl), 1000);
                     }

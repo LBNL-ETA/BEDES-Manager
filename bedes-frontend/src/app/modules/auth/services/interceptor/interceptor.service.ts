@@ -15,17 +15,11 @@ export class InterceptorService implements HttpInterceptor {
     intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
         console.log('**http intercepted', req);
         // return next.handle(req);
-        const started = Date.now();
         return next
             .handle(req)
             .pipe(tap(event => {
-                console.log('**interceptor event', event);
                 if (event instanceof HttpResponse) {
-                    console.log(event.status);
-                    const elapsed = Date.now() - started;
-                    console.log(`Request for ${req.urlWithParams} took ${elapsed} ms.`);
                     if (event.status === 401) {
-                        console.log('**unauthorized**');
                         this.authService.setUnauthorizedUser();
                     }
                 }

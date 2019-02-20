@@ -22,7 +22,7 @@
     </div>
     <!-- Guest and no applications -->
     <div class="alert-danger" style="margin-top:10px;"
-    *ngIf="currentUser.isGuest() && (!termList || !termList?.length)">
+    *ngIf="!currentUser.isLoggedIn() && (!termList || !termList?.length)">
         <h3 style="margin: 0; padding:0;">
             <fa-icon [icon]="['fas', 'exclamation-triangle']"></fa-icon>
             There are no public composite terms available for view.

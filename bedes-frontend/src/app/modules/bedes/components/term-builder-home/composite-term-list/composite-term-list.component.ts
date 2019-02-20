@@ -43,6 +43,8 @@ export class CompositeTermListComponent extends MessageFromGrid<IGridRow> implem
     public currentUser: CurrentUser;
     // Indicates if the CompositeTerms are editable
     public isEditable = false;
+    public hasError = false;
+    public errorMessage: string;
 
     constructor(
         private router: Router,

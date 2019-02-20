@@ -35,6 +35,7 @@ export class BedesMapSearchComponent implements OnInit {
     public selectedItem: ISearchResultRow;
     public appTerm: AppTerm;
     public numResults = 0;
+    public hasSearched = false;
     // result filtering options
     // Array of SearchResultTypes to exclude from the search result.
     private excludedResultType = new Array<SearchResultType>();

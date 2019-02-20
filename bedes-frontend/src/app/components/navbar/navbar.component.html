@@ -1,7 +1,7 @@
 <mat-toolbar color="primary" style="display:flex; position:fixed; z-index:1000">
     <mat-toolbar-row style="display:flex;">
         <span style="margin-right:7px;" style="cursor: pointer;" (click)="home()">
-            BEDES Mapping Manager
+            BEDES Manager
         </span>
         <span>
             <button  mat-button [routerLink]="['search']" routerLinkActive="active-route">
@@ -25,7 +25,7 @@
         </span>
         <span style="flex:1;"></span>
         <!-- <span style="padding-right:15px;">currentStatus = {{currentStatus}} === {{UserStatus.IsLoggedIn}}</span> -->
-        <span *ngIf="currentUser.isGuest()">
+        <span *ngIf="!currentUser.isLoggedIn()">
             <!-- <button mat-button (click)="logout()">Login</button> -->
             <!-- <a mat-button [routerLink]="['/home']" routerLinkActive="active">
                 <fa-icon [icon]="['fas', 'sign-in-alt']" size="lg"></fa-icon>

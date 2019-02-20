@@ -29,14 +29,14 @@
                     </div>
                 </form>
             </div>
-            <div *ngIf="hasSearched">
+            <!-- <div *ngIf="hasSearched">
                 <h1 class="mat-h1" style="text-align: center;" *ngIf="!searchResults || !searchResults.length">
                     No records found.
                 </h1>
                 <h1 class="mat-h1" style="text-align: center;" *ngIf="searchResults?.length">
                     Found {{ searchResults.length}} records
                 </h1>
-            </div>
+            </div> -->
             <div style="display:flex; justify-content: space-around;" [style.display]="searchResults.length ? 'block' : 'none'">
                 <div style="display:flex; flex-direction: row; padding:10px;">
                     <button mat-stroked-button color="primary"

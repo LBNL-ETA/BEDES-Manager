@@ -5,7 +5,7 @@ import { ApplicationService } from '../../../services/application/application.se
 import { MappingApplication } from '@bedes-common/models/mapping-application/mapping-application';
 import { IMappingApplication } from '@bedes-common/models/mapping-application';
 import { HttpStatusCodes } from '@bedes-common/enums/http-status-codes';
-import { ApplicationScope } from '../../../../../../../../bedes-common/enums/application-scope.enum';
+import { ApplicationScope } from '@bedes-common/enums/application-scope.enum';
 
 
 enum RequestStatus {
