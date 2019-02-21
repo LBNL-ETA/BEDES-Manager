@@ -5,6 +5,5 @@ set
 where 
     id = ${userId}
 returning 
-    status as "_status",
-    user_group_id as "_userGroupId"
+    status as "status"
 ;

@@ -4,6 +4,7 @@ import { createLogger } from '@bedes-backend/logging';
 import { HttpStatusCodes } from '@bedes-common/enums/http-status-codes';
 import { BedesError } from '@bedes-common/bedes-error';
 import { bedesQuery } from '../../query';
+import { CurrentUser } from '@bedes-common/models/current-user/current-user';
 const logger = createLogger(module);
 
 /**
@@ -12,7 +13,17 @@ const logger = createLogger(module);
  */
 export async function getApplicationsHandler(request: Request, response: Response): Promise<any> {
     try {
-        let results = await bedesQuery.app.getAllRecords();
+        if (!request.isAuthenticated()) {
+            // send over an empty array if not authenticated
+            response.json([]);
+            return;
+        }
+        const user = <CurrentUser>request.user;
+        if (!user) {
+            logger.error('User serialization error in newVerificationCodeHandler, unable to cast user to CurrentUser');
+            throw new Error('User serialization error in newVerificationCodeHandler, unable to cast user to CurrentUser')
+        }
+        let results = await bedesQuery.app.getAllRecordsFromUser(user);
         response.json(results)
     }
     catch (error) {

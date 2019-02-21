@@ -1,0 +1,24 @@
+<mat-card class="bedes-card" style="flex:1; padding:0">
+    <mat-card-header class="color-accent">
+        <mat-card-title style="width:100%; text-align:center">
+            <h1 class="mat-headline" style="padding:0; margin:0;">
+                <fa-icon [icon]="['fas', 'shield-alt']"></fa-icon>
+                {{currentUser.email}}
+            </h1>
+        </mat-card-title>
+    </mat-card-header>
+    <mat-card-content style="padding:1rem; flex:1">
+        <mat-card-actions style="display:flex; flex-direction:column; padding-left:16px; padding-right: 16px;">
+            <div style="flex: 1; display: flex; margin-top: 10px;">
+                <button style="flex: 1;"
+                mat-stroked-button
+                id="loginBtn"
+                color="primary"
+                (click)="logout()">
+                    <fa-icon [icon]="['fas', 'sign-out-alt']"></fa-icon>
+                    Logout
+                </button>
+            </div>
+        </mat-card-actions>
+    </mat-card-content>
+</mat-card>

@@ -13,7 +13,7 @@
             <button mat-button [routerLink]="['applications']" routerLinkActive="active-route">
                 Applications
             </button>
-            <button mat-button [matMenuTriggerFor]="menu">
+            <button mat-button [matMenuTriggerFor]="menu" *ngIf="isAdmin()">
                 Admin
             </button>
             <mat-menu #menu="matMenu">
@@ -24,56 +24,18 @@
             </mat-menu>
         </span>
         <span style="flex:1;"></span>
-        <!-- <span style="padding-right:15px;">currentStatus = {{currentStatus}} === {{UserStatus.IsLoggedIn}}</span> -->
-        <span *ngIf="!currentUser.isLoggedIn()">
-            <!-- <button mat-button (click)="logout()">Login</button> -->
-            <!-- <a mat-button [routerLink]="['/home']" routerLinkActive="active">
-                <fa-icon [icon]="['fas', 'sign-in-alt']" size="lg"></fa-icon>
-                Guest
-            </a> -->
-            <!-- <a mat-button [routerLink]="['/home']" routerLinkActive="active">
-                <fa-icon [icon]="['fas', 'sign-in-alt']" size="lg"></fa-icon>
-            </a> -->
-            <button mat-button [matMenuTriggerFor]="menu">
-                <fa-icon [icon]="['fas', 'sign-in-alt']" size="lg">
-                </fa-icon>
-                Guest
-                <!-- <fa-icon [icon]="['fas', 'angle-down']" size="lg">
-                </fa-icon> -->
-            </button>
-            <mat-menu #menu="matMenu">
-                <a mat-menu-item [routerLink]="['/home']">
-                    <!-- <fa-icon [icon]="['fas', 'sign-in-alt']" size="lg"></fa-icon> -->
-                    <span>Login</span>
-                </a>
-                <a mat-menu-item [routerLink]="['/home/request-account']">
-                    <!-- <fa-icon [icon]="['fas', 'sign-in-alt']" size="lg"></fa-icon> -->
-                    <span>New Account</span>
-                </a>
-            </mat-menu>
-        </span>
 
-        <span *ngIf="currentUser.needsVerify()">
-            <fa-icon [icon]="['fas', 'exclamationTriangle']" size="lg"></fa-icon>
-            Verify Account
-        </span>
-        <span *ngIf="currentUser.isLoggedIn()">
-            <!-- <button mat-button (click)="logout()">Logout</button> -->
-            <button mat-button [matMenuTriggerFor]="menu">
-                <!-- <fa-icon [icon]="['fas', 'user-plus']" size="lg"
-                *ngIf="currentUser.needsVerify()">
-                </fa-icon> -->
-                <fa-icon [icon]="['fas', 'shield-alt']" size="lg">
-                </fa-icon>
-                {{currentUser.name}}
-            </button>
-            <mat-menu #menu="matMenu">
-                <button mat-menu-item (click)="logout()">
-                    <fa-icon [icon]="['fas', 'sign-out-alt']">
-                    </fa-icon>
-                    <span>Logout</span>
-                </button>
-            </mat-menu>
-        </span>
+        <button mat-button
+        *ngIf="isLoggedIn()"
+        style="text-align:right;"
+        (click)="logout()">
+            Logout
+        </button>
+        <a mat-button *ngIf="!isLoggedIn()"
+        style="text-align:right;"
+        routerLink="/home/login">
+            Login
+        </a>
+
     </mat-toolbar-row>
 </mat-toolbar>

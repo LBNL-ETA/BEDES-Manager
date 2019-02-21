@@ -4,34 +4,40 @@ import { createLogger } from '@bedes-backend/logging';
 import { BedesError } from '@bedes-common/bedes-error';
 import { HttpStatusCodes } from '@bedes-common/enums/http-status-codes';
 import { authQuery } from '../query';
+import { CurrentUser } from '@bedes-common/models/current-user/current-user';
 const logger = createLogger(module);
 
 /**
  * Validate a user registration code
- *
- * @export
- * @param {Request} req
- * @param {Response} res
- * @returns {void}
  */
 export async function verifyRegistrationCode(req: Request, res: Response): Promise<any> {
     try {
-        logger.info('verify registration code');
-        // must be logged in to validate
+        logger.info('validate user');
+        // user must be authenticated
         if (!req.isAuthenticated()) {
             logger.warn('User not authenticated');
-            res.status(HttpStatusCodes.Unauthorized_401).send('Unauthorized');
+            res.status(401).send('Unauthorized');
             return;
         }
-        const registrationCode = req.body.verificationCode;
-        if (!registrationCode) {
-            res.status(HttpStatusCodes.BadRequest_400).send('Invalid parameters.');
-            return;
+        // get the current user info
+        const user = <CurrentUser>req.user;
+        if (!user) {
+            logger.error('User serialization error in verifyCodeHandler, unable to cast user to CurrentUser');
+            throw new Error('User serialization error in verifyCodeHandler, unable to cast user to CurrentUser')
         }
-        logger.debug(`verify registration code (${req.user.id}, ${registrationCode})`)
-        const newStatus = await authQuery.validateRegistrationCode(req.user.id, registrationCode);
+        const verificationCode: string = req.params.verificationCode;
+        if (!verificationCode) {
+            throw new BedesError('Invalid parameters', HttpStatusCodes.BadRequest_400, 'Invalid parameters');
+        }
+        logger.debug(`validate the code ${verificationCode}`);
         // user is authenticated
-        res.status(200).send(newStatus);
+        // validate the code
+        const result = await authQuery.validateVerificationCode(user, verificationCode);
+        logger.debug(`done validating code`);
+        console.log(result);
+        res.json(result);
+        // res.status(200).send(req.user);
+        return;
     }
     catch(error) {
         logger.error('Error occured validating user.');

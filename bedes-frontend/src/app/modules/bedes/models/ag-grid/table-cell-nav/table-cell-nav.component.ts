@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ICellRendererAngularComp } from 'ag-grid-angular';
 import { TableCellMessageType } from '../enums/table-cell-message-type.enum';
+import { Subject } from 'rxjs';
 
 /**
  * Component implementation for an ag-grid cell.
@@ -14,6 +15,12 @@ export class TableCellNavComponent implements ICellRendererAngularComp {
     public params: any;
     public displayLabel: string;
     public MessageType = TableCellMessageType;
+    private ngUnsubscribe: Subject<void> = new Subject<void>();
+    public isEditable = false;
+
+    constructor(
+    ) {
+    }
 
     private setDisplayLabel(element: any): void {
         if (element) {
@@ -22,6 +29,11 @@ export class TableCellNavComponent implements ICellRendererAngularComp {
         else {
             this.displayLabel = '';
         }
+    }
+
+    private setCellState(cellParamData: any): void {
+        this.setDisplayLabel(cellParamData);
+        this.isEditable = cellParamData.isEditable ? true : false;
     }
 
     /**
@@ -49,7 +61,8 @@ export class TableCellNavComponent implements ICellRendererAngularComp {
 
     agInit(params: any): void {
         this.params = params;
-        this.setDisplayLabel(params ? params.data : undefined);
+        // this.setDisplayLabel(params ? params.data : undefined);
+        this.setCellState(params ? params.data : undefined);
     }
 
     refresh(): boolean {

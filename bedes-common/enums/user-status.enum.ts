@@ -3,6 +3,5 @@ export enum UserStatus {
     NeedsVerify = 1,
     IsLoggedIn = 2,
     PasswordResetRequired = 3,
-    Deactive = 4,
-    IsAdmin = 5
+    Deactive = 4
 }

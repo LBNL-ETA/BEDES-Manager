@@ -4,11 +4,8 @@ import { takeUntil, map, tap, catchError } from 'rxjs/operators';
 import { Subject, Observable, forkJoin, of } from 'rxjs';
 import { Router, ActivatedRoute } from '@angular/router';
 import { GridOptions, SelectionChangedEvent, ColDef } from 'ag-grid-community';
-import { SupportListService } from '../../../services/support-list/support-list.service';
 import { MappingApplication } from '@bedes-common/models/mapping-application';
 import { ApplicationService } from '../../../services/application/application.service';
-import { ApplicationScope } from '@bedes-common/enums/application-scope.enum';
-// import { TableCellNameNavComponent } from './table-cell-name-nav/table-cell-name-nav.component';
 import { AppTerm, AppTermList, IAppTerm } from '@bedes-common/models/app-term';
 import { BedesUnit } from '@bedes-common/models/bedes-unit/bedes-unit';
 import { AppTermService } from '../../../services/app-term/app-term.service';
@@ -24,6 +21,8 @@ import { IAppRow } from './app-row.interface';
 import { TermStatus } from './term-status.enum';
 import { TableCellAppTermStatusComponent } from './table-cell-app-term-status/table-cell-app-term-status.component';
 import { HttpStatusCodes } from '@bedes-common/enums/http-status-codes';
+import { AuthService } from 'src/app/modules/bedes-auth/services/auth/auth.service';
+import { CurrentUser } from '@bedes-common/models/current-user/current-user';
 
 @Component({
   selector: 'app-app-term-list',
@@ -51,8 +50,12 @@ export class AppTermListComponent extends MessageFromGrid<IAppRow> implements On
     // Error messages
     public hasError = false;
     public errorMessage: string;
+    public isEditable: boolean;
+    /* The current user */
+    public currentUser: CurrentUser;
 
     constructor(
+        private authService: AuthService,
         private router: Router,
         private route: ActivatedRoute,
         private activatedRoute: ActivatedRoute,
@@ -65,6 +68,7 @@ export class AppTermListComponent extends MessageFromGrid<IAppRow> implements On
     }
 
     ngOnInit() {
+        this.subscribeToUserStatus();
         this.gridInitialized = false;
         this.gridDataNeedsSet = false;
         this.gridSetup();
@@ -77,6 +81,19 @@ export class AppTermListComponent extends MessageFromGrid<IAppRow> implements On
         // unsubscribe from the subjects
         this.ngUnsubscribe.next();
         this.ngUnsubscribe.complete();
+    }
+
+    /**
+     * Subscribe to the user status Observable to get keep the user status up to date.
+     */
+    private subscribeToUserStatus(): void {
+        this.authService.currentUserSubject
+            .pipe(takeUntil(this.ngUnsubscribe))
+            .subscribe((currentUser: CurrentUser) => {
+                console.log(`${this.constructor.name}: received user status`, currentUser);
+                this.currentUser = currentUser;
+                this.isEditable = currentUser.isLoggedIn();
+            });
     }
 
     /**

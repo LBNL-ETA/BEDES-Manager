@@ -1,0 +1,65 @@
+<mat-card class="bedes-card" style="flex:1; padding:0">
+    <mat-card-header class="color-accent">
+        <mat-card-title style="width:100%; text-align:center">
+            <h1 class="mat-headline" style="padding:0; margin:0;">
+                Verify Account
+            </h1>
+        </mat-card-title>
+    </mat-card-header>
+    <mat-card-content style="padding:1rem; flex:1">
+        <form id="form" [formGroup]="dataForm">
+            <div style="display:flex">
+                <mat-form-field style="flex:1; padding: 7px" appearance="outline">
+                    <mat-label>Verification Code</mat-label>
+                    <input matInput
+                    placeholder="Enter your Verification Code"
+                    formControlName="verificationCode">
+                </mat-form-field>
+                <!-- <mat-form-field style="flex:1; padding: 7px" appearance="outline">
+                    <mat-label>Verification Code</mat-label>
+                    <input matInput placeholder=""
+                    type="text"
+                    name="verificationCode"
+                    #verifyInput="ngModel"
+                    required >
+                </mat-form-field> -->
+            </div>
+
+            <div class="error-container" *ngIf="verifyErrorMessage">
+                <fa-icon [icon]="['fas', 'exclamation-triangle']"></fa-icon>
+                {{ verifyErrorMessage }}
+            </div>
+            <div id="verifySuccessMessage" class="success-container" *ngIf="verifySuccess">
+                <fa-icon [icon]="['fas', 'check']"></fa-icon>
+                Login successfull!
+            </div>
+        </form>
+
+        <mat-card-actions style="display:flex; flex-direction: column; padding-left:16px; padding-right: 16px;">
+            <div style="flex: 1; display: flex; margin-top: 10px;">
+                <button style="flex: 1;"
+                mat-stroked-button
+                id="loginBtn"
+                color="primary"
+                [disabled]="dataForm.invalid"
+                (click)="verify()">
+                    <fa-icon [icon]="['fas', 'sign-in-alt']"></fa-icon>
+                    Verify Code
+                </button>
+            </div>
+            <div style="display:flex; flex-direction: row; flex: 1;">
+                <button mat-stroked-button color="primary"
+                style="flex: 1;"
+                (click)="newVerificationCode()">
+                    Request New Code
+                </button>
+                <button mat-stroked-button color="primary"
+                style="flex:1;"
+                (click)="logout()">
+                    Logout
+                </button>
+            </div>
+        </mat-card-actions>
+
+    </mat-card-content>
+</mat-card>

@@ -13,6 +13,9 @@ import { BedesSearchResult } from '@bedes-common/models/bedes-search-result/bede
 import { BedesTermService } from '../../../services/bedes-term/bedes-term.service';
 import { ICompositeTermDetailRequestParam } from '@bedes-common/models/composite-term-detail-request-param/composite-term-detail-request-param.interface';
 import { CompositeTermDetailRequestResult } from '@bedes-common/models/composite-term-detail-request-result/composite-term-detail-request-result';
+import { AuthService } from 'src/app/modules/bedes-auth/services/auth/auth.service';
+import { CurrentUser } from '@bedes-common/models/current-user/current-user';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
     selector: 'app-term-builder-edit',
@@ -23,6 +26,9 @@ export class TermBuilderEditComponent implements OnInit {
     private ngUnsubscribe: Subject<void> = new Subject<void>();
     public compositeTerm: BedesCompositeTerm;
     public unitList: Array<BedesUnit>;
+    public isEditable: boolean;
+    /* The current user */
+    public currentUser: CurrentUser;
 
     public dataForm = this.formBuilder.group({
         description: [''],
@@ -38,10 +44,12 @@ export class TermBuilderEditComponent implements OnInit {
         private dialog: MatDialog,
         private termService: BedesTermService,
         private compositeTermService: CompositeTermService,
-        private supportListService: SupportListService
+        private supportListService: SupportListService,
+        private authService: AuthService,
     ) { }
 
     ngOnInit() {
+        this.subscribeToUserStatus();
         this.subscribeToActiveTerm();
         this.subscribeToFormChanges();
         this.initializeSupportList();
@@ -51,6 +59,19 @@ export class TermBuilderEditComponent implements OnInit {
         // unsubscribe from the subjects
         this.ngUnsubscribe.next();
         this.ngUnsubscribe.complete();
+    }
+
+    /**
+     * Subscribe to the user status Observable to get keep the user status up to date.
+     */
+    private subscribeToUserStatus(): void {
+        this.authService.currentUserSubject
+            .pipe(takeUntil(this.ngUnsubscribe))
+            .subscribe((currentUser: CurrentUser) => {
+                console.log(`${this.constructor.name}: received user status`, currentUser);
+                this.currentUser = currentUser;
+                this.isEditable = currentUser.isAdmin();
+            });
     }
 
     /**

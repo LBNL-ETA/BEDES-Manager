@@ -18,6 +18,9 @@ import { HttpStatusCodes } from '@bedes-common/enums/http-status-codes';
 import { UserStatus } from '@bedes-common/enums/user-status.enum';
 import { IUserProfile } from '@bedes-common/models/authentication/user-profile';
 import { ICurrentUserAuth } from '../models/current-user-auth/current-user-auth.interface';
+import { CurrentUser } from '../../../../bedes-common/models/current-user/current-user';
+import { IGetVerificationCodeResult } from './get-verification-code/get-verification-code-result.interface';
+import { PasswordUpdateAuth } from '../models/password-update-auth';
 
 class AuthQuery {
     private sqlGetByEmail!: QueryFile;
@@ -50,7 +53,7 @@ class AuthQuery {
         this.sqlUpdateUserPassword = sqlLoader(path.join(__dirname, 'updateUserPassword.sql'));
         this.sqlUpdateUserStatus = sqlLoader(path.join(__dirname, 'updateUserStatus.sql'));
         this.sqlNewRegistrationCode = sqlLoader(path.join(__dirname, 'newRegistrationCode.sql'));
-        this.sqlGetRegistrationCode = sqlLoader(path.join(__dirname, 'getRegistrationCode.sql'));
+        this.sqlGetRegistrationCode = sqlLoader(path.join(__dirname, 'get-verification-code/getVerificationCode.sql'));
         this.sqlRemoveRegistrationCode = sqlLoader(path.join(__dirname, 'removeRegistrationCode.sql'));
     }
 
@@ -153,28 +156,28 @@ class AuthQuery {
 
     /**
      * Updates a user password.
-     *
-     * @param {number} id
-     * @param {string} passwordHash
-     * @returns {*}
-     * @memberof AuthQuery
      */
-    public updateUserPassword(user: UserPasswordUpdate): Promise<boolean> {
+    public updateUserPassword(currentUser: CurrentUser, passwordUpdate: PasswordUpdateAuth): Promise<boolean> {
         return new Promise((resolve, reject) => {
             // first hash the password
-            user.hashPassword().then(
+            passwordUpdate.hashPassword().then(
                 (passwordHash: string) => {
                     // update the db with the new hashed password
                     db.result(this.sqlUpdateUserPassword, {
-                        id: +user.id,
+                        id: currentUser.id,
                         passwordHash: passwordHash
                     }, (r: any) => r.rowCount).then(
-                        (results) => {
+                        async (rowCount: number) => {
                             // update password success!
                             // TODO: check results for success?
                             logger.debug('updateUserPassword success');
-                            logger.debug(results);
-                            resolve(true);
+                            await this.updateUserStatus(currentUser.id, UserStatus.IsLoggedIn);
+                            if (rowCount) {
+                                resolve(true);
+                            }
+                            else {
+                                resolve(false);
+                            }
                         }
                     )
                 },
@@ -187,19 +190,20 @@ class AuthQuery {
 
     /**
      * Retrieve the current user status.
-     *
-     * @param {number} userId
-     * @returns {*}
-     * @memberof AuthQuery
      */
     public getUserStatus(userId: number): Promise<ICurrentUser> {
-        console.log('getUserStatus');
-        console.log(userId);
         return db.one(this.sqlGetUserStatus, {userId: userId});
     }
 
-    public updateUserStatus(userId: number, status: number): Promise<ICurrentUser> {
-        return db.one(this.sqlUpdateUserStatus, {userId: userId, status: status});
+    public updateUserStatus(userId: number, status: UserStatus): Promise<ICurrentUser> {
+        try {
+            return db.one(this.sqlUpdateUserStatus, {userId: userId, status: status});
+        }
+        catch (error) {
+            logger.error(`${this.constructor.name}: error in updateUserStatus`);
+            console.log(error);
+            throw error;
+        }
     }
 
     /**
@@ -226,51 +230,137 @@ class AuthQuery {
         }
     }
 
-    public async removeRegistrationCode(id: number): Promise<any> {
-        try {
-            const params = {
-                id: id
-            };
-            return db.result(this.sqlRemoveRegistrationCode, params);
-        }
-        catch (error) {
-            logger.error(`${this.constructor.name}: error in removeRegistrationCode(${id})`);
-            logger.error(util.inspect(error));
-            throw error;
-        }
-    }
+    // public async removeRegistrationCode(id: number): Promise<any> {
+    //     try {
+    //         const params = {
+    //             id: id
+    //         };
+    //         return db.result(this.sqlRemoveRegistrationCode, params);
+    //     }
+    //     catch (error) {
+    //         logger.error(`${this.constructor.name}: error in removeRegistrationCode(${id})`);
+    //         logger.error(util.inspect(error));
+    //         throw error;
+    //     }
+    // }
 
-    public async validateRegistrationCode(userId: number, registrationCode: string): Promise<ICurrentUser> {
+    // public async validateRegistrationCode(userId: number, registrationCode: string): Promise<ICurrentUser> {
+    //     try {
+    //         const params = {
+    //             userId: userId,
+    //             registrationCode: registrationCode
+    //         };
+    //         const validationResult: IValidateRegistrationCodeResult = await db.oneOrNone(this.sqlGetRegistrationCode, params);
+    //         console.log('validation success');
+    //         console.log(validationResult);
+    //         if (!validationResult || !validationResult.id) {
+    //             logger.error(`${this.constructor.name}: expected getRegistrationCode(${userId}, '${registrationCode}'`);
+    //             throw new BedesError(
+    //                 `${this.constructor.name}: expected getRegistrationCode(${userId}, '${registrationCode}'`,
+    //                 HttpStatusCodes.BadRequest_400,
+    //                 'Invalid or Expired Registration Code'
+    //             )
+    //         }
+    //         else if (!validationResult.isValid) {
+    //             // this.removeRegistrationCode(validationResult.id);
+    //             logger.error(`invalid verification code encountered for user ${userId}, code ${registrationCode}`);
+    //             throw new BedesError('Registration code expired.', HttpStatusCodes.BadRequest_400, 'Registration code expired.');
+    //         }
+    //         // validation result is valid
+    //         // remove the verification code
+    //         this.removeRegistrationCode(validationResult.id);
+    //         // update the user status
+    //         return this.updateUserStatus(userId, UserStatus.IsLoggedIn);
+    //     }
+    //     catch (error) {
+    //         logger.error(`${this.constructor.name}: error in validateRegistrationCode(${userId}, '${registrationCode})`);
+    //         logger.error(util.inspect(error));
+    //         throw error;
+    //     }
+    // }
+
+        /**
+     * Validate a registration code for a given user.
+     *
+     * @param user The CurrentUser record for the user in question (usually from req.user).
+     * @param registrationCode The verification code to validate.
+     * @returns A Promise which resolves to a CurrentUser object that reflects the status
+     *      of the user getting their cod verified.
+     */
+    public async validateVerificationCode(
+        user: CurrentUser,
+        registrationCode: string,
+        transaction?: any
+    ): Promise<boolean> {
         try {
-            const params = {
-                userId: userId,
-                registrationCode: registrationCode
+            // create the params for retrieving the verification code record
+            const getParams = {
+                _userId: user.id,
+                _registrationCode: registrationCode
             };
-            const validationResult: IValidateRegistrationCodeResult = await db.oneOrNone(this.sqlGetRegistrationCode, params);
-            console.log('validation success');
-            console.log(validationResult);
-            if (!validationResult || !validationResult.id) {
-                logger.error(`${this.constructor.name}: expected getRegistrationCode(${userId}, '${registrationCode}'`);
+            console.log('this.validateVerificationCode');
+            console.log(user);
+            console.log(registrationCode);
+            console.log('get params');
+            console.log(getParams);
+            // get the verification code record
+            const result: IGetVerificationCodeResult= await db.oneOrNone(this.sqlGetRegistrationCode, getParams);
+            // make sure a valid object is returned
+            if (!result || !result._id) {
+                // not a valid record returned
                 throw new BedesError(
-                    `${this.constructor.name}: expected getRegistrationCode(${userId}, '${registrationCode}'`,
+                    'Invalid parameters.',
                     HttpStatusCodes.BadRequest_400,
-                    'Invalid or Expired Registration Code'
+                    'Invalid parameters.'
+                );
+            }
+            else if (!result._isValid) {
+                // valid record, but not a valid code (time expired)
+                throw new BedesError(
+                    'Verification code expired.',
+                    HttpStatusCodes.BadRequest_400,
+                    'Verification code expired.'
                 )
             }
-            else if (!validationResult.isValid) {
-                // this.removeRegistrationCode(validationResult.id);
-                logger.error(`invalid verification code encountered for user ${userId}, code ${registrationCode}`);
-                throw new BedesError('Registration code expired.', HttpStatusCodes.BadRequest_400, 'Registration code expired.');
+            // valid registration codes...
+            logger.debug('validation success');
+            console.log(result);
+            // wrap the cleanup process in a transaction
+            const saveFunction = async (transaction: any): Promise<boolean> => {
+                // array of promises
+                const promises = new Array<Promise<any>>();
+                // remove the verification code record
+                // create the query params
+                const removeParams = {
+                    _userId: user.id
+                }
+                // run the query to remove the verification code
+                promises.push(
+                    transaction.none(this.sqlRemoveRegistrationCode, removeParams)
+                );
+                // update the user status to the next step - TOS
+                const updateParams = {
+                    userId: user.id,
+                    status: UserStatus.IsLoggedIn
+                };
+                promises.push(
+                    transaction.one(this.sqlUpdateUserStatus, updateParams)
+                );
+                await Promise.all(promises);
+                return true;
             }
-            // validation result is valid
-            // remove the verification code
-            this.removeRegistrationCode(validationResult.id);
-            // update the user status
-            return this.updateUserStatus(userId, UserStatus.IsLoggedIn);
+            // run the queries in a transaction
+            // create a new transaction context if none is given.
+            if (transaction) {
+                return saveFunction(transaction);
+            }
+            else {
+                return db.tx('verification-trans', saveFunction);
+            }
         }
-        catch (error) {
-            logger.error(`${this.constructor.name}: error in validateRegistrationCode(${userId}, '${registrationCode})`);
-            logger.error(util.inspect(error));
+        catch(error) {
+            logger.error('Error validation verificationCode');
+            console.log(error);
             throw error;
         }
     }

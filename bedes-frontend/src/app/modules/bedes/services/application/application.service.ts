@@ -5,6 +5,8 @@ import { Observable, BehaviorSubject } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 import { MappingApplication, IMappingApplication } from '@bedes-common/models/mapping-application';
 import { SupportListService } from '../support-list/support-list.service';
+import { AuthService } from 'src/app/modules/bedes-auth/services/auth/auth.service';
+import { CurrentUser } from '@bedes-common/models/current-user/current-user';
 
 @Injectable({
     providedIn: 'root'
@@ -28,14 +30,29 @@ export class ApplicationService {
     get selectedItem(): MappingApplication| undefined {
         return this._selectedItem;
     }
+    /* The current user */
+    public currentUser: CurrentUser;
 
     constructor(
         private http: HttpClient,
-        private supportListService: SupportListService,
+        private authService: AuthService,
         @Inject(API_URL_TOKEN) private apiUrl
     ) {
+        // this.subscribeToUserStatus();
         this.url = `${this.apiUrl}${this.apiEndpoint}`;
     }
+
+    // /**
+    //  * Subscribe to the user status Observable to get keep the user status up to date.
+    //  */
+    // private subscribeToUserStatus(): void {
+    //     this.authService.currentUserSubject
+    //         .subscribe((currentUser: CurrentUser) => {
+    //             console.log(`${this.constructor.name}: received user status`, currentUser);
+    //             this.currentUser = currentUser;
+    //             this.load();
+    //         });
+    // }
 
     /**
      * Load's the initial list of all Applications, called
@@ -63,6 +80,14 @@ export class ApplicationService {
             console.log(`${this.constructor.name}: Error during application load()`, error);
             throw error;
         }
+    }
+
+    public loadUserApplications(): Observable<Array<MappingApplication>> {
+        return this.getApplications()
+            .pipe((tap((apps: Array<MappingApplication>) => {
+                this.applicationList = apps;
+                this.appListSubject.next(this.applicationList);
+            })));
     }
 
     /**

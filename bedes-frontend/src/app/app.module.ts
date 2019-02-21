@@ -10,7 +10,7 @@ import { AppComponent } from './app.component';
 import { NavbarComponent } from './components/navbar/navbar.component';
 import { HomeComponent } from './components/home/home.component';
 import { BedesModule } from './modules/bedes/bedes.module';
-import { BedesAuthModule } from './modules/auth/bedes-auth.module';
+import { BedesAuthModule } from './modules/bedes-auth/bedes-auth.module';
 
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { addIcons } from './add-icons';

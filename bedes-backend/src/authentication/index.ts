@@ -15,7 +15,6 @@ import { comparePassword } from './lib/compare-password';
 import { CurrentUser } from '../../../bedes-common/models/current-user/current-user';
 import { ICurrentUser } from '@bedes-common/models/current-user';
 import { ICurrentUserAuth } from './models/current-user-auth/current-user-auth.interface';
-import { userInfo } from 'os';
 
 interface ISerializedUserInfo {
     id: number;
@@ -27,32 +26,6 @@ interface ISerializedUserInfo {
  * @export
  */
 export function authenticationConfig(express: express.Application): void {
-    // const LocalStrategy = passportLocal.Strategy;
-    // // Setup the user object that gets attached to the http request.
-    // // Once a user is logged in, an object conforming to 
-    // // the IUserProfile interface is attached to the request object.
-    // // A new modified Request object with the IUserProfile interface can be
-    // // found in ./interfaces/passport-request.ts
-    // serializeUser((user: IUserProfile, next) => {
-    //     next(null, new UserProfile(user));
-    // });
-
-    // deserializeUser((user: IUserProfile, next) => {
-    //     if (user.id) {
-    //         authQuery.getById(user.id)
-    //         .then((data: any) => {
-    //             next(null, data);
-    //         })
-    //         .catch((error: Error) => {
-    //             logger.error('Error deserializing the user.');
-    //             logger.error(util.inspect(error));
-    //             next(error);
-    //         });
-    //     }
-    //     else {
-    //         next(new Error('Deserialize User: invalid user_id.'));
-    //     }
-    // })
     const LocalStrategy = passportLocal.Strategy;
     serializeUser((user: CurrentUser, next) => {
         const userInfo: ISerializedUserInfo = {
@@ -65,6 +38,8 @@ export function authenticationConfig(express: express.Application): void {
         if (userInfo.id) {
             authQuery.getById(userInfo.id)
             .then((data: ICurrentUser) => {
+                console.log('*** deserialize...');
+                console.log(data);
                 next(null, new CurrentUser(data));
             })
             .catch((error: Error) => {

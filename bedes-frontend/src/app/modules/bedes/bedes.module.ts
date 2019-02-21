@@ -51,8 +51,6 @@ import { ApplicationEditComponent } from './components/application-home/applicat
 import { applicationListFactory } from './services/application/application-list-factory.service';
 import { ApplicationService } from './services/application/application.service';
 import { ApplicationHomeComponent } from './components/application-home/application-home.component';
-import { ApplicationResolverService } from './services/application/application-resolver.service';
-import { TableCellNameNavComponent } from './components/application-home/application-list/table-cell-name-nav/table-cell-name-nav.component';
 import { AppTermListComponent } from './components/app-term/app-term-list/app-term-list.component';
 import { AppTermEditComponent } from './components/app-term/app-term-edit/app-term-edit.component';
 import { TermMappingComponent } from './components/app-term/app-term-edit/term-mapping/term-mapping.component';
@@ -124,7 +122,6 @@ import { TableCellAppTermStatusComponent } from './components/app-term/app-term-
         ApplicationNewComponent,
         ApplicationEditComponent,
         ApplicationHomeComponent,
-        TableCellNameNavComponent,
         AppTermListComponent,
         AppTermEditComponent,
         TermMappingComponent,
@@ -151,7 +148,6 @@ import { TableCellAppTermStatusComponent } from './components/app-term/app-term-
         ListOptionMapDialogComponent,
         TableCellBedesCategoryComponent,
         TableCellTermNameComponent,
-        TableCellNameNavComponent,
         TableCellItemNameComponent,
         TableCellNavComponent,
         TableCellMapListOptionComponent,

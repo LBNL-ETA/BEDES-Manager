@@ -9,48 +9,49 @@
             <fa-icon [icon]="['fas', 'chevron-circle-left']"></fa-icon>
             Back to Application List
         </a>
-        <button mat-stroked-button color="primary" (click)="newAtomicTerm()">
+        <button mat-stroked-button color="primary"
+        [disabled]="!isEditable"
+        (click)="newAtomicTerm()">
             <fa-icon [icon]="['fas', 'plus-circle']"></fa-icon>
             New Term
         </button>
         <button mat-stroked-button color="primary"
-        (click)="fileInput.click()" [disabled]="false">
+        (click)="fileInput.click()"
+        [disabled]="!isEditable">
             <fa-icon [icon]="['fas', 'file-import']"></fa-icon>
             Import Application Terms (CSV)
         </button>
         <button mat-raised-button color="primary"
         (click)="saveAllNewAppTerms()"
-        *ngIf="hasUnsavedAppTerms()"
+        *ngIf="isEditable && hasUnsavedAppTerms()"
         [matBadge]="numberOfNewTerms()" matBadgePosition="after" matBadgeColor="accent">
             <fa-icon [icon]="['fas', 'save']"></fa-icon>
             Save All New AppTerms
         </button>
-        <!-- <button mat-stroked-button [matMenuTriggerFor]="menu" color="primary">
-            <fa-icon [icon]="['fas', 'plus-circle']"></fa-icon>
-            Create New Term
-        </button>
-        <mat-menu #menu="matMenu">
-            <button mat-menu-item (click)="newAtomicTerm()">New Single Value Term</button>
-            <button mat-menu-item (click)="newAtomicTerm()">New Constrained List</button>
-            <button mat-menu-item (click)="newAtomicTerm()">Multiple Terms</button>
-        </mat-menu> -->
-        <!-- <button mat-stroked-button color="primary" (click)="editSelectedItem()" [disabled]="!selectedItem">
-            <fa-icon [icon]="['fas', 'edit']"></fa-icon>
-            Edit Selected Term
-        </button>
-        <button mat-stroked-button color="primary" [disabled]="!selectedItem" (click)="removeSelectedItem()">
-            <fa-icon [icon]="['fas', 'trash']"></fa-icon>
-            Remove Selected
-        </button> -->
     </div>
 
-    <div class="alert-accent" style="margin-top:10px;" *ngIf="!appTermList || !appTermList.length">
+    <!-- Alerts/messages -->
+    <!-- No terms message -->
+    <div class="alert-accent" style="margin-top:10px;"
+    *ngIf="isEditable && (!appTermList || !appTermList.length)">
         <h3 style="margin: 0; padding:0;">
             <fa-icon [icon]="['fas', 'exclamation-triangle']"></fa-icon>
             No terms have been defined, click the <strong>Create New Term</strong>
             button to create a new term and mapping.
         </h3>
     </div>
+    <!-- Guest and no applications message -->
+    <div class="alert-danger" style="margin-top:10px;"
+    *ngIf="!isEditable">
+    <!-- *ngIf="!isEditable && (!appTermList || !appTermList?.length)"> -->
+        <h3 style="margin: 0; padding:0;">
+            <fa-icon [icon]="['fas', 'exclamation-triangle']"></fa-icon>
+            There are no terms available for view.
+            <!-- You can <a [routerLink]="['/home/request-account']">click here to request an account</a>
+            to begin mapping your own applications and terms. -->
+        </h3>
+    </div>
+    <!-- Error message -->
     <div class="alert-danger" style="margin-top:10px;"
     *ngIf="hasError && errorMessage">
         <h3 style="margin: 0; padding:0;">
@@ -59,7 +60,7 @@
         </h3>
     </div>
     <!-- The grid -->
-    <div style=" overflow: hidden; flex-grow: 1" style="margin-top:10px;" *ngIf="appTermList && appTermList.length">
+    <div style=" overflow: hidden; flex-grow: 1" style="margin-top:10px;" *ngIf="isEditable && appTermList && appTermList.length">
         <ag-grid-angular #agGrid id="myGrid"
         style="width: 100%; height: 700px;"
         [gridOptions]="gridOptions"
@@ -75,13 +76,3 @@
     style="display:none;"
     #fileInput />
 </div>
-
-<!-- Alert -->
-<!-- <div class="alert-accent" style="margin: 10px 0 10px 0; text-align:left;" *ngIf="!appTermList || !appTermList.length">
-    <span style="font-weight:bold; padding-right:10px;">Status:</span>
-    <span>
-        <fa-icon [icon]="['fas', 'info-circle']"></fa-icon>
-        Click the <strong>Create a New Term</strong> button to begin
-        mapping a new term.
-    </span>
-</div> -->

@@ -4,7 +4,7 @@ import { takeUntil } from 'rxjs/operators';
 import { Subject } from 'rxjs';
 import { GridOptions, SelectionChangedEvent, ColDef } from 'ag-grid-community';
 import { CompositeTermService } from '../../../services/composite-term/composite-term.service';
-import { AuthService } from '../../../../auth/services/auth/auth.service';
+import { AuthService } from 'src/app/modules/bedes-auth/services/auth/auth.service';
 import { CurrentUser } from '@bedes-common/models/current-user/current-user';
 import { BedesCompositeTermShort } from '@bedes-common/models/bedes-composite-term-short/bedes-composite-term-short';
 import { MessageFromGrid } from '../../../models/ag-grid/message-from-grid';
@@ -12,7 +12,6 @@ import { TableCellMessageType } from '../../../models/ag-grid/enums/table-cell-m
 import { TableCellNavComponent } from '../../../models/ag-grid/table-cell-nav/table-cell-nav.component';
 import { MatDialog } from '@angular/material';
 import { ConfirmDialogComponent } from '../../dialogs/confirm-dialog/confirm-dialog.component';
-import { BedesCompositeTerm } from '../../../../../../../../bedes-common/models/bedes-composite-term/bedes-composite-term';
 
 interface IGridRow {
     name: string;

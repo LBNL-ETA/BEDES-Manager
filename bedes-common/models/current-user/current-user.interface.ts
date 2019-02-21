@@ -9,4 +9,5 @@ export interface ICurrentUser {
     _lastName?: string | undefined;
     _email?: string | undefined;
     _organization?: string | undefined;
+    _appIds?: Array<number> | undefined;
 }

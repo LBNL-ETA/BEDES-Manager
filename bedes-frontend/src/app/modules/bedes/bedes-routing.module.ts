@@ -23,7 +23,7 @@ import { CompositeTermListComponent } from './components/term-builder-home/compo
 import { CompositeTermResolverService } from './services/composite-term/composite-term-resolver.service';
 import { AppTermListResolverService } from './services/app-term-list/app-term-list-resolver.service';
 import { AppTermResolverService } from './services/app-term/app-term-resolver.service';
-import { AuthGuardService } from '../auth/services/auth-guard/auth-guard.service';
+import { AuthGuardService } from '../bedes-auth/services/auth-guard/auth-guard.service';
 
 const appRoutes: Routes = [
     { path: 'search', component: BedesTermSearchComponent },
@@ -90,6 +90,7 @@ const appRoutes: Routes = [
     {
         path: 'applications/:appId',
         component: ApplicationHomeComponent,
+        canActivate: [AuthGuardService],
         resolve: {
             application: ApplicationResolverService,
         },
@@ -154,6 +155,7 @@ const appRoutes: Routes = [
     {
         path: 'list-management',
         component: ListManagementComponent,
+        canActivate: [AuthGuardService],
         children: [{
             path: 'unit',
             component: ManageUnitListComponent

@@ -16,7 +16,7 @@ export async function newMappingApplicationHandler(request: Request, response: R
     try {
         if (!request.isAuthenticated()) {
             logger.warn('User not authenticated');
-            response.status(401).send('Unauthorized');
+            response.status(HttpStatusCodes.Unauthorized_401).send('Unauthorized');
             return;
         }
         const user = <CurrentUser>request.user;
@@ -24,10 +24,6 @@ export async function newMappingApplicationHandler(request: Request, response: R
             logger.error('User serialization error in newVerificationCodeHandler, unable to cast user to CurrentUser');
             throw new Error('User serialization error in newVerificationCodeHandler, unable to cast user to CurrentUser')
         }
-        // user is authenticated
-        console.log(user);
-        console.log(`needs password reset = ${user.needsVerify()}`);
-
         const newItem: IMappingApplication= request.body;
         if (!newItem) {
             throw new BedesError(
@@ -36,7 +32,7 @@ export async function newMappingApplicationHandler(request: Request, response: R
                 "Invalid parameters"
             );
         }
-        let results = await bedesQuery.app.newRecord(newItem);
+        let results = await bedesQuery.app.newRecord(user, newItem);
         response.json(results)
     }
     catch (error) {

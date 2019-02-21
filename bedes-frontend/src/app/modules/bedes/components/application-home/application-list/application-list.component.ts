@@ -11,25 +11,23 @@ import { SupportListService } from '../../../services/support-list/support-list.
 import { BedesUnit } from '@bedes-common/models/bedes-unit/bedes-unit';
 import { BedesTermCategory } from '@bedes-common/models/bedes-term-category/bedes-term-category';
 import { MappingApplication } from '@bedes-common/models/mapping-application';
-import { TableCellTermNameComponent } from '../../bedes-term-search/bedes-search-results-table/table-cell-term-name/table-cell-term-name.component';
 import { ApplicationService } from '../../../services/application/application.service';
 import { ApplicationScope } from '@bedes-common/enums/application-scope.enum';
-import { TableCellNameNavComponent } from './table-cell-name-nav/table-cell-name-nav.component';
-import { AuthService } from '../../../../auth/services/auth/auth.service';
-import { UserStatus } from '@bedes-common/enums/user-status.enum';
 import { CurrentUser } from '@bedes-common/models/current-user/current-user';
 import { TableCellNavComponent } from '../../../models/ag-grid/table-cell-nav/table-cell-nav.component';
 import { MessageFromGrid } from '../../../models/ag-grid/message-from-grid';
 import { TableCellMessageType } from '../../../models/ag-grid/enums/table-cell-message-type.enum';
 import { ConfirmDialogComponent } from '../../dialogs/confirm-dialog/confirm-dialog.component';
 import { MatDialog } from '@angular/material';
+import { AuthService } from 'src/app/modules/bedes-auth/services/auth/auth.service';
 
 /**
  * Defines the interface for the rows of grid objects.
  */
 interface IAppRow {
     scopeName: string;
-    ref: MappingApplication
+    ref: MappingApplication;
+    isEditable: boolean;
 }
 
 @Component({
@@ -85,9 +83,15 @@ export class ApplicationListComponent extends MessageFromGrid<IAppRow> implement
         this.ngUnsubscribe.complete();
     }
 
+    private loadUserApplications(): void {
+        this.appService.loadUserApplications()
+        .subscribe((results: Array<MappingApplication>) => {
+            this.setGridData();
+        });
+    }
+
     /**
      * Subscribe to the user status Observable to get keep the user status up to date.
-     *
      */
     private subscribeToUserStatus(): void {
         this.authService.currentUserSubject
@@ -96,8 +100,10 @@ export class ApplicationListComponent extends MessageFromGrid<IAppRow> implement
                 console.log(`${this.constructor.name}: received user status`, currentUser);
                 this.currentUser = currentUser;
                 this.isEditable = currentUser.isLoggedIn();
+                this.loadUserApplications();
             });
     }
+
     /**
      * Subscribe to the application list observable.
      * Set's the initial list, and will update the list
@@ -288,7 +294,8 @@ export class ApplicationListComponent extends MessageFromGrid<IAppRow> implement
             this.applicationList.forEach((app: MappingApplication) => {
                 gridData.push(<IAppRow>{
                     scopeName: app.scopeId === ApplicationScope.Public ? 'Public' : 'Private',
-                    ref: app
+                    ref: app,
+                    isEditable: this.currentUser.canEditApplication(app.id)
                 });
             })
             this.gridOptions.api.setRowData(gridData);

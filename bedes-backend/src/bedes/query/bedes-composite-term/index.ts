@@ -46,7 +46,6 @@ export class BedesCompositeTermQuery {
             console.log('newCompositeTerm');
             // create the composite term record
             let newRec: IBedesCompositeTerm | undefined;
-            item._uuid = v4();
             try {
                 newRec = await this.newRecord(item, transaction);
             }

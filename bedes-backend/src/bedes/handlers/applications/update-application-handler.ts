@@ -5,6 +5,7 @@ import { HttpStatusCodes } from '@bedes-common/enums/http-status-codes';
 import { BedesError } from '@bedes-common/bedes-error';
 import { bedesQuery } from '../../query';
 import { IMappingApplication } from '@bedes-common/models/mapping-application';
+import { CurrentUser } from '../../../../../bedes-common/models/current-user/current-user';
 const logger = createLogger(module);
 
 /**
@@ -13,6 +14,16 @@ const logger = createLogger(module);
  */
 export async function updateMappingApplicationHandler(request: Request, response: Response): Promise<any> {
     try {
+        if (!request.isAuthenticated()) {
+            logger.warn('User not authenticated');
+            response.status(HttpStatusCodes.Unauthorized_401).send('Unauthorized');
+            return;
+        }
+        const user = <CurrentUser>request.user;
+        if (!user) {
+            logger.error('User serialization error in updateMappingApplicationHandler, unable to cast user to CurrentUser');
+            throw new Error('User serialization error in updateMappingApplicationHandler, unable to cast user to CurrentUser')
+        }
         const item: IMappingApplication= request.body;
         if (!item) {
             throw new BedesError(

@@ -2,17 +2,17 @@ import { Component, OnInit, ViewChild, Input } from '@angular/core';
 import { ActivatedRoute, Router, ParamMap } from '@angular/router';
 import { BedesTerm, BedesConstrainedList } from '@bedes-common/models/bedes-term';
 import { BedesTermService } from '../../../services/bedes-term/bedes-term.service';
-import { FormBuilder, Validators } from '@angular/forms';
 import { SupportListService } from '../../../services/support-list/support-list.service';
 import { BedesUnit } from '@bedes-common/models/bedes-unit/bedes-unit';
 import { BedesDataType } from '@bedes-common/models/bedes-data-type';
-import { BedesTermCategory } from '@bedes-common/models/bedes-term-category/bedes-term-category';
 import { AgGridNg2 } from 'ag-grid-angular';
 import { GridOptions, ColDef, ValueGetterParams, SelectionChangedEvent } from 'ag-grid-community';
 import { Subject, BehaviorSubject } from 'rxjs';
-import { BedesTermOption } from '../../../../../../../../bedes-common/models/bedes-term-option/bedes-term-option';
-import { OptionViewState } from '../../../models/list-options/option-view-state.enum';
+import { BedesTermOption } from '@bedes-common/models/bedes-term-option/bedes-term-option';
 import { BedesTermListOptionService } from '../../../services/bedes-term-list-option/bedes-term-list-option.service';
+import { AuthService } from 'src/app/modules/bedes-auth/services/auth/auth.service';
+import { CurrentUser } from '@bedes-common/models/current-user/current-user';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-bedes-term-details-list-options',
@@ -21,7 +21,6 @@ import { BedesTermListOptionService } from '../../../services/bedes-term-list-op
 })
 export class BedesTermDetailsListOptionsComponent implements OnInit {
     private ngUnsubscribe: Subject<void> = new Subject<void>();
-    @Input()
 
     @ViewChild('agGrid')
     agGrid: AgGridNg2;
@@ -35,16 +34,22 @@ export class BedesTermDetailsListOptionsComponent implements OnInit {
     private unitList: Array<BedesUnit>;
     private dataTypeList: Array<BedesDataType>;
 
+    public isEditable: boolean;
+    /* The current user */
+    public currentUser: CurrentUser;
+
     constructor(
         private termService: BedesTermService,
         private supportListService: SupportListService,
         private listOptionService: BedesTermListOptionService,
+        private authService: AuthService,
         private router: Router,
         private route: ActivatedRoute
     ) {
     }
 
     ngOnInit() {
+        this.subscribeToUserStatus();
         this.initializeSupportLists();
         this.initializeGrid();
         this.subscribeToSelectedTerm();
@@ -54,6 +59,20 @@ export class BedesTermDetailsListOptionsComponent implements OnInit {
         // unsubscribe from the subjects
         this.ngUnsubscribe.next();
         this.ngUnsubscribe.complete();
+    }
+
+    /**
+     * Subscribe to the user status Observable to get keep the user status up to date.
+     */
+    private subscribeToUserStatus(): void {
+        this.authService.currentUserSubject
+            .pipe(takeUntil(this.ngUnsubscribe))
+            .subscribe((currentUser: CurrentUser) => {
+                console.log(`${this.constructor.name}: received user status`, currentUser);
+                this.currentUser = currentUser;
+                this.isEditable = currentUser.isLoggedIn();
+                this.setGridData();
+            });
     }
 
     /**

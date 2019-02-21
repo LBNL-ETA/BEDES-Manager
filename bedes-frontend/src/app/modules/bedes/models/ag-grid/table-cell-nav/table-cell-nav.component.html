@@ -1,7 +1,7 @@
 <!-- <button mat-mini-fab color="accent" (click)="viewItem()"> -->
     <fa-icon [icon]="['fas', 'search']" size="lg" (click)="viewItem()">
     </fa-icon>
-    <fa-icon [icon]="['fas', 'times']" size="lg" (click)="removeItem()">
+    <fa-icon [icon]="['fas', 'times']" size="lg" (click)="removeItem()" *ngIf="isEditable">
     </fa-icon>
 <!-- </button> -->
 

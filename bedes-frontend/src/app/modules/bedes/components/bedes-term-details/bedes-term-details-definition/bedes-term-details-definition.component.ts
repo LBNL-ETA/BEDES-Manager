@@ -10,6 +10,9 @@ import { BedesTermCategory } from '@bedes-common/models/bedes-term-category/bede
 import { Subject } from 'rxjs';
 import { BedesDefinitionSource } from '@bedes-common/models/bedes-definition-source';
 import { BedesSectorValues } from '@bedes-common/enums/bedes-sector.enum';
+import { AuthService } from 'src/app/modules/bedes-auth/services/auth/auth.service';
+import { CurrentUser } from '@bedes-common/models/current-user/current-user';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-bedes-term-details-definition',
@@ -25,6 +28,10 @@ export class BedesTermDetailsDefinitionComponent implements OnInit {
     public categoryList: Array<BedesTermCategory>;
     public definitionSourceList: Array<BedesDefinitionSource>;
 
+    public isEditable: boolean;
+    /* The current user */
+    public currentUser: CurrentUser;
+
 
     public dataForm = this.formBuilder.group({
         name: ['', Validators.required],
@@ -33,7 +40,10 @@ export class BedesTermDetailsDefinitionComponent implements OnInit {
         unitId: [''],
         definitionSourceId: [''],
         termCategoryId: [''],
-        uuid: [''],
+        uuid: [{
+            value: null,
+            disabled: true
+        }],
         url: [''],
         sectorCommercial: [''],
         sectorResidential: [''],
@@ -43,11 +53,13 @@ export class BedesTermDetailsDefinitionComponent implements OnInit {
     constructor(
         private formBuilder: FormBuilder,
         private termService: BedesTermService,
+        private authService: AuthService,
         private supportListService: SupportListService
     ) {
     }
 
     ngOnInit() {
+        this.subscribeToUserStatus();
         this.initializeSupportLists();
         this.termService.selectedTermSubject
             .subscribe((selectedTerm: BedesTerm | BedesConstrainedList | undefined) => {
@@ -64,6 +76,18 @@ export class BedesTermDetailsDefinitionComponent implements OnInit {
         // unsubscribe from the subjects
         this.ngUnsubscribe.next();
         this.ngUnsubscribe.complete();
+    }
+    /**
+     * Subscribe to the user status Observable to get keep the user status up to date.
+     */
+    private subscribeToUserStatus(): void {
+        this.authService.currentUserSubject
+            .pipe(takeUntil(this.ngUnsubscribe))
+            .subscribe((currentUser: CurrentUser) => {
+                console.log(`${this.constructor.name}: received user status`, currentUser);
+                this.currentUser = currentUser;
+                this.isEditable = currentUser.isAdmin();
+            });
     }
 
     private loadBedesTerm(id: number): void {

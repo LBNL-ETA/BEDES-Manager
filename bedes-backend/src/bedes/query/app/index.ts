@@ -8,31 +8,54 @@ import { IMappingApplication } from '@bedes-common/models/mapping-application';
 import * as util from 'util';
 import { BedesError } from '@bedes-common/bedes-error/bedes-error';
 import { HttpStatusCodes } from '@bedes-common/enums/http-status-codes';
+import { CurrentUser } from '@bedes-common/models/current-user/current-user';
+
+
+/**
+ * Defines the object signature for records returned from the insert-app-permisions query.
+ */
+interface IInsertPermissionResult {
+    id: number;
+}
 
 export class AppQuery {
     private sqlGet: QueryFile;
     private sqlGetAll: QueryFile;
+    private sqlGetAllFromUser: QueryFile;
     private sqlInsert: QueryFile;
     private sqlUpdate: QueryFile;
     private sqlUpdateScope: QueryFile;
     private sqlDelete: QueryFile;
+    private sqlInsertPermission: QueryFile;
+    private sqlRemovePermission: QueryFile;
 
     constructor() { 
         // load the sql queries
         this.sqlGet = sql_loader(path.join(__dirname, 'get.sql'));
         this.sqlGetAll = sql_loader(path.join(__dirname, 'get-all.sql'));
-        this.sqlInsert = sql_loader(path.join(__dirname, 'insert.sql'))
-        this.sqlUpdate = sql_loader(path.join(__dirname, 'update.sql'))
-        this.sqlUpdateScope = sql_loader(path.join(__dirname, 'update-scope.sql'))
-        this.sqlDelete = sql_loader(path.join(__dirname, 'delete.sql'))
+        this.sqlGetAllFromUser = sql_loader(path.join(__dirname, 'get-all-from-user.sql'));
+        this.sqlInsert = sql_loader(path.join(__dirname, 'insert.sql'));
+        this.sqlUpdate = sql_loader(path.join(__dirname, 'update.sql'));
+        this.sqlUpdateScope = sql_loader(path.join(__dirname, 'update-scope.sql'));
+        this.sqlDelete = sql_loader(path.join(__dirname, 'delete.sql'));
+        this.sqlInsertPermission = sql_loader(path.join(__dirname, 'insert-app-permisions.sql'));
+        this.sqlRemovePermission = sql_loader(path.join(__dirname, 'remove-app-permisions.sql'));
     }
 
     /**
      * Insert a new application record.
      */
-    public async newRecord(item: IMappingApplication, transaction?: any): Promise<IMappingApplication> {
+    public async newRecord(user: CurrentUser, item: IMappingApplication, transaction?: any): Promise<IMappingApplication> {
         try {
-            if (!item._name || !item._scopeId) {
+            // run this inside a transaction if not already
+            if (!transaction) {
+                return db.tx('new-application-trans', (trans: any) => {
+                    return this.newRecord(user, item, trans);
+                })
+            }
+            console.log(item);
+            // check the required parameters
+            if (!item._name) {
                 logger.error(`${this.constructor.name}: Missing parameters`);
                 throw new BedesError(
                     'Missing required parameters.',
@@ -40,17 +63,32 @@ export class AppQuery {
                     "Missing required parameters."
                 );
             }
+            // else if (!user || !user.isLoggedIn() || !user.canEditApplication(item._id)) {
+            //     throw new BedesError(
+            //         'Unauthorized',
+            //         HttpStatusCodes.Unauthorized_401,
+            //         'Unauthorized'
+            //     );
+            // }
+            // build the parameters
             const params = {
                 _name: item._name,
                 _description: item._description,
                 _scopeId: item._scopeId
             };
-            if (transaction) {
-                return await transaction.one(this.sqlInsert, params);
+            // run the query
+            const ctx = transaction || db;
+            const newItem: IMappingApplication = await ctx.one(this.sqlInsert, params);
+            if (!newItem || !newItem._id) {
+                throw new BedesError(
+                    'Unknown error occurred writing application',
+                    HttpStatusCodes.ServerError_500,
+                    'Unknown error occurred writing application'
+                );
             }
-            else {
-                return await db.one(this.sqlInsert, params);
-            }
+            // set the permissions
+            await this.setAppPermissions(user, newItem, transaction);
+            return newItem;
         } catch (error) {
             console.log(error);
             // Duplicate record
@@ -66,6 +104,43 @@ export class AppQuery {
                 // all other errors
                 throw error;
             }
+        }
+    }
+
+    public async setAppPermissions(user: CurrentUser, app: IMappingApplication, transaction?: any): Promise<IInsertPermissionResult> {
+        try {
+            // first remove the current permissions
+            await this.removeAppPermissions(user, app, transaction);
+            // build the params for the new permission
+            const params = {
+                _appId: app._id,
+                _roleId: 1,
+                _userId: user.id
+            }
+            // write the record
+            const ctx = transaction || db;
+            return ctx.one(this.sqlInsertPermission, params, transaction);
+        }
+        catch (error) {
+            console.log(error);
+            logger.error(`${this.constructor.name}: error in setAppPermissions.`);
+            throw error;
+        }
+    }
+
+    public async removeAppPermissions(user: CurrentUser, app: IMappingApplication, transaction?: any): Promise<IInsertPermissionResult> {
+        try {
+            const params = {
+                _appId: app._id,
+                _userId: user.id
+            }
+            const ctx = transaction || db;
+            return ctx.none(this.sqlRemovePermission, params);
+        }
+        catch (error) {
+            console.log(error);
+            logger.error(`${this.constructor.name}: error in setAppPermissions.`);
+            throw error;
         }
     }
 
@@ -204,12 +279,29 @@ export class AppQuery {
      */
     public getAllRecords(transaction?: any): Promise<Array<IMappingApplication>> {
         try {
-            if (transaction) {
-                return transaction.manyOrNone(this.sqlGetAll);
+            const ctx = transaction || db;
+            return ctx.manyOrNone(this.sqlGetAll);
+        } catch (error) {
+            logger.error(`${this.constructor.name}: Error in getAllRecords`);
+            logger.error(util.inspect(error));
+            throw error;
+        }
+    }
+
+    /**
+     * Retrieve all MappingApplications for a specific user.
+     * @param user 
+     * @param [transaction] 
+     */
+    public getAllRecordsFromUser(user: CurrentUser, transaction?: any): Promise<Array<IMappingApplication>> {
+        try {
+            const ctx = transaction || db;
+            const params = {
+                _userId: user.id
             }
-            else {
-                return db.manyOrNone(this.sqlGetAll);
-            }
+            console.log('user records...')
+            console.log(params);
+            return ctx.manyOrNone(this.sqlGetAllFromUser, params);
         } catch (error) {
             logger.error(`${this.constructor.name}: Error in getAllRecords`);
             logger.error(util.inspect(error));

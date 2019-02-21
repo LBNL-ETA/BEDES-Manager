@@ -64,6 +64,8 @@ export class CurrentUser {
     get organization(): string | undefined {
         return this._organization;
     }
+    // appIds
+    private _appIds: Array<number>;
 
     /**
      * Build an instance of the current user.
@@ -75,6 +77,13 @@ export class CurrentUser {
         this._lastName = data._lastName;
         this._email = data._email;
         this._userGroupId = data._userGroupId;
+        if (Array.isArray(data._appIds)) {
+            // create a copy of the array
+            this._appIds = [...data._appIds];
+        }
+        else {
+            this._appIds = new Array<number>();
+        }
     }
 
     /* Public Interface Methods */
@@ -128,5 +137,19 @@ export class CurrentUser {
      */
     public isStandardUser(): boolean {
         return !this.isAdmin();
+    }
+
+    /**
+     * Determines if a user can edit a given application.
+     * @param appId The id of the mapping application.
+     * @returns true if the user can edit the application defined by appId.
+     */
+    public canEditApplication(appId: number): boolean {
+        if (appId && this._appIds.includes(appId)) {
+            return true;
+        }
+        else {
+            return false;
+        }
     }
 }

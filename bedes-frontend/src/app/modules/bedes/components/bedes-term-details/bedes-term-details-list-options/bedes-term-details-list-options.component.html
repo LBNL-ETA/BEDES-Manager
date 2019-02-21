@@ -10,15 +10,20 @@
         </mat-card-header>
         <mat-card-content>
             <div>
-                <button mat-stroked-button color="primary" (click)="newListOption()">
+                <button mat-stroked-button color="primary"
+                [disabled]="!isEditable"
+                (click)="newListOption()">
                     <fa-icon [icon]="['fas', 'plus-circle']"></fa-icon>
                     New
                 </button>
-                <button mat-stroked-button color="primary" (click)="editListOption()" [disabled]="!selectedOption">
+                <button mat-stroked-button color="primary"
+                (click)="editListOption()" [disabled]="!isEditable || !selectedOption">
                     <fa-icon [icon]="['fas', 'edit']"></fa-icon>
                     Edit
                 </button>
-                <button mat-stroked-button color="primary" [disabled]="!selectedOption" (click)="removeListOption()">
+                <button mat-stroked-button color="primary"
+                [disabled]="!isEditable || !selectedOption"
+                (click)="removeListOption()">
                     <fa-icon [icon]="['fas', 'trash']"></fa-icon>
                     Remove Selected
                 </button>
