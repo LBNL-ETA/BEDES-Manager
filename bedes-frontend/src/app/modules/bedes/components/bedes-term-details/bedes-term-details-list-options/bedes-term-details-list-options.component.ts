@@ -131,7 +131,7 @@ export class BedesTermDetailsListOptionsComponent implements OnInit {
     }
 
     private setGridData(): void {
-        if (this.gridOptions.api && this.term) {
+        if (this.gridOptions && this.gridOptions.api && this.term) {
             if (this.term instanceof BedesConstrainedList) {
                 this.gridOptions.api.setRowData(this.term.options);
             }

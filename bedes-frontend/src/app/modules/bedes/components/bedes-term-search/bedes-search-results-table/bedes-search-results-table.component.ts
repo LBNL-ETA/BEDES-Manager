@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, NgZone } from '@angular/core';
 import { BedesConstrainedList, BedesTerm } from '@bedes-common/models/bedes-term';
 import { BedesTermSearchService } from '../../../services/bedes-term-search/bedes-term-search.service';
 import { takeUntil } from 'rxjs/operators';
@@ -43,6 +43,7 @@ export class BedesSearchResultsTableComponent implements OnInit, OnDestroy {
     public tableContext: any;
 
     constructor(
+        private ngZone: NgZone,
         private router: Router,
         private termSearchService: BedesTermSearchService,
         private termService: BedesTermService,
@@ -124,7 +125,12 @@ export class BedesSearchResultsTableComponent implements OnInit, OnDestroy {
         else if (selectedItem.ref.resultObjectType === SearchResultType.BedesTermOption) {
             // navigate to bedes-term/term_uuid_or_id/edit/option_uuid_or_id
             const termId = selectedItem.ref.termUUID || selectedItem.ref.termId;
-            this.router.navigate(['/bedes-term', termId]);
+            // weird bug... navigating using the commented out code below doesn't work
+            // sometimes it pops up with an 'Navigation triggered outside Angular zone' error
+            // and view doesn't display correctly. Found this workaround:
+            // https://stackoverflow.com/questions/53133544/angular-7-routerlink-directive-warning-navigation-triggered-outside-angular-zon
+            this.ngZone.run(() => this.router.navigate(['/bedes-term', termId])).then();
+            // this.router.navigate(['/bedes-term', termId]);
         }
         else if (selectedItem.ref.resultObjectType === SearchResultType.CompositeTerm) {
             const termId = selectedItem.ref.uuid || selectedItem.ref.termId;

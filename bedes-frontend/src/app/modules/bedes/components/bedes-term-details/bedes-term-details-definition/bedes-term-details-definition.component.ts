@@ -77,6 +77,7 @@ export class BedesTermDetailsDefinitionComponent implements OnInit {
         this.ngUnsubscribe.next();
         this.ngUnsubscribe.complete();
     }
+
     /**
      * Subscribe to the user status Observable to get keep the user status up to date.
      */
