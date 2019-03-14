@@ -152,7 +152,8 @@ create table public.mapping_application_roles (
     app_id int not null references public.mapping_application (id),
     role_id int not null references public.application_role_type (id),
     user_id int not null references auth.user (id),
-    created_date timestamp default now()
+    created_date timestamp default now(),
+    unique (app_id, user_id)
 );
 
 create table public.app_field (
