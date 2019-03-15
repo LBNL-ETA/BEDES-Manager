@@ -14,9 +14,16 @@
 @import "~ag-grid-community/dist/styles/ag-theme-balham.css";
 
 body {
+    display: flex;
+    min-height: 100vh;
+    flex-direction: column;
     margin: 0;
-    /*background-color: darkgrey;*/
 }
+
+.main_content {
+    flex: 1;
+}
+
 
 .dialog-waiting .mat-dialog-container {
     overflow: visible;
