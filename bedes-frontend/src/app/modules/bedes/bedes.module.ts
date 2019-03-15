@@ -73,6 +73,7 @@ import { AppTermListOptionService } from './services/app-term-list-option/app-te
 import { TableCellMapListOptionComponent } from './components/app-term/app-term-edit/table-cell-map-list-option/table-cell-map-list-option.component';
 import { ListOptionMapDialogComponent } from './components/dialogs/list-option-map-dialog/list-option-map-dialog.component';
 import { TableCellAppTermStatusComponent } from './components/app-term/app-term-list/table-cell-app-term-status/table-cell-app-term-status.component';
+import { CsvImportInfoDialogComponent } from './components/dialogs/csv-import-info-dialog/csv-import-info-dialog.component';
 
 @NgModule({
     imports: [
@@ -140,7 +141,8 @@ import { TableCellAppTermStatusComponent } from './components/app-term/app-term-
         TableCellNavComponent,
         TableCellMapListOptionComponent,
         ListOptionMapDialogComponent,
-        TableCellAppTermStatusComponent
+        TableCellAppTermStatusComponent,
+        CsvImportInfoDialogComponent
     ],
     entryComponents: [
         BedesTermSearchDialogComponent,
@@ -151,7 +153,8 @@ import { TableCellAppTermStatusComponent } from './components/app-term/app-term-
         TableCellItemNameComponent,
         TableCellNavComponent,
         TableCellMapListOptionComponent,
-        TableCellAppTermStatusComponent
+        TableCellAppTermStatusComponent,
+        CsvImportInfoDialogComponent
     ],
     providers: [
         BedesTermSearchService,

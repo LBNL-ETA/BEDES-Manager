@@ -1,4 +1,4 @@
-<div class="mat-typography" style="padding:10px;">
+<div class="mat-typography; flex: 1;" style="padding:10px;">
     <h2 class="mat-display-1" style="margin: 5px auto; text-align: center;">
         Application Terms
     </h2>
@@ -16,7 +16,7 @@
             New Term
         </button>
         <button mat-stroked-button color="primary"
-        (click)="fileInput.click()"
+        (click)="openCsvUploadDialog()"
         [disabled]="!isEditable">
             <fa-icon [icon]="['fas', 'file-import']"></fa-icon>
             Import Application Terms (CSV)
@@ -68,11 +68,4 @@
         class="ag-theme-balham">
         </ag-grid-angular>
     </div>
-
-    <!-- The file upload control, button at the top of the page calls the click method -->
-    <input type="file"
-    name="fileUploadInput"
-    (change)="fileSelected($event);"
-    style="display:none;"
-    #fileInput />
 </div>

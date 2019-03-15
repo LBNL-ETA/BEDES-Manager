@@ -23,6 +23,7 @@ import { TableCellAppTermStatusComponent } from './table-cell-app-term-status/ta
 import { HttpStatusCodes } from '@bedes-common/enums/http-status-codes';
 import { AuthService } from 'src/app/modules/bedes-auth/services/auth/auth.service';
 import { CurrentUser } from '@bedes-common/models/current-user/current-user';
+import { CsvImportInfoDialogComponent } from '../../dialogs/csv-import-info-dialog/csv-import-info-dialog.component';
 
 @Component({
   selector: 'app-app-term-list',
@@ -116,7 +117,6 @@ export class AppTermListComponent extends MessageFromGrid<IAppRow> implements On
         this.appTermService.termListSubject
         .pipe(takeUntil(this.ngUnsubscribe))
         .subscribe((termList: Array<AppTerm | AppTermList>) => {
-            console.log(`${this.constructor.name}: received app term list`, termList);
             this.appTermList = termList;
             this.gridDataNeedsSet = true;
             this.setGridData();
@@ -148,20 +148,6 @@ export class AppTermListComponent extends MessageFromGrid<IAppRow> implements On
     }
 
     /**
-     * Retrieve the support lists for the view,
-     * only the list of applications in this view.
-     */
-    // private assignSupportListData(): void {
-    //     // listen for the applicationList subject
-    //     this.supportListService.applicationSubject.subscribe(
-    //         (results: Array<MappingApplication>) => {
-    //             this.applicationList = results;
-    //             this.setGridData();
-    //         }
-    //     )
-    // }
-
-    /**
      * Setup the ag-grid for the list of projects.
      */
     private gridSetup(): void {
@@ -182,16 +168,11 @@ export class AppTermListComponent extends MessageFromGrid<IAppRow> implements On
                 params.api.sizeColumnsToFit();
             },
             onSelectionChanged: (event: SelectionChangedEvent) => {
-                console.log('selection changed', event.api.getSelectedRows());
                 const rows = event.api.getSelectedRows();
                 this.selectedItem = rows && rows.length ? rows[0] : undefined;
             }
         };
     }
-
-    // public viewTerm(selectedItem: any): void {
-    //     console.log(`${this.constructor.name}: view the selected item`);
-    // }
 
     /**
      * Confirm the removal of an AppTerm before calling the backend API.
@@ -207,7 +188,6 @@ export class AppTermListComponent extends MessageFromGrid<IAppRow> implements On
             }
         });
         dialogRef.afterClosed().subscribe((results: boolean) => {
-            console.log('dialogRef.afterClosed()', results);
             if (results) {
                 this.removeSelectedItem(appTerm);
             }
@@ -223,7 +203,6 @@ export class AppTermListComponent extends MessageFromGrid<IAppRow> implements On
             // remove the term
             this.appTermService.removeTerm(this.app.id, appTerm)
             .subscribe((results: number) => {
-                console.log(`${this.constructor.name}: delete appTerm success`, results);
                 this.snackBar.open('AppTerm successfully removed!', undefined, {duration: 3000});
             }, (error: any) => {
                 console.log('An error occurred removing AppTerm', error);
@@ -258,14 +237,6 @@ export class AppTermListComponent extends MessageFromGrid<IAppRow> implements On
             this.confirmRemoveSelectedItem(selectedRow.ref);
         }
     }
-
-    /**
-     * Navigates tot he selected AppTerm object.
-     */
-    // public viewItem(selectedItem: IAppRow): void {
-    //     console.log(`${this.constructor.name}: view term`, selectedItem);
-    //     this.router.navigate(['/app-term', selectedItem.ref.id]);
-    // }
 
     /**
      * Builds the column definitions for the list of projects.
@@ -314,23 +285,6 @@ export class AppTermListComponent extends MessageFromGrid<IAppRow> implements On
             })
             this.gridOptions.api.setRowData(gridData);
             this.gridDataNeedsSet = false;
-        }
-    }
-
-    /**
-     * Calls the AppTermService to upload the file selected from the
-     * file input control.  Should be fired when the file input changes.
-     */
-    public fileSelected(event: any): void {
-        if (event && event.srcElement && event.srcElement.files && event.srcElement.files.length) {
-            const uploadFile = event.srcElement.files[0];
-            // upload the file to the backend
-            // the BehaviorSubject subscribtion handles updating the new term list and table
-            this.appTermService.uploadAppTerms(this.app.id, uploadFile)
-            .subscribe((csvTerms: Array<AppTerm | AppTermList>) => {
-                console.log('successfully uploaded app terms');
-                console.log(csvTerms);
-            });
         }
     }
 
@@ -392,8 +346,6 @@ export class AppTermListComponent extends MessageFromGrid<IAppRow> implements On
                 forkJoin(observables)
                 .subscribe(
                     (results: Array<AppTerm | AppTermList>) => {
-                        console.log(`${this.constructor.name}: receved results`);
-                        console.log(results);
                         this.appTermService.refreshActiveTerms();
                     },
                     (error: any) => {
@@ -437,6 +389,25 @@ export class AppTermListComponent extends MessageFromGrid<IAppRow> implements On
                 },
                 0)
             : 0;
+    }
+
+    /**
+     * Open the csv upload dialog.
+     */
+    public openCsvUploadDialog(): void {
+        const dialogRef = this.dialog.open(CsvImportInfoDialogComponent, {
+            panelClass: 'dialog-no-padding',
+            width: '650px',
+            position: {top: '20px'}
+        });
+        dialogRef.afterClosed()
+        .subscribe((selectedFile: any) => {
+            if (selectedFile) {
+                this.appTermService.uploadAppTerms(this.app.id, selectedFile)
+                .subscribe((csvTerms: Array<AppTerm | AppTermList>) => {
+                });
+             }
+       });
     }
 
 }
