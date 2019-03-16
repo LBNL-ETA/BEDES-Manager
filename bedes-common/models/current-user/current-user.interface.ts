@@ -10,4 +10,5 @@ export interface ICurrentUser {
     _email?: string | undefined;
     _organization?: string | undefined;
     _appIds?: Array<number> | undefined;
+    _compositeTermIds?: Array<number> | undefined;
 }

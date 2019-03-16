@@ -8,11 +8,14 @@ select
     u.status as "_status",
     u.password as "_password",
     u.user_group_id as "_userGroupId",
-	array_agg(mar.app_id) as "_appIds"
+	array_agg(mar.app_id) as "_appIds",
+    array_agg(bct.id) as "_compositeTermIds"
 from 
     auth.user u
 left outer join
 	public.mapping_application_roles mar on mar.user_id = u.id
+left outer join
+	public.bedes_composite_term bct on bct.user_id = u.id
 where 
     u.email = ${_email}
 group by
