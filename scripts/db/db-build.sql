@@ -111,7 +111,7 @@ create table public.bedes_composite_term (
     unit_id int references public.unit (id),
     uuid uuid not null unique,
     user_id int not null references auth.user (id),
-    scope_id int not null references public.scope (id),
+    scope_id int not null references public.scope (id) default 1,
     created_date timestamp default now(),
     modified_date timestamp default now()
 );
