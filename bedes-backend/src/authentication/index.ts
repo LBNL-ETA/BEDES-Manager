@@ -4,16 +4,11 @@ import * as passportLocal from 'passport-local';
 import * as util from 'util';
 
 import { authQuery } from './query';
-import {
-    IUserProfile,
-    UserProfile
-} from '@bedes-common/models/authentication/user-profile';
 
 import { createLogger } from '@bedes-backend/logging';
 const logger = createLogger(module);
 import { comparePassword } from './lib/compare-password';
-import { CurrentUser } from '../../../bedes-common/models/current-user/current-user';
-import { ICurrentUser } from '@bedes-common/models/current-user';
+import { CurrentUser, ICurrentUser } from '@bedes-common/models/current-user';
 import { ICurrentUserAuth } from './models/current-user-auth/current-user-auth.interface';
 
 interface ISerializedUserInfo {
@@ -22,8 +17,6 @@ interface ISerializedUserInfo {
 
 /**
  * Configures the passport library.
- *
- * @export
  */
 export function authenticationConfig(express: express.Application): void {
     const LocalStrategy = passportLocal.Strategy;
@@ -64,11 +57,8 @@ export function authenticationConfig(express: express.Application): void {
             async (email, password, next) => {
                 // get the user record by email, ignoring case
                 try {
-                    console.log(`auth email ${email}`);
                     const searchEmail = email.trim().toLowerCase();
                     const user: ICurrentUserAuth = await authQuery.getByEmail(searchEmail);
-                    console.log('user');
-                    console.log(user);
                     // make sure a user object was returned
                     if (!user) {
                         logger.warn(`Account for email ${email} was not found.`)
