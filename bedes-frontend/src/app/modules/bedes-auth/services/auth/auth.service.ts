@@ -85,11 +85,9 @@ export class AuthService {
      * @returns The authentication response
      */
     public login(userLogin: IUserLogin): Observable<IUserLoginResponse> {
-        console.log('login..', userLogin);
         return this.http.post<ICurrentUser>(this.urlLogin, userLogin, {withCredentials: true})
             .pipe(
                 map((results: ICurrentUser) => {
-                    console.log('success!!', results);
                     this.setCurrentUser(new CurrentUser(results));
                     return new UserLoginResponse();
                 }
@@ -117,17 +115,13 @@ export class AuthService {
      * @returns account
      */
     public requestAccount(newAccount: NewAccount): Observable<any> {
-        console.log('new account...', newAccount);
         return this.http.post<any>(this.urlNewAccount, newAccount, { withCredentials: true });
     }
 
     public checkLoginStatus(): Promise<any> {
-        console.log('checkStatus...');
         return new Promise<any>((resolve, reject) => {
-            console.log('check status', this.urlStatus);
             this.http.get<ICurrentUser>(this.urlStatus, { withCredentials: true })
             .subscribe((results: ICurrentUser) => {
-                console.log('checkLoginStatus complete...', results);
                 // check for a valid login status
                 if (results._status in UserStatus) {
                     this.setCurrentUser(new CurrentUser(results));
@@ -153,13 +147,11 @@ export class AuthService {
      * @returns true if successfull, false otherwise
      */
     public updatePassword(passwordUpdate: PasswordUpdate): Observable<boolean> {
-        console.log(`updatePassword ${passwordUpdate}`);
         if (!passwordUpdate || !passwordUpdate.isValid()) {
             throw new Error(`${this.constructor.name}: update expects valid passwords.`);
         }
         return this.http.put<boolean>(this.urlPasswordUpdate, passwordUpdate, {withCredentials: true})
             .pipe(tap((results: boolean) => {
-                console.log('password update...', results);
                 if (results) {
                     this.checkLoginStatus();
                 }
@@ -170,29 +162,22 @@ export class AuthService {
      * Verify a user registration code.
      */
     public verify(verificationCode: string): Observable<boolean> {
-        console.log(`verify code ${verificationCode}`);
         if (!verificationCode) {
             throw new Error(`${this.constructor.name}: verify expects a verificationCode`);
-        }
-        const params = {
-            verificationCode: verificationCode
         }
         const url = `${this.urlVerify}/${verificationCode}`;
         return this.http.post<boolean>(url, null, {withCredentials: true})
             .pipe(
                 tap((results: boolean) => {
-                    console.log('success!!', results);
                     this.checkLoginStatus();
                 }
             ));
     }
 
     public newVerificationCode(): Observable<boolean> {
-        console.log('newVerificationCode...', this.urlVerify);
         return this.http.get<ICurrentUser>(this.urlVerify, {withCredentials: true})
             .pipe(
                 map((results: any) => {
-                    console.log('newVerificationCode results...', results);
                     return true;
                 }
             ));
@@ -243,7 +228,6 @@ export class AuthService {
      * Set the current user to an unprivilidged user
      */
     public setUnauthorizedUser(): void {
-        console.log(`${this.constructor.name}: set unauthorized`);
         this.setCurrentUser(CurrentUser.makeDefaultUser());
     }
 
@@ -253,8 +237,6 @@ export class AuthService {
      */
     private setCurrentUser(newUser: CurrentUser): void {
         this._currentUser = newUser;
-        console.log('set current user to...');
-        console.log(newUser);
         this._currentUserSubject.next(this._currentUser);
     }
 
