@@ -22,6 +22,9 @@ export class BedesCompositeTerm extends UUIDGenerator {
         return this._signature;
     }
     set signature(value:  string) {
+        if (value != this._signature) {
+            this._hasChanged = true;
+        }
         this._signature = value;
     }
     private _name: string | null | undefined;
@@ -29,6 +32,9 @@ export class BedesCompositeTerm extends UUIDGenerator {
         return this._name;
     }
     set name(value:  string | null | undefined) {
+        if (value != this._name) {
+            this._hasChanged = true;
+        }
         this._name = value;
     }
     private _description: string | null | undefined;
@@ -36,6 +42,9 @@ export class BedesCompositeTerm extends UUIDGenerator {
         return this._description;
     }
     set description(value:  string | null | undefined) {
+        if (value != this._description) {
+            this._hasChanged = true;
+        }
         this._description = value;
     }
     private _unitId: number | null | undefined;
@@ -43,6 +52,9 @@ export class BedesCompositeTerm extends UUIDGenerator {
         return this._unitId;
     }
     set unitId(value:  number | null | undefined) {
+        if (value != this._unitId) {
+            this._hasChanged = true;
+        }
         this._unitId = value;
     }
     /** UUID */
@@ -64,6 +76,18 @@ export class BedesCompositeTerm extends UUIDGenerator {
     private _scopeId: Scope | null | undefined;
     get scopeId():  Scope | null | undefined {
         return this._scopeId;
+    }
+
+    /**
+     * Indicates if the term has undergone changes and needs to be updated.
+     */
+    private _hasChanged = false;
+    public get hasChanged(): boolean {
+        return this._hasChanged;
+    }
+    public clearChangeFlag(): void {
+        console.log('**reset');
+        this._hasChanged = false;
     }
 
     constructor(data?: IBedesCompositeTerm) {
@@ -105,6 +129,8 @@ export class BedesCompositeTerm extends UUIDGenerator {
             this._uuid = this.generateUUID();
             this._scopeId = Scope.Private;
         }
+        // reset all changes
+        this.clearChangeFlag();
     }
 
     /**

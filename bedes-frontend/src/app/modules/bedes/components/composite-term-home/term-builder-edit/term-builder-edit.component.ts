@@ -15,6 +15,7 @@ import { CompositeTermDetailRequestResult } from '@bedes-common/models/composite
 import { AuthService } from 'src/app/modules/bedes-auth/services/auth/auth.service';
 import { CurrentUser } from '@bedes-common/models/current-user/current-user';
 import { takeUntil } from 'rxjs/operators';
+import { Router, ActivatedRoute } from '@angular/router';
 
 @Component({
     selector: 'app-term-builder-edit',
@@ -28,6 +29,8 @@ export class TermBuilderEditComponent implements OnInit {
     public isEditable: boolean;
     /* The current user */
     public currentUser: CurrentUser;
+    public isWaiting = false;
+    public hasError = false;
 
     public dataForm = this.formBuilder.group({
         description: [''],
@@ -44,6 +47,8 @@ export class TermBuilderEditComponent implements OnInit {
         private compositeTermService: CompositeTermService,
         private supportListService: SupportListService,
         private authService: AuthService,
+        private router: Router,
+        private activatedRoute: ActivatedRoute
     ) { }
 
     ngOnInit() {
@@ -109,7 +114,6 @@ export class TermBuilderEditComponent implements OnInit {
             }
         });
         dialogRef.afterClosed().subscribe((result: Array<BedesSearchResult>) => {
-            console.log('dialogRef.afterClosed()', result);
             if (result && Array.isArray(result) && result.length) {
                 this.addSearchResultsToTerm(result);
             }
@@ -123,7 +127,8 @@ export class TermBuilderEditComponent implements OnInit {
         // create an array of the new uuids to add
         const requestParams = new Array<ICompositeTermDetailRequestParam>();
         // create a new array of only the new uuids we want to get from the backend
-        searchResults.forEach((searchResult: BedesSearchResult) => {
+        searchResults.forEach(
+            (searchResult: BedesSearchResult) => {
                 // make sure at least the term uuid is there.
                 if (!searchResult.uuid) {
                     throw new Error(`addSearchResultsToTerm expects uuids on all terms, none found`);
@@ -138,7 +143,6 @@ export class TermBuilderEditComponent implements OnInit {
         this.compositeTermService.getCompositeTermDetailRequest(requestParams)
         .subscribe(
             (results: Array<CompositeTermDetailRequestResult>) => {
-                console.log(`${this.constructor.name}: addSearchResultsToTerm results`, results);
                 this.addDetailItemsFromRequestInfo(results);
             },
             (error: any) => {
@@ -164,7 +168,8 @@ export class TermBuilderEditComponent implements OnInit {
                 // add the term only
                 this.compositeTerm.addBedesTerm(item.term);
             }
-        }))
+        }));
+        this.compositeTermService.setActiveCompositeTerm(this.compositeTerm);
     }
 
     /**
@@ -204,23 +209,28 @@ export class TermBuilderEditComponent implements OnInit {
      * Save the composite term to the database.
      */
     public updateCompositeTerm(): void {
-        console.log('save the composite term');
+        this.isWaiting = true;
         if (this.compositeTerm.id) {
             // an existing term
             this.compositeTermService.updateTerm(this.compositeTerm)
             .subscribe((results: BedesCompositeTerm) => {
-                console.log(`${this.constructor.name}: save compoisite term success`, results);
-                this.compositeTerm = results;
-                this.compositeTermService.setActiveCompositeTerm(this.compositeTerm);
+                this.isWaiting = false;
+                this.compositeTermService.setActiveCompositeTerm(results);
+            }, (error: any) => {
+                this.isWaiting = false;
+                this.hasError = true;
             });
         }
         else {
             // new term, save it to the database.
             this.compositeTermService.saveNewTerm(this.compositeTerm)
             .subscribe((results: BedesCompositeTerm) => {
-                console.log(`${this.constructor.name}: save compoisite term success`, results);
-                this.compositeTerm = results;
-                this.compositeTermService.setActiveCompositeTerm(this.compositeTerm);
+                this.isWaiting = false;
+                this.compositeTermService.setActiveCompositeTerm(results);
+                this.router.navigate([results.uuid], {relativeTo: this.activatedRoute})
+            }, (error: any) => {
+                this.isWaiting = false;
+                this.hasError = true;
             });
         }
     }

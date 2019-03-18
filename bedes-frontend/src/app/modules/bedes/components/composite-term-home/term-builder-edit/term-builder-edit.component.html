@@ -4,7 +4,7 @@
         Back to List
     </a>
     <button mat-stroked-button color="primary"
-    [disabled]="!isEditable || !hasSelectedTerms()"
+    [disabled]="!isEditable || !hasSelectedTerms() || !compositeTerm?.hasChanged || waiting"
     (click)="updateCompositeTerm()">
         <fa-icon [icon]="['fas', 'save']"></fa-icon>
         Save
@@ -23,6 +23,14 @@
         <fa-icon [icon]="['fas', 'info-circle']"></fa-icon>
         Click the <strong>Import BEDES Terms</strong> button to
         start building the composite term.
+    </h3>
+</div>
+
+<div class="alert-accent" *ngIf="compositeTerm?.hasChanged">
+    <h3 style="margin: 0; padding:0;">
+        <fa-icon [icon]="['fas', 'info-circle']"></fa-icon>
+        Click the <strong>Save</strong> button to
+        save the composite term.
     </h3>
 </div>
 
@@ -58,5 +66,3 @@
 </div>
 
 <app-selected-terms-table></app-selected-terms-table>
-
-
