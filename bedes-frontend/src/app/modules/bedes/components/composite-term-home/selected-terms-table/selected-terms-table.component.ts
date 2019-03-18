@@ -11,6 +11,7 @@ import { CompositeTermService } from '../../../services/composite-term/composite
 import { CompositeTermDetail } from '@bedes-common/models/bedes-composite-term/composite-term-item/composite-term-detail';
 import { TableCellItemNameComponent } from './table-cell-item-name/table-cell-item-name.component';
 import { SupportListType } from '../../../services/support-list/support-list-type.enum';
+import { takeUntil } from 'rxjs/operators';
 
 // Object signature for grid row objects.
 interface IGridRow {
@@ -65,6 +66,7 @@ export class SelectedTermsTableComponent implements OnInit, OnDestroy {
      */
     private subscribeToActiveTerm(): void {
         this.compositeTermService.selectedTermSubject
+        .pipe(takeUntil(this.ngUnsubscribe))
         .subscribe((compositeTerm: BedesCompositeTerm) => {
             this.compositeTerm = compositeTerm;
             this.gridDataNeedsRefresh = true;

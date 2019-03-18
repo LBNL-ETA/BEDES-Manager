@@ -138,11 +138,6 @@ export class CompositeTermListComponent extends MessageFromGrid<IGridRow> implem
         this.compositeTermService.termListSubject
         .pipe(takeUntil(this.ngUnsubscribe))
         .subscribe((termList: Array<BedesCompositeTermShort>) => {
-            console.log(
-                `%c${this.constructor.name}: received TermList`,
-                consoleFormatString,
-                termList
-            );
             this.termList = termList;
             this.gridDataNeedsSet = true;
             this.setGridData();
@@ -156,7 +151,6 @@ export class CompositeTermListComponent extends MessageFromGrid<IGridRow> implem
         this.authService.currentUserSubject
             .pipe(takeUntil(this.ngUnsubscribe))
             .subscribe((currentUser: CurrentUser) => {
-                console.log(`${this.constructor.name}: received user status`, currentUser);
                 this.currentUser = currentUser;
                 this.isEditable = currentUser.isLoggedIn();
             });
@@ -221,11 +215,6 @@ export class CompositeTermListComponent extends MessageFromGrid<IGridRow> implem
             const gridData = new Array<IGridRow>();
             if (Array.isArray(this.termList)) {
                 this.termList.forEach((item: BedesCompositeTermShort) => {
-                    console.log(
-                        `%c${this.constructor.name}: composite term can edit = ${this.currentUser.canEditCompositeTerm(item.id)}`,
-                        consoleFormatString,
-                        item
-                    );
                     gridData.push(<IGridRow>{
                         name: item.name,
                         isEditable: this.currentUser.canEditCompositeTerm(item.id),

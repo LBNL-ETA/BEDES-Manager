@@ -45,7 +45,6 @@ export class NavbarComponent implements OnInit {
     private subscribeToCurrentUser(): void {
         this.authService.currentUserSubject
         .subscribe((currentUser: CurrentUser) => {
-            console.log(`${this.constructor.name}: received user currentUser`);
             this.currentUser = currentUser;
         });
     }
@@ -57,6 +56,5 @@ export class NavbarComponent implements OnInit {
     public isAdmin(): boolean {
         return this.currentUser.isAdmin();
     }
-
 
 }

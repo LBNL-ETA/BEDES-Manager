@@ -41,6 +41,12 @@ export class VerifyComponent implements OnInit {
         this.subscribeToCurrentUser();
     }
 
+    ngOnDestroy() {
+        // unsubscribe from the subjects
+        this.ngUnsubscribe.next();
+        this.ngUnsubscribe.complete();
+    }
+
     /**
      * Assign the verification code if it's present in the url.
      */

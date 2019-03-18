@@ -4,12 +4,6 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { BedesTermSelectorService } from '../../../services/bedes-term-selector/bedes-term-selector.service';
 import { BedesConstrainedList, BedesTerm } from '@bedes-common/models/bedes-term';
-import { SupportListService } from '../../../services/support-list/support-list.service';
-import { BedesUnit } from '@bedes-common/models/bedes-unit/bedes-unit';
-import { BedesDataType } from '@bedes-common/models/bedes-data-type';
-import { BedesTermCategory } from '@bedes-common/models/bedes-term-category/bedes-term-category';
-import { MatDialog } from '@angular/material';
-import { ConfirmDialogComponent } from '../../dialogs/confirm-dialog/confirm-dialog.component';
 import { BedesCompositeTerm } from '@bedes-common/models/bedes-composite-term/bedes-composite-term';
 import { CompositeTermService } from '../../../services/composite-term/composite-term.service';
 
@@ -23,19 +17,12 @@ export class SelectedTermsOrderComponent implements OnInit, OnDestroy {
     public compositeTerm: BedesCompositeTerm;
     public selectedTerms: Array<BedesTerm | BedesConstrainedList>;
 
-    private unitList: Array<BedesUnit>;
-    private dataTypeList: Array<BedesDataType>;
-    private categoryList: Array<BedesTermCategory>;
-
     constructor(
-        private supportListService: SupportListService,
         private termSelectorService: BedesTermSelectorService,
-        private dialog: MatDialog,
         private compositeTermService: CompositeTermService
     ) { }
 
     ngOnInit() {
-        this.initializeSupportLists();
         this.initTermSelectorSubscriber();
         this.subscribeToActiveTerm();
     }
@@ -51,8 +38,8 @@ export class SelectedTermsOrderComponent implements OnInit, OnDestroy {
      */
     private subscribeToActiveTerm(): void {
         this.compositeTermService.selectedTermSubject
+        .pipe(takeUntil(this.ngUnsubscribe))
         .subscribe((compositeTerm: BedesCompositeTerm) => {
-            console.log(`${this.constructor.name}: received new composite term`, compositeTerm);
             this.compositeTerm = compositeTerm;
         })
     }
@@ -66,28 +53,6 @@ export class SelectedTermsOrderComponent implements OnInit, OnDestroy {
                 this.compositeTerm.addBedesTerm(newTerm);
             }
         });
-        console.log('compositeTerm', this.compositeTerm);
-    }
-
-    /**
-     * Setup the lists that translates id's into text labels.
-     */
-    private initializeSupportLists(): void {
-        this.supportListService.unitListSubject.subscribe(
-            (results: Array<BedesUnit>) => {
-                this.unitList = results;
-            }
-        );
-        this.supportListService.dataTypeSubject.subscribe(
-            (results: Array<BedesDataType>) => {
-                this.dataTypeList = results;
-            }
-        );
-        this.supportListService.termCategorySubject.subscribe(
-            (results: Array<BedesTermCategory>) => {
-                this.categoryList = results;
-            }
-        );
     }
 
     /**
@@ -97,7 +62,6 @@ export class SelectedTermsOrderComponent implements OnInit, OnDestroy {
         this.termSelectorService.selectedTermsSubject
             .pipe(takeUntil(this.ngUnsubscribe))
             .subscribe((results: Array<BedesTerm | BedesConstrainedList>) => {
-                console.log(`${this.constructor.name}: received search results...`, results);
                 this.selectedTerms = results;
                 this.addNewItemsToCompositeTerm(results);
             },
@@ -108,53 +72,8 @@ export class SelectedTermsOrderComponent implements OnInit, OnDestroy {
             });
     }
 
-    /**
-     * Save the composite term to the database.
-     */
-    public saveCompositeTerm(): void {
-        console.log('save the composite term');
-        if (this.compositeTerm.id) {
-            // an existing term
-            this.compositeTermService.updateTerm(this.compositeTerm)
-            .subscribe((results: BedesCompositeTerm) => {
-                console.log(`${this.constructor.name}: save compoisite term success`, results);
-                this.compositeTerm = results;
-            });
-        }
-        else {
-            // new term, save it to the database.
-            this.compositeTermService.saveNewTerm(this.compositeTerm)
-            .subscribe((results: BedesCompositeTerm) => {
-                console.log(`${this.constructor.name}: save compoisite term success`, results);
-                this.compositeTerm = results;
-            });
-        }
-    }
-
-
-    /**
-     * Remove the terms selected by the user.
-     */
-    public removeSelectedTerms(): void {
-        console.log('remove selected terms');
-        const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-            panelClass: 'dialog-no-padding',
-            width: '650px',
-            position: {top: '20px'},
-            data: {
-                dialogTitle: 'Confirm?',
-                dialogContent: 'Remove the selected terms?',
-            }
-        });
-        dialogRef.afterClosed().subscribe(result => {
-            console.log('dialogRef.afterClosed()', result);
-        });
-    }
-
     public drop(event: CdkDragDrop<string[]>) {
-        console.log('before', this.compositeTerm.items);
         moveItemInArray(this.compositeTerm.items, event.previousIndex, event.currentIndex);
-        console.log('new array?', this.compositeTerm.items);
         let newIndex = 1;
         this.compositeTerm.items.forEach((item) => {
             item.orderNumber = newIndex++;

@@ -83,8 +83,8 @@ export class TermBuilderEditComponent implements OnInit {
      */
     private subscribeToActiveTerm(): void {
         this.compositeTermService.selectedTermSubject
+        .pipe(takeUntil(this.ngUnsubscribe))
         .subscribe((compositeTerm: BedesCompositeTerm) => {
-            console.log(`${this.constructor.name}: received new composite term`, compositeTerm);
             this.compositeTerm = compositeTerm;
             this.setFormData();
         })
@@ -95,11 +95,11 @@ export class TermBuilderEditComponent implements OnInit {
      */
     private initializeSupportList(): void {
         // subscribe to the unit list observable
-        this.supportListService.unitListSubject.subscribe(
-            (results: Array<BedesUnit>) => {
-                this.unitList = results;
-            }
-        );
+        this.supportListService.unitListSubject
+        .pipe(takeUntil(this.ngUnsubscribe))
+        .subscribe( (results: Array<BedesUnit>) => {
+            this.unitList = results;
+        });
     }
 
     public openTermSearchDialog(): void {

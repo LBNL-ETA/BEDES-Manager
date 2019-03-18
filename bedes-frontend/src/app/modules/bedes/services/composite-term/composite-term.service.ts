@@ -77,36 +77,18 @@ export class CompositeTermService {
     /**
      * Load the list of composite terms (short) during initialization.
      */
-    public load(): Promise<boolean> {
-        try {
-            console.log(
-                '%cload a new list of composite terms...',
-                consoleFormatString
-            );
-            return new Promise((resolve, reject) => {
-                this.getAll().subscribe(
-                    (terms: Array<BedesCompositeTermShort>) => {
-                        console.log(
-                            '%cdone',
-                            consoleFormatString,
-                            terms
-                        );
-                        this.termList = terms;
-                        this.termListSubject.next(this.termList);
-                        resolve(true);
-                    },
-                    (error: any) => {
-                        console.log(`${this.constructor.name}: error retrieving composite term list`);
-                        console.log(error);
-                        reject(error);
-                    }
-                );
-            });
-        }
-        catch (error) {
-            console.log(`${this.constructor.name}: Error during application load()`, error);
-            throw error;
-        }
+    public load(): void {
+        this.getAll().subscribe(
+            (terms: Array<BedesCompositeTermShort>) => {
+                this.termList = terms;
+                this.termListSubject.next(this.termList);
+            },
+            (error: any) => {
+                console.log(`${this.constructor.name}: error retrieving composite term list`);
+                console.log(error);
+                throw error;
+            }
+        );
     }
 
     /**
@@ -115,7 +97,6 @@ export class CompositeTermService {
     public getAll(): Observable<Array<BedesCompositeTermShort>> {
         return this.http.get<Array<IBedesCompositeTermShort>>(this.urlNew, { withCredentials: true })
             .pipe(map((results: Array<IBedesCompositeTermShort>) => {
-                console.log(`${this.constructor.name}: received results`, results);
                 if (!Array.isArray(results)) {
                     throw new Error(`${this.constructor.name}: getAll expected to receive an array of composite terms`);
                 }
@@ -130,10 +111,8 @@ export class CompositeTermService {
      */
     public getTerm(uuid: string): Observable<BedesCompositeTerm> {
         const url = this.urlUpdate.replace(/:id$/, uuid);
-        console.log(`url = ${url}`);
         return this.http.get<IBedesCompositeTerm>(url, { withCredentials: true })
             .pipe(map((results: IBedesCompositeTerm) => {
-                console.log(`${this.constructor.name}: received results`, results);
                 return new BedesCompositeTerm(results);
             }));
     }
@@ -146,7 +125,6 @@ export class CompositeTermService {
         };
         return this.http.post<Array<ICompositeTermDetailRequestResult>>(this.urlDetailInfo, params, { withCredentials: true })
             .pipe(map((results: Array<ICompositeTermDetailRequestResult>) => {
-                console.log(`${this.constructor.name}: received results`, results);
                 // transform the interface into a class object instance
                 return results.map((item) => new CompositeTermDetailRequestResult(item));
             }));
@@ -170,7 +148,6 @@ export class CompositeTermService {
     public saveNewTerm(compositeTerm: BedesCompositeTerm): Observable<BedesCompositeTerm> {
         return this.http.post<IBedesCompositeTerm>(this.urlNew, compositeTerm, {withCredentials: true})
         .pipe(map((results: IBedesCompositeTerm) => {
-            console.log(`${this.constructor.name}: received results`, results);
             // reload the bedes term list
             // this.load();
             const newTerm = new BedesCompositeTerm(results);
@@ -192,7 +169,6 @@ export class CompositeTermService {
         const url = this.urlUpdate.replace(/:id$/, String(compositeTerm.id));
         return this.http.put<IBedesCompositeTerm>(url, compositeTerm, {withCredentials: true})
         .pipe(map((results: IBedesCompositeTerm) => {
-            console.log(`${this.constructor.name}: received results`, results);
             const newTerm = new BedesCompositeTerm(results);
             // update the corresponding BedesCompositeTermShort in the ilst
             this.updateExistingListTerm(newTerm);
@@ -213,7 +189,6 @@ export class CompositeTermService {
         const url = this.urlUpdate.replace(/:id$/, String(compositeTerm.uuid));
         return this.http.delete<number>(url, {withCredentials: true})
         .pipe(map((results: number) => {
-            console.log(`${this.constructor.name}: received results`, results);
             this.removeTermFromList(compositeTerm);
             this.authService.checkLoginStatus();
             return results;
@@ -277,26 +252,6 @@ export class CompositeTermService {
         }
 
     }
-
-
-    // public search(searchStrings: Array<string>): Observable<Array<BedesTerm | BedesConstrainedList>> {
-    //     let httpParams = new HttpParams({
-    //         fromObject: {
-    //             search: searchStrings[0]
-    //         }
-    //     });
-    //     searchStrings.forEach(searchString => httpParams.append('search', String(searchString)))
-    //     return this.http.get<Array<IBedesCompositeTerm>>(this.url, { params: httpParams, withCredentials: true })
-    //         .pipe(map((results) => {
-    //             return results.map((item) =>
-    //                 // if the object has an _options key it's a ContstrainedList
-    //                 // everything else is a reguarl Term
-    //                 item.hasOwnProperty('_options') ?
-    //                 new BedesConstrainedList(<IBedesConstrainedList>item)
-    //                 :
-    //                 new BedesTerm(<IBedesTerm>item));
-    //         }));
-    // }
 
     /**
      * Set's the active BedesCompositeTerm.

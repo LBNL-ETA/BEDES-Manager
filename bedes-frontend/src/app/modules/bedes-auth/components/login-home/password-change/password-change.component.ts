@@ -6,6 +6,7 @@ import { AuthService } from '../../../services/auth/auth.service';
 import { CurrentUser } from '@bedes-common/models/current-user/current-user';
 import { getNextAuthUrl } from '../lib/get-next-url';
 import { PasswordUpdate } from '@bedes-common/interfaces/password-update/password-update';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-password-change',
@@ -38,12 +39,19 @@ export class PasswordChangeComponent implements OnInit {
         this.subscribeToCurrentUser();
     }
 
+    ngOnDestroy() {
+        // unsubscribe from the subjects
+        this.ngUnsubscribe.next();
+        this.ngUnsubscribe.complete();
+    }
+
     /**
      * Subscribe to the currentUser BehaviorSubject to keep
      * the currentUser up-to-date.
      */
     private subscribeToCurrentUser(): void {
         this.authService.currentUserSubject
+        .pipe(takeUntil(this.ngUnsubscribe))
         .subscribe((currentUser: CurrentUser) => {
             this.currentUser = currentUser;
             const nextUrl = getNextAuthUrl(currentUser.status);
@@ -64,7 +72,6 @@ export class PasswordChangeComponent implements OnInit {
     public updatePassword(): void {
         this.clearError();
         const passwordUpdate = this.getPasswordUpdateData();
-        console.log('update password...', passwordUpdate);
         if (!passwordUpdate) {
             throw new Error(`${this.constructor.name}: error retrieving password details.`);
         }
@@ -73,7 +80,6 @@ export class PasswordChangeComponent implements OnInit {
         }
         this.authService.updatePassword(passwordUpdate)
         .subscribe((results: any) => {
-            console.log('results = ', results);
             this.updateSuccess;
         },
         (error: Error) => {
