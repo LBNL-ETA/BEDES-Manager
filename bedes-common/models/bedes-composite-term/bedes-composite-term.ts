@@ -86,7 +86,6 @@ export class BedesCompositeTerm extends UUIDGenerator {
         return this._hasChanged;
     }
     public clearChangeFlag(): void {
-        console.log('**reset');
         this._hasChanged = false;
     }
 
