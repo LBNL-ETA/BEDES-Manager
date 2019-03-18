@@ -105,6 +105,18 @@ export class CurrentUser {
     }
 
     /**
+     * Determines if the values of the required parameters are valid values.
+     * @returns true if the user is "valid"
+     */
+    public isValid(): boolean {
+        return this.id > 0
+        && this.status in UserStatus
+        && this._userGroupId && this._userGroupId in UserGroup
+            ? true
+            : false;
+    }
+
+    /**
      * Returns true if the user needs to verify their account, false otherwise.
      */
     public needsVerify(): boolean {

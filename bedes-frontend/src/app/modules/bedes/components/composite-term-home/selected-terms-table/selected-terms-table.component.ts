@@ -1,23 +1,18 @@
 import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
-import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
 import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
 import { AgGridNg2 } from 'ag-grid-angular';
-import { GridOptions, ColDef, ValueGetterParams, SelectionChangedEvent } from 'ag-grid-community';
-import { BedesTermSelectorService } from '../../../services/bedes-term-selector/bedes-term-selector.service';
+import { GridOptions, ColDef } from 'ag-grid-community';
 import { BedesConstrainedList, BedesTerm } from '@bedes-common/models/bedes-term';
 import { SupportListService } from '../../../services/support-list/support-list.service';
-import { BedesUnit } from '@bedes-common/models/bedes-unit/bedes-unit';
-import { BedesDataType } from '@bedes-common/models/bedes-data-type';
-import { BedesTermCategory } from '@bedes-common/models/bedes-term-category/bedes-term-category';
 import { MatDialog } from '@angular/material';
 import { ConfirmDialogComponent } from '../../dialogs/confirm-dialog/confirm-dialog.component';
 import { BedesCompositeTerm } from '@bedes-common/models/bedes-composite-term/bedes-composite-term';
 import { CompositeTermService } from '../../../services/composite-term/composite-term.service';
-import { CompositeTermDetail } from '../../../../../../../../bedes-common/models/bedes-composite-term/composite-term-item/composite-term-detail';
+import { CompositeTermDetail } from '@bedes-common/models/bedes-composite-term/composite-term-item/composite-term-detail';
 import { TableCellItemNameComponent } from './table-cell-item-name/table-cell-item-name.component';
 import { SupportListType } from '../../../services/support-list/support-list-type.enum';
 
+// Object signature for grid row objects.
 interface IGridRow {
     name: string;
     description: string | null | undefined;
@@ -26,6 +21,7 @@ interface IGridRow {
     dataTypeName: string | null | undefined;
     unitName: string | null | undefined;
     termCategoryName: string | null | undefined;
+    scopeName: string | null | undefined;
     ref: CompositeTermDetail
 }
 
@@ -46,19 +42,13 @@ export class SelectedTermsTableComponent implements OnInit, OnDestroy {
     private gridInitialized = false;
     private gridDataNeedsRefresh = false;
 
-    private unitList: Array<BedesUnit>;
-    private dataTypeList: Array<BedesDataType>;
-    private categoryList: Array<BedesTermCategory>;
-
     constructor(
         private supportListService: SupportListService,
-        private termSelectorService: BedesTermSelectorService,
         private dialog: MatDialog,
         private compositeTermService: CompositeTermService
     ) { }
 
     ngOnInit() {
-        this.initializeSupportLists();
         this.initializeGrid();
         this.setTableContext();
         this.subscribeToActiveTerm();
@@ -76,7 +66,6 @@ export class SelectedTermsTableComponent implements OnInit, OnDestroy {
     private subscribeToActiveTerm(): void {
         this.compositeTermService.selectedTermSubject
         .subscribe((compositeTerm: BedesCompositeTerm) => {
-            console.log(`${this.constructor.name}: received new composite term`, compositeTerm);
             this.compositeTerm = compositeTerm;
             this.gridDataNeedsRefresh = true;
             this.setGridData();
@@ -94,27 +83,6 @@ export class SelectedTermsTableComponent implements OnInit, OnDestroy {
     }
 
     /**
-     * Setup the lists that translates id's into text labels.
-     */
-    private initializeSupportLists(): void {
-        this.supportListService.unitListSubject.subscribe(
-            (results: Array<BedesUnit>) => {
-                this.unitList = results;
-            }
-        );
-        this.supportListService.dataTypeSubject.subscribe(
-            (results: Array<BedesDataType>) => {
-                this.dataTypeList = results;
-            }
-        );
-        this.supportListService.termCategorySubject.subscribe(
-            (results: Array<BedesTermCategory>) => {
-                this.categoryList = results;
-            }
-        );
-    }
-
-    /**
      * Initialize the ag-grid.
      */
     private initializeGrid(): void {
@@ -123,9 +91,6 @@ export class SelectedTermsTableComponent implements OnInit, OnDestroy {
             enableColResize: true,
             enableFilter: true,
             enableSorting: true,
-            // rowSelection: 'multiple',
-            // rowDragManaged: true,
-            // animateRows: true,
             columnDefs: this.buildColumnDefs(),
             onGridReady: () => {
                 this.gridInitialized = true;
@@ -136,11 +101,6 @@ export class SelectedTermsTableComponent implements OnInit, OnDestroy {
             onFirstDataRendered(params) {
                 params.api.sizeColumnsToFit();
             },
-            // onSelectionChanged: (event: SelectionChangedEvent) => {
-            //     console.log('selection changed', event.api.getSelectedRows());
-            //     this.termSelectorService.setSelectedTerms(event.api.getSelectedRows());
-            //     this.selectedTerms = event.api.getSelectedRows();
-            // }
         };
     }
 

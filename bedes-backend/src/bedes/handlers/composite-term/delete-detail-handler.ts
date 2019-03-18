@@ -7,6 +7,7 @@ import { bedesQuery } from '../../query';
 import { IMappingApplication } from '@bedes-common/models/mapping-application';
 import { db } from '@bedes-backend/db';
 import { BedesCompositeTerm } from '../../../../../bedes-common/models/bedes-composite-term/bedes-composite-term';
+import { getAuthenticatedUser } from '@bedes-backend/util/get-authenticated-user';
 const logger = createLogger(module);
 
 /**
@@ -15,25 +16,27 @@ const logger = createLogger(module);
  */
 export async function deleteCompositeTermDetailHandler(request: Request, response: Response): Promise<any> {
     try {
+        // get the current user that's logged in
+        const currentUser = getAuthenticatedUser(request);
         // id should be a url parameter
         const id = request.params.id;
         if (!id) {
             throw new BedesError(
                 'Invalid parameters',
-                HttpStatusCodes.BadRequest_400,
-                "Invalid parameters"
+                HttpStatusCodes.BadRequest_400
             );
         }
         return db.tx('trans', async (transaction: any) => {
-            console.log('new transaction')
-            let results = await bedesQuery.compositeTermDetail.deleteCompositeTermDetailById(id, transaction);
-            console.log('term detail deleted')
-            console.log(results);
+            let results = await bedesQuery.compositeTermDetail.deleteCompositeTermDetailById(
+                id, transaction
+            );
             let newTermData = await bedesQuery.compositeTerm.getRecordComplete(id);
-            console.log(newTermData);
             const newTerm = new BedesCompositeTerm(newTermData);
             newTerm.refresh();
-            let saveResults = await bedesQuery.compositeTerm.updateCompositeTerm(newTerm.toInterface());
+            let saveResults = await bedesQuery.compositeTerm.updateCompositeTerm(
+                currentUser,
+                newTerm.toInterface()
+            );
             console.log('new term saved');
             console.log(saveResults);
             response.json(results)

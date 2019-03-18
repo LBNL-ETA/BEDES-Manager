@@ -12,9 +12,19 @@ export class CompositeTermDetail {
     private _orderNumber: number;
     private _isValueField: boolean | null | undefined;
 
-    constructor(data: BedesTerm, orderNumber: number, termOption?: BedesTermOption, isValueField?: boolean);
+    constructor(
+        data: BedesTerm,
+        orderNumber: number,
+        termOption?: BedesTermOption,
+        isValueField?: boolean
+    );
     constructor(data: ICompositeTermDetail);
-    constructor(data: ICompositeTermDetail | BedesTerm, orderNumber?: number, listOption?: BedesTermOption, isValueField?: boolean) {
+    constructor(
+        data: ICompositeTermDetail | BedesTerm,
+        orderNumber?: number,
+        listOption?: BedesTermOption,
+        isValueField?: boolean
+    ) {
         if (data instanceof BedesTerm) {
             // build the object from a BedesTerm-TermOption object(s)
             if (!data.id) {

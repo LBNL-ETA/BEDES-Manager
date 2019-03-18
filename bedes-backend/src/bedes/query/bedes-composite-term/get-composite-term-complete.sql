@@ -6,6 +6,8 @@ select
     ct.description as "_description",
     ct.unit_id as "_unitId",
     ct.uuid as "_uuid",
+    ct.user_id as "_userId",
+    ct.scope_id as "_scopeId",
     json_agg(
         json_build_object(
             '_id', td.id,

@@ -9,6 +9,10 @@ import { ICompositeTermDetailRequestParam } from '@bedes-common/models/composite
 import { ICompositeTermDetailRequestResult } from '@bedes-common/models/composite-term-detail-request-result';
 import { CompositeTermDetailRequestResult } from '@bedes-common/models/composite-term-detail-request-result/composite-term-detail-request-result';
 import { CompositeTermDetail } from '@bedes-common/models/bedes-composite-term/composite-term-item/composite-term-detail';
+import { CurrentUser } from '@bedes-common/models/current-user';
+import { AuthService } from 'src/app/modules/bedes-auth/services/auth/auth.service';
+
+const consoleFormatString = `background-color: dodgerblue; color: white; padding: 5px`;
 
 @Injectable({
     providedIn: 'root'
@@ -47,12 +51,27 @@ export class CompositeTermService {
 
     constructor(
         private http: HttpClient,
-        @Inject(API_URL_TOKEN) private apiUrl
+        @Inject(API_URL_TOKEN) private apiUrl,
+        private authService: AuthService
     ) {
         this.urlNew = `${this.apiUrl}${this.apiEndpointNew}`;
         this.urlUpdate = `${this.apiUrl}${this.apiEndpointUpdate}`;
         this.urlDetailInfo = `${this.apiUrl}${this.apiEndpointDetailInfo}`;
         this.urlDetail = `${this.apiUrl}${this.apiEndpointDetail}`;
+        this.subscribeToCurrentUser();
+    }
+
+    /**
+     * Subscribe to changes in authenticated users.
+     * Updates the composite term list as a user is logged in/out.
+     */
+    private subscribeToCurrentUser(): void {
+        // subscribe to the authenticated user
+        // update the composite term list as the authenticated user changes
+        this.authService.currentUserSubject
+        .subscribe((currentUser: CurrentUser) => {
+            this.load();
+        });
     }
 
     /**
@@ -60,11 +79,18 @@ export class CompositeTermService {
      */
     public load(): Promise<boolean> {
         try {
-            console.log(`${this.constructor.name}: retrieving composite term list...`)
+            console.log(
+                '%cload a new list of composite terms...',
+                consoleFormatString
+            );
             return new Promise((resolve, reject) => {
                 this.getAll().subscribe(
                     (terms: Array<BedesCompositeTermShort>) => {
-                        console.log(`${this.constructor.name}: received composite term list`, terms);
+                        console.log(
+                            '%cdone',
+                            consoleFormatString,
+                            terms
+                        );
                         this.termList = terms;
                         this.termListSubject.next(this.termList);
                         resolve(true);
@@ -93,7 +119,7 @@ export class CompositeTermService {
                 if (!Array.isArray(results)) {
                     throw new Error(`${this.constructor.name}: getAll expected to receive an array of composite terms`);
                 }
-                return results.map((d) => new BedesCompositeTermShort(d));
+                return results.map((item) => new BedesCompositeTermShort(item));
             }));
     }
 
@@ -142,12 +168,17 @@ export class CompositeTermService {
      * Saves a new CompositeTerm to the database.
      */
     public saveNewTerm(compositeTerm: BedesCompositeTerm): Observable<BedesCompositeTerm> {
-        return this.http.post<IBedesCompositeTerm>(this.urlNew, compositeTerm)
+        return this.http.post<IBedesCompositeTerm>(this.urlNew, compositeTerm, {withCredentials: true})
         .pipe(map((results: IBedesCompositeTerm) => {
             console.log(`${this.constructor.name}: received results`, results);
             // reload the bedes term list
-            this.load();
-            return new BedesCompositeTerm(results);
+            // this.load();
+            const newTerm = new BedesCompositeTerm(results);
+            this.addTermToList(BedesCompositeTermShort.fromBedesCompositeTerm(newTerm));
+            // need to tell auth to reload authenticated user info
+            // authenticated users know what composite terms they can edit
+            this.authService.checkLoginStatus();
+            return newTerm;
         }));
     }
 
@@ -159,12 +190,13 @@ export class CompositeTermService {
             throw new Error(`${this.constructor.name}: Attempt to update a new CompositeTerm`)
         }
         const url = this.urlUpdate.replace(/:id$/, String(compositeTerm.id));
-        return this.http.put<IBedesCompositeTerm>(url, compositeTerm)
+        return this.http.put<IBedesCompositeTerm>(url, compositeTerm, {withCredentials: true})
         .pipe(map((results: IBedesCompositeTerm) => {
             console.log(`${this.constructor.name}: received results`, results);
-            // reload the bedes term list
-            this.load();
-            return new BedesCompositeTerm(results);
+            const newTerm = new BedesCompositeTerm(results);
+            // update the corresponding BedesCompositeTermShort in the ilst
+            this.updateExistingListTerm(newTerm);
+            return newTerm;
         }));
     }
 
@@ -179,12 +211,44 @@ export class CompositeTermService {
             throw new Error(`${this.constructor.name}: Attempt to update a new CompositeTerm`)
         }
         const url = this.urlUpdate.replace(/:id$/, String(compositeTerm.uuid));
-        return this.http.delete<number>(url)
+        return this.http.delete<number>(url, {withCredentials: true})
         .pipe(map((results: number) => {
             console.log(`${this.constructor.name}: received results`, results);
             this.removeTermFromList(compositeTerm);
+            this.authService.checkLoginStatus();
             return results;
         }));
+    }
+
+    private addTermToList(term: BedesCompositeTermShort): void {
+        // look for term with the same uuid
+        const existing = this.termList.find((item) => item.uuid === term.uuid);
+        if (existing) {
+            throw new Error('Attempted to add a composite term that already exists');
+        }
+        // add the term to the top of the list
+        this.termList.splice(0, 0, term);
+        this._termListSubject.next(this.termList);
+    }
+
+    /**
+     * Updates the existing BedesCompositeTermShort, if the corresponding
+     * BedesCompositeTerm has been updated.
+     * @param term
+     */
+    private updateExistingListTerm(term: BedesCompositeTerm): void {
+        // find the corresponding term by uuid
+        const shortItem = this.termList.find((item) => item.uuid === term.uuid);
+        if (!shortItem) {
+            throw new Error(`Unable to find corresponding short item ${term.uuid}`)
+        }
+        // assign the updateable values
+        shortItem.id = term.id;
+        shortItem.name = term.name;
+        shortItem.description = term.description;
+        shortItem.signature = term.signature;
+        shortItem.unitId = term.unitId;
+        this._termListSubject.next(this.termList);
     }
 
     /**
@@ -205,6 +269,8 @@ export class CompositeTermService {
             // found the term to remove, remove it
             this.termList.splice(index, 1);
             this.termListSubject.next(this.termList);
+            // tell auth to reload the authenticated user info
+            this.authService.checkLoginStatus();
         }
         else {
             throw new Error('Unable to find the CompositeTerm in the termList');

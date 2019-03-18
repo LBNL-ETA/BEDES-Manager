@@ -10,7 +10,6 @@ import { BedesUnit } from '@bedes-common/models/bedes-unit';
 import { SearchResultType } from '@bedes-common/models/bedes-search-result/search-result-type.enum';
 import { ISearchDialogOptions } from '../../dialogs/bedes-term-search-dialog/search-dialog-options.interface';
 import { BedesSearchResult } from '@bedes-common/models/bedes-search-result/bedes-search-result';
-import { BedesTermService } from '../../../services/bedes-term/bedes-term.service';
 import { ICompositeTermDetailRequestParam } from '@bedes-common/models/composite-term-detail-request-param/composite-term-detail-request-param.interface';
 import { CompositeTermDetailRequestResult } from '@bedes-common/models/composite-term-detail-request-result/composite-term-detail-request-result';
 import { AuthService } from 'src/app/modules/bedes-auth/services/auth/auth.service';
@@ -42,7 +41,6 @@ export class TermBuilderEditComponent implements OnInit {
     constructor(
         private formBuilder: FormBuilder,
         private dialog: MatDialog,
-        private termService: BedesTermService,
         private compositeTermService: CompositeTermService,
         private supportListService: SupportListService,
         private authService: AuthService,
@@ -68,9 +66,10 @@ export class TermBuilderEditComponent implements OnInit {
         this.authService.currentUserSubject
             .pipe(takeUntil(this.ngUnsubscribe))
             .subscribe((currentUser: CurrentUser) => {
-                console.log(`${this.constructor.name}: received user status`, currentUser);
+                // assign the authenticated user
                 this.currentUser = currentUser;
-                this.isEditable = currentUser.isAdmin();
+                // any user who's logged in should be able to create/edit terms
+                this.isEditable = currentUser.isLoggedIn();
             });
     }
 
