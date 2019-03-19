@@ -81,7 +81,11 @@ async function createAdminAccount(): Promise<boolean> {
         bedesAdminPassword
     );
     // create the password hash
+<<<<<<< HEAD
     const hashedPassword = await user.hashPassword();
+=======
+    const hashedPasseword = await user.hashPassword();
+>>>>>>> eb56365... Created script to create the bedes-admin user account.
     const params = {
         _firstName: user.firstName,
         _lastName: user.lastName,
@@ -89,7 +93,11 @@ async function createAdminAccount(): Promise<boolean> {
         _organization: user.organization,
         _status: UserStatus.IsLoggedIn,
         _userGroupId: UserGroup.Administrator,
+<<<<<<< HEAD
         _password: hashedPassword
+=======
+        _password: hashedPasseword
+>>>>>>> eb56365... Created script to create the bedes-admin user account.
     }
     const query = `
         insert into auth.user (
