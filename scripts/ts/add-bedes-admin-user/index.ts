@@ -81,7 +81,7 @@ async function createAdminAccount(): Promise<boolean> {
         bedesAdminPassword
     );
     // create the password hash
-    const hashedPasseword = await user.hashPassword();
+    const hashedPassword = await user.hashPassword();
     const params = {
         _firstName: user.firstName,
         _lastName: user.lastName,
@@ -89,7 +89,7 @@ async function createAdminAccount(): Promise<boolean> {
         _organization: user.organization,
         _status: UserStatus.IsLoggedIn,
         _userGroupId: UserGroup.Administrator,
-        _password: hashedPasseword
+        _password: hashedPassword
     }
     const query = `
         insert into auth.user (

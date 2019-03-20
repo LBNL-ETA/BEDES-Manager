@@ -31,8 +31,6 @@ export function authenticationConfig(express: express.Application): void {
         if (userInfo.id) {
             authQuery.getById(userInfo.id)
             .then((data: ICurrentUser) => {
-                console.log('*** deserialize...');
-                console.log(data);
                 next(null, new CurrentUser(data));
             })
             .catch((error: Error) => {

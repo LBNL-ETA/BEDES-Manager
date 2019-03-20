@@ -9,7 +9,9 @@ const termLoader = new TermLoader(filePath, fileName);
 termLoader.run()
     .then((results: any) => {
         console.log('Done loading terms');
+        process.exit(0);
     }, (error: Error) => {
         console.log('Error loading terms');
         console.error(util.inspect(error));
+        process.exit(1);
     });
