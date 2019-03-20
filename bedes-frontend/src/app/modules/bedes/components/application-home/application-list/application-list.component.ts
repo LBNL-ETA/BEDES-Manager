@@ -43,8 +43,6 @@ export class ApplicationListComponent extends MessageFromGrid<IAppRow> implement
     public selectedItem: IAppRow | undefined;
     // lists
     public applicationList: Array<MappingApplication>;
-    private unitList: Array<BedesUnit>;
-    private categoryList: Array<BedesTermCategory>;
     // ag-grid
     public gridOptions: GridOptions;
     public rowData: Array<BedesTerm | BedesConstrainedList>;
@@ -59,8 +57,6 @@ export class ApplicationListComponent extends MessageFromGrid<IAppRow> implement
     constructor(
         private router: Router,
         private activatedRoute: ActivatedRoute,
-        private termSearchService: BedesTermSearchService,
-        private termService: BedesTermService,
         private appService: ApplicationService,
         private supportListService: SupportListService,
         private authService: AuthService,
@@ -85,9 +81,10 @@ export class ApplicationListComponent extends MessageFromGrid<IAppRow> implement
 
     private loadUserApplications(): void {
         this.appService.loadUserApplications()
-        .subscribe((results: Array<MappingApplication>) => {
-            this.setGridData();
-        });
+            .pipe(takeUntil(this.ngUnsubscribe))
+            .subscribe((results: Array<MappingApplication>) => {
+                this.setGridData();
+            });
     }
 
     /**
@@ -97,7 +94,6 @@ export class ApplicationListComponent extends MessageFromGrid<IAppRow> implement
         this.authService.currentUserSubject
             .pipe(takeUntil(this.ngUnsubscribe))
             .subscribe((currentUser: CurrentUser) => {
-                console.log(`${this.constructor.name}: received user status`, currentUser);
                 this.currentUser = currentUser;
                 this.isEditable = currentUser.isLoggedIn();
                 this.loadUserApplications();
@@ -111,12 +107,11 @@ export class ApplicationListComponent extends MessageFromGrid<IAppRow> implement
      */
     private loadApplicationList(): void {
         this.appService.appListSubject
-        .pipe(takeUntil(this.ngUnsubscribe))
-        .subscribe((appList: Array<MappingApplication>) => {
-            console.log(`${this.constructor.name}: received app list`, appList);
-            this.applicationList = appList;
-            this.setGridData();
-        });
+            .pipe(takeUntil(this.ngUnsubscribe))
+            .subscribe((appList: Array<MappingApplication>) => {
+                this.applicationList = appList;
+                this.setGridData();
+            });
     }
 
     /**
@@ -139,7 +134,6 @@ export class ApplicationListComponent extends MessageFromGrid<IAppRow> implement
      * Process the messages from the ag-grid AppTerm list.
      */
     public messageFromGrid(messageType: TableCellMessageType, selectedRow: IAppRow): void {
-        console.log(`${this.constructor.name}: received message from grid`, messageType, selectedRow);
         this.selectedItem = selectedRow;
         if (messageType === TableCellMessageType.View) {
             this.viewItem(selectedRow);
@@ -170,7 +164,6 @@ export class ApplicationListComponent extends MessageFromGrid<IAppRow> implement
                 params.api.sizeColumnsToFit();
             },
             onSelectionChanged: (event: SelectionChangedEvent) => {
-                console.log('selection changed', event.api.getSelectedRows());
                 const rows = event.api.getSelectedRows();
                 this.selectedItem = rows && rows.length ? rows[0] : undefined;
             }
@@ -205,12 +198,9 @@ export class ApplicationListComponent extends MessageFromGrid<IAppRow> implement
      * Remove the application that's currently selected in the table.
      */
     private removeSelectedItem(item: MappingApplication): void {
-        console.log(`${this.constructor.name}: removeSelectedItem`);
         this.appService.deleteApplication(item)
         .subscribe(
             (results: boolean) => {
-                console.log(`${this.constructor.name}: received results`);
-                console.log(results);
             },
             (error: any) => {
                 console.log('Error removing MappingApplication', this.selectedItem);
@@ -235,7 +225,6 @@ export class ApplicationListComponent extends MessageFromGrid<IAppRow> implement
      * Navigates tot he selected MappingApplication object.
      */
     public viewItem(selectedItem: IAppRow): void {
-        console.log(`${this.constructor.name}: view application`, selectedItem);
         this.router.navigate(['/applications', selectedItem.ref.id], {relativeTo: this.activatedRoute});
         // if ( selectedItem.ref.resultObjectType === SearchResultType.BedesTerm
         //     || selectedItem.ref.resultObjectType === SearchResultType.BedesConstrainedList

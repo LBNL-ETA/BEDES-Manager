@@ -60,7 +60,6 @@ export class ApplicationService {
      */
     public load(): Promise<boolean> {
         try {
-            console.log(`${this.constructor.name}: retrieving application list...`)
             return new Promise((resolve, reject) => {
                 this.getApplications().subscribe(
                     (applications: Array<MappingApplication>) => {
@@ -96,7 +95,6 @@ export class ApplicationService {
     public getApplications(): Observable<Array<MappingApplication>> {
         return this.http.get<Array<IMappingApplication>>(this.url, { withCredentials: true })
             .pipe(map((results: Array<IMappingApplication>) => {
-                console.log(`${this.constructor.name}: received results`, results);
                 // convert IApp to App objects.
                 return results.map((d) => new MappingApplication(d));
             }));
@@ -142,7 +140,6 @@ export class ApplicationService {
         return this.http.delete<number>(url, { withCredentials: true })
         .pipe(
             map((results: number) => {
-                console.log(`${this.constructor.name}: received results`, results, typeof results);
                 if (results) {
                     this.removeAppFromList(app);
                     this.setActiveApplication(undefined);

@@ -13,14 +13,11 @@ export class InterceptorService implements HttpInterceptor {
     ) {}
 
     intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-        console.log('**http intercepted', req);
-        // return next.handle(req);
         return next
             .handle(req)
             .pipe(tap(event => {
                 if (event instanceof HttpResponse) {
                     if (event.status === 401) {
-                        console.log('** set to unauthorized...')
                         this.authService.setUnauthorizedUser();
                     }
                 }

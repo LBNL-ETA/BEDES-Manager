@@ -13,13 +13,15 @@
     "load-xml-terms-debug": "(set -a && . ../../environment/backend.env && set +a && LOG_LEVEL_CONSOLE=debug ts-node xml-term-loader --color=true)",
     "load-xml-term-options": "(set -a && . ../../environment/backend.env && set +a && LOG_LEVEL_CONSOLE=info ts-node xml-term-option-loader --color=true)",
     "load-xml-term-options-debug": "(set -a && . ../../environment/backend.env && set +a && LOG_LEVEL_CONSOLE=debug ts-node xml-term-option-loader --color=true)",
-    "load-all": "npm run load-terms && npm run load-xml-terms && npm run load-xml-term-options"
+    "load-all": "npm run load-terms && npm run load-xml-terms && npm run load-xml-term-options",
+    "add-bedes-admin-user": "ts-node add-bedes-admin-user"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "@types/xlsx": "0.0.36",
     "app-root-path": "^2.1.0",
+    "dotenv": "^7.0.0",
     "module-alias": "^2.1.0",
     "path": "^0.12.7",
     "pg-promise": "^8.4.6",

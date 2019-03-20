@@ -1,9 +1,7 @@
-// import { ICurrentUser } from './current-user.interface';
-// import { UserStatus } from '../../enums/user-status.enum';
-// import { UserGroup } from '../../enums/user-group.enum';
-import { UserStatus } from '@bedes-common/enums/user-status.enum';
+import { UserStatus } from '../../enums/user-status.enum';
 import { ICurrentUser } from './current-user.interface';
 import { UserGroup } from '../../enums/user-group.enum';
+import { BedesCompositeTerm } from '../bedes-composite-term/bedes-composite-term';
 
 /**
  * Object that represents the current authenticated user.
@@ -66,6 +64,8 @@ export class CurrentUser {
     }
     // appIds
     private _appIds: Array<number>;
+    /** Keeps track of the composite term ids the user has access to */
+    private _compositeTermIds: Array<number>;
 
     /**
      * Build an instance of the current user.
@@ -84,6 +84,14 @@ export class CurrentUser {
         else {
             this._appIds = new Array<number>();
         }
+        // load the composite term ids
+        if (Array.isArray(data._compositeTermIds)) {
+            // create a copy of the array
+            this._compositeTermIds = [...data._compositeTermIds];
+        }
+        else {
+            this._compositeTermIds = new Array<number>();
+        }
     }
 
     /* Public Interface Methods */
@@ -92,6 +100,18 @@ export class CurrentUser {
      */
     public isLoggedIn(): boolean {
         return this._status === UserStatus.IsLoggedIn
+            ? true
+            : false;
+    }
+
+    /**
+     * Determines if the values of the required parameters are valid values.
+     * @returns true if the user is "valid"
+     */
+    public isValid(): boolean {
+        return this.id > 0
+        && this.status in UserStatus
+        && this._userGroupId && this._userGroupId in UserGroup
             ? true
             : false;
     }
@@ -146,6 +166,20 @@ export class CurrentUser {
      */
     public canEditApplication(appId: number): boolean {
         if (appId && this._appIds.includes(appId)) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+    /**
+     * Determines if the CurrentUser can edit a composite term.
+     * @param compositeTermId 
+     * @returns true if edit composite term 
+     */
+    public canEditCompositeTerm(compositeTermId: number): boolean {
+        if (compositeTermId && this._compositeTermIds.includes(compositeTermId)) {
             return true;
         }
         else {

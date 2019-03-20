@@ -12,11 +12,17 @@ import { TableCellMessageType } from '../../../models/ag-grid/enums/table-cell-m
 import { TableCellNavComponent } from '../../../models/ag-grid/table-cell-nav/table-cell-nav.component';
 import { MatDialog } from '@angular/material';
 import { ConfirmDialogComponent } from '../../dialogs/confirm-dialog/confirm-dialog.component';
+import { Scope } from '@bedes-common/enums/scope.enum';
+
+/** css formatting applied to console log statements */
+const consoleFormatString = 'background-color:green; color: white; padding: 5px;';
 
 interface IGridRow {
     name: string;
     scope: string;
     ref: BedesCompositeTermShort;
+    isEditable: boolean;
+    scopeName: string;
 }
 
 @Component({
@@ -99,7 +105,6 @@ export class CompositeTermListComponent extends MessageFromGrid<IGridRow> implem
             }
         });
         dialogRef.afterClosed().subscribe((results: boolean) => {
-            console.log('dialogRef.afterClosed()', results);
             if (results) {
                 this.removeSelectedItem(term);
             }
@@ -132,13 +137,11 @@ export class CompositeTermListComponent extends MessageFromGrid<IGridRow> implem
     private subscribeToTermList(): void {
         this.compositeTermService.termListSubject
         .pipe(takeUntil(this.ngUnsubscribe))
-        .subscribe(
-            (termList: Array<BedesCompositeTermShort>) => {
-                this.termList = termList;
-                this.gridDataNeedsSet = true;
-                this.setGridData();
-            }
-        )
+        .subscribe((termList: Array<BedesCompositeTermShort>) => {
+            this.termList = termList;
+            this.gridDataNeedsSet = true;
+            this.setGridData();
+        })
     }
 
     /**
@@ -148,7 +151,6 @@ export class CompositeTermListComponent extends MessageFromGrid<IGridRow> implem
         this.authService.currentUserSubject
             .pipe(takeUntil(this.ngUnsubscribe))
             .subscribe((currentUser: CurrentUser) => {
-                console.log(`${this.constructor.name}: received user status`, currentUser);
                 this.currentUser = currentUser;
                 this.isEditable = currentUser.isLoggedIn();
             });
@@ -215,7 +217,11 @@ export class CompositeTermListComponent extends MessageFromGrid<IGridRow> implem
                 this.termList.forEach((item: BedesCompositeTermShort) => {
                     gridData.push(<IGridRow>{
                         name: item.name,
-                        ref: item
+                        isEditable: this.currentUser.canEditCompositeTerm(item.id),
+                        ref: item,
+                        scopeName: item.scopeId === Scope.Public
+                            ? 'Public'
+                            : 'Private'
                     });
                 })
             }

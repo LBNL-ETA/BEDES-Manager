@@ -92,6 +92,16 @@ create table public.bedes_term_sector_link (
 create index on public.bedes_term_sector_link (term_id);
 create index on public.bedes_term_sector_link (sector_id);
 
+-- visibility of objects
+create table public.scope (
+    id int primary key,
+    name varchar (30) not null unique
+);
+insert into public.scope (id, name) values
+    (1, 'Private'),
+    (2, 'Public')
+;
+
 -- Composite Term
 create table public.bedes_composite_term (
     id serial primary key,
@@ -100,6 +110,8 @@ create table public.bedes_composite_term (
     description text,
     unit_id int references public.unit (id),
     uuid uuid not null unique,
+    user_id int not null references auth.user (id),
+    scope_id int not null references public.scope (id) default 1,
     created_date timestamp default now(),
     modified_date timestamp default now()
 );
@@ -115,16 +127,6 @@ create table public.bedes_composite_term_details (
     -- unique (composite_term_id, bedes_term_id),
     unique (composite_term_id, order_number)
 );
-
--- ApplicationScope
-create table public.application_scope (
-    id int primary key,
-    name varchar (30) not null unique
-);
-insert into public.application_scope (id, name) values
-    (1, 'Private'),
-    (2, 'Public')
-;
 
 -- ApplicationRole
 create table public.application_role_type (
@@ -143,7 +145,7 @@ create table public.mapping_application (
     id serial primary key,
     name varchar(100) not null unique,
     description varchar(500),
-    scope_id int not null references public.application_scope (id) default 1
+    scope_id int not null references public.scope (id) default 1
 );
 
 -- Links authenticated users to mapping applications
@@ -252,22 +254,32 @@ create table public.composite_term_maps (
 
 -- table that containst he different states an application can be in as it's waiting
 -- for a mapping request to be made public.
-create table public.application_request_status (
+create table public.promote_request_status (
     id int primary key,
     name varchar(30) unique not null
 );
 
 -- create the different states for an application's public mapping request
-insert into public.application_request_status (id, name) values
+insert into public.promote_request_status (id, name) values
     (1, 'Pending'),
     (2, 'Approved'),
     (3, 'Rejected')
 ;
 
 -- table that contains the requests for a mapping application to be made public
-create table public.mapping_application_requests (
+create table public.application_promote_request (
     id serial primary key,
     app_id int not null references public.mapping_application (id),
-    status_id int not null references public.application_request_status (id) default 1,
+    status_id int not null references public.promote_request_status (id) default 1,
+    notes varchar(1000),
+    request_time timestamp default now()
+);
+
+-- table that contains the requests for a composite term to be made public
+create table public.composite_term_promote_request (
+    id serial primary key,
+    composite_term_id int not null references public.bedes_composite_term (id),
+    status_id int not null references public.promote_request_status (id) default 1,
+    notes varchar(1000),
     request_time timestamp default now()
 );

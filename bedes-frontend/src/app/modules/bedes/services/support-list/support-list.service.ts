@@ -65,11 +65,9 @@ export class SupportListService {
      * @returns load
      */
     public load(): Promise<boolean> {
-        console.log(`${this.constructor.name}: retrieving support lists...`)
         return new Promise((resolve, reject) => {
             this.http.get<ISupportList>(this.url)
             .subscribe((results: ISupportList) => {
-                console.log(`${this.constructor.name}: received results`, results);
                 // assign the unit list lookup table
                 this.unitList = results._unitList.map((d) => new BedesUnit(d));
                 this._unitListSubject.next(this.unitList);

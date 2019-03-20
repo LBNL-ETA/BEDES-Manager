@@ -13,12 +13,14 @@ import { ICompositeTermDetailRequestResult } from '@bedes-common/models/composit
 import { BedesError } from '@bedes-common/bedes-error/bedes-error';
 import { HttpStatusCodes } from '@bedes-common/enums/http-status-codes';
 import { v4 } from 'uuid';
+import { CurrentUser } from '@bedes-common/models/current-user';
 
 export class BedesCompositeTermQuery {
     private sqlGetBySignature: QueryFile;
     private sqlGetById: QueryFile;
     private sqlGetByUUID: QueryFile;
     private sqlGetAllTerms: QueryFile;
+    private sqlGetAllTermsAuth: QueryFile;
     private sqlInsert: QueryFile;
     private sqlUpdate: QueryFile;
     private sqlGetCompositeTermComplete: QueryFile;
@@ -30,6 +32,7 @@ export class BedesCompositeTermQuery {
         this.sqlGetById = sql_loader(path.join(__dirname, 'get-by-id.sql'));
         this.sqlGetByUUID = sql_loader(path.join(__dirname, 'get-by-uuid.sql'));
         this.sqlGetAllTerms = sql_loader(path.join(__dirname, 'get-all-terms.sql'));
+        this.sqlGetAllTermsAuth = sql_loader(path.join(__dirname, 'get-all-terms-auth.sql'));
         this.sqlGetCompositeTermComplete = sql_loader(path.join(__dirname, 'get-composite-term-complete.sql'));
         this.sqlGetCompositeTermCompleteUUID = sql_loader(path.join(__dirname, 'get-composite-term-complete-uuid.sql'));
         this.sqlInsert = sql_loader(path.join(__dirname, 'insert.sql'))
@@ -41,13 +44,22 @@ export class BedesCompositeTermQuery {
      * Writes a IBedesCompositeTerm object to the db, saving both the
      * master and detail records.
      */
-    public async newCompositeTerm(item: IBedesCompositeTerm, transaction?: any): Promise<IBedesCompositeTerm> {
+    public async newCompositeTerm(
+        currentUser: CurrentUser,
+        item: IBedesCompositeTerm,
+        transaction?: any
+    ): Promise<IBedesCompositeTerm> {
         try {
-            console.log('newCompositeTerm');
+            if (!currentUser) {
+                throw new BedesError(
+                    'Unauthorized.',
+                    HttpStatusCodes.Unauthorized_401
+                );
+            }
             // create the composite term record
             let newRec: IBedesCompositeTerm | undefined;
             try {
-                newRec = await this.newRecord(item, transaction);
+                newRec = await this.newRecord(currentUser, item, transaction);
             }
             catch (error) {
                 if (error && error.code === "23505") {
@@ -87,10 +99,19 @@ export class BedesCompositeTermQuery {
 
     /**
      * Writes an IBedesCompositeTerm record to the database.
-     *
      */
-    public async newRecord(item: IBedesCompositeTerm, transaction?: any): Promise<IBedesCompositeTerm> {
+    public async newRecord(
+        currentUser: CurrentUser,
+        item: IBedesCompositeTerm,
+        transaction?: any
+    ): Promise<IBedesCompositeTerm> {
         try {
+            if (!currentUser) {
+                throw new BedesError(
+                    'Unauthorized.',
+                    HttpStatusCodes.Unauthorized_401
+                );
+            }
             if (!item._signature) {
                 logger.error(`${this.constructor.name}: Missing unitName in BedesUnit-newRecord`);
                 throw new Error('Missing required parameters.');
@@ -100,15 +121,13 @@ export class BedesCompositeTermQuery {
                 _name: item._name,
                 _description: item._description,
                 _unitId: item._unitId,
-                _uuid: item._uuid
+                _uuid: item._uuid,
+                _userId: currentUser.id,
+                _scopeId: item._scopeId
             };
             // first create the composite term record
-            if (transaction) {
-                return await transaction.one(this.sqlInsert, params);
-            }
-            else {
-                return await db.one(this.sqlInsert, params);
-            }
+            const ctx = transaction || db;
+            return await ctx.one(this.sqlInsert, params);
         } catch (error) {
             logger.error(`${this.constructor.name}: Error in newRecord`);
             logger.error(util.inspect(error));
@@ -121,22 +140,32 @@ export class BedesCompositeTermQuery {
     /**
      * Update an existing composite term.
      *
+     * @param currentUser The authenticated user the term is linked to.
      * @param item The object record to update.
      * @returns The record that was just updated.
      */
-    public async updateCompositeTerm(item: IBedesCompositeTerm, transaction?: any): Promise<IBedesCompositeTerm> {
+    public async updateCompositeTerm(
+        currentUser: CurrentUser,
+        item: IBedesCompositeTerm,
+        transaction?: any
+    ): Promise<IBedesCompositeTerm> {
         try {
-            console.log('update composite term');
+            if (!currentUser) {
+                throw new BedesError(
+                    'Unauthorized.',
+                    HttpStatusCodes.Unauthorized_401
+                );
+            }
             // make sure this runs in a transaction if it isn't
             if (!transaction) {
                 return db.tx((newTransaction: any) => {
-                    return this.updateCompositeTerm(item, newTransaction);
+                    return this.updateCompositeTerm(currentUser, item, newTransaction);
                 });
             }
             // update the composite term record
             let newRec: IBedesCompositeTerm | undefined;
             try {
-                newRec = await this.updateRecord(item, transaction);
+                newRec = await this.updateRecord(currentUser, item, transaction);
             }
             catch (error) {
                 logger.error('error in updatecompositeTerm');
@@ -150,7 +179,6 @@ export class BedesCompositeTermQuery {
             }
             // delete the existing detail items
             let numRemoved = await bedesQuery.compositeTermDetail.deleteByCompositeTermId(newRec._id, transaction);
-            console.log(`removed ${numRemoved} recs`);
             newRec._items = new Array<ICompositeTermDetail>();
             const promises = new Array<Promise<ICompositeTermDetail>>();
             // save all of the detail items.
@@ -177,28 +205,35 @@ export class BedesCompositeTermQuery {
     /**
      * Updates an existing BedesCompositeTermRecord.
      */
-    public async updateRecord(item: IBedesCompositeTerm, transaction?: any): Promise<IBedesCompositeTerm> {
+    public async updateRecord(
+        currentUser: CurrentUser,
+        item: IBedesCompositeTerm,
+        transaction?: any
+    ): Promise<IBedesCompositeTerm> {
         try {
+            if (!currentUser) {
+                throw new BedesError(
+                    'Unauthorized.',
+                    HttpStatusCodes.Unauthorized_401
+                );
+            }
             if (!item._signature) {
                 logger.error(`${this.constructor.name}: Missing unitName in BedesUnit-updateRecord`);
-                throw new Error('Missing required parameters.');
+                throw new BedesError(
+                    'Missing required parameters.',
+                    HttpStatusCodes.BadRequest_400);
             }
             const params = {
                 _id: item._id,
                 _signature: item._signature,
                 _name: item._name,
                 _description: item._description,
-                _unitId: item._unitId
+                _unitId: item._unitId,
+                _userId: currentUser.id
             };
-            console.log('params');
-            console.log(params)
             // first create the composite term record
-            if (transaction) {
-                return await transaction.one(this.sqlUpdate, params);
-            }
-            else {
-                return await db.one(this.sqlUpdate, params);
-            }
+            const ctx = transaction || db;
+            return await ctx.one(this.sqlUpdate, params);
         } catch (error) {
             logger.error(`${this.constructor.name}: Error in updateRecord`);
             logger.error(util.inspect(error));
@@ -319,17 +354,25 @@ export class BedesCompositeTermQuery {
     }
 
     /**
-     * Retireves the list of all composite terms in the database.
-     * 
-     * @returns Returns an array of all the composite terms.
+     * Retireves the list of all public composite terms in the database,
+     * in addition to the terms belonging to the given user.
+     * @param [currentUser] The an optional authenticated user (users private terms are returned in addition to public terms).
+     * @param [transaction] An optional database transaction context.
+     * @returns Returns an array of composite terms.
      */
-    public getAllTerms( transaction?: any): Promise<Array<IBedesCompositeTermShort>> {
+    public getAllTerms(currentUser?: CurrentUser, transaction?: any): Promise<Array<IBedesCompositeTermShort>> {
         try {
-            if (transaction) {
-                return transaction.manyOrNone(this.sqlGetAllTerms);
+            const ctx = transaction || db;
+            if (currentUser) {
+                // if a users was passed in, get the private terms for that user
+                const params = {
+                    _userId: currentUser.id
+                }
+                return ctx.manyOrNone(this.sqlGetAllTermsAuth, params);
             }
             else {
-                return db.manyOrNone(this.sqlGetAllTerms);
+                // otherwise only get public terms
+                return ctx.manyOrNone(this.sqlGetAllTerms);
             }
         } catch (error) {
             logger.error(`${this.constructor.name}: Error in getAllTerms`);
@@ -352,12 +395,8 @@ export class BedesCompositeTermQuery {
             const params = {
                 _id: id
             };
-            if (transaction) {
-                return transaction.oneOrNone(this.sqlGetCompositeTermComplete, params);
-            }
-            else {
-                return db.oneOrNone(this.sqlGetCompositeTermComplete, params);
-            }
+            const ctx = transaction || db;
+            return ctx.oneOrNone(this.sqlGetCompositeTermComplete, params);
         } catch (error) {
             logger.error(`${this.constructor.name}: Error in getRecordComplete`);
             logger.error(util.inspect(error));
@@ -390,18 +429,26 @@ export class BedesCompositeTermQuery {
     /**
      * Deletes a BedesCompositeTerm record by its uuid.
      * 
+     * @param currentUser The authenticated user the term is linked to
      * @param uuid The UUID of the BedesTerm to delete.
      * @param [transaction] The optional database transaction context.
      * @returns A Promise that resolves to the number of rows deleted.
      */
-    public async deleteRecord(uuid: string, transaction?: any): Promise<number> {
+    public async deleteRecord(currentUser: CurrentUser, uuid: string, transaction?: any): Promise<number> {
         try {
+            if (!currentUser) {
+                throw new BedesError(
+                    'Unauthorized.',
+                    HttpStatusCodes.Unauthorized_401
+                );
+            }
             if (!uuid) {
                 logger.error(`${this.constructor.name}: deleteRecord expected an id, none found.`);
                 throw new Error('Missing required parameters.');
             }
             const params = {
-                _uuid: uuid
+                _uuid: uuid,
+                _userId: currentUser.id
             };
             const ctx = transaction || db;
             return ctx.result(this.sqlDelete, params, (r: any) => r.rowCount);

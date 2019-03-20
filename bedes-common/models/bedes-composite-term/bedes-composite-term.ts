@@ -7,6 +7,7 @@ import { IBedesTerm } from '../bedes-term/bedes-term.interface';
 import { buildCompositeTermSignature } from '../../util/build-composite-term-signature';
 import { IBedesConstrainedList } from '../bedes-term/bedes-constrained-list.interface';
 import { UUIDGenerator } from '../uuid-generator/uuid-generator';
+import { Scope } from '../../enums/scope.enum';
 
 export class BedesCompositeTerm extends UUIDGenerator {
     private _id: number | null | undefined;
@@ -21,6 +22,9 @@ export class BedesCompositeTerm extends UUIDGenerator {
         return this._signature;
     }
     set signature(value:  string) {
+        if (value != this._signature) {
+            this._hasChanged = true;
+        }
         this._signature = value;
     }
     private _name: string | null | undefined;
@@ -28,6 +32,9 @@ export class BedesCompositeTerm extends UUIDGenerator {
         return this._name;
     }
     set name(value:  string | null | undefined) {
+        if (value != this._name) {
+            this._hasChanged = true;
+        }
         this._name = value;
     }
     private _description: string | null | undefined;
@@ -35,6 +42,9 @@ export class BedesCompositeTerm extends UUIDGenerator {
         return this._description;
     }
     set description(value:  string | null | undefined) {
+        if (value != this._description) {
+            this._hasChanged = true;
+        }
         this._description = value;
     }
     private _unitId: number | null | undefined;
@@ -42,6 +52,9 @@ export class BedesCompositeTerm extends UUIDGenerator {
         return this._unitId;
     }
     set unitId(value:  number | null | undefined) {
+        if (value != this._unitId) {
+            this._hasChanged = true;
+        }
         this._unitId = value;
     }
     /** UUID */
@@ -54,6 +67,27 @@ export class BedesCompositeTerm extends UUIDGenerator {
     get items():  Array<CompositeTermDetail> {
         return this._items;
     }
+    /** id of the user that created the term */
+    private _userId: number | null | undefined;
+    get userId():  number | null | undefined {
+        return this._userId;
+    }
+    /** Scope of the object */
+    private _scopeId: Scope | null | undefined;
+    get scopeId():  Scope | null | undefined {
+        return this._scopeId;
+    }
+
+    /**
+     * Indicates if the term has undergone changes and needs to be updated.
+     */
+    private _hasChanged = false;
+    public get hasChanged(): boolean {
+        return this._hasChanged;
+    }
+    public clearChangeFlag(): void {
+        this._hasChanged = false;
+    }
 
     constructor(data?: IBedesCompositeTerm) {
         super();
@@ -65,6 +99,11 @@ export class BedesCompositeTerm extends UUIDGenerator {
             this._description = data._description;
             this._unitId = data._unitId;
             this._uuid = data._uuid || this.generateUUID();
+            this._userId = data._userId || undefined;
+            this._scopeId = data._scopeId && data._scopeId in Scope
+                ?  data._scopeId
+                : undefined;
+            // Set the detail items
             if (data._items && data._items.length) {
                 data._items.forEach((item: ICompositeTermDetail) => {
                     if (!item._term._id) {
@@ -84,9 +123,13 @@ export class BedesCompositeTerm extends UUIDGenerator {
             }
         }
         else {
+            // no data was passed in
             this._signature = '';
             this._uuid = this.generateUUID();
+            this._scopeId = Scope.Private;
         }
+        // reset all changes
+        this.clearChangeFlag();
     }
 
     /**
@@ -251,6 +294,8 @@ export class BedesCompositeTerm extends UUIDGenerator {
             _description: this.description,
             _unitId: this.unitId,
             _uuid: this.uuid,
+            _userId: this._userId,
+            _scopeId: this._scopeId,
             _items: this._items.map((d) => d.toInterface())
         }
     }

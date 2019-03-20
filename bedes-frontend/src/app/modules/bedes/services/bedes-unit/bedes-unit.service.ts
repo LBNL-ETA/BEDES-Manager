@@ -39,7 +39,7 @@ export class BedesUnitService {
             throw new Error('Invalid parameter.');
         }
         const url = this.buildUrl(unitId, 'usage');
-        return this.http.get<IUsageCount>(url);
+        return this.http.get<IUsageCount>(url, {withCredentials: true});
     }
 
 }

@@ -1,4 +1,5 @@
 import { ICompositeTermDetail } from './composite-term-item/composite-term-detail.interface';
+import { Scope } from '../../enums/scope.enum';
 
 export interface IBedesCompositeTerm {
     _id?: number | null | undefined;
@@ -8,4 +9,6 @@ export interface IBedesCompositeTerm {
     _unitId?: number | null | undefined;
     _items: Array<ICompositeTermDetail>;
     _uuid?: string | null | undefined;
+    _userId?: number | null | undefined;
+    _scopeId?: Scope | null | undefined;
 }

@@ -1,12 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
-import { MatDialog} from '@angular/material';
 
 import { AuthService } from '../../../services/auth/auth.service';
 import { UserLogin } from '../../../models/auth/user-login';
 import { UserLoginResponse } from '../../../models/auth/user-login-response';
 import { getNextAuthUrl } from '../lib/get-next-url';
 import { CurrentUser } from '@bedes-common/models/current-user/current-user';
+import { takeUntil } from 'rxjs/operators';
+import { Subject } from 'rxjs';
 
 @Component({
     selector: 'app-login',
@@ -14,6 +15,8 @@ import { CurrentUser } from '@bedes-common/models/current-user/current-user';
     styleUrls: ['./login.component.scss']
 })
 export class LoginComponent implements OnInit {
+    // subject for unsibscribing from BehaviorSubjects
+    private ngUnsubscribe: Subject<void> = new Subject<void>();
     // boolean indicating if we're waiting for a response from the server.
     public waiting = false;
     // Holds the user authentication information (email and password)
@@ -33,7 +36,6 @@ export class LoginComponent implements OnInit {
     constructor(
         private authService: AuthService,
         private router: Router,
-        private activatedRoute: ActivatedRoute
     ) { }
 
     /**
@@ -45,16 +47,22 @@ export class LoginComponent implements OnInit {
         this.subscribeToCurrentUser();
     }
 
+    ngOnDestroy() {
+        // unsubscribe from the subjects
+        this.ngUnsubscribe.next();
+        this.ngUnsubscribe.complete();
+    }
+
     /**
      * Subscribe to the currentUser BehaviorSubject to keep
      * the currentUser up-to-date.
      */
     private subscribeToCurrentUser(): void {
         this.authService.currentUserSubject
+        .pipe(takeUntil(this.ngUnsubscribe))
         .subscribe((currentUser: CurrentUser) => {
             this.currentUser = currentUser;
             const nextUrl = getNextAuthUrl(currentUser.status);
-            console.log(`${this.constructor.name}: new user status ${currentUser.status}, navigate to ${nextUrl}`);
             this.router.navigateByUrl(nextUrl);
         });
     }
@@ -65,10 +73,8 @@ export class LoginComponent implements OnInit {
     public login(): void {
         this.resetLoginError();
         this.waiting = true;
-        console.log('calling authservice loing...', this.userLogin);
         this.authService.login(this.userLogin).subscribe(
             (userLoginResponse: UserLoginResponse) => {
-                console.log(`${this.constructor.name}: received response`, userLoginResponse);
                 this.loginSuccess = true;
                 const url = this.authService.getPostLoginUrl();
                 // navigate to home after 1 second

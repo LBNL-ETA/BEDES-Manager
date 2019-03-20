@@ -1,28 +1,38 @@
 import { Request, Response } from 'express';
 import * as util from 'util';
 import { createLogger } from '@bedes-backend/logging';
+const logger = createLogger(module);
 import { HttpStatusCodes } from '@bedes-common/enums/http-status-codes';
 import { BedesError } from '@bedes-common/bedes-error';
 import { bedesQuery } from '../../query';
-const logger = createLogger(module);
+import { getAuthenticatedUser } from '@bedes-backend/util/get-authenticated-user';
 
+/**
+ * Handler for savings new composite terms.
+ * @param request 
+ * @param response 
+ * @returns term post handler 
+ */
 export async function compositeTermPostHandler(request: Request, response: Response): Promise<any> {
     try {
-        logger.debug(util.inspect(request.params));
+        // get the current user that's logged in
+        const currentUser = getAuthenticatedUser(request);
+        // extract the composite term from the request body
         const compositeTerm = request.body;
         if (!compositeTerm) {
             throw new BedesError(
                 'Invalid parameters',
-                HttpStatusCodes.BadRequest_400,
-                "Invalid parameters"
+                HttpStatusCodes.BadRequest_400
             );
         }
         logger.debug(`save a new composite term`);
         logger.debug(util.inspect(compositeTerm));
-        let savedTerm = await bedesQuery.compositeTerm.newCompositeTerm(compositeTerm);
+        // save the term
+        let savedTerm = await bedesQuery.compositeTerm.newCompositeTerm(currentUser, compositeTerm);
         if (!savedTerm || !savedTerm._id) {
             throw new Error('Error creating new composite term');
         }
+        // return the new record
         let newTerm = await bedesQuery.compositeTerm.getRecordComplete(savedTerm._id);
         logger.debug('compositeTermHandler resuts');
         logger.debug(util.inspect(newTerm));

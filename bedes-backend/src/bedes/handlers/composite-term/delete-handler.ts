@@ -5,6 +5,7 @@ const logger = createLogger(module);
 import { HttpStatusCodes } from '@bedes-common/enums/http-status-codes';
 import { BedesError } from '@bedes-common/bedes-error';
 import { bedesQuery } from '../../query';
+import { getAuthenticatedUser } from '@bedes-backend/util/get-authenticated-user';
 
 /**
  * Route handler for CompositeTerm DELETE requests.
@@ -12,18 +13,19 @@ import { bedesQuery } from '../../query';
  */
 export async function deleteCompositeTermHandler(request: Request, response: Response): Promise<any> {
     try {
+        // get the current user that's logged in
+        const currentUser = getAuthenticatedUser(request);
         // uuid should be a url parameter
         const uuid = request.params.id;
         if (!uuid) {
             throw new BedesError(
                 'Invalid parameters',
-                HttpStatusCodes.BadRequest_400,
-                "Invalid parameters"
+                HttpStatusCodes.BadRequest_400
             );
         }
         // delete the record
         // wait for the query to finish
-        let results = await bedesQuery.compositeTerm.deleteRecord(uuid);
+        let results = await bedesQuery.compositeTerm.deleteRecord(currentUser, uuid);
         response.json(results)
     }
     catch (error) {

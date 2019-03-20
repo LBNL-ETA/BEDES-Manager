@@ -10,7 +10,9 @@ const termLoader = new XmlTermOptionLoader(filePath, fileName);
 termLoader.run()
     .then((results: any) => {
         console.log('Done loading term options');
+        process.exit(0);
     }, (error: Error) => {
         console.log('Error loading term options');
         console.error(util.inspect(error));
+        process.exit(1);
     });

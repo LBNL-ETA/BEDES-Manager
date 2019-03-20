@@ -4,6 +4,7 @@ import { createLogger } from '@bedes-backend/logging';
 import { HttpStatusCodes } from '@bedes-common/enums/http-status-codes';
 import { BedesError } from '@bedes-common/bedes-error';
 import { bedesQuery } from '../../query';
+import { getAuthenticatedUser } from '@bedes-backend/util/get-authenticated-user';
 const logger = createLogger(module);
 
 /**
@@ -11,18 +12,21 @@ const logger = createLogger(module);
  */
 export async function compositeTermPutHandler(request: Request, response: Response): Promise<any> {
     try {
-        logger.debug(util.inspect(request.params));
+        // get the current user that's logged in
+        const currentUser = getAuthenticatedUser(request);
         const compositeTerm = request.body;
         if (!compositeTerm) {
             throw new BedesError(
                 'Invalid parameters',
-                HttpStatusCodes.BadRequest_400,
-                "Invalid parameters"
+                HttpStatusCodes.BadRequest_400
             );
         }
         logger.debug(`save an existing composite term`);
         logger.debug(util.inspect(compositeTerm));
-        let savedTerm = await bedesQuery.compositeTerm.updateCompositeTerm(compositeTerm);
+        let savedTerm = await bedesQuery.compositeTerm.updateCompositeTerm(
+            currentUser,
+            compositeTerm
+        );
         if (!savedTerm || !savedTerm._id) {
             throw new Error('Error updating composite term');
         }

@@ -5,6 +5,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '../../../services/auth/auth.service';
 import { CurrentUser } from '@bedes-common/models/current-user/current-user';
 import { getNextAuthUrl } from '../lib/get-next-url';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
     selector: 'app-verify',
@@ -40,6 +41,12 @@ export class VerifyComponent implements OnInit {
         this.subscribeToCurrentUser();
     }
 
+    ngOnDestroy() {
+        // unsubscribe from the subjects
+        this.ngUnsubscribe.next();
+        this.ngUnsubscribe.complete();
+    }
+
     /**
      * Assign the verification code if it's present in the url.
      */
@@ -62,9 +69,8 @@ export class VerifyComponent implements OnInit {
      */
     private subscribeToCurrentUser(): void {
         this.authService.currentUserSubject
+        .pipe(takeUntil(this.ngUnsubscribe))
         .subscribe((currentUser: CurrentUser) => {
-            console.log('received new user...');
-            console.log(currentUser);
             this.currentUser = currentUser;
             const nextUrl = getNextAuthUrl(currentUser.status);
             this.router.navigateByUrl(nextUrl);
@@ -82,7 +88,6 @@ export class VerifyComponent implements OnInit {
     public newVerificationCode(): void {
         this.authService.newVerificationCode()
         .subscribe((results: any) => {
-            console.log(`${this.constructor.name}: new verification code`, results);
         });
     }
 
@@ -93,13 +98,11 @@ export class VerifyComponent implements OnInit {
      */
     public verify(): void {
         const verificationCode = this.getVerificationCodeFromForm();
-        console.log('verify the code...', verificationCode);
         if (!verificationCode) {
             throw new Error(`${this.constructor.name}: verify expects verificationCode to be set.`);
         }
         this.authService.verify(verificationCode)
         .subscribe((results: any) => {
-            console.log('results = ', results);
         },
         (error: Error) => {
             console.log('Error verifying the code...', error);
@@ -110,6 +113,10 @@ export class VerifyComponent implements OnInit {
      * Logout the user, redirect to login.
      */
     public logout(): void {
+        this.authService.logout()
+        .subscribe((results: any) => {
+            console.log('logout = ', results);
+        })
 
     }
 

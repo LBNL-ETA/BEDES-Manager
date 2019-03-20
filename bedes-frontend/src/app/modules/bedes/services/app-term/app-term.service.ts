@@ -347,7 +347,7 @@ export class AppTermService {
         const formData = new FormData();
         formData.append('appTermImport', file);
         const url = this.getUploadUrl(appId);
-        return this.http.post<Array<IAppTerm | IAppTermList>>(url, formData)
+        return this.http.post<Array<IAppTerm | IAppTermList>>(url, formData, {withCredentials: true})
             .pipe(
                 map((results: Array<IAppTerm | IAppTermList>) => {
                     const appTerms = results.map(appTermTransformer);

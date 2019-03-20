@@ -46,7 +46,6 @@ export class BedesTermSearchDialogComponent implements OnInit {
         this.setDialogOptions();
         this.gridSetup();
         this.setTableContext();
-        console.log('dialog options', this.dialogOptions);
     }
 
     /**
@@ -124,7 +123,6 @@ export class BedesTermSearchDialogComponent implements OnInit {
         if (!this.selectedItems || !this.selectedItems.length) {
             throw new Error(`${this.constructor.name}: importSelectedTerms expected to have valid selectedItems, none found`);
         }
-        console.log('import sel items', this.selectedItems);
         this.dialogRef.close(this.selectedItems.map((item) => item.ref));
     }
 

@@ -1,4 +1,6 @@
--- Get all public terms (scope_id = 2)
+-- Gets all composite terms that:
+--   1. Are public
+--   2. Are private and belong to the current user
 select
     id as "_id",
     signature as "_signature",
@@ -12,6 +14,8 @@ from
     public.bedes_composite_term
 where
     scope_id = 2
+or
+    (scope_id = 1 and user_id = ${_userId})
 order by
     name
 ;

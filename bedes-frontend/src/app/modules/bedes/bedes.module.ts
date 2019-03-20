@@ -17,12 +17,12 @@ import { DataTypePipe } from './pipes/data-type/data-type.pipe';
 import { BedesUnitPipe } from './pipes/bedes-unit/bedes-unit.pipe';
 import { BedesTermCategoryPipe } from './pipes/bedes-term-category/bedes-term-category.pipe';
 import { BedesTermDetailsComponent } from './components/bedes-term-details/bedes-term-details.component';
-import { TermBuilderHomeComponent } from './components/term-builder-home/term-builder-home.component';
+import { TermBuilderHomeComponent } from './components/composite-term-home/term-builder-home.component';
 import { BedesApplicationManagerComponent } from './components/bedes-application-manager/bedes-application-manager.component';
 import { BedesTermSearchDialogComponent } from './components/dialogs/bedes-term-search-dialog/bedes-term-search-dialog.component';
-import { TermBuilderEditComponent } from './components/term-builder-home/term-builder-edit/term-builder-edit.component';
-import { SelectTermsTableComponent } from './components/term-builder-home/select-terms-table/select-terms-table.component';
-import { SelectedTermsTableComponent } from './components/term-builder-home/selected-terms-table/selected-terms-table.component';
+import { TermBuilderEditComponent } from './components/composite-term-home/term-builder-edit/term-builder-edit.component';
+import { SelectTermsTableComponent } from './components/composite-term-home/select-terms-table/select-terms-table.component';
+import { SelectedTermsTableComponent } from './components/composite-term-home/selected-terms-table/selected-terms-table.component';
 import { AgGridModule } from 'ag-grid-angular';
 import { BedesTermSelectorService } from './services/bedes-term-selector/bedes-term-selector.service';
 import { ConfirmDialogComponent } from './components/dialogs/confirm-dialog/confirm-dialog.component';
@@ -61,11 +61,11 @@ import { BedesSearchResultsComponent } from './components/bedes-search/bedes-sea
 import { ImplementationTermOptionComponent } from './components/app-term/app-term-edit/implementation-term/implementation-term-option/implementation-term-option.component';
 import { EditListOptionComponent } from './components/app-term/app-term-edit/implementation-term/edit-list-option/edit-list-option.component';
 import { DisplayListOptionsComponent } from './components/app-term/app-term-edit/implementation-term/display-list-options/display-list-options.component';
-import { CompositeTermListComponent } from './components/term-builder-home/composite-term-list/composite-term-list.component';
+import { CompositeTermListComponent } from './components/composite-term-home/composite-term-list/composite-term-list.component';
 import { compositeTermFactory } from './services/composite-term/composite-term-factory.service';
 import { CompositeTermService } from './services/composite-term/composite-term.service';
-import { SelectedTermsOrderComponent } from './components/term-builder-home/selected-terms-order/selected-terms-order.component';
-import { TableCellItemNameComponent } from './components/term-builder-home/selected-terms-table/table-cell-item-name/table-cell-item-name.component';
+import { SelectedTermsOrderComponent } from './components/composite-term-home/selected-terms-order/selected-terms-order.component';
+import { TableCellItemNameComponent } from './components/composite-term-home/selected-terms-table/table-cell-item-name/table-cell-item-name.component';
 import { BedesMapSearchComponent } from './components/app-term/app-term-edit/bedes-map-search/bedes-map-search.component';
 import { MappingViewComponent } from './components/app-term/app-term-edit/mapping-view/mapping-view.component';
 import { TableCellNavComponent } from './models/ag-grid/table-cell-nav/table-cell-nav.component';
@@ -171,12 +171,6 @@ import { CsvImportInfoDialogComponent } from './components/dialogs/csv-import-in
             provide: APP_INITIALIZER,
             useFactory: applicationListFactory,
             deps: [ApplicationService],
-            multi: true
-        },
-        {
-            provide: APP_INITIALIZER,
-            useFactory: compositeTermFactory,
-            deps: [CompositeTermService],
             multi: true
         },
         BedesTermSelectorService,
