@@ -4,7 +4,7 @@
         Back to List
     </a>
     <button mat-stroked-button color="primary"
-    [disabled]="!isEditable || !hasSelectedTerms() || !compositeTerm?.hasChanged || waiting"
+    [disabled]="!isEditable || !hasSelectedTerms() || !compositeTerm?.hasChanged || isWaiting"
     (click)="updateCompositeTerm()">
         <fa-icon [icon]="['fas', 'save']"></fa-icon>
         Save
