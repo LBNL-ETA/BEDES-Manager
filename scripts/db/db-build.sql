@@ -99,7 +99,8 @@ create table public.scope (
 );
 insert into public.scope (id, name) values
     (1, 'Private'),
-    (2, 'Public')
+    (2, 'Public'),
+    (3, 'Approved')
 ;
 
 -- Composite Term
@@ -250,36 +251,4 @@ create table public.composite_term_maps (
     app_term_id int not null references public.app_term (id) on delete cascade,
     app_list_option_uuid uuid references public.app_term_list_option (uuid),
     bedes_composite_term_uuid uuid not null references public.bedes_composite_term (uuid) on delete cascade
-);
-
--- table that containst he different states an application can be in as it's waiting
--- for a mapping request to be made public.
-create table public.promote_request_status (
-    id int primary key,
-    name varchar(30) unique not null
-);
-
--- create the different states for an application's public mapping request
-insert into public.promote_request_status (id, name) values
-    (1, 'Pending'),
-    (2, 'Approved'),
-    (3, 'Rejected')
-;
-
--- table that contains the requests for a mapping application to be made public
-create table public.application_promote_request (
-    id serial primary key,
-    app_id int not null references public.mapping_application (id),
-    status_id int not null references public.promote_request_status (id) default 1,
-    notes varchar(1000),
-    request_time timestamp default now()
-);
-
--- table that contains the requests for a composite term to be made public
-create table public.composite_term_promote_request (
-    id serial primary key,
-    composite_term_id int not null references public.bedes_composite_term (id),
-    status_id int not null references public.promote_request_status (id) default 1,
-    notes varchar(1000),
-    request_time timestamp default now()
 );
