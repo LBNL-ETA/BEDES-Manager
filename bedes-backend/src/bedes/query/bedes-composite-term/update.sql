@@ -4,11 +4,10 @@ set
     name = ${_name},
     description = ${_description},
     signature = ${_signature},
-    unit_id = ${_unitId}
+    unit_id = ${_unitId},
+    scope_id = ${_scopeId}
 where
     id = ${_id}
-and
-    user_id = ${_userId}
 returning
     id as "_id",
     signature as "_signature",

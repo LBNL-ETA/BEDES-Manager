@@ -6,7 +6,7 @@ values (
 )
 returning
     id as "_id",
-    bedes_composite_term_uuid as "_bedesCompositeTermUUID",
+    bedes_composite_term_uuid as "_compositeTermUUID",
     app_term_id as "_appTermId",
     app_list_option_uuid as "_appListOptionUUID"
 ;

@@ -2,6 +2,7 @@ import { UserStatus } from '../../enums/user-status.enum';
 import { ICurrentUser } from './current-user.interface';
 import { UserGroup } from '../../enums/user-group.enum';
 import { BedesCompositeTerm } from '../bedes-composite-term/bedes-composite-term';
+import { BedesCompositeTermShort } from '../bedes-composite-term-short';
 
 /**
  * Object that represents the current authenticated user.
@@ -178,12 +179,47 @@ export class CurrentUser {
      * @param compositeTermId 
      * @returns true if edit composite term 
      */
-    public canEditCompositeTerm(compositeTermId: number): boolean {
-        if (compositeTermId && this._compositeTermIds.includes(compositeTermId)) {
+    public canEditCompositeTerm(compositeTerm: BedesCompositeTerm | BedesCompositeTermShort): boolean {
+        if (compositeTerm instanceof BedesCompositeTerm && compositeTerm.isNewTerm()) {
+            // terms that haven't been saved can be edited
+            return true;
+        }
+        else if(compositeTerm.hasApprovedScope()) {
+            // approved items are locked
+            return false;
+        }
+        else if (this.isCompositeTermOwner(compositeTerm)) {
+            // owners of terms can edit their own terms
             return true;
         }
         else {
             return false;
         }
+    }
+
+    /**
+     * Determines whether the user can delete the composite term.
+     * @param compositeTerm 
+     * @returns true if the composite term can be removed by the user.
+     */
+    public canRemoveCompositeTerm(compositeTerm: BedesCompositeTerm | BedesCompositeTermShort): boolean {
+        if (this.isCompositeTermOwner(compositeTerm) && !compositeTerm.hasApprovedScope()) {
+            // only owners can remove their non-approved terms
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+    /**
+     * Determines if the current user owns the compositeTerm
+     * @param compositeTerm 
+     * @returns true if owner 
+     */
+    public isCompositeTermOwner(compositeTerm: BedesCompositeTerm | BedesCompositeTermShort): boolean {
+        return compositeTerm.id && this._compositeTermIds.includes(compositeTerm.id)
+            ? true
+            : false;
     }
 }

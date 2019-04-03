@@ -8,111 +8,41 @@ import { buildCompositeTermSignature } from '../../util/build-composite-term-sig
 import { IBedesConstrainedList } from '../bedes-term/bedes-constrained-list.interface';
 import { UUIDGenerator } from '../uuid-generator/uuid-generator';
 import { Scope } from '../../enums/scope.enum';
+import { BedesCompositeTermShort } from '../bedes-composite-term-short';
 
-export class BedesCompositeTerm extends UUIDGenerator {
-    private _id: number | null | undefined;
-    get id():  number | null | undefined {
-        return this._id;
-    }
-    set id(value:  number | null | undefined) {
-        this._id = value;
-    }
-    private _signature: string;
-    get signature():  string {
-        return this._signature;
-    }
-    set signature(value:  string) {
-        if (value != this._signature) {
-            this._hasChanged = true;
+export class BedesCompositeTerm extends BedesCompositeTermShort {
+    // function to sort detail items by order number
+    public static detailItemSorter = (a: CompositeTermDetail, b: CompositeTermDetail) => {
+        if(a.orderNumber < b.orderNumber) {
+            return -1;
         }
-        this._signature = value;
-    }
-    private _name: string | null | undefined;
-    get name():  string | null | undefined {
-        return this._name;
-    }
-    set name(value:  string | null | undefined) {
-        if (value != this._name) {
-            this._hasChanged = true;
+        else if (a.orderNumber > b.orderNumber) {
+            return 1;
         }
-        this._name = value;
-    }
-    private _description: string | null | undefined;
-    get description():  string | null | undefined {
-        return this._description;
-    }
-    set description(value:  string | null | undefined) {
-        if (value != this._description) {
-            this._hasChanged = true;
+        else {
+            return 0;
         }
-        this._description = value;
     }
-    private _unitId: number | null | undefined;
-    get unitId():  number | null | undefined {
-        return this._unitId;
-    }
-    set unitId(value:  number | null | undefined) {
-        if (value != this._unitId) {
-            this._hasChanged = true;
-        }
-        this._unitId = value;
-    }
-    /** UUID */
-    private _uuid: string;
-    get uuid():  string | null | undefined {
-        return this._uuid;
-    }
+
     /** CompositeTermDetail items */
     private _items: Array<CompositeTermDetail>
     get items():  Array<CompositeTermDetail> {
         return this._items;
     }
-    /** id of the user that created the term */
-    private _userId: number | null | undefined;
-    get userId():  number | null | undefined {
-        return this._userId;
-    }
-    /** Scope of the object */
-    private _scopeId: Scope | null | undefined;
-    get scopeId():  Scope | null | undefined {
-        return this._scopeId;
-    }
-
-    /**
-     * Indicates if the term has undergone changes and needs to be updated.
-     */
-    private _hasChanged = false;
-    public get hasChanged(): boolean {
-        return this._hasChanged;
-    }
-    public clearChangeFlag(): void {
-        this._hasChanged = false;
-    }
 
     constructor(data?: IBedesCompositeTerm) {
-        super();
+        super(data);
         this._items = new Array<CompositeTermDetail>();
         if (data) {
-            this._id = data._id || undefined;
-            this._signature = data._signature;
-            this._name = data._name;
-            this._description = data._description;
-            this._unitId = data._unitId;
-            this._uuid = data._uuid || this.generateUUID();
-            this._userId = data._userId || undefined;
-            this._scopeId = data._scopeId && data._scopeId in Scope
-                ?  data._scopeId
-                : undefined;
             // Set the detail items
             if (data._items && data._items.length) {
                 data._items.forEach((item: ICompositeTermDetail) => {
                     if (!item._term._id) {
-                        console.log(item);
                         throw new Error('BedesTerms must have valid _id to be used in composite');
                     }
                     this.addTerm(new CompositeTermDetail(item))
                 });
-                this.orderTerms();
+                this.refresh();
                 if (!this.validSignature()) {
                     console.log('CompositeTerm signature mismatch');
                     throw new Error('CompositeTerm signature mismatch');
@@ -121,12 +51,6 @@ export class BedesCompositeTerm extends UUIDGenerator {
             else {
                 this._signature = '';
             }
-        }
-        else {
-            // no data was passed in
-            this._signature = '';
-            this._uuid = this.generateUUID();
-            this._scopeId = Scope.Private;
         }
         // reset all changes
         this.clearChangeFlag();
@@ -142,6 +66,13 @@ export class BedesCompositeTerm extends UUIDGenerator {
         this.signature = buildCompositeTermSignature(this);
         this.name = this.buildDisplayName();
 
+    }
+
+    /**
+     * Determines if the bedesTerm has been saved to the database or not.
+     */
+    public isNewTerm(): boolean {
+        return this._id && this._id > 0 ? false : true;
     }
 
     /**
@@ -235,18 +166,7 @@ export class BedesCompositeTerm extends UUIDGenerator {
      * Reorders the items in the list by their orderNumber.
      */
     private orderTerms(): void {
-        this._items.sort(
-            (a: CompositeTermDetail, b: CompositeTermDetail): number => {
-                if (a.orderNumber < b.orderNumber) {
-                    return -1;
-                }
-                else if (a.orderNumber > b.orderNumber) {
-                    return 1;
-                }
-                else {
-                    return 0;
-                }
-            });
+        this._items.sort(BedesCompositeTerm.detailItemSorter);
     }
 
     /**

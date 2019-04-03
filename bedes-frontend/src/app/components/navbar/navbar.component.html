@@ -25,12 +25,25 @@
         </span>
         <span style="flex:1;"></span>
 
-        <button mat-button
+        <!-- <button mat-button
         *ngIf="isLoggedIn()"
         style="text-align:right;"
         (click)="logout()">
             Logout
+        </button> -->
+        <button mat-button
+        *ngIf="isLoggedIn()"
+        style="text-align:right;"
+        [matMenuTriggerFor]="menuLogout">
+            {{ currentUser.email }}
+            <fa-icon [icon]="['fas', 'caret-down']"></fa-icon>
         </button>
+        <mat-menu #menuLogout="matMenu">
+            <button mat-menu-item (click)="logout()">
+                <fa-icon [icon]="['fas', 'sign-out-alt']"></fa-icon>
+                Logout
+            </button>
+        </mat-menu>
         <a mat-button *ngIf="!isLoggedIn()"
         style="text-align:right;"
         routerLink="/home/login">

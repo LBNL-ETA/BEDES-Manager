@@ -4,5 +4,6 @@
  */
 export enum Scope {
     Private=1,
-    Public
+    Public,
+    Approved
 }

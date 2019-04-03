@@ -1,8 +1,19 @@
-
-<div style="margin-bottom:10px;" *ngIf="compositeTerm">
-    <div cdkDropList cdkDropListOrientation="horizontal" class="example-list" (cdkDropListDropped)="drop($event)">
-        <div class="example-box" *ngFor="let term of compositeTerm.items" cdkDrag>
-            {{term.listOption ? term.listOption.name : term.term.name}}
+<div style="display:flex; flex-direction: row; align-items: center;">
+    <span style="padding-right:7px;">
+        <h2 style="margin:0;">Composite Term Name:</h2>
+    </span>
+    <div style="margin-bottom:10px; flex: 1" *ngIf="compositeTerm && isEditable">
+        <div cdkDropList
+        cdkDropListOrientation="horizontal"
+        class="example-list"
+        (cdkDropListDropped)="drop($event)">
+            <div class="example-box" *ngFor="let term of compositeTerm.items" cdkDrag>
+                {{term.listOption ? term.listOption.name : term.term.name}}
+            </div>
         </div>
     </div>
+    <!-- Only display the term name if it's not editable -->
+    <span *ngIf="compositeTerm && !isEditable" style="flex: 1; font-size:1.1rem; padding-left:7px;">
+        {{ compositeTerm.name }}
+    </span>
 </div>

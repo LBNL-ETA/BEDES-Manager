@@ -13,7 +13,7 @@ select
 from
     public.bedes_composite_term
 where
-    scope_id = 2
+    scope_id != 1
 or
     (scope_id = 1 and user_id = ${_userId})
 order by
