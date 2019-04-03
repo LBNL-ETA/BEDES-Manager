@@ -5,15 +5,16 @@ import sql_loader from '@bedes-backend/db/sql_loader';
 import { createLogger }  from '@bedes-backend/logging';
 const logger = createLogger(module);
 import * as util from 'util';
-import { IBedesCompositeTerm, ICompositeTermDetail } from '@bedes-common/models/bedes-composite-term';
+import { IBedesCompositeTerm, ICompositeTermDetail, BedesCompositeTerm, CompositeTermDetail } from '@bedes-common/models/bedes-composite-term';
 import { bedesQuery } from '@bedes-backend/bedes/query';
 import { IBedesCompositeTermShort } from '@bedes-common/models/bedes-composite-term-short';
 import { ICompositeTermDetailRequestParam } from '@bedes-common/models/composite-term-detail-request-param';
 import { ICompositeTermDetailRequestResult } from '@bedes-common/models/composite-term-detail-request-result';
 import { BedesError } from '@bedes-common/bedes-error/bedes-error';
 import { HttpStatusCodes } from '@bedes-common/enums/http-status-codes';
-import { v4 } from 'uuid';
 import { CurrentUser } from '@bedes-common/models/current-user';
+import { buildCompositeTermSignature, getSignatureItem, buildSignatureFromCompositeTermDetail } from '@bedes-common/util/build-composite-term-signature';
+import { compositeTerm } from '@bedes-backend/bedes/handlers';
 
 export class BedesCompositeTermQuery {
     private sqlGetBySignature: QueryFile;
@@ -150,22 +151,64 @@ export class BedesCompositeTermQuery {
         transaction?: any
     ): Promise<IBedesCompositeTerm> {
         try {
+            // make sure a user is linked to the term
             if (!currentUser) {
                 throw new BedesError(
                     'Unauthorized.',
                     HttpStatusCodes.Unauthorized_401
                 );
             }
+            // make sure there's a valid id on the object.
+            if (!item._id) {
+                throw new BedesError(
+                    'valid id expected for updating a composite term.',
+                    HttpStatusCodes.ServerError_500
+                );
+            }
             // make sure this runs in a transaction if it isn't
             if (!transaction) {
+                // create the transaction and call again
                 return db.tx((newTransaction: any) => {
                     return this.updateCompositeTerm(currentUser, item, newTransaction);
                 });
             }
+            // make sure the term is allowed to be udpated
+            const isEditable = await this.canUpdateCompositeTerm(currentUser, item, transaction);
+            if (!isEditable) {
+                throw new BedesError(
+                    'Term not editable.',
+                    HttpStatusCodes.BadRequest_400
+                );
+            }
+            // delete the existing detail items
+            await bedesQuery.compositeTermDetail.deleteByCompositeTermId(item._id, transaction);
+            const promises = new Array<Promise<ICompositeTermDetail>>();
+            // save all of the detail items.
+            for (let detailItem of item._items) {
+                promises.push(
+                    bedesQuery.compositeTermDetail.newRecord(item._id, detailItem, transaction)
+                    .then((newRec: ICompositeTermDetail) => {
+                        // assign the new id to the existing detail item
+                        detailItem._id = newRec._id;
+                        return newRec;
+                    })
+                );
+            }
+            // resolve all the promises before continueing
+            const newDetailData : Array<ICompositeTermDetail> = await Promise.all(promises);
+            const compositeTerm = new BedesCompositeTerm(item);
+            console.log(`old Signature = ${item._signature}`)
+            console.log(`newSignature = ${compositeTerm.signature}`)
+            // // sort the terms as they appear in the definition
+            // newDetailItems.sort(BedesCompositeTerm.detailItemSorter);
+            // build a new signature for the term
+            // const newSignature = buildSignatureFromCompositeTermDetail(item._items);
+            // update the signature of the record to update to reflect the new detail item ids
+            // item._signature = newSignature;
             // update the composite term record
             let newRec: IBedesCompositeTerm | undefined;
             try {
-                newRec = await this.updateRecord(currentUser, item, transaction);
+                newRec = await this.updateRecord(currentUser, compositeTerm.toInterface(), transaction);
             }
             catch (error) {
                 logger.error('error in updatecompositeTerm');
@@ -177,19 +220,6 @@ export class BedesCompositeTermQuery {
             if (!newRec._id) {
                 throw new Error(`${this.constructor.name}: missing _id returned from newCompositeTerm query`);
             }
-            // delete the existing detail items
-            let numRemoved = await bedesQuery.compositeTermDetail.deleteByCompositeTermId(newRec._id, transaction);
-            newRec._items = new Array<ICompositeTermDetail>();
-            const promises = new Array<Promise<ICompositeTermDetail>>();
-            // save all of the detail items.
-            for (let detailItem of item._items) {
-                promises.push(bedesQuery.compositeTermDetail.newRecord(newRec._id, detailItem, transaction)
-                    .then((newDetailRec: ICompositeTermDetail) => {
-                        // @ts-ignore - 
-                        newRec._items.push(newDetailRec);
-                        return newDetailRec;
-                    }));
-            }
             await Promise.all(promises);
             return newRec;
 
@@ -200,6 +230,52 @@ export class BedesCompositeTermQuery {
             logger.error(util.inspect(item));
             throw error;
         }
+    }
+
+    /**
+     * Determines if a composite term can be updated
+     * @param currentUser The user requesting the operation
+     * @param newTerm The new composite term to be updated
+     * @param [transaction] db transaction context for queries
+     */
+    private async canUpdateCompositeTerm(
+        currentUser: CurrentUser,
+        newTermData: IBedesCompositeTerm,
+        transaction?: any
+    ): Promise<boolean> {
+        // make sure there's a valid id on the object.
+        if (!newTermData._id) {
+            throw new BedesError(
+                'valid id expected for updating a composite term.',
+                HttpStatusCodes.ServerError_500
+            );
+        }
+        // create a BedesComposoiteTerm from the new term data
+        const newTerm = new BedesCompositeTerm(newTermData);
+
+        // test conditions that don't rely on extracting the existing term first
+        // make sure the new term does not have approved scope
+        if (currentUser.isAdmin()) {
+            // admins can edit non-approved terms
+            return true;
+        }
+
+        // now test conditions that require looking at the existing term
+        // get the existing composite term data
+        const existData = await this.getRecordById(newTermData._id, transaction);
+        // build the composite term object
+        const existObj = new BedesCompositeTerm(existData);
+        // look at the user ids of the terms
+        if (existObj.hasApprovedScope()) {
+            // not allowed to update composite terms that has approved scope.
+            return false;
+        }
+        else if (existObj.userId !== currentUser.id) {
+            // the owner is the only non-admin that can update a term
+            return false;
+        }
+        // ok to update
+        return true;
     }
 
     /**
@@ -218,7 +294,7 @@ export class BedesCompositeTermQuery {
                 );
             }
             if (!item._signature) {
-                logger.error(`${this.constructor.name}: Missing unitName in BedesUnit-updateRecord`);
+                logger.error(`${this.constructor.name}: Missing a composite term signature in BedesUnit-updateRecord`);
                 throw new BedesError(
                     'Missing required parameters.',
                     HttpStatusCodes.BadRequest_400);
@@ -229,7 +305,8 @@ export class BedesCompositeTermQuery {
                 _name: item._name,
                 _description: item._description,
                 _unitId: item._unitId,
-                _userId: currentUser.id
+                _userId: currentUser.id,
+                _scopeId: item._scopeId
             };
             // first create the composite term record
             const ctx = transaction || db;
