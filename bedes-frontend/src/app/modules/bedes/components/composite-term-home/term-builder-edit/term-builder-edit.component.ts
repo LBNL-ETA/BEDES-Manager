@@ -16,6 +16,9 @@ import { AuthService } from 'src/app/modules/bedes-auth/services/auth/auth.servi
 import { CurrentUser } from '@bedes-common/models/current-user/current-user';
 import { takeUntil } from 'rxjs/operators';
 import { Router, ActivatedRoute } from '@angular/router';
+import { scopeList } from '@bedes-common/lookup-tables/scope-list';
+import { FilteredScopeList } from './filtered-scope-list';
+
 
 @Component({
     selector: 'app-term-builder-edit',
@@ -31,10 +34,22 @@ export class TermBuilderEditComponent implements OnInit {
     public currentUser: CurrentUser;
     public isWaiting = false;
     public hasError = false;
+    /** List of possible term visibility options */
+    public scopeList = new FilteredScopeList(scopeList);
 
     public dataForm = this.formBuilder.group({
-        description: [''],
-        unitId: [''],
+        description: [{
+            value: '',
+            disabled: this.isEditable
+        }],
+        unitId: [{
+            value: '',
+            disabled: this.isEditable
+        }],
+        scopeId: [{
+            value: '',
+            disabled: this.isEditable
+        }],
         uuid: [{
             value: null,
             disabled: true
@@ -74,8 +89,32 @@ export class TermBuilderEditComponent implements OnInit {
                 // assign the authenticated user
                 this.currentUser = currentUser;
                 // any user who's logged in should be able to create/edit terms
-                this.isEditable = currentUser.isLoggedIn();
+                this.updateFormStatus();
+                this.updateFormControls();
+                // set the list of scope values
+                this.scopeList.currentUser = currentUser;
+                this.scopeList.updateScopeList();
             });
+    }
+
+    /**
+     * Set's the *isEditable* flag for the component
+     * and enables/disables the inputs.
+     */
+    private updateFormStatus(): void {
+        if(this.compositeTerm
+            && this.currentUser.isLoggedIn()
+            && !this.compositeTerm.hasApprovedScope()
+            && (
+                this.compositeTerm.isNewTerm()
+                || this.currentUser.canEditCompositeTerm(this.compositeTerm)
+                || this.currentUser.isAdmin()
+        )) {
+            this.isEditable = true;
+        }
+        else {
+            this.isEditable = false;
+        }
     }
 
     /**
@@ -86,7 +125,12 @@ export class TermBuilderEditComponent implements OnInit {
         .pipe(takeUntil(this.ngUnsubscribe))
         .subscribe((compositeTerm: BedesCompositeTerm) => {
             this.compositeTerm = compositeTerm;
+            this.updateFormStatus();
+            this.updateFormControls();
             this.setFormData();
+            // set the list of scope values
+            this.scopeList.compositeTerm = compositeTerm;
+            this.scopeList.updateScopeList();
         })
     }
 
@@ -101,6 +145,7 @@ export class TermBuilderEditComponent implements OnInit {
             this.unitList = results;
         });
     }
+
 
     public openTermSearchDialog(): void {
         const dialogRef = this.dialog.open(BedesTermSearchDialogComponent, {
@@ -173,6 +218,23 @@ export class TermBuilderEditComponent implements OnInit {
     }
 
     /**
+     * Update's the enabled/disabled status of the form controls,
+     * based on the boolean value of this.isEdiable
+     */
+    private updateFormControls(): void {
+        if (this.isEditable) {
+            this.dataForm.controls.description.enable();
+            this.dataForm.controls.unitId.enable();
+            this.dataForm.controls.scopeId.enable();
+        }
+        else {
+            this.dataForm.controls.description.disable();
+            this.dataForm.controls.unitId.disable();
+            this.dataForm.controls.scopeId.disable();
+        }
+    }
+
+    /**
      * Set the form values from the compositeTerm.
      */
     private setFormData(): void {
@@ -182,6 +244,9 @@ export class TermBuilderEditComponent implements OnInit {
         );
         this.dataForm.controls['unitId'].setValue(
             this.compositeTerm ? this.compositeTerm.unitId : undefined
+        );
+        this.dataForm.controls['scopeId'].setValue(
+            this.compositeTerm ? this.compositeTerm.scopeId : undefined
         );
         this.dataForm.controls['uuid'].setValue(
             this.compositeTerm ? this.compositeTerm.uuid : undefined
@@ -203,6 +268,12 @@ export class TermBuilderEditComponent implements OnInit {
                 this.compositeTerm.unitId = +newValue
             }
         });
+        this.dataForm.controls['scopeId'].valueChanges
+        .subscribe((newValue: string) => {
+            if (this.compositeTerm && newValue) {
+                this.compositeTerm.scopeId = +newValue;
+            }
+        })
     }
 
     /**

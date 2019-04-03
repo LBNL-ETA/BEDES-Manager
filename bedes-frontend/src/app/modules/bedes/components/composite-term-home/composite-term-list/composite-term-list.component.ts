@@ -13,6 +13,7 @@ import { TableCellNavComponent } from '../../../models/ag-grid/table-cell-nav/ta
 import { MatDialog } from '@angular/material';
 import { ConfirmDialogComponent } from '../../dialogs/confirm-dialog/confirm-dialog.component';
 import { Scope } from '@bedes-common/enums/scope.enum';
+import { scopeList } from '@bedes-common/lookup-tables/scope-list';
 
 /** css formatting applied to console log statements */
 const consoleFormatString = 'background-color:green; color: white; padding: 5px;';
@@ -120,7 +121,6 @@ export class CompositeTermListComponent extends MessageFromGrid<IGridRow> implem
             // remove the term
             this.compositeTermService.deleteTerm(term)
             .subscribe((results: number) => {
-                console.log(`${this.constructor.name}: delete appTerm success`, results);
             }, (error: any) => {
                 console.log('An error occurred removing AppTerm', error);
             });
@@ -177,7 +177,6 @@ export class CompositeTermListComponent extends MessageFromGrid<IGridRow> implem
                 params.api.sizeColumnsToFit();
             },
             onSelectionChanged: (event: SelectionChangedEvent) => {
-                console.log('selection changed', event.api.getSelectedRows());
                 const rows = event.api.getSelectedRows();
                 this.selectedItem = rows && rows.length ? rows[0] : undefined;
             }
@@ -215,13 +214,12 @@ export class CompositeTermListComponent extends MessageFromGrid<IGridRow> implem
             const gridData = new Array<IGridRow>();
             if (Array.isArray(this.termList)) {
                 this.termList.forEach((item: BedesCompositeTermShort) => {
+                    const scopeObj = scopeList.getItemById(item.scopeId);
                     gridData.push(<IGridRow>{
                         name: item.name,
-                        isEditable: this.currentUser.canEditCompositeTerm(item.id),
+                        isEditable: this.currentUser.canEditCompositeTerm(item),
                         ref: item,
-                        scopeName: item.scopeId === Scope.Public
-                            ? 'Public'
-                            : 'Private'
+                        scopeName: scopeObj.name,
                     });
                 })
             }

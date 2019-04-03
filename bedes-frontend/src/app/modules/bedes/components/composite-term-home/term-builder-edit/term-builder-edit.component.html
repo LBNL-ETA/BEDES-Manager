@@ -9,7 +9,10 @@
         <fa-icon [icon]="['fas', 'save']"></fa-icon>
         Save
     </button>
-    <button mat-stroked-button color="primary" (click)="openTermSearchDialog()">
+    <button mat-stroked-button
+    color="primary"
+    [disabled]="!isEditable || isWaiting"
+    (click)="openTermSearchDialog()">
         <fa-icon [icon]="['fas', 'cloud-download-alt']"></fa-icon>
         Import BEDES Terms
     </button>
@@ -34,6 +37,10 @@
     </h3>
 </div>
 
+<div *ngIf="compositeTerm && compositeTerm.items.length" style="margin-top:10px;">
+    <app-selected-terms-order></app-selected-terms-order>
+</div>
+
 <form [formGroup]="dataForm" style="margin-top:10px">
     <div style="display:flex; flex-direction: row;">
         <!-- Description -->
@@ -54,15 +61,19 @@
     </div>
     <!-- uuid -->
     <div style="display:flex; flex-direction: row;">
+        <mat-form-field style="flex:1;" appearance="outline">
+            <mat-label>Visiblity</mat-label>
+            <mat-select placeholder="Visibility" formControlName="scopeId">
+                <mat-option *ngFor="let item of scopeList.items " [value]="item.id">
+                    {{item.name}}
+                </mat-option>
+            </mat-select>
+        </mat-form-field>
         <mat-form-field style="flex:1; margin-bottom:5px;" appearance="outline">
             <mat-label>UUID</mat-label>
             <input matInput formControlName="uuid">
         </mat-form-field>
     </div>
 </form>
-
-<div *ngIf="compositeTerm && compositeTerm.items.length">
-    <app-selected-terms-order></app-selected-terms-order>
-</div>
 
 <app-selected-terms-table></app-selected-terms-table>

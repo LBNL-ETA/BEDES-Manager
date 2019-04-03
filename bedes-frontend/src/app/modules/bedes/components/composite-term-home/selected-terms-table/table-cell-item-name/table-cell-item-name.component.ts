@@ -17,6 +17,7 @@ export class TableCellItemNameComponent implements ICellRendererAngularComp {
     public params: any;
     public displayLabel: string;
     public uuid: string;
+    public isEditable = false;
 
     private setDisplayLabel(element: BedesTerm | BedesConstrainedList | undefined): void {
         if (element) {
@@ -39,10 +40,23 @@ export class TableCellItemNameComponent implements ICellRendererAngularComp {
     agInit(params: any): void {
         this.params = params;
         this.setDisplayLabel(params ? params.data : undefined);
+        this.updateEditStatus();
     }
 
     refresh(): boolean {
         return false;
+    }
+
+    /**
+     * Determines if the cell should be editable or not.
+     */
+    private updateEditStatus(): void {
+        if (this.params && this.params.data) {
+            this.isEditable = this.params.data.isEditable;
+        }
+        else {
+            this.isEditable = false;
+        }
     }
 
 }

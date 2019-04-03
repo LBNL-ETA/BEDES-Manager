@@ -167,7 +167,7 @@ export class CompositeTermService {
             throw new Error(`${this.constructor.name}: Attempt to update a new CompositeTerm`)
         }
         const url = this.urlUpdate.replace(/:id$/, String(compositeTerm.id));
-        return this.http.put<IBedesCompositeTerm>(url, compositeTerm, {withCredentials: true})
+        return this.http.put<IBedesCompositeTerm>(url, compositeTerm.toInterface(), {withCredentials: true})
         .pipe(map((results: IBedesCompositeTerm) => {
             const newTerm = new BedesCompositeTerm(results);
             // update the corresponding BedesCompositeTermShort in the ilst
@@ -223,6 +223,7 @@ export class CompositeTermService {
         shortItem.description = term.description;
         shortItem.signature = term.signature;
         shortItem.unitId = term.unitId;
+        shortItem.scopeId = term.scopeId;
         this._termListSubject.next(this.termList);
     }
 

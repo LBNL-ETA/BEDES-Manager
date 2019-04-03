@@ -12,6 +12,8 @@ import { CompositeTermDetail } from '@bedes-common/models/bedes-composite-term/c
 import { TableCellItemNameComponent } from './table-cell-item-name/table-cell-item-name.component';
 import { SupportListType } from '../../../services/support-list/support-list-type.enum';
 import { takeUntil } from 'rxjs/operators';
+import { CurrentUser } from '@bedes-common/models/current-user';
+import { AuthService } from 'src/app/modules/bedes-auth/services/auth/auth.service';
 
 // Object signature for grid row objects.
 interface IGridRow {
@@ -23,7 +25,8 @@ interface IGridRow {
     unitName: string | null | undefined;
     termCategoryName: string | null | undefined;
     scopeName: string | null | undefined;
-    ref: CompositeTermDetail
+    ref: CompositeTermDetail;
+    isEditable: boolean;
 }
 
 @Component({
@@ -42,15 +45,19 @@ export class SelectedTermsTableComponent implements OnInit, OnDestroy {
     public tableContext: any;
     private gridInitialized = false;
     private gridDataNeedsRefresh = false;
+    public currentUser: CurrentUser;
+    public isEditable = false;
 
     constructor(
         private supportListService: SupportListService,
+        private authService: AuthService,
         private dialog: MatDialog,
         private compositeTermService: CompositeTermService
     ) { }
 
     ngOnInit() {
         this.initializeGrid();
+        this.subscribeToUserStatus();
         this.setTableContext();
         this.subscribeToActiveTerm();
     }
@@ -62,6 +69,19 @@ export class SelectedTermsTableComponent implements OnInit, OnDestroy {
     }
 
     /**
+     * Subscribe to the user status Observable to get keep the user status up to date.
+     */
+    private subscribeToUserStatus(): void {
+        this.authService.currentUserSubject
+            .pipe(takeUntil(this.ngUnsubscribe))
+            .subscribe((currentUser: CurrentUser) => {
+                // assign the authenticated user
+                this.currentUser = currentUser;
+                this.refreshGridData();
+            });
+    }
+
+    /**
      * Subscribe to the active composite term observable.
      */
     private subscribeToActiveTerm(): void {
@@ -69,10 +89,39 @@ export class SelectedTermsTableComponent implements OnInit, OnDestroy {
         .pipe(takeUntil(this.ngUnsubscribe))
         .subscribe((compositeTerm: BedesCompositeTerm) => {
             this.compositeTerm = compositeTerm;
-            this.gridDataNeedsRefresh = true;
-            this.setGridData();
+            this.refreshGridData();
         })
     }
+
+    /**
+     * Refreshes the grid data.
+     */
+    private refreshGridData(): void {
+        this.gridDataNeedsRefresh = true;
+        this.updateEditStatus();
+        this.setGridData();
+    }
+
+    /**
+     * Update the edit status of the control, ie sets
+     * whether the terms can be redordered or just displayed.
+     */
+    private updateEditStatus(): void {
+        if(this.compositeTerm
+            && this.currentUser.isLoggedIn()
+            && !this.compositeTerm.hasApprovedScope()
+            && (
+                this.compositeTerm.isNewTerm()
+                || this.currentUser.canEditCompositeTerm(this.compositeTerm)
+                || this.currentUser.isAdmin()
+        )) {
+            this.isEditable = true;
+        }
+        else {
+            this.isEditable = false;
+        }
+    }
+
 
     /**
      * Set the execution context for the table.  Used for cell renderers
@@ -178,6 +227,7 @@ export class SelectedTermsTableComponent implements OnInit, OnDestroy {
                         termCategoryName: this.supportListService.transformIdToName(SupportListType.BedesCategory, item.term.termCategoryId),
                         dataTypeName: this.supportListService.transformIdToName(SupportListType.BedesDataType, item.term.dataTypeId),
                         unitName: this.supportListService.transformIdToName(SupportListType.BedesUnit, item.term.unitId),
+                        isEditable: this.isEditable
                     });
                 });
             }
