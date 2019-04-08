@@ -97,6 +97,11 @@ export class BedesCompositeTermShort extends UUIDGenerator {
         }
         this._scopeId = value;
     }
+    /** Owner of the term */
+    private _ownerName: string | null | undefined;
+    get ownerName(): string | null | undefined {
+        return this._ownerName;
+    }
 
     /**
      * Indicates if the term has undergone changes and needs to be updated.
@@ -126,6 +131,7 @@ export class BedesCompositeTermShort extends UUIDGenerator {
             this._scopeId = data._scopeId && data._scopeId in Scope
                 ?  data._scopeId
                 : undefined;
+            this._ownerName = data._ownerName;
         }
         else {
             // no data was passed in
