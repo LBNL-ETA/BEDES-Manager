@@ -166,7 +166,7 @@ export class CurrentUser {
      * @returns true if the user can edit the application defined by appId.
      */
     public canEditApplication(appId: number): boolean {
-        if (appId && this._appIds.includes(appId)) {
+        if (appId && (this._appIds.includes(appId) || this.isAdmin())) {
             return true;
         }
         else {
