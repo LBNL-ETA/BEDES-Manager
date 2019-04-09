@@ -98,7 +98,7 @@ export class BedesCompositeTermShort extends UUIDGenerator {
         this._scopeId = value;
     }
     /** Owner of the term */
-    private _ownerName: string | null | undefined;
+    protected _ownerName: string | null | undefined;
     get ownerName(): string | null | undefined {
         return this._ownerName;
     }

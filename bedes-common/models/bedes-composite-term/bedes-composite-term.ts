@@ -216,6 +216,7 @@ export class BedesCompositeTerm extends BedesCompositeTermShort {
             _uuid: this.uuid,
             _userId: this._userId,
             _scopeId: this._scopeId,
+            _ownerName: this._ownerName,
             _items: this._items.map((d) => d.toInterface())
         }
     }
