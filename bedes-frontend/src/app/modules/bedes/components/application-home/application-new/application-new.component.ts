@@ -5,7 +5,7 @@ import { ApplicationService } from '../../../services/application/application.se
 import { MappingApplication } from '@bedes-common/models/mapping-application/mapping-application';
 import { IMappingApplication } from '@bedes-common/models/mapping-application';
 import { HttpStatusCodes } from '@bedes-common/enums/http-status-codes';
-import { ApplicationScope } from '@bedes-common/enums/application-scope.enum';
+import { Scope } from '@bedes-common/enums/scope.enum';
 
 
 enum RequestStatus {
@@ -81,7 +81,7 @@ export class ApplicationNewComponent implements OnInit {
         const newApp: IMappingApplication = {
             _name: this.dataForm.value.name,
             _description: this.dataForm.value.description,
-            _scopeId: ApplicationScope.Private
+            _scopeId: Scope.Private
         };
         return newApp;
 

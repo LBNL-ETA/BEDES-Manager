@@ -20,6 +20,7 @@ import { TableCellMessageType } from '../../../models/ag-grid/enums/table-cell-m
 import { ConfirmDialogComponent } from '../../dialogs/confirm-dialog/confirm-dialog.component';
 import { MatDialog } from '@angular/material';
 import { AuthService } from 'src/app/modules/bedes-auth/services/auth/auth.service';
+import { scopeList } from '@bedes-common/lookup-tables/scope-list';
 
 /**
  * Defines the interface for the rows of grid objects.
@@ -109,6 +110,7 @@ export class ApplicationListComponent extends MessageFromGrid<IAppRow> implement
         this.appService.appListSubject
             .pipe(takeUntil(this.ngUnsubscribe))
             .subscribe((appList: Array<MappingApplication>) => {
+                console.log(`received application list`, appList);
                 this.applicationList = appList;
                 this.setGridData();
             });
@@ -267,6 +269,10 @@ export class ApplicationListComponent extends MessageFromGrid<IAppRow> implement
                 field: 'ref.description'
             },
             {
+                headerName: 'Owner',
+                field: 'ref.ownerName'
+            },
+            {
                 headerName: 'Scope',
                 field: 'scopeName'
             }
@@ -281,8 +287,9 @@ export class ApplicationListComponent extends MessageFromGrid<IAppRow> implement
             // const gridData = this.applicationList;
             const gridData = new Array<IAppRow>();
             this.applicationList.forEach((app: MappingApplication) => {
+                const scopeObj = scopeList.getItemById(app.scopeId);
                 gridData.push(<IAppRow>{
-                    scopeName: app.scopeId === ApplicationScope.Public ? 'Public' : 'Private',
+                    scopeName: scopeObj.name,
                     ref: app,
                     isEditable: this.currentUser.canEditApplication(app.id)
                 });

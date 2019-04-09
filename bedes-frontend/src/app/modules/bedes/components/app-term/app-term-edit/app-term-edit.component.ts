@@ -11,6 +11,7 @@ import { AppTerm, AppTermList, AppTermListOption } from '@bedes-common/models/ap
 import { appTermTypeList } from '@bedes-common/lookup-tables/app-term-type-list';
 import { takeUntil } from 'rxjs/operators';
 import { GridOptions, SelectionChangedEvent, ColDef } from 'ag-grid-community';
+import { Scope } from '@bedes-common/enums/scope.enum';
 
 
 enum RequestStatus {
@@ -191,7 +192,7 @@ export class AppTermEditComponent implements OnInit {
         const newApp: IMappingApplication = {
             _name: this.dataForm.value.name,
             _description: this.dataForm.value.description,
-            _scopeId: ApplicationScope.Private
+            _scopeId: Scope.Private
         };
         return newApp;
 

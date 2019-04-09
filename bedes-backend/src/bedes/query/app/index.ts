@@ -277,10 +277,20 @@ export class AppQuery {
      * Retrieves the list of available applications.
      * If ther are no applications available an empty array is returned.
      */
-    public getAllRecords(transaction?: any): Promise<Array<IMappingApplication>> {
+    public getAllRecords(currentUser?: CurrentUser, transaction?: any): Promise<Array<IMappingApplication>> {
         try {
+            // const ctx = transaction || db;
+            // return ctx.manyOrNone(this.sqlGetAll);
             const ctx = transaction || db;
-            return ctx.manyOrNone(this.sqlGetAll);
+            if (currentUser) {
+                const params = {
+                    _userId: currentUser.id
+                }
+                return ctx.manyOrNone(this.sqlGetAllFromUser, params);
+            }
+            else {
+                return ctx.manyOrNone(this.sqlGetAll);
+            }
         } catch (error) {
             logger.error(`${this.constructor.name}: Error in getAllRecords`);
             logger.error(util.inspect(error));
