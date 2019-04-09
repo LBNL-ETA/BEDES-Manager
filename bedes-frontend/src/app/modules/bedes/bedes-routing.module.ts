@@ -12,7 +12,7 @@ import { ManageDefinitionSourceListComponent } from './components/list-managemen
 import { BedesTermDetailsListOptionsComponent } from './components/bedes-term-details/bedes-term-details-list-options/bedes-term-details-list-options.component';
 import { EditTermListOptionComponent } from './components/bedes-term-details/bedes-term-details-list-options/edit-term-list-option/edit-term-list-option.component';
 import { NewTermListOptionComponent } from './components/bedes-term-details/bedes-term-details-list-options/new-term-list-option/new-term-list-option.component';
-import { ApplicationListComponent } from './components/application-home/application-list/application-list.component';
+import { ApplicationListComponent } from './components/application-list/application-list.component';
 import { ApplicationNewComponent } from './components/application-home/application-new/application-new.component';
 import { ApplicationEditComponent } from './components/application-home/application-edit/application-edit.component';
 import { ApplicationResolverService } from './services/application/application-resolver.service';

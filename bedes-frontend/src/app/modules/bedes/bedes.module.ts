@@ -45,7 +45,7 @@ import { TableCellBedesCategoryComponent } from './components/bedes-term-search/
 import { TableCellBedesUnitComponent } from './components/bedes-term-search/bedes-search-results-table/table-cell-bedes-unit/table-cell-bedes-unit.component';
 import { TableCellBedesDataTypeComponent } from './components/bedes-term-search/bedes-search-results-table/table-cell-bedes-data-type/table-cell-bedes-data-type.component';
 import { TableCellTermNameComponent } from './components/bedes-term-search/bedes-search-results-table/table-cell-term-name/table-cell-term-name.component';
-import { ApplicationListComponent } from './components/application-home/application-list/application-list.component';
+import { ApplicationListComponent } from './components/application-list/application-list.component';
 import { ApplicationNewComponent } from './components/application-home/application-new/application-new.component';
 import { ApplicationEditComponent } from './components/application-home/application-edit/application-edit.component';
 import { applicationListFactory } from './services/application/application-list-factory.service';
