@@ -13,17 +13,19 @@ const logger = createLogger(module);
  */
 export async function getApplicationsHandler(request: Request, response: Response): Promise<any> {
     try {
-        if (!request.isAuthenticated()) {
-            // send over an empty array if not authenticated
-            response.json([]);
-            return;
-        }
-        const user = <CurrentUser>request.user;
-        if (!user) {
-            logger.error('User serialization error in newVerificationCodeHandler, unable to cast user to CurrentUser');
-            throw new Error('User serialization error in newVerificationCodeHandler, unable to cast user to CurrentUser')
-        }
-        let results = await bedesQuery.app.getAllRecordsFromUser(user);
+        // if (!request.isAuthenticated()) {
+        //     // send over an empty array if not authenticated
+        //     response.json([]);
+        //     return;
+        // }
+        const user = request.user ? <CurrentUser>request.user : undefined;
+        // console.log("userk")
+        // console.log(user);
+        // if (!user) {
+        //     logger.error('User serialization error in newVerificationCodeHandler, unable to cast user to CurrentUser');
+        //     throw new Error('User serialization error in newVerificationCodeHandler, unable to cast user to CurrentUser')
+        // }
+        let results = await bedesQuery.app.getAllRecords(user);
         response.json(results)
     }
     catch (error) {

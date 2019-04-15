@@ -10,14 +10,14 @@
             Back to Application List
         </a>
         <button mat-stroked-button color="primary"
-        [disabled]="!isEditable"
+        [disabled]="!canEditApplication()"
         (click)="newAtomicTerm()">
             <fa-icon [icon]="['fas', 'plus-circle']"></fa-icon>
             New Term
         </button>
         <button mat-stroked-button color="primary"
         (click)="openCsvUploadDialog()"
-        [disabled]="!isEditable">
+        [disabled]="!canEditApplication()">
             <fa-icon [icon]="['fas', 'file-import']"></fa-icon>
             Import Application Terms (CSV)
         </button>

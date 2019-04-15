@@ -32,7 +32,7 @@ export async function updateMappingApplicationHandler(request: Request, response
                 "Invalid parameters"
             );
         }
-        let results = await bedesQuery.app.updateRecord(item);
+        let results = await bedesQuery.app.updateRecord(user, item);
         response.json(results)
     }
     catch (error) {

@@ -192,7 +192,7 @@ export class AppTermEditComponent implements OnInit {
         const newApp: IMappingApplication = {
             _name: this.dataForm.value.name,
             _description: this.dataForm.value.description,
-            _scopeId: Scope.Private
+            _scopeId: ApplicationScope.Private
         };
         return newApp;
 

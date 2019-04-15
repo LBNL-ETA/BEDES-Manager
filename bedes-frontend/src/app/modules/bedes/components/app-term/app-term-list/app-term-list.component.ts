@@ -123,6 +123,12 @@ export class AppTermListComponent extends MessageFromGrid<IAppRow> implements On
         });
     }
 
+    public canEditApplication(): boolean {
+        return this.app && this.currentUser && this.currentUser.canEditApplication(this.app)
+            ? true
+            : false;
+    }
+
     /**
      * Create a new AppTerm object, and navigate to the AppTerm route.
      */

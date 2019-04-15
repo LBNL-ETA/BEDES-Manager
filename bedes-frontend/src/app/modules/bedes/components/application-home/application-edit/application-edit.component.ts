@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { FormBuilder, Validators } from '@angular/forms';
+import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
+import { FormBuilder, Validators, NgForm } from '@angular/forms';
 import { Subject } from 'rxjs';
 import { ApplicationService } from '../../../services/application/application.service';
 import { MappingApplication } from '@bedes-common/models/mapping-application/mapping-application';
@@ -9,7 +9,10 @@ import { AppTermService } from '../../../services/app-term/app-term.service';
 import { AppTerm } from '@bedes-common/models/app-term/app-term';
 import { AppTermList } from '@bedes-common/models/app-term/app-term-list';
 import { Scope } from '@bedes-common/enums/scope.enum';
-
+import { AuthService } from 'src/app/modules/bedes-auth/services/auth/auth.service';
+import { takeUntil } from 'rxjs/operators';
+import { CurrentUser } from '@bedes-common/models/current-user';
+import { applicationScopeList } from '@bedes-common/lookup-tables/application-scope-list';
 
 enum RequestStatus {
     Idle=1,
@@ -28,11 +31,12 @@ enum ControlState {
   templateUrl: './application-edit.component.html',
   styleUrls: ['./application-edit.component.scss']
 })
-export class ApplicationEditComponent implements OnInit {
+export class ApplicationEditComponent implements OnInit, OnDestroy {
     // The active MappingApplication object.
     public app: MappingApplication;
     // The active MappingApplication's AppTerms
     public termList: Array<AppTerm | AppTermList>;
+    public scopeList = applicationScopeList.items;
     // contains the status of the current request status
     public currentRequestStatus = RequestStatus.Idle;
     public RequestStatus = RequestStatus;
@@ -42,34 +46,70 @@ export class ApplicationEditComponent implements OnInit {
     // Error messages
     public hasError: boolean;
     public errorMessage: string;
-
+    /** indicates if the component is editable */
+    public isEditable = false;
+    /** The current user */
+    public currentUser: CurrentUser;
+    /** the current authenticated user */
     private ngUnsubscribe: Subject<void> = new Subject<void>();
+    /** Reference to the component's form */
+    @ViewChild('theForm')
+    private theForm: NgForm;
 
     public dataForm = this.formBuilder.group({
         name: ['', Validators.required],
-        description: ['']
+        description: [''],
+        scopeId: ['']
     });
 
     constructor(
+        private authService: AuthService,
         private formBuilder: FormBuilder,
         private appService: ApplicationService,
         private appTermService: AppTermService
     ) { }
 
     ngOnInit() {
-        this.subscrbeToApplicationData();
+        this.subscribeToUserStatus();
+        this.subscrbeToMappingApplication();
         this.subscribeToAppTerms();
+    }
+
+    ngOnDestroy() {
+        // unsubscribe from the subjects
+        this.ngUnsubscribe.next();
+        this.ngUnsubscribe.complete();
     }
 
     /**
      * Subscribe to the active MappingApplication object.
      */
-    private subscrbeToApplicationData(): void {
+    private subscrbeToMappingApplication(): void {
         this.appService.selectedItemSubject
+        .pipe(takeUntil(this.ngUnsubscribe))
         .subscribe((app: MappingApplication) => {
+            console.log('current application', app);
             this.app = app;
             this.setFormData();
+            this.setScopeControlStatus();
+            this.setDataControlStatus();
         });
+    }
+
+    /**
+     * Subscribe to the user status Observable to get keep the user status up to date.
+     */
+    private subscribeToUserStatus(): void {
+        this.authService.currentUserSubject
+            .pipe(takeUntil(this.ngUnsubscribe))
+            .subscribe((currentUser: CurrentUser) => {
+                console.log(`${this.constructor.name}: received user status`, currentUser);
+                this.currentUser = currentUser;
+                this.isEditable = currentUser.isLoggedIn();
+                this.setFormData();
+                this.setScopeControlStatus();
+                this.setDataControlStatus();
+            });
     }
 
     /**
@@ -79,10 +119,40 @@ export class ApplicationEditComponent implements OnInit {
     private subscribeToAppTerms(): void {
         console.log('subscribe to app terms')
         this.appTermService.termListSubject
+        .pipe(takeUntil(this.ngUnsubscribe))
         .subscribe((termList: Array<AppTerm | AppTermList>) => {
             console.log(`${this.constructor.name}: received app terms`, termList);
             this.termList = termList;
         });
+    }
+
+    /**
+     * Determines if the data in the view is editable.
+     * @returns true if the application is editable.
+     */
+    public canEditApplication(): boolean {
+        return this.currentUser && this.app && this.currentUser.canEditApplication(this.app)
+            ? true
+            : false;
+    }
+
+    /**
+     * Indicates if the ApplicationScope input is allowed to be changed.
+     * @returns true if change application scope
+     */
+    public canChangeApplicationScope(): boolean {
+        return this.currentUser && this.currentUser.isAdmin()
+            ? true : false;
+    }
+
+    /**
+     * Indicates if the mapping application data has changed.
+     * @returns true if has changed
+     */
+    public dataHasChanged(): boolean {
+        return this.theForm && this.theForm.dirty
+            ? true
+            : false;
     }
 
     /**
@@ -91,18 +161,18 @@ export class ApplicationEditComponent implements OnInit {
     public updateApplication(): void {
         const newApp: IMappingApplication = this.getAppFromForm();
         newApp._id = this.app.id;
-        console.log(`${this.constructor.name}: update mapping application`, newApp);
         this.resetError();
         this.appService.updateApplication(newApp)
         .subscribe(
             (newApp: MappingApplication) => {
                 // application successfully created
-                console.log(`${this.constructor.name}: create new App success`, newApp);
                 // update the MappingApplication object with the new properties
                 this.app.name = newApp.name;
                 this.app.description = newApp.description;
+                this.app.clearChangeFlag();
                 this.currentControlState = ControlState.FormSuccess;
                 this.currentRequestStatus = RequestStatus.Success;
+                this.theForm.form.markAsPristine();
             },
             (error: any) => {
                 console.log(`${this.constructor.name}: Error creating new application`, error);
@@ -117,13 +187,56 @@ export class ApplicationEditComponent implements OnInit {
     private setFormData(): void {
         // Application name
         this.dataForm.controls['name'].setValue(
-            this.app.name
+            this.app ? this.app.name : ''
         );
         // Description
         this.dataForm.controls['description'].setValue(
-            this.app.description
+            this.app ? this.app.description : ''
+        );
+        // ScopeId
+        this.dataForm.controls['scopeId'].setValue(
+            this.app ? this.app.scopeId : ''
         );
 
+    }
+
+    /**
+     * Determines which inputs are enabled/disabled based on the current authenticated user
+     */
+    private setScopeControlStatus(): void {
+        if (this.canChangeApplicationScope()) {
+            this.enableScopeControls();
+        }
+        else {
+            this.disableScopeControls();
+        }
+    }
+
+    private setDataControlStatus(): void {
+        if (this.canEditApplication()) {
+            this.enableDataControls();
+        }
+        else {
+            this.disableDataControls();
+        }
+    }
+
+    private enableScopeControls(): void {
+        this.dataForm.controls.scopeId.enable();
+    }
+
+    private disableScopeControls(): void {
+        this.dataForm.controls.scopeId.disable();
+    }
+
+    private enableDataControls(): void {
+        this.dataForm.controls.name.enable();
+        this.dataForm.controls.description.enable();
+    }
+
+    private disableDataControls(): void {
+        this.dataForm.controls.name.disable();
+        this.dataForm.controls.description.disable();
     }
 
     /**
@@ -143,7 +256,7 @@ export class ApplicationEditComponent implements OnInit {
         const newApp: IMappingApplication = {
             _name: this.dataForm.value.name,
             _description: this.dataForm.value.description,
-            _scopeId: Scope.Private
+            _scopeId: this.dataForm.value.scopeId
         };
         return newApp;
 

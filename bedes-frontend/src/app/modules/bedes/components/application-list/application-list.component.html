@@ -30,8 +30,7 @@
             </div>
             <!-- Guest and no applications -->
             <div class="alert-danger" style="margin-top:10px;"
-            *ngIf="!currentUser.isLoggedIn()">
-            <!-- *ngIf="!currentUser.isLoggedIn() && (!applicationList || !applicationList?.length)"> -->
+            *ngIf="!currentUser.isLoggedIn() && (!applicationList || !applicationList?.length)">
                 <h3 style="margin: 0; padding:0;">
                     <fa-icon [icon]="['fas', 'exclamation-triangle']"></fa-icon>
                     There are no public mapping applications available for view.
@@ -47,7 +46,7 @@
                 </h3>
             </div>
             <div style="display: flex; flex-direction: row; height: 100%;"
-            *ngIf="currentUser.isLoggedIn() && applicationList && applicationList.length">
+            *ngIf="applicationList && applicationList.length">
                 <div style=" overflow: hidden; flex-grow: 1;">
                     <ag-grid-angular #agGrid
                     style="width: 100%; height: 100%"

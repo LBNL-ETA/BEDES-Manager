@@ -3,17 +3,28 @@
         <mat-card-header class="color-accent">
             <mat-card-title>
                 <h1 class="mat-display-1">
-                    <span *ngIf="activeApp">
-                        {{ activeApp.name }}
-                    </span>
-                    <span *ngIf="!activeApp">
-                        Select an Application
-                    </span>
+                    {{ activeApp.name }}
                 </h1>
             </mat-card-title>
         </mat-card-header>
         <mat-card-content>
+            <nav mat-tab-nav-bar>
+                <a mat-tab-link
+                [routerLink]="['./terms']"
+                routerLinkActive #rla="routerLinkActive"
+                [active]="rla.isActive">
+                    Terms
+                </a>
+                <a mat-tab-link
+                [routerLink]="['./edit']"
+                routerLinkActive #rlaEdit="routerLinkActive"
+                [active]="rlaEdit.isActive">
+                    Application Options
+                </a>
+            </nav>
+
             <router-outlet></router-outlet>
+
         </mat-card-content>
     </mat-card>
 </div>

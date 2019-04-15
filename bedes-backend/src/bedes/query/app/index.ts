@@ -20,10 +20,12 @@ interface IInsertPermissionResult {
 
 export class AppQuery {
     private sqlGet: QueryFile;
+    private sqlGetById: QueryFile;
     private sqlGetAll: QueryFile;
     private sqlGetAllFromUser: QueryFile;
     private sqlInsert: QueryFile;
     private sqlUpdate: QueryFile;
+    private sqlUpdateAdmin: QueryFile;
     private sqlUpdateScope: QueryFile;
     private sqlDelete: QueryFile;
     private sqlInsertPermission: QueryFile;
@@ -32,10 +34,12 @@ export class AppQuery {
     constructor() { 
         // load the sql queries
         this.sqlGet = sql_loader(path.join(__dirname, 'get.sql'));
+        this.sqlGetById = sql_loader(path.join(__dirname, 'get-by-id.sql'));
         this.sqlGetAll = sql_loader(path.join(__dirname, 'get-all.sql'));
         this.sqlGetAllFromUser = sql_loader(path.join(__dirname, 'get-all-from-user.sql'));
         this.sqlInsert = sql_loader(path.join(__dirname, 'insert.sql'));
         this.sqlUpdate = sql_loader(path.join(__dirname, 'update.sql'));
+        this.sqlUpdateAdmin = sql_loader(path.join(__dirname, 'update-admin.sql'));
         this.sqlUpdateScope = sql_loader(path.join(__dirname, 'update-scope.sql'));
         this.sqlDelete = sql_loader(path.join(__dirname, 'delete.sql'));
         this.sqlInsertPermission = sql_loader(path.join(__dirname, 'insert-app-permisions.sql'));
@@ -147,23 +151,65 @@ export class AppQuery {
     /**
      * Update an existing MappingApplication object/record.
      */
-    public updateRecord(item: IMappingApplication, transaction?: any): Promise<IMappingApplication> {
+    public async updateRecord(currentUser: CurrentUser, item: IMappingApplication, transaction?: any): Promise<IMappingApplication> {
         try {
-            if (!item._name || !item._name) {
+            // make sure required parameters are there
+            if (!item._id || !item._name) {
                 logger.error(`${this.constructor.name}: Missing parameters in updateRecord`);
-                throw new Error('Missing required parameters.');
+                throw new BedesError('Invalid parameters', HttpStatusCodes.BadRequest_400);
             }
+            console.log(`isAdmin? = ${currentUser.isAdmin()}`)
+            console.log(item);
+            // run the admin query if the authenticated user is an admin
+            if (currentUser.isAdmin()) {
+                return this.updateRecordAdmin(currentUser, item, transaction);
+            }
+            // otherwise run the unprivileged query, which won't update the scope_id
+            // build the query parameters
             const params = {
                 _id: item._id,
                 _name: item._name,
                 _description: item._description
             };
-            if (transaction) {
-                return transaction.one(this.sqlUpdate, params);
+            // determine the db transaction context for the query
+            const ctx = transaction || db;
+            return ctx.one(this.sqlUpdate, params);
+        } catch (error) {
+            // Duplicate record
+            if (error && error.code === "23505") {
+                throw new BedesError(
+                    'Application name already exists.',
+                    HttpStatusCodes.BadRequest_400
+                );
             }
             else {
-                return db.one(this.sqlUpdate, params);
+                // all other errors
+                throw error;
             }
+        }
+    }
+
+    private async updateRecordAdmin(currentUser: CurrentUser, item: IMappingApplication, transaction?: any): Promise<IMappingApplication> {
+        try {
+            if (!currentUser.isAdmin()) {
+                throw new BedesError('Unauthorized.', HttpStatusCodes.Unauthorized_401);
+            }
+            // make sure required parameters are there
+            if (!item._id || !item._name) {
+                logger.error(`${this.constructor.name}: Missing parameters in updateRecord`);
+                throw new BedesError('Invalid parameters', HttpStatusCodes.BadRequest_400);
+            }
+
+            // build the query parameters
+            const params = {
+                _id: item._id,
+                _name: item._name,
+                _description: item._description,
+                _scopeId: item._scopeId
+            };
+            // determine the db transaction context for the query
+            const ctx = transaction || db;
+            return ctx.one(this.sqlUpdateAdmin, params);
         } catch (error) {
             // Duplicate record
             if (error && error.code === "23505") {
@@ -240,6 +286,28 @@ export class AppQuery {
             }
         } catch (error) {
             logger.error(`${this.constructor.name}: Error in newRecord`);
+            logger.error(util.inspect(error));
+            throw error;
+        }
+    }
+
+    /**
+     * Retrieve an application record by its id.
+     */
+    public getRecordById(currentUser: CurrentUser, id: number, transaction?: any): Promise<IMappingApplication> {
+        try {
+            if (!id) {
+                logger.error(`${this.constructor.name}: Invalid parameters.`);
+                throw new BedesError('Invalid parameteres.', HttpStatusCodes.BadRequest_400);
+            }
+            const params = {
+                _id: id,
+                _userId: currentUser.id
+            };
+            const ctx = transaction || db;
+            return ctx.one(this.sqlGetById, params);
+        } catch (error) {
+            logger.error(`${this.constructor.name}: Error in getRecord`);
             logger.error(util.inspect(error));
             throw error;
         }

@@ -6,7 +6,7 @@ import { Subject } from 'rxjs';
 import { RequestStatus } from '../../enums';
 import { Router, ActivatedRoute } from '@angular/router';
 import { BedesTermService } from '../../services/bedes-term/bedes-term.service';
-import { GridOptions, SelectionChangedEvent, ColDef } from 'ag-grid-community';
+import { GridOptions, SelectionChangedEvent, ColDef, GridApi, GridReadyEvent } from 'ag-grid-community';
 import { SupportListService } from '../../services/support-list/support-list.service';
 import { BedesUnit } from '@bedes-common/models/bedes-unit/bedes-unit';
 import { BedesTermCategory } from '@bedes-common/models/bedes-term-category/bedes-term-category';
@@ -41,6 +41,8 @@ export class ApplicationListComponent extends MessageFromGrid<IAppRow> implement
     public currentRequestStatus: RequestStatus;
     private ngUnsubscribe: Subject<void> = new Subject<void>();
     private gridInitialized = false;
+    private gridDataNeedsRefresh = false;
+    private gridApi: GridApi | undefined;
     public selectedItem: IAppRow | undefined;
     // lists
     public applicationList: Array<MappingApplication>;
@@ -59,7 +61,6 @@ export class ApplicationListComponent extends MessageFromGrid<IAppRow> implement
         private router: Router,
         private activatedRoute: ActivatedRoute,
         private appService: ApplicationService,
-        private supportListService: SupportListService,
         private authService: AuthService,
         private dialog: MatDialog
     ) {
@@ -68,8 +69,9 @@ export class ApplicationListComponent extends MessageFromGrid<IAppRow> implement
 
     ngOnInit() {
         this.gridInitialized = false;
+        this.gridDataNeedsRefresh = false;
         this.subscribeToUserStatus();
-        this.loadApplicationList();
+        this.subscribeToApplicationList();
         this.gridSetup();
         this.setTableContext();
     }
@@ -80,13 +82,13 @@ export class ApplicationListComponent extends MessageFromGrid<IAppRow> implement
         this.ngUnsubscribe.complete();
     }
 
-    private loadUserApplications(): void {
-        this.appService.loadUserApplications()
-            .pipe(takeUntil(this.ngUnsubscribe))
-            .subscribe((results: Array<MappingApplication>) => {
-                this.setGridData();
-            });
-    }
+    // private loadUserApplications(): void {
+    //     this.appService.loadUserApplications()
+    //         .pipe(takeUntil(this.ngUnsubscribe))
+    //         .subscribe((results: Array<MappingApplication>) => {
+    //             this.setGridData();
+    //         });
+    // }
 
     /**
      * Subscribe to the user status Observable to get keep the user status up to date.
@@ -97,7 +99,7 @@ export class ApplicationListComponent extends MessageFromGrid<IAppRow> implement
             .subscribe((currentUser: CurrentUser) => {
                 this.currentUser = currentUser;
                 this.isEditable = currentUser.isLoggedIn();
-                this.loadUserApplications();
+                this.appService.loadUserApplications();
             });
     }
 
@@ -106,28 +108,15 @@ export class ApplicationListComponent extends MessageFromGrid<IAppRow> implement
      * Set's the initial list, and will update the list
      * whenever the list is updted from the service.
      */
-    private loadApplicationList(): void {
+    private subscribeToApplicationList(): void {
         this.appService.appListSubject
             .pipe(takeUntil(this.ngUnsubscribe))
             .subscribe((appList: Array<MappingApplication>) => {
                 console.log(`received application list`, appList);
                 this.applicationList = appList;
+                this.gridDataNeedsRefresh = true;
                 this.setGridData();
             });
-    }
-
-    /**
-     * Retrieve the support lists for the view,
-     * only the list of applications in this view.
-     */
-    private assignSupportListData(): void {
-        // listen for the applicationList subject
-        this.supportListService.applicationSubject.subscribe(
-            (results: Array<MappingApplication>) => {
-                this.applicationList = results;
-                this.setGridData();
-            }
-        )
     }
 
     /**
@@ -156,11 +145,9 @@ export class ApplicationListComponent extends MessageFromGrid<IAppRow> implement
             enableSorting: true,
             // rowSelection: 'multiple',
             columnDefs: this.buildColumnDefs(),
-            onGridReady: () => {
-                this.gridInitialized = true;
-                if (this.gridOptions && this.gridOptions.api) {
-                    this.setGridData();
-                }
+            onGridReady: (event: GridReadyEvent) => {
+                this.gridApi = event.api;
+                this.setGridData();
             },
             onFirstDataRendered(params) {
                 params.api.sizeColumnsToFit();
@@ -283,7 +270,8 @@ export class ApplicationListComponent extends MessageFromGrid<IAppRow> implement
      * Populates the grid with the data from the applicationList.
      */
     private setGridData() {
-        if (this.gridOptions && this.gridOptions.api && this.applicationList) {
+        console.log('set grid data', this.applicationList, this.gridOptions);
+        if (this.gridApi && this.gridDataNeedsRefresh) {
             // const gridData = this.applicationList;
             const gridData = new Array<IAppRow>();
             this.applicationList.forEach((app: MappingApplication) => {
@@ -291,10 +279,11 @@ export class ApplicationListComponent extends MessageFromGrid<IAppRow> implement
                 gridData.push(<IAppRow>{
                     scopeName: scopeObj.name,
                     ref: app,
-                    isEditable: this.currentUser.canEditApplication(app.id)
+                    isEditable: this.currentUser.canEditApplication(app)
                 });
             })
-            this.gridOptions.api.setRowData(gridData);
+            this.gridDataNeedsRefresh = false;
+            this.gridApi.setRowData(gridData);
         }
     }
 
