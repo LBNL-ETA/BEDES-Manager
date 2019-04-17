@@ -9,6 +9,8 @@ import * as util from 'util';
 import { BedesError } from '@bedes-common/bedes-error/bedes-error';
 import { HttpStatusCodes } from '@bedes-common/enums/http-status-codes';
 import { CurrentUser } from '@bedes-common/models/current-user/current-user';
+import { ApplicationScope } from '@bedes-common/enums/application-scope.enum';
+import { bedesQuery } from '..';
 
 
 /**
@@ -158,8 +160,6 @@ export class AppQuery {
                 logger.error(`${this.constructor.name}: Missing parameters in updateRecord`);
                 throw new BedesError('Invalid parameters', HttpStatusCodes.BadRequest_400);
             }
-            console.log(`isAdmin? = ${currentUser.isAdmin()}`)
-            console.log(item);
             // run the admin query if the authenticated user is an admin
             if (currentUser.isAdmin()) {
                 return this.updateRecordAdmin(currentUser, item, transaction);
@@ -198,6 +198,25 @@ export class AppQuery {
             if (!item._id || !item._name) {
                 logger.error(`${this.constructor.name}: Missing parameters in updateRecord`);
                 throw new BedesError('Invalid parameters', HttpStatusCodes.BadRequest_400);
+            }
+            // make sure the query runs inside a transaction context
+            if (!transaction) {
+                return db.tx('update-record-admin', (newTrans: any) => {
+                    return this.updateRecordAdmin(currentUser, item, newTrans);
+                });
+            }
+            // get the current record to see what the scope is
+            const current = await this.getRecordById(currentUser, item._id);
+            if (!current) {
+                throw new BedesError('Error updating record.', HttpStatusCodes.ServerError_500);
+            }
+            const scopeToPublic = current._scopeId !== item._scopeId && item._scopeId === ApplicationScope.Public
+                ? true
+                : false;
+
+            if (scopeToPublic) {
+                // Set all corresponding bedes composite terms to public
+                await bedesQuery.compositeTerm.setApplicationCompositeTermsToPublic(currentUser, item._id, transaction);
             }
 
             // build the query parameters

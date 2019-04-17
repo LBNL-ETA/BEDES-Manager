@@ -27,6 +27,7 @@ export class BedesCompositeTermQuery {
     private sqlGetCompositeTermComplete: QueryFile;
     private sqlGetCompositeTermCompleteUUID: QueryFile;
     private sqlDelete: QueryFile;
+    private sqlAppPrivateToPublic: QueryFile;
 
     constructor() { 
         this.sqlGetBySignature = sql_loader(path.join(__dirname, 'get.sql'));
@@ -39,6 +40,7 @@ export class BedesCompositeTermQuery {
         this.sqlInsert = sql_loader(path.join(__dirname, 'insert.sql'))
         this.sqlUpdate = sql_loader(path.join(__dirname, 'update.sql'))
         this.sqlDelete = sql_loader(path.join(__dirname, 'delete.sql'))
+        this.sqlAppPrivateToPublic = sql_loader(path.join(__dirname, 'app-private-to-public.sql'))
     }
 
     /**
@@ -197,8 +199,6 @@ export class BedesCompositeTermQuery {
             // resolve all the promises before continueing
             const newDetailData : Array<ICompositeTermDetail> = await Promise.all(promises);
             const compositeTerm = new BedesCompositeTerm(item);
-            console.log(`old Signature = ${item._signature}`)
-            console.log(`newSignature = ${compositeTerm.signature}`)
             // // sort the terms as they appear in the definition
             // newDetailItems.sort(BedesCompositeTerm.detailItemSorter);
             // build a new signature for the term
@@ -531,6 +531,45 @@ export class BedesCompositeTermQuery {
             return ctx.result(this.sqlDelete, params, (r: any) => r.rowCount);
         } catch (error) {
             logger.error(`${this.constructor.name}: Error in deleteRecord`);
+            logger.error(util.inspect(error));
+            throw error;
+        }
+    }
+
+    /**
+     * Set all composite terms for a given application id to public.
+     * @param currentUser 
+     * @param appId 
+     * @param [transaction] 
+     * @returns application composite terms to public 
+     */
+    public async setApplicationCompositeTermsToPublic(
+        currentUser: CurrentUser,
+        appId: number,
+        transaction?: any
+    ): Promise<void> {
+        try {
+            if (!currentUser || !currentUser.isAdmin()) {
+                throw new BedesError(
+                    'Unauthorized.',
+                    HttpStatusCodes.Unauthorized_401
+                );
+            }
+            if (!appId) {
+                logger.error(`${this.constructor.name}: missing appId in setApplicationComppositeTermsToPublic`);
+                throw new BedesError(
+                    'Missing required parameters.',
+                    HttpStatusCodes.BadRequest_400);
+            }
+            // build the query params
+            const params = {
+                _applicationId: appId
+            };
+            // select the query context and run it
+            const ctx = transaction || db;
+            return await ctx.none(this.sqlAppPrivateToPublic, params);
+        } catch (error) {
+            logger.error(`${this.constructor.name}: Error in setApplicationCompositeTermsToPublic`);
             logger.error(util.inspect(error));
             throw error;
         }
