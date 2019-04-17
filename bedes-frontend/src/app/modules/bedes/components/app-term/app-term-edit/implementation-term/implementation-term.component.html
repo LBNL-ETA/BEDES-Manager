@@ -12,7 +12,7 @@
                 </a>
                 <button mat-stroked-button color="primary"
                 (click)="saveAppTerm()"
-                [disabled]="dataForm.invalid" >
+                [disabled]="!appTerm?.hasChanged || !canEditApplication()" >
                     <fa-icon [icon]="['fas', 'save']"></fa-icon>
                     Save
                 </button>
@@ -48,7 +48,9 @@
                             <input matInput placeholder="Enter the Implementation Field Name" formControlName="name">
                         </mat-form-field>
                         <span style="padding:7px;">
-                            <button mat-raised-button color="primary" (click)="openTermSearchDialog()">
+                            <button mat-raised-button color="primary"
+                            [disabled]="!canEditApplication()"
+                            (click)="openTermSearchDialog()">
                                 <fa-icon [icon]="['fas', 'map-marked-alt']" size="lg"></fa-icon>
                                 Map To a BEDES Term
                             </button>
@@ -124,18 +126,12 @@
                 <h2 style="text-align: center;">List Options</h2>
                 <!-- Button toolbar -->
                 <div>
-                    <button mat-stroked-button color="primary" (click)="newListOption()">
+                    <button mat-stroked-button color="primary"
+                    [disabled]="!canEditApplication()"
+                    (click)="newListOption()">
                         <fa-icon [icon]="['fas', 'plus-circle']"></fa-icon>
                         New
                     </button>
-                    <!-- <button mat-stroked-button color="primary" (click)="editListOption()" [disabled]="!selectedOption">
-                        <fa-icon [icon]="['fas', 'edit']"></fa-icon>
-                        Edit
-                    </button>
-                    <button mat-stroked-button color="primary" [disabled]="!selectedOption" (click)="removeListOption()">
-                        <fa-icon [icon]="['fas', 'trash']"></fa-icon>
-                        Remove Selected
-                    </button> -->
                 </div>
 
                 <!-- Messages -->

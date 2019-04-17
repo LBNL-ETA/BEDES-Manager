@@ -90,7 +90,7 @@ const appRoutes: Routes = [
     {
         path: 'applications/:appId',
         component: ApplicationHomeComponent,
-        canActivate: [AuthGuardService],
+        // canActivate: [AuthGuardService],
         resolve: {
             application: ApplicationResolverService,
         },

@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { ApplicationService } from '../../services/application/application.service';
 import { MappingApplication } from '@bedes-common/models/mapping-application';
+import { AuthService } from '../../../bedes-auth/services/auth/auth.service';
+import { CurrentUser } from '../../../../../../../bedes-common/models/current-user/current-user';
 
 @Component({
     selector: 'app-application-home',
@@ -9,17 +11,40 @@ import { MappingApplication } from '@bedes-common/models/mapping-application';
 })
 export class ApplicationHomeComponent implements OnInit {
     public activeApp: MappingApplication | undefined;
+    private currentUser: CurrentUser;
 
     constructor(
-        private appService: ApplicationService
+        private appService: ApplicationService,
+        private authService: AuthService
     ) { }
 
     ngOnInit() {
+        // subscribe to the dependent data sources
+        this.subscribeToCurrentUser();
+        this.subscribeToSelectedApplication();
+    }
+
+    private subscribeToSelectedApplication(): void {
         // Subscribe to the selected application BehaviorSubject.
         this.appService.selectedItemSubject
             .subscribe((activeApp: MappingApplication) => {
                 this.activeApp = activeApp;
             });
+    }
+
+    private subscribeToCurrentUser(): void {
+        this.authService.currentUserSubject
+        .subscribe((currentUser: CurrentUser) => {
+            this.currentUser = currentUser;
+        })
+    }
+
+    /**
+     * Determines if the view should show the application options.
+     * @returns true if application options should be visible
+     */
+    public areApplicationOptionsVisible(): boolean {
+        return this.currentUser.canEditApplication(this.activeApp);
     }
 
 }

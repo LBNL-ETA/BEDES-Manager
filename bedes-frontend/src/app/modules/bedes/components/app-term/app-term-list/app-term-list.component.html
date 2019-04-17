@@ -23,7 +23,7 @@
         </button>
         <button mat-raised-button color="primary"
         (click)="saveAllNewAppTerms()"
-        *ngIf="isEditable && hasUnsavedAppTerms()"
+        *ngIf="canEditApplication() && hasUnsavedAppTerms()"
         [matBadge]="numberOfNewTerms()" matBadgePosition="after" matBadgeColor="accent">
             <fa-icon [icon]="['fas', 'save']"></fa-icon>
             Save All New AppTerms
@@ -33,7 +33,7 @@
     <!-- Alerts/messages -->
     <!-- No terms message -->
     <div class="alert-accent" style="margin-top:10px;"
-    *ngIf="isEditable && (!appTermList || !appTermList.length)">
+    *ngIf="canEditApplication() && (!appTermList || !appTermList.length)">
         <h3 style="margin: 0; padding:0;">
             <fa-icon [icon]="['fas', 'exclamation-triangle']"></fa-icon>
             No terms have been defined, click the <strong>Create New Term</strong>
@@ -42,8 +42,7 @@
     </div>
     <!-- Guest and no applications message -->
     <div class="alert-danger" style="margin-top:10px;"
-    *ngIf="!isEditable">
-    <!-- *ngIf="!isEditable && (!appTermList || !appTermList?.length)"> -->
+    *ngIf="!canEditApplication() && (!appTermList || !appTermList.length)">
         <h3 style="margin: 0; padding:0;">
             <fa-icon [icon]="['fas', 'exclamation-triangle']"></fa-icon>
             There are no terms available for view.
@@ -61,7 +60,7 @@
     </div>
     <!-- The grid -->
     <div style="flex: 1; display:flex;  height: 100%;"
-    *ngIf="isEditable && appTermList && appTermList.length">
+    *ngIf="appTermList && appTermList.length">
         <div style=" overflow: hidden; flex-grow: 1">
             <ag-grid-angular #agGrid
             style="width: 100%; height: 100%;"

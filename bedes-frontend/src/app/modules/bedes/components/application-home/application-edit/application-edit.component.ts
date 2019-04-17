@@ -13,6 +13,7 @@ import { AuthService } from 'src/app/modules/bedes-auth/services/auth/auth.servi
 import { takeUntil } from 'rxjs/operators';
 import { CurrentUser } from '@bedes-common/models/current-user';
 import { applicationScopeList } from '@bedes-common/lookup-tables/application-scope-list';
+import { authLoggedInFactory } from '../../../../bedes-auth/services/auth/auth-factory.service';
 
 enum RequestStatus {
     Idle=1,
@@ -167,6 +168,7 @@ export class ApplicationEditComponent implements OnInit, OnDestroy {
             (newApp: MappingApplication) => {
                 // application successfully created
                 // update the MappingApplication object with the new properties
+                this.appService.load();
                 this.app.name = newApp.name;
                 this.app.description = newApp.description;
                 this.app.clearChangeFlag();

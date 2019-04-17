@@ -152,7 +152,7 @@ create table public.mapping_application (
 -- Links authenticated users to mapping applications
 create table public.mapping_application_roles (
     id serial primary key,
-    app_id int not null references public.mapping_application (id),
+    app_id int not null references public.mapping_application (id) on delete cascade,
     role_id int not null references public.application_role_type (id),
     user_id int not null references auth.user (id),
     created_date timestamp default now(),

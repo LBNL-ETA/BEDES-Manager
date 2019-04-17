@@ -64,6 +64,7 @@ export class ApplicationNewComponent implements OnInit {
             (newApp: MappingApplication) => {
                 // application successfully created
                 console.log(`${this.constructor.name}: create new App success`, newApp);
+                this.appService.load();
                 this.currentControlState = ControlState.FormSuccess;
                 this.currentRequestStatus = RequestStatus.Success;
                 this.dataForm.disable();

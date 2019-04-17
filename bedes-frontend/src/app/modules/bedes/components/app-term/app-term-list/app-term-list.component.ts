@@ -51,7 +51,6 @@ export class AppTermListComponent extends MessageFromGrid<IAppRow> implements On
     // Error messages
     public hasError = false;
     public errorMessage: string;
-    public isEditable: boolean;
     /* The current user */
     public currentUser: CurrentUser;
 
@@ -93,7 +92,7 @@ export class AppTermListComponent extends MessageFromGrid<IAppRow> implements On
             .subscribe((currentUser: CurrentUser) => {
                 console.log(`${this.constructor.name}: received user status`, currentUser);
                 this.currentUser = currentUser;
-                this.isEditable = currentUser.isLoggedIn();
+                // this.isEditable = currentUser.canEditApplication(this.app);
             });
     }
 
