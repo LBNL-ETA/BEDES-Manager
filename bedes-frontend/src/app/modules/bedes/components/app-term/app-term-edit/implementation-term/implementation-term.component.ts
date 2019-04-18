@@ -35,7 +35,9 @@ import { TableCellMapListOptionComponent } from '../table-cell-map-list-option/t
 import { MappingTableMessageType } from '../mapping-table-message-type.enum';
 import { ListOptionMapDialogComponent } from '../../../dialogs/list-option-map-dialog/list-option-map-dialog.component';
 import { BedesTermOption } from '@bedes-common/models/bedes-term-option/bedes-term-option';
-import { TermMappingComposite } from '../../../../../../../../../bedes-common/models/term-mapping/term-mapping-composite';
+import { TermMappingComposite } from '@bedes-common/models/term-mapping/term-mapping-composite';
+import { AuthService } from '../../../../../bedes-auth/services/auth/auth.service';
+import { CurrentUser } from '@bedes-common/models/current-user/current-user';
 
 
 enum RequestStatus {
@@ -56,6 +58,7 @@ interface IGridRow {
     showMappingButtons: boolean;
     hasMapping: boolean;
     mappedName: string | null | undefined;
+    isEditable: boolean;
 }
 
 
@@ -124,6 +127,8 @@ export class ImplementationTermComponent implements OnInit {
     public stateChangeSubject: BehaviorSubject<OptionViewState>;
     public currentViewState: OptionViewState;
 
+    private currentUser: CurrentUser | undefined;
+
     /**
      * Create the object instance.
      */
@@ -138,7 +143,7 @@ export class ImplementationTermComponent implements OnInit {
         private compositeTermService: CompositeTermService,
         private supportListService: SupportListService,
         private dialog: MatDialog,
-        private snackBar: MatSnackBar
+        private authService: AuthService,
     ) { }
 
     ngOnInit() {
@@ -147,6 +152,7 @@ export class ImplementationTermComponent implements OnInit {
         this.gridInitialized = false;
         // set the current list option view
         this.currentViewState = OptionViewState.ListOptionsView;
+        this.subscribeToUserStatus();
         this.initializeSupportLists();
         this.subscrbeToMappingApplication();
         this.subscribeToActiveTerm();
@@ -170,6 +176,7 @@ export class ImplementationTermComponent implements OnInit {
             .pipe(takeUntil(this.ngUnsubscribe))
             .subscribe((app: MappingApplication) => {
                 this.app = app;
+                this.updateFormControlStatus();
             });
     }
 
@@ -186,8 +193,6 @@ export class ImplementationTermComponent implements OnInit {
             .pipe(takeUntil(this.ngUnsubscribe))
             .subscribe((activeTerm: AppTerm | AppTermList | undefined) => {
                 this.appTerm = activeTerm;
-                console.log(`%c ${this.constructor.name}: AppTerm`, 'background-color: green')
-                console.log(activeTerm);
                 // if the appTerm is undefined create a new one
                 if (!this.appTerm) {
                     this.router.navigate(['..'], {relativeTo: this.route})
@@ -204,6 +209,55 @@ export class ImplementationTermComponent implements OnInit {
     }
 
     /**
+     * Subscribe to the user status Observable to get keep the user status up to date.
+     */
+    private subscribeToUserStatus(): void {
+        this.authService.currentUserSubject
+            .pipe(takeUntil(this.ngUnsubscribe))
+            .subscribe((currentUser: CurrentUser) => {
+                this.currentUser = currentUser;
+                this.updateFormControlStatus();
+            });
+    }
+
+    /**
+     * Set the form controls to editable/non-editable
+     */
+    private updateFormControlStatus(): void {
+        if (this.canEditApplication()) {
+            this.enableFormControls();
+        }
+        else {
+            this.disableFormControls();
+        }
+    }
+
+    /**
+     * Determines if the current authenticated user can edit the application
+     * @returns true if edit application
+     */
+    public canEditApplication(): boolean {
+        return this.app && this.app.isPrivate() && this.currentUser && this.currentUser.canEditApplication(this.app)
+            ? true
+            : false;
+
+    }
+
+    private enableFormControls(): void {
+        this.dataForm.controls.name.enable();
+        this.dataForm.controls.description.enable();
+        this.dataForm.controls.unitId.enable();
+        this.dataForm.controls.termTypeId.enable();
+    }
+
+    private disableFormControls(): void {
+        this.dataForm.controls.name.disable();
+        this.dataForm.controls.description.disable();
+        this.dataForm.controls.unitId.disable();
+        this.dataForm.controls.termTypeId.disable();
+    }
+
+    /**
      * Subscribe to the supportList Observable to get the UnitList.
      */
     private initializeSupportLists(): void {
@@ -211,7 +265,6 @@ export class ImplementationTermComponent implements OnInit {
         this.supportListService.unitListSubject.subscribe(
             (results: Array<BedesUnit>) => {
                 this.unitList = results;
-                console.log(`${this.constructor.name}: receceived unit list`, results);
             }
         );
     }
@@ -331,7 +384,6 @@ export class ImplementationTermComponent implements OnInit {
             // set the newTerm as the active term and change the route
             // this.appTermService.setActiveTerm(this.appTerm);
             this.appTermService.refreshActiveTerms();
-            this.snackBar.open('AppTerm successfully saved!', undefined, {duration: 3000});
             // add the new term to the current list of terms
         }, (error: any) => {
             console.log('Error saving appTerm', error);
@@ -345,14 +397,12 @@ export class ImplementationTermComponent implements OnInit {
      * First resets the error, then updates the term with the backend.
      */
     private updateAppTerm(): void {
-        console.log(`${this.constructor.name}: update app term, `, this.appTerm);
         this.resetError();
         // update the term with the form data
         this.setFormData();
         // call the backend service
         this.appTermService.updateAppTerm(this.app.id, this.appTerm)
         .subscribe((updatedTerm: AppTerm) => {
-            this.snackBar.open('AppTerm successfully saved!', undefined, {duration: 3000});
         }, (error: any) => {
             console.log('Error saving appTerm', error);
             this.setErrorMessage(error);
@@ -409,9 +459,7 @@ export class ImplementationTermComponent implements OnInit {
         // term type changes
         this.dataForm.controls['termTypeId'].valueChanges
         .subscribe((newValue: number) => {
-            console.log(`new value = ${newValue} type = ${typeof newValue}`)
             this.appTerm.termTypeId = newValue;
-            console.log(this.appTerm);
             // switch the app terms object type
             this.transFormAppTerm();
         });
@@ -472,7 +520,6 @@ export class ImplementationTermComponent implements OnInit {
                 params.api.sizeColumnsToFit();
             },
             onSelectionChanged: (event: SelectionChangedEvent) => {
-                console.log('selection changed', event.api.getSelectedRows());
                 const rows = event.api.getSelectedRows();
                 // this.selectedItem = rows && rows.length ? rows[0] : undefined;
             }
@@ -514,7 +561,8 @@ export class ImplementationTermComponent implements OnInit {
                         ref: item,
                         showMappingButtons: shouldShowMappingButtons,
                         hasMapping: item.mapping && item.mapping.bedesTermOptionUUID ? true : false,
-                        mappedName: item.mapping && item.mapping.bedesOptionName? item.mapping.bedesOptionName : ''
+                        mappedName: item.mapping && item.mapping.bedesOptionName? item.mapping.bedesOptionName : '',
+                        isEditable: this.canEditApplication()
                     })
                 })
             }
@@ -576,7 +624,6 @@ export class ImplementationTermComponent implements OnInit {
      * Processes a message from a grid.
      */
     public messageFromGrid(messageType: TableCellMessageType, selectedRow: IGridRow): void {
-        console.log(`${this.constructor.name}: received grid message`, messageType, selectedRow);
         const listOption = selectedRow ? selectedRow.ref : undefined;
 
         if (listOption) {
@@ -595,7 +642,6 @@ export class ImplementationTermComponent implements OnInit {
      * TODO: refactor message passing between grid and parent component
      */
     public mappingMessageFromGrid(messageType: MappingTableMessageType, selectedRow: IGridRow): void {
-        console.log(`${this.constructor.name}: received grid message`, messageType, selectedRow);
         const listOption = selectedRow ? selectedRow.ref : undefined;
 
         if (listOption) {
@@ -733,10 +779,7 @@ export class ImplementationTermComponent implements OnInit {
         this.listOptionService.deleteListOption(this.appTerm, listOption)
         .subscribe(
             (results: boolean) => {
-                console.log(`${this.constructor.name}: received results`);
-                console.log(results);
                 // refresh the activeTerm if context is still the same object.
-                this.snackBar.open('List Option successfully removed', undefined, {duration: 3000});
                 if (this.appTermService.activeTerm === this.appTerm) {
                     this.appTermService.activeTermSubject.next(this.appTerm);
                 }
@@ -753,9 +796,6 @@ export class ImplementationTermComponent implements OnInit {
      * Open the dialog to assign the BEDES List options.
      */
     public listOptionMapping(listOption: AppTermListOption): void {
-        console.log(listOption);
-        console.log(this.appTerm.mapping);
-        console.log(this.mappedTerm);
         if (!(this.appTerm
             && this.appTerm.mapping
             && this.appTerm.mapping instanceof TermMappingAtomic
@@ -774,7 +814,6 @@ export class ImplementationTermComponent implements OnInit {
         });
         dialogRef.afterClosed()
         .subscribe((selectedOption: BedesTermOption) => {
-            console.log(selectedOption);
             if (selectedOption) {
                 this.setMappedListOption(listOption, selectedOption);
             }
@@ -799,7 +838,6 @@ export class ImplementationTermComponent implements OnInit {
         // After the dialog is close...
         dialogRef.afterClosed()
         .subscribe((results: Array<BedesSearchResult> | undefined) => {
-            console.log('dialogRef.afterClosed()', results);
             if (Array.isArray(results) && results.length) {
                 this.setMappedTermFromSearchResult(results[0]);
             }
@@ -882,32 +920,10 @@ export class ImplementationTermComponent implements OnInit {
                 this.appTerm.map(bedesTerm, bedesTermOption);
 
             }
-            // // create the new mapping object and assign it to the active appTerm
-            // const mapping = new TermMappingAtomic()
-            // this.appTerm.mapping = mapping;
-            // // assign the active AppTermListOption if it's set
-            // if (this.activeListOption) {
-            //     mapping.appListOption = this.activeListOption;
-            // }
-            // // assign the bedesTerm
-            // mapping.bedesTermUUID = bedesTerm.uuid;
-            // // assign the listOption to the mapping
-            // if(optionUUID && bedesTerm instanceof BedesConstrainedList) {
-            //     // find the matching listOption by UUID
-            //     const found = bedesTerm.options.find((item) => item.uuid === optionUUID);
-            //     if (found) {
-            //         // assign the bedesListOption if there is one
-            //         mapping.bedesListOptionUUID = found.uuid;
-            //     }
-            //     else {
-            //         throw new Error(`Couldn't find term ${optionUUID}`)
-            //     }
-            // }
             // notify subscribers
             this.appTermService.activeTermSubject.next(this.appTerm);
             this.gridDataNeedsSet = true;
             this.setGridData();
-            // console.log('done', mapping);
         }, (error: any) => {
             console.error(`${this.constructor.name}: error mapping the atomic term`, error);
         });
@@ -922,7 +938,6 @@ export class ImplementationTermComponent implements OnInit {
         this.appTermService.activeTermSubject.next(this.appTerm);
         this.gridDataNeedsSet = true;
         this.setGridData();
-        console.log(appTermOption);
     }
 
 }

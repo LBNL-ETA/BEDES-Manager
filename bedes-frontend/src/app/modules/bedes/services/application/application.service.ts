@@ -107,6 +107,7 @@ export class ApplicationService {
         return this.http.post<IMappingApplication>(this.url, app, { withCredentials: true })
         .pipe(
             map((results: IMappingApplication) => {
+                this.authService.checkLoginStatus();
                 const newApp = new MappingApplication(results);
                 this.addAppToList(newApp);
                 return newApp;

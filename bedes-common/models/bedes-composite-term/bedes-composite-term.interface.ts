@@ -11,4 +11,5 @@ export interface IBedesCompositeTerm {
     _uuid?: string | null | undefined;
     _userId?: number | null | undefined;
     _scopeId?: Scope | null | undefined;
+    _ownerName?: string | null | undefined;
 }

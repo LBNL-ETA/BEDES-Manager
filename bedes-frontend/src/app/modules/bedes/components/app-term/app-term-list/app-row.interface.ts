@@ -8,4 +8,6 @@ export interface IAppRow {
     termStatus: TermStatus;
     ref: AppTerm | AppTermList;
     mappedName: string;
+    ownerName: string | null | undefined;
+    scopeName: string | null | undefined
 }

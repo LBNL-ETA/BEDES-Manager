@@ -1,47 +1,93 @@
 
-
-<div class="mat-typography" style="max-width: 900px; margin: 0 auto; padding: 10px;">
-    <!-- <div style="display:flex;">
-        <button mat-stroked-button color="primary"
-        [disabled]="dataForm.invalid || currentRequestStatus === RequestStatus.Pending"
-        (click)="updateApplication()">
-            <fa-icon [icon]="['fas', 'save']"></fa-icon>
-            Save
-        </button>
-        <a mat-stroked-button color="primary"
-        [routerLink]="['/applications']"
-        [disabled]="currentControlState === ControlState.Disabled">
-            <fa-icon [icon]="['fas', 'chevron-circle-left']"></fa-icon>
-            Back
-        </a>
-    </div> -->
-
-    <!-- Messages -->
-    <!-- Missing required fields -->
-    <!-- <div class="alert-warn" style="margin: 10px 0 10px 0; text-align:left;"
-                *ngIf="currentRequestStatus === RequestStatus.Idle && dataForm.invalid">
+<mat-card class="bedes-content-card mat-elevation-z0" style="margin:10px 0 10px 0; flex: 1;">
+    <mat-card-content>
+            <!-- <h1 style="text-align: center;">New List Option</h1> -->
+            <!-- <div>
+                <button mat-stroked-button (click)="back()" *ngIf="currentRequestStatus !== RequestStatus.Pending">
+                    <fa-icon [icon]="['fas', 'chevron-circle-left']"></fa-icon>
+                    Back to List Options
+                </button>
+                <button mat-stroked-button color="primary"
+                [disabled]="dataForm.invalid || currentControlState !== ControlState.Normal"
+                (click)="updateListOption()"
+                *ngIf="currentRequestStatus !== RequestStatus.Success">
+                    <fa-icon [icon]="['fas', 'save']"></fa-icon>
+                    Save
+                </button>
+            </div> -->
+            <!-- <div style="min-height: 38px;">
+                <div class="alert-warn" style="margin: 10px 0 10px 0; text-align:left;" *ngIf="currentRequestStatus === RequestStatus.Idle && dataForm.invalid">
                     <span style="font-weight:bold; padding-right:10px;">Status:</span>
                     <span>
                         <fa-icon [icon]="['fas', 'exclamation-triangle']"></fa-icon>
                         Missing required fields.
                     </span>
-                </div> -->
+                </div>
+                <div class="alert-accent" style="margin: 10px 0 10px 0; text-align:left;" *ngIf="currentRequestStatus === RequestStatus.Idle && dataForm.valid">
+                    <span style="font-weight:bold; padding-right:10px;">Status:</span>
+                    <span>
+                        <fa-icon [icon]="['fas', 'check']"></fa-icon>
+                        Ready to save.
+                    </span>
+                </div>
+                <div class="alert-success" style="margin: 10px 0 10px 0; text-align:left;" *ngIf="currentRequestStatus === RequestStatus.Success">
+                    <span style="font-weight:bold; padding-right:10px;">Status:</span>
+                    <span>
+                        <fa-icon [icon]="['fas', 'check']"></fa-icon>
+                        List option successfully created.
+                    </span>
+                </div>
+                <div class="alert-danger" style="margin: 10px 0 10px 0; text-align:left;" *ngIf="currentRequestStatus === RequestStatus.Error">
+                    <span style="font-weight:bold; padding-right:10px;">Status:</span>
+                    <span>
+                        <fa-icon [icon]="['fas', 'exclamation-triangle']"></fa-icon>
+                        An error occured creating the list option.
+                    </span>
+                </div>
+                <div class="alert-accent" style="margin: 10px 0 10px 0; text-align:left;"
+                *ngIf="currentRequestStatus === RequestStatus.Pending">
+                    <span style="font-weight:bold; padding-right:10px;">Status:</span>
+                    <span>
+                        <fa-icon [icon]="['fas', 'spinner']" [spin]="true" [size]="lg"></fa-icon>
+                        Waiting...
+                    </span>
+                </div>
+            </div> -->
+        <div style="display:flex; flex-direction: row; margin-bottom: 10px;">
+            <a mat-stroked-button routerLink="/applications">
+                <fa-icon [icon]="['fas', 'chevron-circle-left']"></fa-icon>
+                Back to Application List
+            </a>
+            <button mat-stroked-button color="primary"
+            (click)="updateApplication()"
+            [disabled]="!dataHasChanged() || !canEditApplication()">
+                <fa-icon [icon]="['fas', 'save']"></fa-icon>
+                Save
+            </button>
 
+        </div>
 
-    <!-- Data Form -->
-    <!-- <form [formGroup]="dataForm" style="display:flex; flex-direction: column; margin-top:10px">
-        <mat-form-field style="flex:1; margin-bottom:5px;" hintLabel="* Required" appearance="outline">
-            <mat-label>Application Name</mat-label>
-            <input matInput placeholder="Enter the Application Name" formControlName="name">
-        </mat-form-field>
-        <mat-form-field style="flex:1; margin-bottom:5px;" appearance="outline">
-            <mat-label>Description</mat-label>
-            <textarea matInput placeholder="Enter a Description" formControlName="description" rows="5">
-            </textarea>
-        </mat-form-field>
+        <form #theForm="ngForm" [formGroup]="dataForm" style="display:flex; flex-direction: column; margin-top:10px">
+            <mat-form-field style="flex:1; margin-bottom:5px;" appearance="outline" hintLabel="* Required">
+                <mat-label>Application Name</mat-label>
+                <input matInput placeholder="Application Name" formControlName="name">
+            </mat-form-field>
+            <mat-form-field style="flex:1; margin-bottom:5px;" appearance="outline">
+                <mat-label>Description</mat-label>
+                <textarea matInput placeholder="Description" formControlName="description" rows="5"></textarea>
+            </mat-form-field>
+            <div style="display:flex; flex-direction: row;" *ngIf="scopeList.length">
+                <mat-form-field style="flex:1;" appearance="outline">
+                    <mat-label>Scope</mat-label>
+                    <mat-select placeholder="Scope" formControlName="scopeId">
+                        <mat-option *ngFor="let item of scopeList" [value]="item.id">
+                            {{item.name}}
+                        </mat-option>
+                    </mat-select>
+                    <mat-hint>* Contact BEDES Admistrators to make the applicatoin public.</mat-hint>
+                </mat-form-field>
+            </div>
+        </form>
 
-    </form> -->
-
-</div>
-
-<router-outlet></router-outlet>
+    </mat-card-content>
+</mat-card>

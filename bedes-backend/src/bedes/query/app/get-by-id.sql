@@ -1,9 +1,8 @@
--- get all public mapping applications (non-authenticated call)
 select
     a.id as "_id",
     a.name as "_name",
     a.description as "_description",
-    a.scope_id as "_scopeId",
+    scope_id as "_scopeId",
     u.first_name || ' ' || u.last_name as "_ownerName"
 from
     public.mapping_application as a
@@ -16,18 +15,21 @@ join
 join
     -- join in current user info
 	auth.user as cu on cu.id = ${_userId}
-where (
-	-- select public applications
-	a.scope_id = 3
+where
+    -- get a specific application id
+    a.id = ${_id}
+and (
+    (
+        -- select public applications
+        a.scope_id = 3
+    )
+    or (
+        -- select application owners
+        u.id = ${_userId}
+    )
+    or (
+        -- admininistrators see all applications
+        cu.user_group_id = 2
+    )
 )
-or (
-	-- select application owners
-	u.id = ${_userId}
-)
-or (
-	-- admininistrators see all applications
-	cu.user_group_id = 2
-)
-order by
-    name
 ;

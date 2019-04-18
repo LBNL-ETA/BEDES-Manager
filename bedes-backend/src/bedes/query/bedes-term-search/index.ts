@@ -128,7 +128,9 @@ export class BedesTermSearchQuery {
                         1
                     else
                         2
-                end as "_resultObjectType"
+                end as "_resultObjectType",
+                null as "_ownerName",
+                null as "_scopeId"
             from
                 public.bedes_term t
             where
@@ -175,7 +177,9 @@ export class BedesTermSearchQuery {
                 t.name as "_name",
                 t.description as "_description",
                 t.unit_id as "_unitId",
-                3 as "_resultObjectType"
+                3 as "_resultObjectType",
+                null as "_ownerName",
+                null as "_scopeId"
             from
                 bedes_term_list_option as t
             join
@@ -219,9 +223,13 @@ export class BedesTermSearchQuery {
                 t.description as "_description",
                 t.unit_id as "_unitId",
                 t.uuid as "_uuid",
-                4 as "_resultObjectType"
+                4 as "_resultObjectType",
+                au.first_name || ' ' || au.last_name as "_ownerName",
+                scope_id as "_scopeId"
             from
                 public.bedes_composite_term t
+            join
+                auth.user as au on au.id = t.user_id
             where
             ${builderOutput.compositeTerm.getSqlConditions()}
         `;

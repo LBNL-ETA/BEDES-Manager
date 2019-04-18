@@ -3,6 +3,7 @@ import { ICurrentUser } from './current-user.interface';
 import { UserGroup } from '../../enums/user-group.enum';
 import { BedesCompositeTerm } from '../bedes-composite-term/bedes-composite-term';
 import { BedesCompositeTermShort } from '../bedes-composite-term-short';
+import { MappingApplication } from '../mapping-application';
 
 /**
  * Object that represents the current authenticated user.
@@ -165,13 +166,19 @@ export class CurrentUser {
      * @param appId The id of the mapping application.
      * @returns true if the user can edit the application defined by appId.
      */
-    public canEditApplication(appId: number): boolean {
-        if (appId && this._appIds.includes(appId)) {
-            return true;
-        }
-        else {
-            return false;
-        }
+    public canEditApplication(app: MappingApplication): boolean {
+        return (this.isApplicationOwner(app) && app.isPrivate()) || this.isAdmin()
+            ? true : false;
+    }
+
+    /**
+     * Indicates if the CurrentUser is the owner of a MappingApplication.
+     * @param app The MappingApplication to test for ownership.
+     * @returns true if the CurrentUser is the owner
+     */
+    public isApplicationOwner(app: MappingApplication): boolean {
+        return app && app.id && this._appIds.includes(app.id)
+            ? true : false;
     }
 
     /**

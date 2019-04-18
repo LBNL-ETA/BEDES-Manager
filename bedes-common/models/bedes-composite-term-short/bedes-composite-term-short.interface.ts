@@ -1,4 +1,4 @@
-import { Scope } from "@bedes-common/enums/scope.enum";
+import { Scope } from "../../enums/scope.enum";
 
 export interface IBedesCompositeTermShort {
     _id?: number | null | undefined;
@@ -9,4 +9,5 @@ export interface IBedesCompositeTermShort {
     _uuid?: string | null | undefined;
     _userId?: number | null | undefined;
     _scopeId?: Scope | null | undefined;
+    _ownerName?: string | null | undefined;
 }

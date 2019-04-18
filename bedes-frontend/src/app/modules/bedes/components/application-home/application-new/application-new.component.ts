@@ -5,7 +5,8 @@ import { ApplicationService } from '../../../services/application/application.se
 import { MappingApplication } from '@bedes-common/models/mapping-application/mapping-application';
 import { IMappingApplication } from '@bedes-common/models/mapping-application';
 import { HttpStatusCodes } from '@bedes-common/enums/http-status-codes';
-import { ApplicationScope } from '@bedes-common/enums/application-scope.enum';
+import { Scope } from '@bedes-common/enums/scope.enum';
+import { ApplicationScope } from '../../../../../../../../bedes-common/enums/application-scope.enum';
 
 
 enum RequestStatus {
@@ -63,6 +64,7 @@ export class ApplicationNewComponent implements OnInit {
             (newApp: MappingApplication) => {
                 // application successfully created
                 console.log(`${this.constructor.name}: create new App success`, newApp);
+                this.appService.load();
                 this.currentControlState = ControlState.FormSuccess;
                 this.currentRequestStatus = RequestStatus.Success;
                 this.dataForm.disable();

@@ -196,11 +196,11 @@ export class CompositeTermListComponent extends MessageFromGrid<IGridRow> implem
                 cellRendererFramework: TableCellNavComponent
             },
             {
-                headerName: 'Description',
-                field: 'ref.description'
+                headerName: 'Owner',
+                field: 'ref.ownerName'
             },
             {
-                headerName: 'Scope',
+                headerName: 'Status',
                 field: 'scopeName'
             }
         ];

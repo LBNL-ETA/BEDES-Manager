@@ -236,8 +236,6 @@ export class AppTermQuery {
             // update the mappings
             // delete the existing mapping
             await bedesQuery.mappedTerm.deleteMappingsByAppTerm(newAppTerm._id, transaction);
-            console.log('**... mapping...')
-            console.log(item._mapping);
             // update the list options
             if (newAppTerm._termTypeId === TermType.Atomic) {
                 // AppTerm is a [value] term

@@ -26,6 +26,11 @@ export class AppTerm extends UUIDGenerator {
     protected _uuid: string | null | undefined;
     protected _unitId: number | null | undefined;
     protected _mapping: TermMappingAtomic | TermMappingComposite | null | undefined;
+    /** Indicates if the Application information has changed */
+    protected _hasChanged = false;
+    public get hasChanged(): boolean {
+        return this._hasChanged;
+    }
 
     /**
      * Takes the source AppTerm values and assign them to the
@@ -88,18 +93,27 @@ export class AppTerm extends UUIDGenerator {
         return this._name;
     }
     set name(value: string) {
+        if (value != this._name) {
+            this._hasChanged = true;
+        }
         this._name = value;
     }
     get description(): string | null | undefined {
         return this._description;
     }
     set description(value: string | null | undefined) {
+        if (value != this._description) {
+            this._hasChanged = true;
+        }
         this._description = value;
     }
     get termTypeId(): TermType {
         return this._termTypeId;
     }
     set termTypeId(value: TermType) {
+        if (value != this._termTypeId) {
+            this._hasChanged = true;
+        }
         this._termTypeId = value;
     }
     get additionalInfo(): Array<AppTermAdditionalInfo> {
@@ -115,12 +129,16 @@ export class AppTerm extends UUIDGenerator {
         return this._unitId;
     }
     set unitId(value: number | null | undefined) {
+        if (value != this._unitId) {
+            this._hasChanged = true;
+        }
         this._unitId = value;
     }
     get mapping(): TermMappingAtomic | TermMappingComposite | null | undefined {
         return this._mapping;
     }
     set mapping(value: TermMappingAtomic | TermMappingComposite | null | undefined) {
+        this._hasChanged = true;
         this._mapping = value;
     }
 
@@ -128,6 +146,13 @@ export class AppTerm extends UUIDGenerator {
         if (!this._name || typeof this.name !== 'string' || !this._name.trim()) {
             throw new Error(`${this.constructor.name}: No field name present.`);
         }
+    }
+
+    /**
+     * Put the data back into a clean state
+     */
+    public clearChangeFlag(): void {
+        this._hasChanged = false;
     }
 
     /**
@@ -161,9 +186,6 @@ export class AppTerm extends UUIDGenerator {
         bedesTerm: BedesTerm | BedesConstrainedList  | BedesCompositeTerm,
         bedesTermOption?: BedesTermOption | undefined
     ): void {
-        const consoleFormat = 'background-color: darkred; color: white;'
-        console.log(`%c${this.constructor.name}: map`, consoleFormat);
-
         if (!bedesTerm.uuid || !bedesTerm.name) {
             throw new BedesError(
                 'System error mapping terms.',
@@ -175,12 +197,14 @@ export class AppTerm extends UUIDGenerator {
             // map a BEDES Composite Term
             this._mapping = new TermMappingComposite(<ITermMappingComposite>{
                 _bedesName: bedesTerm.name,
-                _compositeTermUUID: bedesTerm.uuid
+                _compositeTermUUID: bedesTerm.uuid,
+                _scopeId: bedesTerm.scopeId,
+                _ownerName: bedesTerm.ownerName
             });
-            if (bedesTerm.uuid && bedesTerm.name) {
-                this._mapping.compositeTermUUID = bedesTerm.uuid;
-                this._mapping.bedesName = bedesTerm.name;
-            }
+            // if (bedesTerm.uuid && bedesTerm.name) {
+            //     this._mapping.compositeTermUUID = bedesTerm.uuid;
+            //     this._mapping.bedesName = bedesTerm.name;
+            // }
         }
         else if (bedesTerm instanceof BedesConstrainedList) {
             // map a BEDES Constrained List - an atomic term
@@ -206,7 +230,7 @@ export class AppTerm extends UUIDGenerator {
                 'System error mapping terms.'
             );
         }
-        console.log(this);
+        this._hasChanged = true;
     }
 
     /**
@@ -214,6 +238,7 @@ export class AppTerm extends UUIDGenerator {
      */
     public setMapping(mapping: TermMappingAtomic | TermMappingComposite | undefined): void {
         this._mapping = mapping;
+        this._hasChanged = true;
     }
 
     /**

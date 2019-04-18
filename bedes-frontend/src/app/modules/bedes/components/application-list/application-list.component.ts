@@ -1,25 +1,27 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { BedesConstrainedList, BedesTerm } from '@bedes-common/models/bedes-term';
-import { BedesTermSearchService } from '../../../services/bedes-term-search/bedes-term-search.service';
+import { BedesTermSearchService } from '../../services/bedes-term-search/bedes-term-search.service';
 import { takeUntil } from 'rxjs/operators';
 import { Subject } from 'rxjs';
-import { RequestStatus } from '../../../enums';
+import { RequestStatus } from '../../enums';
 import { Router, ActivatedRoute } from '@angular/router';
-import { BedesTermService } from '../../../services/bedes-term/bedes-term.service';
-import { GridOptions, SelectionChangedEvent, ColDef } from 'ag-grid-community';
-import { SupportListService } from '../../../services/support-list/support-list.service';
+import { BedesTermService } from '../../services/bedes-term/bedes-term.service';
+import { GridOptions, SelectionChangedEvent, ColDef, GridApi, GridReadyEvent } from 'ag-grid-community';
+import { SupportListService } from '../../services/support-list/support-list.service';
 import { BedesUnit } from '@bedes-common/models/bedes-unit/bedes-unit';
 import { BedesTermCategory } from '@bedes-common/models/bedes-term-category/bedes-term-category';
 import { MappingApplication } from '@bedes-common/models/mapping-application';
-import { ApplicationService } from '../../../services/application/application.service';
+import { ApplicationService } from '../../services/application/application.service';
 import { ApplicationScope } from '@bedes-common/enums/application-scope.enum';
 import { CurrentUser } from '@bedes-common/models/current-user/current-user';
-import { TableCellNavComponent } from '../../../models/ag-grid/table-cell-nav/table-cell-nav.component';
-import { MessageFromGrid } from '../../../models/ag-grid/message-from-grid';
-import { TableCellMessageType } from '../../../models/ag-grid/enums/table-cell-message-type.enum';
-import { ConfirmDialogComponent } from '../../dialogs/confirm-dialog/confirm-dialog.component';
+import { TableCellNavComponent } from '../../models/ag-grid/table-cell-nav/table-cell-nav.component';
+import { MessageFromGrid } from '../../models/ag-grid/message-from-grid';
+import { TableCellMessageType } from '../../models/ag-grid/enums/table-cell-message-type.enum';
+import { ConfirmDialogComponent } from '../dialogs/confirm-dialog/confirm-dialog.component';
 import { MatDialog } from '@angular/material';
 import { AuthService } from 'src/app/modules/bedes-auth/services/auth/auth.service';
+import { scopeList } from '@bedes-common/lookup-tables/scope-list';
+import { applicationScopeList } from '../../../../../../../bedes-common/lookup-tables/application-scope-list';
 
 /**
  * Defines the interface for the rows of grid objects.
@@ -40,6 +42,8 @@ export class ApplicationListComponent extends MessageFromGrid<IAppRow> implement
     public currentRequestStatus: RequestStatus;
     private ngUnsubscribe: Subject<void> = new Subject<void>();
     private gridInitialized = false;
+    private gridDataNeedsRefresh = false;
+    private gridApi: GridApi | undefined;
     public selectedItem: IAppRow | undefined;
     // lists
     public applicationList: Array<MappingApplication>;
@@ -58,7 +62,6 @@ export class ApplicationListComponent extends MessageFromGrid<IAppRow> implement
         private router: Router,
         private activatedRoute: ActivatedRoute,
         private appService: ApplicationService,
-        private supportListService: SupportListService,
         private authService: AuthService,
         private dialog: MatDialog
     ) {
@@ -67,8 +70,9 @@ export class ApplicationListComponent extends MessageFromGrid<IAppRow> implement
 
     ngOnInit() {
         this.gridInitialized = false;
+        this.gridDataNeedsRefresh = false;
         this.subscribeToUserStatus();
-        this.loadApplicationList();
+        this.subscribeToApplicationList();
         this.gridSetup();
         this.setTableContext();
     }
@@ -79,13 +83,13 @@ export class ApplicationListComponent extends MessageFromGrid<IAppRow> implement
         this.ngUnsubscribe.complete();
     }
 
-    private loadUserApplications(): void {
-        this.appService.loadUserApplications()
-            .pipe(takeUntil(this.ngUnsubscribe))
-            .subscribe((results: Array<MappingApplication>) => {
-                this.setGridData();
-            });
-    }
+    // private loadUserApplications(): void {
+    //     this.appService.loadUserApplications()
+    //         .pipe(takeUntil(this.ngUnsubscribe))
+    //         .subscribe((results: Array<MappingApplication>) => {
+    //             this.setGridData();
+    //         });
+    // }
 
     /**
      * Subscribe to the user status Observable to get keep the user status up to date.
@@ -96,7 +100,9 @@ export class ApplicationListComponent extends MessageFromGrid<IAppRow> implement
             .subscribe((currentUser: CurrentUser) => {
                 this.currentUser = currentUser;
                 this.isEditable = currentUser.isLoggedIn();
-                this.loadUserApplications();
+                this.appService.loadUserApplications()
+                .subscribe((results => {
+                }));
             });
     }
 
@@ -105,27 +111,15 @@ export class ApplicationListComponent extends MessageFromGrid<IAppRow> implement
      * Set's the initial list, and will update the list
      * whenever the list is updted from the service.
      */
-    private loadApplicationList(): void {
+    private subscribeToApplicationList(): void {
         this.appService.appListSubject
             .pipe(takeUntil(this.ngUnsubscribe))
             .subscribe((appList: Array<MappingApplication>) => {
+                console.log(`received application list`, appList);
                 this.applicationList = appList;
+                this.gridDataNeedsRefresh = true;
                 this.setGridData();
             });
-    }
-
-    /**
-     * Retrieve the support lists for the view,
-     * only the list of applications in this view.
-     */
-    private assignSupportListData(): void {
-        // listen for the applicationList subject
-        this.supportListService.applicationSubject.subscribe(
-            (results: Array<MappingApplication>) => {
-                this.applicationList = results;
-                this.setGridData();
-            }
-        )
     }
 
     /**
@@ -154,11 +148,9 @@ export class ApplicationListComponent extends MessageFromGrid<IAppRow> implement
             enableSorting: true,
             // rowSelection: 'multiple',
             columnDefs: this.buildColumnDefs(),
-            onGridReady: () => {
-                this.gridInitialized = true;
-                if (this.gridOptions && this.gridOptions.api) {
-                    this.setGridData();
-                }
+            onGridReady: (event: GridReadyEvent) => {
+                this.gridApi = event.api;
+                this.setGridData();
             },
             onFirstDataRendered(params) {
                 params.api.sizeColumnsToFit();
@@ -215,9 +207,6 @@ export class ApplicationListComponent extends MessageFromGrid<IAppRow> implement
      * ie changes the view to app-edit/:id
      */
     public editSelectedItem(): void {
-        // console.log(`${this.constructor.name}: edit selected item`, this.selectedItem.id);
-        // this.router.navigate(['../view/', this.selectedItem.id], {relativeTo: this.activatedRoute});
-        // this.router.navigate(['/applications', selectedItem.ref.id], {relativeTo: this.activatedRoute});
         this.viewItem(this.selectedItem);
     }
 
@@ -225,29 +214,8 @@ export class ApplicationListComponent extends MessageFromGrid<IAppRow> implement
      * Navigates tot he selected MappingApplication object.
      */
     public viewItem(selectedItem: IAppRow): void {
+        console.log('navigate...', selectedItem);
         this.router.navigate(['/applications', selectedItem.ref.id], {relativeTo: this.activatedRoute});
-        // if ( selectedItem.ref.resultObjectType === SearchResultType.BedesTerm
-        //     || selectedItem.ref.resultObjectType === SearchResultType.BedesConstrainedList
-        // ) {
-        //     if (selectedItem.ref.uuid) {
-        //         this.router.navigate(['/bedes-term', selectedItem.ref.uuid]);
-        //     }
-        //     else if (selectedItem.ref.id) {
-        //         this.router.navigate(['/bedes-term', selectedItem.ref.id]);
-        //     }
-        //     else {
-        //         console.error('unable to find route for selectedRow', selectedItem);
-        //     }
-        // }
-        // else if (selectedItem.ref.resultObjectType === SearchResultType.BedesTermOption) {
-        //     // navigate to bedes-term/term_uuid_or_id/edit/option_uuid_or_id
-        //     const termId = selectedItem.ref.termUUID || selectedItem.ref.termId;
-        //     const optionId = selectedItem.ref.uuid || selectedItem.ref.id;
-        //     this.router.navigate(['/bedes-term', termId, 'edit', optionId]);
-        // }
-        // else {
-        //     console.error('unable to find route for selectedRow', selectedItem);
-        // }
     }
 
     /**
@@ -263,11 +231,11 @@ export class ApplicationListComponent extends MessageFromGrid<IAppRow> implement
                 cellRendererFramework: TableCellNavComponent
             },
             {
-                headerName: 'Description',
-                field: 'ref.description'
+                headerName: 'Owner',
+                field: 'ref.ownerName'
             },
             {
-                headerName: 'Scope',
+                headerName: 'Status',
                 field: 'scopeName'
             }
         ];
@@ -277,17 +245,19 @@ export class ApplicationListComponent extends MessageFromGrid<IAppRow> implement
      * Populates the grid with the data from the applicationList.
      */
     private setGridData() {
-        if (this.gridOptions && this.gridOptions.api && this.applicationList) {
+        if (this.gridApi && this.gridDataNeedsRefresh) {
             // const gridData = this.applicationList;
             const gridData = new Array<IAppRow>();
             this.applicationList.forEach((app: MappingApplication) => {
+                const scopeObj = applicationScopeList.getItemById(app.scopeId);
                 gridData.push(<IAppRow>{
-                    scopeName: app.scopeId === ApplicationScope.Public ? 'Public' : 'Private',
+                    scopeName: scopeObj.name,
                     ref: app,
-                    isEditable: this.currentUser.canEditApplication(app.id)
+                    isEditable: this.currentUser.canEditApplication(app)
                 });
             })
-            this.gridOptions.api.setRowData(gridData);
+            this.gridDataNeedsRefresh = false;
+            this.gridApi.setRowData(gridData);
         }
     }
 
