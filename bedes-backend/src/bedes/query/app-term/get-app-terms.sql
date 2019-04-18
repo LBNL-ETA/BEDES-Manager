@@ -64,7 +64,13 @@ select
 				'_id', ctm.id,
 				'_compositeTermUUID', ctm.bedes_composite_term_uuid,
 				'_bedesName', bct.name,
-				'_appListOptionUUID', ctm.app_list_option_uuid
+				'_appListOptionUUID', ctm.app_list_option_uuid,
+                '_scopeId', bct.scope_id,
+                '_ownerName', case
+                    when au.id is not null
+                    then au.first_name || ' ' || au.last_name
+                    else null::text
+                end
 			)
 		else
 			null
@@ -82,6 +88,8 @@ left outer join
 	public.composite_term_maps as ctm on ctm.app_term_id = t.id
 left outer join
     public.bedes_composite_term as bct on bct.uuid = ctm.bedes_composite_term_uuid
+left outer join
+    auth.user as au on au.id = bct.user_id
 where
     t.app_id = ${_appId}
 ;
