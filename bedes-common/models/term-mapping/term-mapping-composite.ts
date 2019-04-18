@@ -39,6 +39,22 @@ export class TermMappingComposite {
     set compositeTermUUID(value: string) {
         this._compositeTermUUID = value;
     }
+    /** Name of the person who created the term */
+    private _ownerName: string | null | undefined;
+    get ownerName(): string | null | undefined {
+        return this._ownerName;
+    }
+    set ownerName(value: string | null | undefined) {
+        this._ownerName = value;
+    }
+    /** Scope of the composite term */
+    private _scopeId: number | null | undefined;
+    get scopeId(): number | null | undefined {
+        return this._scopeId;
+    }
+    set scopeId(value: number | null | undefined) {
+        this._scopeId = value;
+    }
     
     /**
      * Build the Object instance.
@@ -49,6 +65,8 @@ export class TermMappingComposite {
         this._appListOptionUUID = data._appListOptionUUID;
         this._compositeTermUUID = data._compositeTermUUID;
         this._bedesName = data._bedesName;
+        this._ownerName = data._ownerName;
+        this._scopeId = data._scopeId;
     }
 
     /**
@@ -60,8 +78,9 @@ export class TermMappingComposite {
             _id: this._id,
             _appListOptionUUID: this._appListOptionUUID,
             _compositeTermUUID: this._compositeTermUUID,
-            _bedesName: this._bedesName
+            _bedesName: this._bedesName,
+            _ownerName: this._ownerName,
+            _scopeId: this._scopeId
         }
     }
-
 }

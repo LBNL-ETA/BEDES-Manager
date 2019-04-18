@@ -171,7 +171,8 @@ export class BedesCompositeTermShort extends UUIDGenerator {
             _unitId: this.unitId,
             _uuid: this.uuid,
             _userId: this._userId,
-            _scopeId: this._scopeId
+            _scopeId: this._scopeId,
+            _ownerName: this._ownerName
         }
     }
 }

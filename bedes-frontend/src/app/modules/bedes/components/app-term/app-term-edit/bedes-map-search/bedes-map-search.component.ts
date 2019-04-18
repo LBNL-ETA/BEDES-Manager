@@ -147,7 +147,9 @@ export class BedesMapSearchComponent implements OnInit {
                 // create the mapping from the composite term
                 const params: ITermMappingComposite = {
                     _compositeTermUUID: compositeTerm.uuid,
-                    _bedesName: compositeTerm.name
+                    _bedesName: compositeTerm.name,
+                    _ownerName: compositeTerm.ownerName,
+                    _scopeId: compositeTerm.scopeId
                 }
                 this.appTerm.mapping = new TermMappingComposite(params);
                 this.back();

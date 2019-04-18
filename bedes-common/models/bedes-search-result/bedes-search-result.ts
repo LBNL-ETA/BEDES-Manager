@@ -12,6 +12,8 @@ export class BedesSearchResult {
     private _dataTypeId: number;
     private _unitId: number;
     private _termCategoryId: number;
+    private _ownerName: string | null | undefined;
+    private _scopeId: number | null | undefined;
 
     constructor(data?: IBedesSearchResult) {
         if (data) {
@@ -25,6 +27,8 @@ export class BedesSearchResult {
             this._dataTypeId = data._dataTypeId;
             this._unitId = data._unitId;
             this._termCategoryId = data._termCategoryId;
+            this._ownerName = data._ownerName;
+            this._scopeId = data._scopeId;
         }
     }
 
@@ -87,5 +91,17 @@ export class BedesSearchResult {
     }
     set termCategoryId(value: number) {
         this._termCategoryId = value;
+    }
+    get ownerName(): string | null | undefined {
+        return this._ownerName;
+    }
+    set ownerName(value: string | null | undefined) {
+        this._ownerName = value;
+    }
+    get scopeId(): number | null | undefined {
+        return this._scopeId;
+    }
+    set scopeId(value: number | null | undefined) {
+        this._scopeId = value;
     }
 }

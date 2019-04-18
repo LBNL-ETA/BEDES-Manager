@@ -37,7 +37,7 @@ import { ListOptionMapDialogComponent } from '../../../dialogs/list-option-map-d
 import { BedesTermOption } from '@bedes-common/models/bedes-term-option/bedes-term-option';
 import { TermMappingComposite } from '@bedes-common/models/term-mapping/term-mapping-composite';
 import { AuthService } from '../../../../../bedes-auth/services/auth/auth.service';
-import { CurrentUser } from '../../../../../../../../../bedes-common/models/current-user/current-user';
+import { CurrentUser } from '@bedes-common/models/current-user/current-user';
 
 
 enum RequestStatus {

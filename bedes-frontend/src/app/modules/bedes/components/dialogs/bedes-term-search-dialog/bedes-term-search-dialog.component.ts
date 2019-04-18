@@ -10,6 +10,7 @@ import { SupportListType } from '../../../services/support-list/support-list-typ
 import { getResultTypeName } from '../../../lib/get-result-type-name';
 import { SearchResultType } from '@bedes-common/models/bedes-search-result/search-result-type.enum';
 import { ISearchDialogOptions } from './search-dialog-options.interface';
+import { scopeList } from '@bedes-common/lookup-tables/scope-list';
 
 @Component({
     selector: 'app-bedes-term-search-dialog',
@@ -178,20 +179,28 @@ export class BedesTermSearchDialogComponent implements OnInit {
                 // cellRendererFramework: TableCellTermNameComponent
             },
             {
-                headerName: 'Type',
+                headerName: 'Term Type',
                 field: 'searchResultTypeName'
             },
-            {
-                headerName: 'Category',
-                field: 'categoryName'
-            },
-            {
-                headerName: 'Unit',
-                field: 'unitName'
-            },
+            // {
+            //     headerName: 'Category',
+            //     field: 'categoryName'
+            // },
+            // {
+            //     headerName: 'Unit',
+            //     field: 'unitName'
+            // },
             {
                 headerName: 'Data Type',
                 field: 'dataTypeName'
+            },
+            {
+                headerName: 'Owner',
+                field: 'ref.ownerName'
+            },
+            {
+                headerName: 'Status',
+                field: 'scopeName'
             }
         ];
     }
@@ -221,6 +230,11 @@ export class BedesTermSearchDialogComponent implements OnInit {
             }
             this.searchResults.forEach((searchResult: BedesSearchResult) => {
                 if (validResultType(searchResult.resultObjectType) && validUUID(searchResult.uuid)) {
+                    let scopeName: string | undefined | null;
+                    if (searchResult.scopeId) {
+                        const scopeObj = scopeList.getItemById(searchResult.scopeId);
+                        scopeName = scopeObj.name;
+                    }
                     gridData.push(<ISearchResultRow>{
                         name: searchResult.name,
                         uuid: searchResult.uuid,
@@ -229,6 +243,7 @@ export class BedesTermSearchDialogComponent implements OnInit {
                         searchResultTypeName: getResultTypeName(searchResult.resultObjectType),
                         categoryName: this.supportListService.transformIdToName(SupportListType.BedesCategory, searchResult.termCategoryId),
                         dataTypeName: this.supportListService.transformIdToName(SupportListType.BedesDataType, searchResult.dataTypeId),
+                        scopeName: scopeName
                     });
                 }
             });

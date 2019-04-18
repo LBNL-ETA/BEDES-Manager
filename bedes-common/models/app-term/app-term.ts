@@ -197,12 +197,14 @@ export class AppTerm extends UUIDGenerator {
             // map a BEDES Composite Term
             this._mapping = new TermMappingComposite(<ITermMappingComposite>{
                 _bedesName: bedesTerm.name,
-                _compositeTermUUID: bedesTerm.uuid
+                _compositeTermUUID: bedesTerm.uuid,
+                _scopeId: bedesTerm.scopeId,
+                _ownerName: bedesTerm.ownerName
             });
-            if (bedesTerm.uuid && bedesTerm.name) {
-                this._mapping.compositeTermUUID = bedesTerm.uuid;
-                this._mapping.bedesName = bedesTerm.name;
-            }
+            // if (bedesTerm.uuid && bedesTerm.name) {
+            //     this._mapping.compositeTermUUID = bedesTerm.uuid;
+            //     this._mapping.bedesName = bedesTerm.name;
+            // }
         }
         else if (bedesTerm instanceof BedesConstrainedList) {
             // map a BEDES Constrained List - an atomic term

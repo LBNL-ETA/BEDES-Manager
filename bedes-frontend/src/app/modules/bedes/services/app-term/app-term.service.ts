@@ -81,7 +81,6 @@ export class AppTermService {
      */
     public getAppTerms(appId: number): Observable<Array<AppTerm | AppTermList>> {
         const url = this.urlTerm.replace(':appId/term/:termId', `${String(appId)}/term`);
-        console.log('get app terms', url);
         return this.http.get<Array<IAppTerm | IAppTermList>>(url, { withCredentials: true })
             .pipe(
                 map((results: Array<IAppTerm | IAppTermList>) => {
@@ -153,7 +152,6 @@ export class AppTermService {
         return this.http.post<IAppTerm | IAppTermList>(url, appTerm, { withCredentials: true })
         .pipe(
             map((results: IAppTerm | IAppTermList) => {
-                console.log(`${this.constructor.name}: newAppTerm received results`, results);
                 if(results._termTypeId === TermType.Atomic) {
                    return new AppTerm(results);
                 }
@@ -178,7 +176,6 @@ export class AppTermService {
         if(!appId || !appTerm || !appTerm.id) {
             throw new Error('Invalid AppTerm object, an existing object was expected.');
         }
-        console.log('save app term', appTerm);
         // create the url
         const url = this.getAppTermUrl(appId, appTerm.id);
         return this.http.put<IAppTerm>(url, appTerm, { withCredentials: true })
@@ -230,7 +227,6 @@ export class AppTermService {
         return this.http.delete<number>(url, { withCredentials: true })
             .pipe(
                 tap((numRemoved: number) => {
-                    console.log(`${this.constructor.name}: removed ${numRemoved} terms`);
                     if (numRemoved) {
                         // update the appTerm list
                         this.appTermRecordRemoved(appTerm);

@@ -24,6 +24,7 @@ import { HttpStatusCodes } from '@bedes-common/enums/http-status-codes';
 import { AuthService } from 'src/app/modules/bedes-auth/services/auth/auth.service';
 import { CurrentUser } from '@bedes-common/models/current-user/current-user';
 import { CsvImportInfoDialogComponent } from '../../dialogs/csv-import-info-dialog/csv-import-info-dialog.component';
+import { scopeList } from '../../../../../../../../bedes-common/lookup-tables/scope-list';
 
 @Component({
   selector: 'app-app-term-list',
@@ -262,6 +263,14 @@ export class AppTermListComponent extends MessageFromGrid<IAppRow> implements On
             {
                 headerName: 'Mapped BEDES Term Name',
                 field: 'mappedName'
+            },
+            {
+                headerName: 'Owner',
+                field: 'ownerName'
+            },
+            {
+                headerName: 'Status',
+                field: 'scopeName'
             }
         ];
     }
@@ -282,10 +291,21 @@ export class AppTermListComponent extends MessageFromGrid<IAppRow> implements On
                     mappingName = appTerm.mapping.bedesName
                 }
 
+                let ownerName: string | null | undefined;
+                let scopeName: string | null | undefined;
+
+                if (appTerm.mapping instanceof TermMappingComposite) {
+                    ownerName = appTerm.mapping.ownerName;
+                    const scopeObj = scopeList.getItemById(appTerm.mapping.scopeId);
+                    scopeName = scopeObj ? scopeObj.name : 'unknown';
+                }
+
                 gridData.push(<IAppRow>{
                     termStatus: appTerm.id ? TermStatus.Existing : TermStatus.New,
                     ref: appTerm,
-                    mappedName: mappingName
+                    mappedName: mappingName,
+                    ownerName: ownerName,
+                    scopeName: scopeName
                 });
             })
             this.gridOptions.api.setRowData(gridData);

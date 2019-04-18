@@ -6,4 +6,6 @@ export interface ITermMappingComposite {
     _appListOptionUUID?: string | null | undefined;
     _bedesName: string;
     _compositeTermUUID: string;
+    _ownerName: string;
+    _scopeId: number;
 }

@@ -8,7 +8,9 @@ export interface IBedesSearchResult {
     _name: string;
     _description: string;
     _resultObjectType: SearchResultType;
-    _dataTypeId: number,
-    _unitId: number,
-    _termCategoryId: number
+    _dataTypeId: number;
+    _unitId: number;
+    _termCategoryId: number;
+    _ownerName?: string;
+    _scopeId?: number | null | undefined;
 }
