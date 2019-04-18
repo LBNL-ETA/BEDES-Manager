@@ -5,12 +5,12 @@ import { ApplicationScope } from '../enums/application-scope.enum';
 const params = new Array<base.ILookupTableItem>();
 params.push({
     _id: ApplicationScope.Private,
-    _name: 'Private - Seen only by you',
+    _name: 'Private',
     _description: undefined
 });
 params.push({
     _id: ApplicationScope.Public,
-    _name: 'Approved - Visible to everybody',
+    _name: 'Approved',
     _description: undefined
 });
 
