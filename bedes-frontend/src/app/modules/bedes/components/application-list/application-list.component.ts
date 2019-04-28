@@ -1,18 +1,12 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { BedesConstrainedList, BedesTerm } from '@bedes-common/models/bedes-term';
-import { BedesTermSearchService } from '../../services/bedes-term-search/bedes-term-search.service';
 import { takeUntil } from 'rxjs/operators';
 import { Subject } from 'rxjs';
 import { RequestStatus } from '../../enums';
 import { Router, ActivatedRoute } from '@angular/router';
-import { BedesTermService } from '../../services/bedes-term/bedes-term.service';
 import { GridOptions, SelectionChangedEvent, ColDef, GridApi, GridReadyEvent } from 'ag-grid-community';
-import { SupportListService } from '../../services/support-list/support-list.service';
-import { BedesUnit } from '@bedes-common/models/bedes-unit/bedes-unit';
-import { BedesTermCategory } from '@bedes-common/models/bedes-term-category/bedes-term-category';
 import { MappingApplication } from '@bedes-common/models/mapping-application';
 import { ApplicationService } from '../../services/application/application.service';
-import { ApplicationScope } from '@bedes-common/enums/application-scope.enum';
 import { CurrentUser } from '@bedes-common/models/current-user/current-user';
 import { TableCellNavComponent } from '../../models/ag-grid/table-cell-nav/table-cell-nav.component';
 import { MessageFromGrid } from '../../models/ag-grid/message-from-grid';
@@ -20,7 +14,6 @@ import { TableCellMessageType } from '../../models/ag-grid/enums/table-cell-mess
 import { ConfirmDialogComponent } from '../dialogs/confirm-dialog/confirm-dialog.component';
 import { MatDialog } from '@angular/material';
 import { AuthService } from 'src/app/modules/bedes-auth/services/auth/auth.service';
-import { scopeList } from '@bedes-common/lookup-tables/scope-list';
 import { applicationScopeList } from '../../../../../../../bedes-common/lookup-tables/application-scope-list';
 
 /**
@@ -59,6 +52,7 @@ export class ApplicationListComponent extends MessageFromGrid<IAppRow> implement
     public currentUser: CurrentUser;
 
     constructor(
+        private route: ActivatedRoute,
         private router: Router,
         private activatedRoute: ActivatedRoute,
         private appService: ApplicationService,
@@ -71,8 +65,7 @@ export class ApplicationListComponent extends MessageFromGrid<IAppRow> implement
     ngOnInit() {
         this.gridInitialized = false;
         this.gridDataNeedsRefresh = false;
-        this.subscribeToUserStatus();
-        this.subscribeToApplicationList();
+        this.setRouteData();
         this.gridSetup();
         this.setTableContext();
     }
@@ -83,13 +76,20 @@ export class ApplicationListComponent extends MessageFromGrid<IAppRow> implement
         this.ngUnsubscribe.complete();
     }
 
-    // private loadUserApplications(): void {
-    //     this.appService.loadUserApplications()
-    //         .pipe(takeUntil(this.ngUnsubscribe))
-    //         .subscribe((results: Array<MappingApplication>) => {
-    //             this.setGridData();
-    //         });
-    // }
+    private setRouteData(): void {
+        this.route.data
+        // .subscribe((data: {applicationList: Array<MappingApplication>}) => {
+        .subscribe((data: any) => {
+            this.applicationList = data.ApplicationListResolverService.applicationList;
+            this.currentUser = data.ApplicationListResolverService.currentUser;
+            this.handleRouteDataSet();
+        });
+    }
+
+    private handleRouteDataSet(): void {
+        this.subscribeToUserStatus();
+        this.subscribeToApplicationList();
+    }
 
     /**
      * Subscribe to the user status Observable to get keep the user status up to date.
@@ -98,11 +98,13 @@ export class ApplicationListComponent extends MessageFromGrid<IAppRow> implement
         this.authService.currentUserSubject
             .pipe(takeUntil(this.ngUnsubscribe))
             .subscribe((currentUser: CurrentUser) => {
-                this.currentUser = currentUser;
-                this.isEditable = currentUser.isLoggedIn();
-                this.appService.loadUserApplications()
-                .subscribe((results => {
-                }));
+                if (!this.currentUser || this.currentUser.id !== currentUser.id) {
+                    this.currentUser = currentUser;
+                    this.isEditable = currentUser.isLoggedIn();
+                    this.appService.loadUserApplications()
+                    .subscribe((results => {
+                    }));
+                }
             });
     }
 
@@ -214,7 +216,6 @@ export class ApplicationListComponent extends MessageFromGrid<IAppRow> implement
      * Navigates tot he selected MappingApplication object.
      */
     public viewItem(selectedItem: IAppRow): void {
-        console.log('navigate...', selectedItem);
         this.router.navigate(['/applications', selectedItem.ref.id], {relativeTo: this.activatedRoute});
     }
 

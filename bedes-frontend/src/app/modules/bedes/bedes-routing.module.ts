@@ -24,6 +24,7 @@ import { CompositeTermResolverService } from './services/composite-term/composit
 import { AppTermListResolverService } from './services/app-term-list/app-term-list-resolver.service';
 import { AppTermResolverService } from './services/app-term/app-term-resolver.service';
 import { AuthGuardService } from '../bedes-auth/services/auth-guard/auth-guard.service';
+import { ApplicationListResolverService } from './services/application/application-list-resolver.service';
 
 const appRoutes: Routes = [
     { path: 'search', component: BedesTermSearchComponent },
@@ -54,9 +55,9 @@ const appRoutes: Routes = [
         component: TermBuilderHomeComponent,
         children: [
             {
-            path: '',
-            redirectTo: 'list',
-            pathMatch: 'full'
+                path: '',
+                redirectTo: 'list',
+                pathMatch: 'full'
             },
             {
                 path: 'list',
@@ -81,6 +82,9 @@ const appRoutes: Routes = [
     {
         path: 'applications',
         component: ApplicationListComponent,
+        resolve: {
+            ApplicationListResolverService
+        }
     },
     {
         path: 'applications/new',

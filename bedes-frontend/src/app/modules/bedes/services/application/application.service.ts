@@ -38,21 +38,8 @@ export class ApplicationService {
         private authService: AuthService,
         @Inject(API_URL_TOKEN) private apiUrl
     ) {
-        // this.subscribeToUserStatus();
         this.url = `${this.apiUrl}${this.apiEndpoint}`;
     }
-
-    // /**
-    //  * Subscribe to the user status Observable to get keep the user status up to date.
-    //  */
-    // private subscribeToUserStatus(): void {
-    //     this.authService.currentUserSubject
-    //         .subscribe((currentUser: CurrentUser) => {
-    //             console.log(`${this.constructor.name}: received user status`, currentUser);
-    //             this.currentUser = currentUser;
-    //             this.load();
-    //         });
-    // }
 
     /**
      * Load's the initial list of all Applications, called

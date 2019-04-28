@@ -167,12 +167,6 @@ import { CsvImportInfoDialogComponent } from './components/dialogs/csv-import-in
             deps: [SupportListService],
             multi: true
         },
-        {
-            provide: APP_INITIALIZER,
-            useFactory: applicationListFactory,
-            deps: [ApplicationService],
-            multi: true
-        },
         BedesTermSelectorService,
         BedesTermListOptionService,
         ApplicationService,

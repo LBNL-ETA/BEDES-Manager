@@ -224,7 +224,6 @@ export class AppTermListComponent extends MessageFromGrid<IAppRow> implements On
      * ie changes the view to app-edit/:id
      */
     private editSelectedItem(appTerm: AppTerm | AppTermList): void {
-        console.log(`${this.constructor.name}: edit selected item`, appTerm);
         // set the activeTerm in the service
         this.appTermService.setActiveTerm(appTerm);
         this.router.navigate([appTerm.uuid], {relativeTo: this.activatedRoute});
@@ -249,12 +248,6 @@ export class AppTermListComponent extends MessageFromGrid<IAppRow> implements On
      */
     private buildColumnDefs(): Array<ColDef> {
         return [
-            {
-                headerName: 'Status',
-                field: 'termStatus',
-                cellRendererFramework: TableCellAppTermStatusComponent,
-                width: 50
-            },
             {
                 headerName: 'Application Term Name',
                 field: 'ref.name',
