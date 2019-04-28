@@ -12,7 +12,7 @@ import { createLogger } from '@bedes-backend/logging';
 import { IAppTerm } from '@bedes-common/models/app-term/app-term.interface';
 import { IAppTermList } from '@bedes-common/models/app-term/app-term-list.interface';
 import { IAppTermListOption } from '@bedes-common/models/app-term';
-import * as promise from 'bluebird';
+import { db } from '@bedes-backend/db';
 const logger = createLogger(module);
 
 /**
@@ -27,6 +27,8 @@ export class AppTermImporter {
     private absoluteFilePath: string;
     /** The uploaded file to import */
     private fileName: string
+    /** The database transaction context */
+    private dbCtx: any;
 
     /**
      * Build the object.
@@ -57,6 +59,8 @@ export class AppTermImporter {
         const fileContents: string = await this.getFileContents();
         // parse the string csv
         const parseResults: parser.ParseResult = this.parseFileContents(fileContents);
+        // set queries to run as a transaction
+        await this.setTransactionContext();
         // use the results to build the AppTerms
         return this.processParseResults(parseResults);
 
@@ -65,6 +69,19 @@ export class AppTermImporter {
         // console.log('parseReslts');
         // console.log(parseResults);
         // run the parser
+    }
+
+    /**
+     * Sets database transaction context for the set of queries
+     * @returns transaction context 
+     */
+    private async setTransactionContext(): Promise<any> {
+        return new Promise((resolve, reject) => {
+            db.tx('app-term-importer', (transaction: any) => {
+                this.dbCtx = transaction;
+                resolve();
+            });
+        });
     }
 
     /**
@@ -107,11 +124,7 @@ export class AppTermImporter {
             const promises = new Array<Promise<AppTerm | AppTermList>>();
             const headerFields = this.transformHeaderFieldNames(parseResults.meta.fields);
             for (const csvData of parseResults.data) {
-                console.log('process csvData:')
-                console.log(csvData);
                 const appTermCsv = this.makeIAppTermCsvRow(csvData, parseResults.meta.fields);
-                console.log('transformed to:')
-                console.log(appTermCsv);
                 promises.push(this.processCsvTerm(appTermCsv, headerFields));
             }
             return await Promise.all(promises);
@@ -134,6 +147,8 @@ export class AppTermImporter {
         for (const headerField of headerFieldNames) {
             results.push(headerField.replace(/ /g, ''))
         }
+        // add the extra columns for the list options
+        results.push('__parsed_extra');
         return results;
     }
 
@@ -146,13 +161,14 @@ export class AppTermImporter {
      */
     private makeIAppTermCsvRow(csvData: any, fieldNames: Array<string>): IAppTermCsvRow {
         let result: any = {};
-
         for (const fieldName of fieldNames) {
             // make the new name
             const newName = fieldName.replace(/ /g, '');
             // assign the new column name
             result[newName] = csvData[fieldName];
-            console.log(`changed ${fieldName} to ${newName}`);
+        }
+        if (csvData['__parsed_extra']) {
+            result['__parsed_extra'] = csvData['__parsed_extra'];
         }
         return <IAppTermCsvRow>result;
     }
@@ -167,13 +183,8 @@ export class AppTermImporter {
         // make sure required fields are there
         if (!isValidAppTermCsvRow(parsedCsvTerm)) {
             logger.error(`Invalid parsed csv row encountered: (${parsedCsvTerm})`);
-            console.log('\n**parsed csv term =')
-            console.log(parsedCsvTerm);
-            console.log('\ndone');
             throw new Error(`Invalid parsed csv row encountered: (${parsedCsvTerm})`);
         }
-        console.log('parsed csv term = ');
-        console.log(parsedCsvTerm);
         const termName = parsedCsvTerm.TermName.trim();
         const termType = getTermTypeFromCsvName(parsedCsvTerm.TermType);
         const unitId: number | undefined = parsedCsvTerm.Unit
