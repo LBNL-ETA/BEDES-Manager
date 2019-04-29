@@ -80,8 +80,9 @@ export class ApplicationListComponent extends MessageFromGrid<IAppRow> implement
         this.route.data
         // .subscribe((data: {applicationList: Array<MappingApplication>}) => {
         .subscribe((data: any) => {
-            this.applicationList = data.ApplicationListResolverService.applicationList;
-            this.currentUser = data.ApplicationListResolverService.currentUser;
+            console.log(data)
+            this.applicationList = data.applicationList;
+            this.currentUser = data.currentUser;
             this.handleRouteDataSet();
         });
     }

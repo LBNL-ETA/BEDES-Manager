@@ -83,7 +83,7 @@ const appRoutes: Routes = [
         path: 'applications',
         component: ApplicationListComponent,
         resolve: {
-            ApplicationListResolverService
+            data: ApplicationListResolverService
         }
     },
     {

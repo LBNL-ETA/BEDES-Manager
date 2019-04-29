@@ -2,7 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { ApplicationService } from '../../services/application/application.service';
 import { MappingApplication } from '@bedes-common/models/mapping-application';
 import { AuthService } from '../../../bedes-auth/services/auth/auth.service';
-import { CurrentUser } from '../../../../../../../bedes-common/models/current-user/current-user';
+import { CurrentUser } from '@bedes-common/models/current-user/current-user';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
     selector: 'app-application-home',
@@ -15,13 +16,23 @@ export class ApplicationHomeComponent implements OnInit {
 
     constructor(
         private appService: ApplicationService,
-        private authService: AuthService
+        private authService: AuthService,
+        private route: ActivatedRoute
     ) { }
 
     ngOnInit() {
+        // get the data from the resolver
+        this.setRouteData();
         // subscribe to the dependent data sources
         this.subscribeToCurrentUser();
         this.subscribeToSelectedApplication();
+    }
+
+    private setRouteData(): void {
+        this.route.data
+        .subscribe((data: any) => {
+            this.activeApp = data.application;
+        });
     }
 
     private subscribeToSelectedApplication(): void {
