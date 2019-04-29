@@ -1,0 +1,43 @@
+<mat-card class="bedes-card mat-typography">
+    <mat-card-header class="color-accent">
+        <mat-card-title>
+            <h2>
+                Create a New List Option
+            </h2>
+        </mat-card-title>
+    </mat-card-header>
+    <mat-card-content style="padding: 10px;">
+        <form [formGroup]="dataForm" style="display:flex; flex-direction: column; margin-top:10px">
+            <!-- Name -->
+            <mat-form-field style="flex:1; margin-bottom:5px;"
+            appearance="outline">
+                <mat-label>List Option Name</mat-label>
+                <input matInput placeholder="Enter the List Option Name"
+                formControlName="name">
+                <mat-hint>Required</mat-hint>
+            </mat-form-field>
+            <!-- Description -->
+            <mat-form-field style="flex:1; margin-bottom:5px;"
+            appearance="outline">
+                <mat-label>Description</mat-label>
+                <textarea matInput
+                placeholder="Description"
+                formControlName="description"
+                rows="5"></textarea>
+            </mat-form-field>
+
+        </form>
+    </mat-card-content>
+    <mat-card-actions style="display:flex; justify-content: center">
+        <button mat-stroked-button color="primary" style="margin-right:5px;"
+        [disabled]="dataForm.invalid"
+        (click)="confirm()">
+            <fa-icon [icon]="['fas', 'check']"></fa-icon>
+            Ok
+        </button>
+        <button mat-stroked-button color="primary" (click)="decline()">
+            <fa-icon [icon]="['fas', 'times']"></fa-icon>
+            Cancel
+        </button>
+    </mat-card-actions>
+</mat-card>

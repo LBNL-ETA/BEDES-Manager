@@ -275,6 +275,7 @@ export class AppTermListComponent extends MessageFromGrid<IAppRow> implements On
         if (this.gridInitialized && this.gridDataNeedsSet && this.gridOptions.api) {
             // const gridData = this.applicationList;
             const gridData = new Array<IAppRow>();
+            const isAppOwner = this.currentUser.isApplicationOwner(this.app);
             this.appTermList.forEach((appTerm: AppTerm | AppTermList) => {
                 let mappingName = '';
                 if (appTerm && appTerm.mapping instanceof TermMappingAtomic && appTerm.mapping.bedesTermUUID) {
@@ -298,7 +299,8 @@ export class AppTermListComponent extends MessageFromGrid<IAppRow> implements On
                     ref: appTerm,
                     mappedName: mappingName,
                     ownerName: ownerName,
-                    scopeName: scopeName
+                    scopeName: scopeName,
+                    isEditable: isAppOwner
                 });
             })
             this.gridOptions.api.setRowData(gridData);
@@ -319,60 +321,60 @@ export class AppTermListComponent extends MessageFromGrid<IAppRow> implements On
         }
     }
 
-    /**
-     * Saves all **New** AppTerms to the database.
-     *
-     * @summary Looks at the appTermList Array for all AppTerms with an id
-     * that's null or undefined, then uses the AppTermService to call the backend
-     * and save the terms to the database.
-     */
-    public saveAllNewAppTerms(): void {
-        this.resetError();
-        if (Array.isArray(this.appTermList)) {
-            // keeps track of all active save requests
-            const observables = new Array<Observable<AppTerm | AppTermList>>();
-            // loop through each AppTerm
-            this.appTermList.forEach(((item: AppTerm | AppTermList) => {
-                if (!item.id) {
-                    // if there isn't an id then call the backend to save the term
-                    // store the observable in the observables array
-                    observables.push(
-                        this.appTermService.newAppTerm(this.app.id, item)
-                        .pipe(
-                            map((results: AppTerm | AppTermList) => {
-                                // update the id of the record
-                                AppTerm.updateObjectValues(results, item);
-                                return results;
-                            }),
-                            catchError((error: any): Observable<AppTerm | AppTermList> => {
-                                // catch the error, return the original AppTerm before the save
-                                if (!this.hasError) {
-                                    this.setErrorMessage(
-                                        `An error occurred saving an AppTerm.
-                                        See the table below for terms that weren't saved.`
-                                    );
-                                }
-                                return of(item);
-                            })
-                        )
-                    );
-                }
-            }))
-            // check if there's any items to save
-            if(observables.length) {
-                // wait for all observables to complete
-                forkJoin(observables)
-                .subscribe(
-                    (results: Array<AppTerm | AppTermList>) => {
-                        this.appTermService.refreshActiveTerms();
-                    },
-                    (error: any) => {
-                        console.log(`this error shouldn't have happened????`);
-                        console.log(error);
-                    })
-            }
-        }
-    }
+    // /**
+    //  * Saves all **New** AppTerms to the database.
+    //  *
+    //  * @summary Looks at the appTermList Array for all AppTerms with an id
+    //  * that's null or undefined, then uses the AppTermService to call the backend
+    //  * and save the terms to the database.
+    //  */
+    // public saveAllNewAppTerms(): void {
+    //     this.resetError();
+    //     if (Array.isArray(this.appTermList)) {
+    //         // keeps track of all active save requests
+    //         const observables = new Array<Observable<AppTerm | AppTermList>>();
+    //         // loop through each AppTerm
+    //         this.appTermList.forEach(((item: AppTerm | AppTermList) => {
+    //             if (!item.id) {
+    //                 // if there isn't an id then call the backend to save the term
+    //                 // store the observable in the observables array
+    //                 observables.push(
+    //                     this.appTermService.newAppTerm(this.app.id, item)
+    //                     .pipe(
+    //                         map((results: AppTerm | AppTermList) => {
+    //                             // update the id of the record
+    //                             AppTerm.updateObjectValues(results, item);
+    //                             return results;
+    //                         }),
+    //                         catchError((error: any): Observable<AppTerm | AppTermList> => {
+    //                             // catch the error, return the original AppTerm before the save
+    //                             if (!this.hasError) {
+    //                                 this.setErrorMessage(
+    //                                     `An error occurred saving an AppTerm.
+    //                                     See the table below for terms that weren't saved.`
+    //                                 );
+    //                             }
+    //                             return of(item);
+    //                         })
+    //                     )
+    //                 );
+    //             }
+    //         }))
+    //         // check if there's any items to save
+    //         if(observables.length) {
+    //             // wait for all observables to complete
+    //             forkJoin(observables)
+    //             .subscribe(
+    //                 (results: Array<AppTerm | AppTermList>) => {
+    //                     this.appTermService.refreshActiveTerms();
+    //                 },
+    //                 (error: any) => {
+    //                     console.log(`this error shouldn't have happened????`);
+    //                     console.log(error);
+    //                 })
+    //         }
+    //     }
+    // }
 
     /**
      * Set's the error message from the response error.

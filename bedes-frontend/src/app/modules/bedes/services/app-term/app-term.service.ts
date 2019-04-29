@@ -23,6 +23,13 @@ const appTermTransformer = (item: IAppTerm | IAppTermList): AppTerm | AppTermLis
     providedIn: 'root'
 })
 export class AppTermService {
+    public static createNewAppTerm(): AppTerm {
+        return new AppTerm({
+            _name: 'New Application Term',
+            _termTypeId: TermType.Atomic
+        })
+    }
+
     /** api endpoint for the AppTerm|AppTermList objects. */
     private apiEndpointTerm = 'api/mapping-application/:appId/term/:termId';
     private urlTerm: string;
@@ -37,6 +44,8 @@ export class AppTermService {
     get activeAppId(): number | undefined {
         return this._activeAppId;
     }
+    /** indicates if the term list needs to be reloaded */
+    public termListNeedsRefresh = false;
     /** the list of AppTerms for the active MappingApplication */
     private termList: Array<AppTerm | AppTermList> | undefined;
     /** the BehaviorSubject for the active AppTerm list */
@@ -84,8 +93,9 @@ export class AppTermService {
         return this.http.get<Array<IAppTerm | IAppTermList>>(url, { withCredentials: true })
             .pipe(
                 map((results: Array<IAppTerm | IAppTermList>) => {
-                return results.map(appTermTransformer);
-            }));
+                    this.termListNeedsRefresh = false;
+                    return results.map(appTermTransformer);
+                }));
     }
 
     /**
@@ -341,7 +351,6 @@ export class AppTermService {
      */
     public uploadAppTerms(appId: number, file: any): Observable<Array<AppTerm | AppTermList>> {
         const formData = new FormData();
-        formData.append('appTermImport', file);
         const url = this.getUploadUrl(appId);
         return this.http.post<Array<IAppTerm | IAppTermList>>(url, formData, {withCredentials: true})
             .pipe(

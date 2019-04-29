@@ -31,7 +31,7 @@ export class AppTermListResolverService {
         const appId: number | undefined = activeApp ? activeApp.id : undefined;
         // check the current selected term for a matching id
         // don't make the http request if we already have the term selected
-        if (this.appTermService.activeAppId === appId) {
+        if (this.appTermService.activeAppId === appId && !this.appTermService.termListNeedsRefresh) {
             // console.log('active AppTerms already set', this.appTermService.getActiveTermList());
             const terms = this.appTermService.getActiveTermList();
             this.setActiveAppTerm(appTermUUID, terms);

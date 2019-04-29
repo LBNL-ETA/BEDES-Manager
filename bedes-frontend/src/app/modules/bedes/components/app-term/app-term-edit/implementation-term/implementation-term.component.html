@@ -12,7 +12,7 @@
                 </a>
                 <button mat-stroked-button color="primary"
                 (click)="saveAppTerm()"
-                [disabled]="!appTerm?.hasChanged || !canEditApplication()" >
+                [disabled]="!isNewTerm && (!appTerm?.hasChanged || !canEditApplication())" >
                     <fa-icon [icon]="['fas', 'save']"></fa-icon>
                     Save
                 </button>

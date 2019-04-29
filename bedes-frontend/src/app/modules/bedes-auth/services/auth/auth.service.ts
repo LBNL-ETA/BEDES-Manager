@@ -1,7 +1,7 @@
 import { Injectable, Inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable, BehaviorSubject } from 'rxjs';
-import { map, tap } from 'rxjs/operators';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { Observable, BehaviorSubject, throwError } from 'rxjs';
+import { map, tap, catchError } from 'rxjs/operators';
 import { API_URL_TOKEN } from 'src/app/services/api-url/api-url.service';
 
 import { UserStatus } from '@bedes-common/enums/user-status.enum';
@@ -118,18 +118,11 @@ export class AuthService {
         return this.http.post<any>(this.urlNewAccount, newAccount, { withCredentials: true });
     }
 
-    public checkLoginStatus(): Promise<any> {
+    public checkLoginStatusPromise(): Promise<any> {
         return new Promise<any>((resolve, reject) => {
-            this.http.get<ICurrentUser>(this.urlStatus, { withCredentials: true })
-            .subscribe((results: ICurrentUser) => {
-                // check for a valid login status
-                if (results._status in UserStatus) {
-                    this.setCurrentUser(new CurrentUser(results));
-                }
-                else {
-                    // if not a valid status user the default unprivilidged user
-                    this.setCurrentUser(CurrentUser.makeDefaultUser());
-                }
+            this.checkLoginStatus()
+            .subscribe((results: CurrentUser) => {
+                console.log('check login statusPromise...', results);
                 resolve();
             },
             (error) => {
@@ -140,6 +133,41 @@ export class AuthService {
             })
         })
     }
+
+    public checkLoginStatus(): Observable<CurrentUser> {
+        return this.http.get<ICurrentUser>(this.urlStatus, { withCredentials: true })
+        .pipe(
+            // catchError(this.handleError),
+            map((results: ICurrentUser) => {
+                console.log('login status!!!', results);
+                // check for a valid login status
+                if (results._status in UserStatus) {
+                    this.setCurrentUser(new CurrentUser(results));
+                }
+                else {
+                    // if not a valid status user the default unprivilidged user
+                    this.setCurrentUser(CurrentUser.makeDefaultUser());
+                }
+                return this._currentUser;
+            })
+        )
+    }
+
+    private handleError(error: HttpErrorResponse) {
+        if (error.error instanceof ErrorEvent) {
+            // A client-side or network error occurred. Handle it accordingly.
+            console.error('An error occurred:', error.error.message);
+        } else {
+            // The backend returned an unsuccessful response code.
+            // The response body may contain clues as to what went wrong,
+            console.error(
+            `Backend returned code ${error.status}, ` +
+            `body was: ${error.error}`);
+        }
+        // return an observable with a user-facing error message
+        return throwError('Something bad happened; please try again later.');
+    };
+
 
     /**
      * Updates a user password
@@ -153,7 +181,7 @@ export class AuthService {
         return this.http.put<boolean>(this.urlPasswordUpdate, passwordUpdate, {withCredentials: true})
             .pipe(tap((results: boolean) => {
                 if (results) {
-                    this.checkLoginStatus();
+                    this.checkLoginStatusPromise();
                 }
             }));
     }
@@ -169,7 +197,7 @@ export class AuthService {
         return this.http.post<boolean>(url, null, {withCredentials: true})
             .pipe(
                 tap((results: boolean) => {
-                    this.checkLoginStatus();
+                    this.checkLoginStatusPromise();
                 }
             ));
     }

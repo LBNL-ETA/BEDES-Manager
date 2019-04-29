@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, UrlSegment } from '@angular/router';
 import { FormBuilder, Validators } from '@angular/forms';
-import { Subject, BehaviorSubject } from 'rxjs';
+import { Subject, BehaviorSubject, of, Observable, EMPTY } from 'rxjs';
 import { ApplicationService } from '../../../../services/application/application.service';
 import { MappingApplication } from '@bedes-common/models/mapping-application/mapping-application';
 import { IMappingApplication } from '@bedes-common/models/mapping-application';
@@ -10,7 +10,7 @@ import { ApplicationScope } from '@bedes-common/enums/application-scope.enum';
 import { AppTermService } from '../../../../services/app-term/app-term.service';
 import { AppTerm, AppTermList, AppTermListOption, IAppTerm, IAppTermList, IAppTermListOption } from '@bedes-common/models/app-term';
 import { appTermTypeList } from '@bedes-common/lookup-tables/app-term-type-list';
-import { takeUntil } from 'rxjs/operators';
+import { takeUntil, switchMap, mergeMap, filter } from 'rxjs/operators';
 import { GridOptions, SelectionChangedEvent, ColDef } from 'ag-grid-community';
 import { TermType } from '@bedes-common/enums/term-type.enum';
 import { OptionViewState } from 'src/app/modules/bedes/models/list-options/option-view-state.enum';
@@ -38,6 +38,7 @@ import { BedesTermOption } from '@bedes-common/models/bedes-term-option/bedes-te
 import { TermMappingComposite } from '@bedes-common/models/term-mapping/term-mapping-composite';
 import { AuthService } from '../../../../../bedes-auth/services/auth/auth.service';
 import { CurrentUser } from '@bedes-common/models/current-user/current-user';
+import { NewListOptionDialogComponent, INewListOption } from './new-list-option-dialog/new-list-option-dialog.component';
 
 
 enum RequestStatus {
@@ -71,6 +72,8 @@ interface IGridRow {
   styleUrls: ['./implementation-term.component.scss']
 })
 export class ImplementationTermComponent implements OnInit {
+    /** Indicates if the current term is new term */
+    public isNewTerm = false;
     // The active MappingApplication object.
     public app: MappingApplication;
     // The active MappingApplication's AppTerms
@@ -152,20 +155,48 @@ export class ImplementationTermComponent implements OnInit {
         this.gridInitialized = false;
         // set the current list option view
         this.currentViewState = OptionViewState.ListOptionsView;
+        this.setRouteData()
+        this.setIsNewTerm();
         this.subscribeToUserStatus();
         this.initializeSupportLists();
         this.subscrbeToMappingApplication();
-        this.subscribeToActiveTerm();
+        if (!this.isNewTerm) {
+            this.subscribeToActiveTerm();
+        }
         this.subscribeToFormChanges();
         this.gridSetup();
         this.setTableContext();
         this.initializeStateChanges();
+        if (this.isNewTerm) {
+            this.setFormData();
+        }
     }
 
     ngOnDestroy() {
         // unsubscribe from the subjects
         this.ngUnsubscribe.next();
         this.ngUnsubscribe.complete();
+    }
+
+    private setRouteData(): void {
+        this.route.data
+        .subscribe((data: any) => {
+            console.log('route data...', data);
+            this.appTerm = data.appTerm;
+        });
+    }
+
+    /**
+     * Checks the url to see if we're editing a new term.
+     */
+    private setIsNewTerm(): void {
+        this.route.url
+            .subscribe((results: UrlSegment[]) => {
+                console.log('observable segment results', results);
+                if (results.length == 2 && results[1].path === 'new') {
+                    this.isNewTerm = true;
+                }
+            })
     }
 
     /**
@@ -192,6 +223,7 @@ export class ImplementationTermComponent implements OnInit {
         this.appTermService.activeTermSubject
             .pipe(takeUntil(this.ngUnsubscribe))
             .subscribe((activeTerm: AppTerm | AppTermList | undefined) => {
+                console.log('activeTerm = ', activeTerm);
                 this.appTerm = activeTerm;
                 // if the appTerm is undefined create a new one
                 if (!this.appTerm) {
@@ -376,19 +408,36 @@ export class ImplementationTermComponent implements OnInit {
      */
     private saveNewAppTerm(): void {
         this.resetError();
+        console.log('save the term...');
         // call the backend service
         this.appTermService.newAppTerm(this.app.id, this.appTerm)
         .subscribe((newTerm: AppTerm) => {
-            // update the existing AppTerm object.
-            AppTerm.updateObjectValues(newTerm, this.appTerm);
+            this.handleSaveNewAppTermSuccess(newTerm);
             // set the newTerm as the active term and change the route
             // this.appTermService.setActiveTerm(this.appTerm);
-            this.appTermService.refreshActiveTerms();
+            // this.appTermService.refreshActiveTerms();
+            // notify the appTerm service that the term list should be refreshed
+
             // add the new term to the current list of terms
         }, (error: any) => {
             console.log('Error saving appTerm', error);
             this.setErrorMessage(error);
         });
+    }
+
+    private handleSaveNewAppTermSuccess(newTerm: AppTerm): void {
+        console.log('save app term success', newTerm);
+        // update the existing AppTerm object.
+        AppTerm.updateObjectValues(newTerm, this.appTerm);
+        this.appTermService.termListNeedsRefresh = true;
+        this.appTerm.clearChangeFlag();
+        this.appTermService.addAppTermToList(this.appTerm);
+        this.appTermService.setActiveTerm(this.appTerm);
+        this.authService.checkLoginStatus()
+        .subscribe((currentUser: CurrentUser) => {
+            this.router.navigate(['..', this.appTerm.uuid], {relativeTo: this.route})
+        })
+
     }
 
     /**
@@ -398,11 +447,12 @@ export class ImplementationTermComponent implements OnInit {
      */
     private updateAppTerm(): void {
         this.resetError();
-        // update the term with the form data
-        this.setFormData();
+        console.log('update the app term..');
         // call the backend service
         this.appTermService.updateAppTerm(this.app.id, this.appTerm)
         .subscribe((updatedTerm: AppTerm) => {
+            console.log('success', updatedTerm);
+            this.appTerm.clearChangeFlag();
         }, (error: any) => {
             console.log('Error saving appTerm', error);
             this.setErrorMessage(error);
@@ -554,6 +604,7 @@ export class ImplementationTermComponent implements OnInit {
         if (this.gridInitialized && this.gridDataNeedsSet) {
             // const gridData = this.applicationList;
             const gridData = new Array<IGridRow>();
+            const canEditApp = this.currentUser.canEditApplication(this.app);
             const shouldShowMappingButtons = this.shouldShowMappingButtons();
             if (this.appTerm instanceof AppTermList && this.appTerm.listOptions.length) {
                 this.appTerm.listOptions.forEach((item: AppTermListOption) => {
@@ -562,7 +613,7 @@ export class ImplementationTermComponent implements OnInit {
                         showMappingButtons: shouldShowMappingButtons,
                         hasMapping: item.mapping && item.mapping.bedesTermOptionUUID ? true : false,
                         mappedName: item.mapping && item.mapping.bedesOptionName? item.mapping.bedesOptionName : '',
-                        isEditable: this.canEditApplication()
+                        isEditable: canEditApp
                     })
                 })
             }
@@ -668,16 +719,37 @@ export class ImplementationTermComponent implements OnInit {
      * Displays a new listOption view for creating new
      * AppTermListOpion objects.
      */
-    public  newListOption(): void {
+    public newListOption(): void {
         // set the current active list option
-        this.activeListOption = new AppTermListOption(
-            <IAppTermListOption>{
-            _name: 'New List Option'
+        this.getNewListOption()
+        .subscribe((newListOption: AppTermListOption | undefined) => {
+            if (newListOption) {
+                (<AppTermList>this.appTerm).addListOption(newListOption);
+                this.gridDataNeedsSet = true;
+                this.setGridData();
+            }
         });
-        // set the active list option
-        this.listOptionService.setActiveListOption(this.activeListOption);
-        // chnage the list option view state
-        this.currentViewState = OptionViewState.ListOptionsNew;
+    }
+
+    private getNewListOption(): Observable<AppTermListOption | undefined> {
+        const dialogRef = this.dialog.open(NewListOptionDialogComponent, {
+            panelClass: 'dialog-no-padding',
+            width: '450px',
+            position: {top: '20px'},
+            data: {
+            }
+        });
+        return dialogRef.afterClosed()
+        .pipe(
+            switchMap((result: INewListOption) => {
+                if (result) {
+                    return of(new AppTermListOption({_name: result.name, _description: result.description}));
+                }
+                else {
+                    return of(undefined);
+                }
+            })
+        )
     }
 
     /**
