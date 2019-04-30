@@ -351,6 +351,7 @@ export class AppTermService {
      */
     public uploadAppTerms(appId: number, file: any): Observable<Array<AppTerm | AppTermList>> {
         const formData = new FormData();
+        formData.append('appTermImport', file);
         const url = this.getUploadUrl(appId);
         return this.http.post<Array<IAppTerm | IAppTermList>>(url, formData, {withCredentials: true})
             .pipe(

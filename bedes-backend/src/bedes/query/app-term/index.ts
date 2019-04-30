@@ -15,7 +15,15 @@ import { TermType } from '@bedes-common/enums/term-type.enum';
 import { bedesQuery } from '..';
 import { BedesError } from '@bedes-common/bedes-error/bedes-error';
 import { HttpStatusCodes } from '@bedes-common/enums/http-status-codes';
-import { isUUID } from '../../../../../bedes-common/util/is-uuid';
+import { isUUID } from '@bedes-common/util/is-uuid';
+
+export interface ISaveResults {
+    appTerm: IAppTerm | IAppTermList | undefined;
+    error?: {
+        termName: string,
+        error: any
+    };
+}
 
 export class AppTermQuery {
     private sqlInsertTerm: QueryFile;
@@ -41,6 +49,45 @@ export class AppTermQuery {
         this.sqlDeleteAppTermByUUID = sql_loader(path.join(__dirname, 'delete-app-term-by-uuid.sql'))
     }
 
+    public async newAppTerms(
+        appId: number,
+        items: Array<IAppTerm | IAppTermList>,
+        transaction?: any
+    ): Promise<Array<ISaveResults>> {
+        try {
+            // make sure this is part of a db transaction
+            // create one if not and call again
+            if (!transaction) {
+                return db.tx('newAppTerm trans', (trans: any) => {
+                    return this.newAppTerms(appId, items, trans);
+                })
+            }
+            const saveResults = new Array<ISaveResults>();
+            items.forEach(async (item: IAppTerm | IAppTermList) => {
+                if (!item._uuid) {
+                    throw new Error('Missing uuid on imported appTerm');
+                }
+                // create the result item to send back
+                const resultItem: ISaveResults = {
+                    appTerm: undefined
+                }
+                saveResults.push(resultItem);
+                try {
+                    resultItem.appTerm = await this.newAppTerm(appId, item, transaction);    
+                } catch (error) {
+                    resultItem.error = {
+                        termName: item._name,
+                        error: error
+                    };
+                }
+            });
+            return saveResults;
+        } catch (error) {
+            console.log('Error saving newAppTerms');
+            console.log(error);
+            throw error;
+        }
+    }
 
     /**
      * Saves a new AppTerm record to the database.

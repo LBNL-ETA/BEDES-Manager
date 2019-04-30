@@ -124,6 +124,9 @@ export class AppTermImporter {
             const promises = new Array<Promise<AppTerm | AppTermList>>();
             const headerFields = this.transformHeaderFieldNames(parseResults.meta.fields);
             for (const csvData of parseResults.data) {
+                if (Object.keys(csvData).length === 1 && !csvData['Term Name']) {
+                    continue;
+                }
                 const appTermCsv = this.makeIAppTermCsvRow(csvData, parseResults.meta.fields);
                 promises.push(this.processCsvTerm(appTermCsv, headerFields));
             }
@@ -183,6 +186,7 @@ export class AppTermImporter {
         // make sure required fields are there
         if (!isValidAppTermCsvRow(parsedCsvTerm)) {
             logger.error(`Invalid parsed csv row encountered: (${parsedCsvTerm})`);
+            console.log(parsedCsvTerm);
             throw new Error(`Invalid parsed csv row encountered: (${parsedCsvTerm})`);
         }
         const termName = parsedCsvTerm.TermName.trim();
