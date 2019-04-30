@@ -149,7 +149,7 @@ export class TermBuilderEditComponent implements OnInit {
 
     public openTermSearchDialog(): void {
         const dialogRef = this.dialog.open(BedesTermSearchDialogComponent, {
-            panelClass: 'dialog-no-padding',
+            panelClass: 'dialog-content-flex',
             width: '95%',
             height: '95%',
             // position: {top: '0'},

@@ -898,7 +898,7 @@ export class ImplementationTermComponent implements OnInit {
     public openTermSearchDialog(): void {
         // open the dialog
         const dialogRef = this.dialog.open(BedesTermSearchDialogComponent, {
-            panelClass: 'dialog-no-padding',
+            panelClass: 'dialog-content-flex',
             width: '95%',
             height: '95%',
             data: <ISearchDialogOptions>{

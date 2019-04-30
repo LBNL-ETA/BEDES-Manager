@@ -32,7 +32,11 @@ body {
 
 .dialog-no-padding .mat-dialog-container {
     padding:0;
+}
+
+.dialog-content-flex .mat-dialog-container {
     display: flex;
+    padding: 0;
 }
 
 .dialog-waiting .mat-dialog-container {
