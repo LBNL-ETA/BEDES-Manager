@@ -5,7 +5,7 @@ import { SearchResultType } from '@bedes-common/models/bedes-search-result/searc
  */
 export function getResultTypeName(searchResultType: SearchResultType): string {
     if (searchResultType === SearchResultType.BedesTerm) {
-        return 'BEDES Term';
+        return 'Atomic Term';
     }
     else if (searchResultType === SearchResultType.BedesConstrainedList) {
         return 'Constrained List';

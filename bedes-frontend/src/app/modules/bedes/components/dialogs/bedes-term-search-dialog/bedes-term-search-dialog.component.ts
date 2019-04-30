@@ -206,10 +206,10 @@ export class BedesTermSearchDialogComponent implements OnInit {
             },
             {
                 headerName: 'Owner',
-                field: 'ref.ownerName'
+                field: 'ownerName'
             },
             {
-                headerName: 'Status',
+                headerName: 'Sharing',
                 field: 'scopeName'
             }
         ];
@@ -245,6 +245,9 @@ export class BedesTermSearchDialogComponent implements OnInit {
                         const scopeObj = scopeList.getItemById(searchResult.scopeId);
                         scopeName = scopeObj.name;
                     }
+                    else if (searchResult.resultObjectType !== SearchResultType.CompositeTerm) {
+                        scopeName = 'Approved - for use in all applications';
+                    }
                     gridData.push(<ISearchResultRow>{
                         name: searchResult.name,
                         uuid: searchResult.uuid,
@@ -252,8 +255,13 @@ export class BedesTermSearchDialogComponent implements OnInit {
                         ref: searchResult,
                         searchResultTypeName: getResultTypeName(searchResult.resultObjectType),
                         categoryName: this.supportListService.transformIdToName(SupportListType.BedesCategory, searchResult.termCategoryId),
-                        dataTypeName: this.supportListService.transformIdToName(SupportListType.BedesDataType, searchResult.dataTypeId),
-                        scopeName: scopeName
+                        dataTypeName: searchResult.resultObjectType === SearchResultType.BedesTermOption
+                            ? 'Constrained List Option'
+                            :  this.supportListService.transformIdToName(SupportListType.BedesDataType, searchResult.dataTypeId),
+                        scopeName: scopeName,
+                        ownerName: searchResult.resultObjectType === SearchResultType.CompositeTerm
+                            ? searchResult.ownerName
+                            : 'BEDES Admin'
                     });
                 }
             });

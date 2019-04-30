@@ -899,11 +899,9 @@ export class ImplementationTermComponent implements OnInit {
         // open the dialog
         const dialogRef = this.dialog.open(BedesTermSearchDialogComponent, {
             panelClass: 'dialog-no-padding',
-            width: '80%',
-            position: {top: '20px'},
+            width: '95%',
+            height: '95%',
             data: <ISearchDialogOptions>{
-                // excludeResultType: [SearchResultType.CompositeTerm],
-                // excludeUUID: this.compositeTerm.items.map((d) => d.term.uuid),
                 showOnlyUUID: true
             }
         });
