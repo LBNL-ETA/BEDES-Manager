@@ -9,6 +9,7 @@ import { AppTermList, AppTerm } from '@bedes-common/models/app-term';
 import { AppTermService } from './app-term.service';
 import { ApplicationService } from '../application/application.service';
 import { MappingApplication } from '@bedes-common/models/mapping-application';
+import { switchMap } from 'rxjs/operators';
 
 @Injectable({
     providedIn: 'root',
@@ -32,11 +33,26 @@ export class AppTermResolverService {
         // const appId: number | undefined = activeApp ? activeApp.id : undefined;
         // check the current selected term for a matching id
         // don't make the http request if we already have the term selected
-        if (activeApp && this.appTermService.activeAppId === appId) {
-            // console.log('active AppTerms already set', this.appTermService.getActiveTermList());
+        if (!appTermUUID) {
+            // new app term
+            return of(AppTermService.createNewAppTerm());
+        }
+        else if (activeApp && this.appTermService.activeAppId === appId) {
             const terms = this.appTermService.getActiveTermList();
             const found = this.setActiveAppTerm(appTermUUID, terms);
-            return of(found);
+            if (found) {
+                return of(found);
+            }
+            else {
+                return this.appTermService.getAppTerms(appId)
+                .pipe(
+                    switchMap((terms: Array<AppTerm | AppTermList>): Observable<AppTerm | AppTermList> => {
+                        this.appTermService.setActiveMappingApplication(appId, terms);
+                        const newTerm = this.setActiveAppTerm(appTermUUID, terms);
+                        return of(newTerm);
+                    })
+                )
+            }
         }
         else {
             this.appTermService.getAppTerms(appId)

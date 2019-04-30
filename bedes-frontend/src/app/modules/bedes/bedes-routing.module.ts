@@ -24,6 +24,8 @@ import { CompositeTermResolverService } from './services/composite-term/composit
 import { AppTermListResolverService } from './services/app-term-list/app-term-list-resolver.service';
 import { AppTermResolverService } from './services/app-term/app-term-resolver.service';
 import { AuthGuardService } from '../bedes-auth/services/auth-guard/auth-guard.service';
+import { ApplicationListResolverService } from './services/application/application-list-resolver.service';
+import { ImplementationTermComponent } from './components/app-term/app-term-edit/implementation-term/implementation-term.component';
 
 const appRoutes: Routes = [
     { path: 'search', component: BedesTermSearchComponent },
@@ -54,9 +56,9 @@ const appRoutes: Routes = [
         component: TermBuilderHomeComponent,
         children: [
             {
-            path: '',
-            redirectTo: 'list',
-            pathMatch: 'full'
+                path: '',
+                redirectTo: 'list',
+                pathMatch: 'full'
             },
             {
                 path: 'list',
@@ -81,6 +83,9 @@ const appRoutes: Routes = [
     {
         path: 'applications',
         component: ApplicationListComponent,
+        resolve: {
+            data: ApplicationListResolverService
+        }
     },
     {
         path: 'applications/new',
@@ -112,8 +117,16 @@ const appRoutes: Routes = [
                 }
             },
             {
+                path: 'terms/new',
+                component: ImplementationTermComponent,
+                resolve: {
+                    appTerm: AppTermResolverService
+                },
+                canActivate: [AuthGuardService]
+            },
+            {
                 path: 'terms/:termId',
-                component: AppTermEditComponent,
+                component: ImplementationTermComponent,
                 resolve: {
                     appTerm: AppTermResolverService
                 }

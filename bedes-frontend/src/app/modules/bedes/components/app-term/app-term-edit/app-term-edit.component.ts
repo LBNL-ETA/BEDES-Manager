@@ -12,6 +12,7 @@ import { appTermTypeList } from '@bedes-common/lookup-tables/app-term-type-list'
 import { takeUntil } from 'rxjs/operators';
 import { GridOptions, SelectionChangedEvent, ColDef } from 'ag-grid-community';
 import { Scope } from '@bedes-common/enums/scope.enum';
+import { ActivatedRoute, UrlSegment } from '@angular/router';
 
 
 enum RequestStatus {
@@ -39,6 +40,8 @@ interface IGridRow {
   styleUrls: ['./app-term-edit.component.scss']
 })
 export class AppTermEditComponent implements OnInit {
+    /** Indicates if the current term is new term */
+    public isNewTerm = false;
     // The active MappingApplication object.
     public app: MappingApplication;
     // The active MappingApplication's AppTerms
@@ -70,6 +73,7 @@ export class AppTermEditComponent implements OnInit {
     });
 
     constructor(
+        private route: ActivatedRoute,
         private formBuilder: FormBuilder,
         private appService: ApplicationService,
         private appTermService: AppTermService
@@ -78,8 +82,12 @@ export class AppTermEditComponent implements OnInit {
     ngOnInit() {
         this.gridDataNeedsSet = true;
         this.gridInitialized = false;
+        this.setRouteData();
+        this.setIsNewTerm();
         this.subscrbeToApplicationData();
-        this.subscribeToActiveTerm();
+        if (!this.isNewTerm) {
+            this.subscribeToActiveTerm();
+        }
         this.subscribeToFormChanges();
         this.gridSetup();
     }
@@ -88,6 +96,26 @@ export class AppTermEditComponent implements OnInit {
         // unsubscribe from the subjects
         this.ngUnsubscribe.next();
         this.ngUnsubscribe.complete();
+    }
+
+    private setRouteData(): void {
+        this.route.data
+        .subscribe((data: any) => {
+            this.appTerm = data;
+        });
+    }
+
+    /**
+     * Checks the url to see if we're editing a new term.
+     */
+    private setIsNewTerm(): void {
+        this.route.url
+            .subscribe((results: UrlSegment[]) => {
+                console.log('observable segment results', results);
+                if (results.length == 2 && results[1].path === 'new') {
+                    this.isNewTerm = true;
+                }
+            })
     }
 
     /**

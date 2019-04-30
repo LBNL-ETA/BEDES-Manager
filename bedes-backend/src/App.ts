@@ -40,7 +40,7 @@ class App {
             session({
                 secret: '1ZW3IH$*uDipaQcf^vflu',
                 cookie: {
-                    maxAge: 60 * 60 * 1000
+                    maxAge: 60 * 60 * 1000 * 24
                 },
                 resave: false,
                 saveUninitialized: false

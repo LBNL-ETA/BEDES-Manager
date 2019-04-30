@@ -150,8 +150,9 @@ export class TermBuilderEditComponent implements OnInit {
     public openTermSearchDialog(): void {
         const dialogRef = this.dialog.open(BedesTermSearchDialogComponent, {
             panelClass: 'dialog-no-padding',
-            width: '80%',
-            position: {top: '20px'},
+            width: '95%',
+            height: '95%',
+            // position: {top: '0'},
             data: <ISearchDialogOptions>{
                 excludeResultType: [SearchResultType.CompositeTerm],
                 excludeUUID: this.compositeTerm.items.map((d) => d.term.uuid),

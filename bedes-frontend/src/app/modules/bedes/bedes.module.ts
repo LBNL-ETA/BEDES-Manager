@@ -74,6 +74,7 @@ import { TableCellMapListOptionComponent } from './components/app-term/app-term-
 import { ListOptionMapDialogComponent } from './components/dialogs/list-option-map-dialog/list-option-map-dialog.component';
 import { TableCellAppTermStatusComponent } from './components/app-term/app-term-list/table-cell-app-term-status/table-cell-app-term-status.component';
 import { CsvImportInfoDialogComponent } from './components/dialogs/csv-import-info-dialog/csv-import-info-dialog.component';
+import { NewListOptionDialogComponent } from './components/app-term/app-term-edit/implementation-term/new-list-option-dialog/new-list-option-dialog.component';
 
 @NgModule({
     imports: [
@@ -142,7 +143,8 @@ import { CsvImportInfoDialogComponent } from './components/dialogs/csv-import-in
         TableCellMapListOptionComponent,
         ListOptionMapDialogComponent,
         TableCellAppTermStatusComponent,
-        CsvImportInfoDialogComponent
+        CsvImportInfoDialogComponent,
+        NewListOptionDialogComponent
     ],
     entryComponents: [
         BedesTermSearchDialogComponent,
@@ -154,7 +156,8 @@ import { CsvImportInfoDialogComponent } from './components/dialogs/csv-import-in
         TableCellNavComponent,
         TableCellMapListOptionComponent,
         TableCellAppTermStatusComponent,
-        CsvImportInfoDialogComponent
+        CsvImportInfoDialogComponent,
+        NewListOptionDialogComponent
     ],
     providers: [
         BedesTermSearchService,
@@ -165,12 +168,6 @@ import { CsvImportInfoDialogComponent } from './components/dialogs/csv-import-in
             provide: APP_INITIALIZER,
             useFactory: supportListFactory,
             deps: [SupportListService],
-            multi: true
-        },
-        {
-            provide: APP_INITIALIZER,
-            useFactory: applicationListFactory,
-            deps: [ApplicationService],
             multi: true
         },
         BedesTermSelectorService,

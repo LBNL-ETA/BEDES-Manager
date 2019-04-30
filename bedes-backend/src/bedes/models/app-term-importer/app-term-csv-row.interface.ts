@@ -72,24 +72,34 @@ export function getTermTypeFromCsvName(termTypeString: string): TermType {
  * @param unitName The name of the unit name to query the database.
  * @returns A Promise which resolves to the id of the found unit.
  */
-export async function getUnitIdFromName(unitName: string): Promise<number> {
+export async function getUnitIdFromName(unitName: string, trans?: any): Promise<number> {
     try {
         if (typeof unitName !== 'string' || !unitName.trim()) {
             throw new BedesError(
                 'Unit name ${unitName} not found.',
-                HttpStatusCodes.BadRequest_400,
-                'Unit name ${unitName} not found.',
+                HttpStatusCodes.BadRequest_400
             )
         }
-        const unit: IBedesUnit = await bedesQuery.units.getRecordByName(unitName.trim());
+        let unit: IBedesUnit | undefined;
+        try {
+            unit = await bedesQuery.units.getRecordByName(unitName.trim());
+        } catch (error) {
+        }
+
         if (!unit || !unit._id) {
-            throw new BedesError(
-                'Unit name ${unitName} not found.',
-                HttpStatusCodes.BadRequest_400,
-                'Unit name ${unitName} not found.',
-            )
+            // unit doesn't exist... create it
+            const params: IBedesUnit = {
+                _id: undefined,
+                _name: unitName.trim()
+            }
+            unit = await bedesQuery.units.newRecord(params, trans)
         }
-        return unit._id;
+        if (!unit._id) {
+            throw new Error('Unkown eror retrieving unit record')
+        }
+        else {
+            return unit._id;
+        }
     }
     catch (error) {
         logger.error('getUnitIdFromName: Error finding matching unit.');

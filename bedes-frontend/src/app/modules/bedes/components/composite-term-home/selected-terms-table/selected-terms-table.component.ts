@@ -225,7 +225,9 @@ export class SelectedTermsTableComponent implements OnInit, OnDestroy {
                         type: item.listOption ? 'List Option' : 'BEDES Term',
                         ref: item,
                         termCategoryName: this.supportListService.transformIdToName(SupportListType.BedesCategory, item.term.termCategoryId),
-                        dataTypeName: this.supportListService.transformIdToName(SupportListType.BedesDataType, item.term.dataTypeId),
+                        dataTypeName: item.listOption
+                            ? 'Constrained List Option'
+                            : this.supportListService.transformIdToName(SupportListType.BedesDataType, item.term.dataTypeId),
                         unitName: this.supportListService.transformIdToName(SupportListType.BedesUnit, item.term.unitId),
                         isEditable: this.isEditable
                     });

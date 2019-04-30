@@ -11,7 +11,8 @@
         </a>
         <button mat-stroked-button color="primary"
         [disabled]="!canEditApplication()"
-        (click)="newAtomicTerm()">
+        [routerLink]="['new']"
+        >
             <fa-icon [icon]="['fas', 'plus-circle']"></fa-icon>
             New Term
         </button>
@@ -20,13 +21,6 @@
         [disabled]="!canEditApplication()">
             <fa-icon [icon]="['fas', 'file-import']"></fa-icon>
             Import Application Terms (CSV)
-        </button>
-        <button mat-raised-button color="primary"
-        (click)="saveAllNewAppTerms()"
-        *ngIf="canEditApplication() && hasUnsavedAppTerms()"
-        [matBadge]="numberOfNewTerms()" matBadgePosition="after" matBadgeColor="accent">
-            <fa-icon [icon]="['fas', 'save']"></fa-icon>
-            Save All New AppTerms
         </button>
     </div>
 

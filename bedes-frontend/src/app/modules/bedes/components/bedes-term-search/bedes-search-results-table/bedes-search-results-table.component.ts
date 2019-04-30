@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, NgZone } from '@angular/core';
+import { Component, OnInit, OnDestroy, NgZone, Input } from '@angular/core';
 import { BedesConstrainedList, BedesTerm } from '@bedes-common/models/bedes-term';
 import { BedesTermSearchService } from '../../../services/bedes-term-search/bedes-term-search.service';
 import { takeUntil } from 'rxjs/operators';
@@ -17,6 +17,7 @@ import { BedesSearchResult } from '@bedes-common/models/bedes-search-result/bede
 import { SearchResultType } from '@bedes-common/models/bedes-search-result/search-result-type.enum';
 import { ISearchResultRow } from '../../../models/ag-grid/search-result-row.interface';
 import { getResultTypeName } from '../../../lib/get-result-type-name';
+import { IBedesSearchResultOutput } from '../bedes-search-parameters/bedes-search-parameters.component';
 
 @Component({
     selector: 'app-bedes-search-results-table',
@@ -24,6 +25,8 @@ import { getResultTypeName } from '../../../lib/get-result-type-name';
     styleUrls: ['./bedes-search-results-table.component.scss']
 })
 export class BedesSearchResultsTableComponent implements OnInit, OnDestroy {
+    @Input()
+    dataSource: Subject<IBedesSearchResultOutput> | undefined;
     public RequestStatus = RequestStatus;
     public currentRequestStatus: RequestStatus;
     public searchResults = new Array<BedesSearchResult>();
@@ -59,29 +62,29 @@ export class BedesSearchResultsTableComponent implements OnInit, OnDestroy {
         this.gridSetup();
         this.setTableContext();
         // subscribe to the search results service
-        this.termSearchService.searchResultsSubject()
-            .pipe(takeUntil(this.ngUnsubscribe))
-            .subscribe((results: Array<BedesSearchResult>) => {
-                console.log(`${this.constructor.name}: received search results...`, results);
-                // set the search results
-                this.searchResults = results;
-                // if the grid is ready then set the grid data
-                // otherwise setting the grid data is done after grid initialization
-                if (this.gridInitialized) {
-                    this.setGridData();
-                    if(!this.receivedInitialValues) {
-                        this.receivedInitialValues = true;
-                    }
-                    else {
-                        this.hasSearched = true;
-                    }
-                }
-            },
-            (error: any) => {
-                console.error(`${this.constructor.name}: error in ngOnInit`)
-                console.error(error);
-                throw error;
-            });
+        // this.termSearchService.searchResultsSubject()
+        //     .pipe(takeUntil(this.ngUnsubscribe))
+        //     .subscribe((results: Array<BedesSearchResult>) => {
+        //         console.log(`${this.constructor.name}: received search results...`, results);
+        //         // set the search results
+        //         this.searchResults = results;
+        //         // if the grid is ready then set the grid data
+        //         // otherwise setting the grid data is done after grid initialization
+        //         if (this.gridInitialized) {
+        //             this.setGridData();
+        //             if(!this.receivedInitialValues) {
+        //                 this.receivedInitialValues = true;
+        //             }
+        //             else {
+        //                 this.hasSearched = true;
+        //             }
+        //         }
+        //     },
+        //     (error: any) => {
+        //         console.error(`${this.constructor.name}: error in ngOnInit`)
+        //         console.error(error);
+        //         throw error;
+        //     });
         // subscribe to the requestStatus of the search
         // will indicate if the current state of the search
         this.termSearchService.requestStatusSubject
@@ -95,13 +98,36 @@ export class BedesSearchResultsTableComponent implements OnInit, OnDestroy {
                 console.error(error);
                 throw error;
             });
-
+        //
+        this.subscribeToDataSource();
     }
 
     ngOnDestroy() {
         // unsubscribe from the subjects
         this.ngUnsubscribe.next();
         this.ngUnsubscribe.complete();
+    }
+
+    private subscribeToDataSource(): void {
+        if(!this.dataSource) {
+            throw new Error('Invalid data source');
+        }
+        this.dataSource
+        .subscribe((results: IBedesSearchResultOutput) => {
+            console.log(`${this.constructor.name}: received search results`, results);
+            this.searchResults = results.results;
+            // if the grid is ready then set the grid data
+            // otherwise setting the grid data is done after grid initialization
+            if (this.gridInitialized) {
+                this.setGridData();
+                if(!this.receivedInitialValues) {
+                    this.receivedInitialValues = true;
+                }
+                else {
+                    this.hasSearched = true;
+                }
+            }
+        })
     }
 
     /**

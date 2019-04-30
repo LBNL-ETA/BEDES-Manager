@@ -154,7 +154,7 @@ export class CompositeTermService {
             this.addTermToList(BedesCompositeTermShort.fromBedesCompositeTerm(newTerm));
             // need to tell auth to reload authenticated user info
             // authenticated users know what composite terms they can edit
-            this.authService.checkLoginStatus();
+            this.authService.checkLoginStatusPromise();
             return newTerm;
         }));
     }
@@ -190,7 +190,7 @@ export class CompositeTermService {
         return this.http.delete<number>(url, {withCredentials: true})
         .pipe(map((results: number) => {
             this.removeTermFromList(compositeTerm);
-            this.authService.checkLoginStatus();
+            this.authService.checkLoginStatusPromise();
             return results;
         }));
     }
@@ -246,7 +246,7 @@ export class CompositeTermService {
             this.termList.splice(index, 1);
             this.termListSubject.next(this.termList);
             // tell auth to reload the authenticated user info
-            this.authService.checkLoginStatus();
+            this.authService.checkLoginStatusPromise();
         }
         else {
             throw new Error('Unable to find the CompositeTerm in the termList');

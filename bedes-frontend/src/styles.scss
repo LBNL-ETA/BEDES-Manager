@@ -24,7 +24,6 @@ body {
     flex: 1;
 }
 
-
 .dialog-waiting .mat-dialog-container {
     overflow: visible;
     background: rgba(255, 255, 255, 0);
@@ -33,6 +32,7 @@ body {
 
 .dialog-no-padding .mat-dialog-container {
     padding:0;
+    display: flex;
 }
 
 .dialog-waiting .mat-dialog-container {
