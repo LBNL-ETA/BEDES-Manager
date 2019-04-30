@@ -237,7 +237,7 @@ export class ApplicationListComponent extends MessageFromGrid<IAppRow> implement
                 field: 'ref.ownerName'
             },
             {
-                headerName: 'Status',
+                headerName: 'Sharing',
                 field: 'scopeName'
             }
         ];

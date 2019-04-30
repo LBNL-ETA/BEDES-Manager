@@ -200,7 +200,7 @@ export class CompositeTermListComponent extends MessageFromGrid<IGridRow> implem
                 field: 'ref.ownerName'
             },
             {
-                headerName: 'Status',
+                headerName: 'Sharing',
                 field: 'scopeName'
             }
         ];

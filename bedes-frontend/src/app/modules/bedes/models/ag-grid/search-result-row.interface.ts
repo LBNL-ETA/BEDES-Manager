@@ -12,4 +12,5 @@ export interface ISearchResultRow {
     ref: BedesSearchResult;
     searchResultTypeName: string;
     scopeName: string | null | undefined;
+    ownerName: string | null | undefined;
 }

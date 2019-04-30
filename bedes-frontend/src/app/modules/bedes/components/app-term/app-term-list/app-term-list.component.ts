@@ -262,7 +262,7 @@ export class AppTermListComponent extends MessageFromGrid<IAppRow> implements On
                 field: 'ownerName'
             },
             {
-                headerName: 'Status',
+                headerName: 'Sharing',
                 field: 'scopeName'
             }
         ];
