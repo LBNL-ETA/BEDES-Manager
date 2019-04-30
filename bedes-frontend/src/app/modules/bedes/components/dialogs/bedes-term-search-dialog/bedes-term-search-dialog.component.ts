@@ -1,6 +1,6 @@
 import { Component, OnInit, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material';
-import { GridOptions, SelectionChangedEvent, ColDef } from 'ag-grid-community';
+import { GridOptions, SelectionChangedEvent, ColDef, GridReadyEvent } from 'ag-grid-community';
 import { BedesTermSearchService } from '../../../services/bedes-term-search/bedes-term-search.service';
 import { BedesSearchResult } from '@bedes-common/models/bedes-search-result/bedes-search-result';
 import { BedesConstrainedList, BedesTerm } from '@bedes-common/models/bedes-term';
@@ -44,9 +44,16 @@ export class BedesTermSearchDialogComponent implements OnInit {
         @Inject(MAT_DIALOG_DATA) public dialogOptions: ISearchDialogOptions) { }
 
     ngOnInit() {
+        this.resetData();
         this.setDialogOptions();
         this.gridSetup();
         this.setTableContext();
+    }
+
+    private resetData(): void {
+        this.numResults = 0;
+        this.searchResults = [];
+        this.gridDataNeedsRefresh = true;
     }
 
     /**
@@ -138,13 +145,16 @@ export class BedesTermSearchDialogComponent implements OnInit {
             enableSorting: true,
             rowSelection: 'multiple',
             columnDefs: this.buildColumnDefs(),
-            // getRowNodeId: (data: any) => {
-            //     return data.uuid;
-            // },
-            onGridReady: () => {
+            onGridReady: (event: GridReadyEvent) => {
                 this.gridInitialized = true;
+                console.log('grid is ready...');
                 if (this.gridDataNeedsRefresh) {
                     this.setGridData();
+                    event.api.checkGridSize();
+                }
+                else {
+                    event.api.setRowData([]);
+                    event.api.checkGridSize();
                 }
             },
             onFirstDataRendered(params) {

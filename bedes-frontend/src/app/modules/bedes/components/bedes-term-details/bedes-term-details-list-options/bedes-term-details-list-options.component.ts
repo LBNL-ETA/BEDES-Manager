@@ -68,7 +68,6 @@ export class BedesTermDetailsListOptionsComponent implements OnInit {
         this.authService.currentUserSubject
             .pipe(takeUntil(this.ngUnsubscribe))
             .subscribe((currentUser: CurrentUser) => {
-                console.log(`${this.constructor.name}: received user status`, currentUser);
                 this.currentUser = currentUser;
                 this.isEditable = currentUser.isLoggedIn();
                 this.setGridData();
@@ -87,7 +86,6 @@ export class BedesTermDetailsListOptionsComponent implements OnInit {
         this.supportListService.dataTypeSubject.subscribe(
             (results: Array<BedesDataType>) => {
                 this.dataTypeList = results;
-                console.log('data types', this.dataTypeList);
             }
         );
     }
@@ -124,7 +122,6 @@ export class BedesTermDetailsListOptionsComponent implements OnInit {
     private subscribeToSelectedTerm(): void {
         this.termService.selectedTermSubject
             .subscribe((selectedTerm: BedesTerm | BedesConstrainedList | undefined) => {
-                console.log(`%c ${this.constructor.name}: selectedTerm`, 'background-color: dodgerblue; color: white; padding: 5px;', selectedTerm);
                 this.term = selectedTerm;
                 this.setGridData();
             });
@@ -182,7 +179,6 @@ export class BedesTermDetailsListOptionsComponent implements OnInit {
             this.listOptionService.activeListOptionSubject.next(this.selectedOption);
             // switch to the list option edit view
             const optionId = this.selectedOption.uuid ? this.selectedOption.uuid : this.selectedOption.id;
-            console.log(`option id = ${optionId}`, this.selectedOption);
             this.router.navigate(['edit', optionId], {relativeTo: this.route});
         }
     }
@@ -192,10 +188,8 @@ export class BedesTermDetailsListOptionsComponent implements OnInit {
      */
     public removeListOption(): void {
         if (this.selectedOption) {
-            console.log('remove the list option', this.selectedOption);
             this.listOptionService.deleteListOption(this.selectedOption.id)
             .subscribe((results: any) => {
-                console.log(`${this.constructor.name}: received results`, results);
                 this.selectedOption = undefined;
             }, (error: any) => {
                 console.error(error);
@@ -203,18 +197,6 @@ export class BedesTermDetailsListOptionsComponent implements OnInit {
             });
         }
     }
-
-    // /**
-    //  * Determines if the ag-grid of list options should be displayed.
-    //  */
-    // public shouldShowListOptions(): boolean {
-    //     if (this.term instanceof BedesConstrainedList && (!this.term.options || !this.term.options.length)) {
-    //         return true;
-    //     }
-    //     else {
-    //         return false;
-    //     }
-    // }
 
     /**
      * Determines if the "no list options" message is to be displayed,

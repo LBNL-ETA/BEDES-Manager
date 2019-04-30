@@ -1,7 +1,11 @@
-import { Component, OnInit, Input, ElementRef } from '@angular/core';
+import { Component, OnInit, Input, ElementRef, Output, EventEmitter } from '@angular/core';
 import { BedesTermSearchService } from '../../../services/bedes-term-search/bedes-term-search.service';
-import { BedesTerm, BedesConstrainedList } from '@bedes-common/models/bedes-term';
 import { BedesSearchResult } from '@bedes-common/models/bedes-search-result/bedes-search-result';
+
+export interface IBedesSearchResultOutput {
+    searchString: string;
+    results: Array<BedesSearchResult>;
+}
 
 @Component({
     selector: 'app-bedes-search-parameters',
@@ -17,6 +21,8 @@ export class BedesSearchParametersComponent implements OnInit {
     // get a reference to the search input control
     @Input('searchInput')
     private searchInput: ElementRef;
+    @Output()
+    searchResultOutput = new EventEmitter<IBedesSearchResultOutput>();
 
     constructor(
         private bedesTermSearchService: BedesTermSearchService,
@@ -30,17 +36,33 @@ export class BedesSearchParametersComponent implements OnInit {
      * Initiates the http request for the term search.
      */
     public searchForTerms(): void {
-        console.log('search for terms...', this.searchString);
-        console.log(this.searchInput);
+        if(!this.searchString) {
+            throw new Error("Can't search for empty string.");
+        }
         this.waitingForResults = true;
-        this.bedesTermSearchService.searchAndNotify([this.searchString])
-            .subscribe((results: Array<BedesSearchResult>) => {
-                // set the number of rows found
-                this.numResults = results.length;
-            }, (error: any) => {
-                this.numResults = 0;
-            }, () => {
-                this.waitingForResults = false;
-            });
+        this.bedesTermSearchService.search([this.searchString])
+        .subscribe((results: Array<BedesSearchResult>) => {
+            // set the number of rows found
+            this.numResults = results.length;
+            // emit the new result set
+            this.emitSearchResults(this.searchString, results);
+        }, (error: any) => {
+            this.numResults = 0;
+        }, () => {
+            this.waitingForResults = false;
+        });
+    }
+
+    /**
+     * Emits the search results
+     * @param searchString
+     * @param results
+     */
+    private emitSearchResults(searchString: string, results: Array<BedesSearchResult>): void {
+        const outputObj: IBedesSearchResultOutput = {
+            searchString: searchString,
+            results: results
+        }
+        this.searchResultOutput.emit(outputObj);
     }
 }

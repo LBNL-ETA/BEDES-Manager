@@ -37,6 +37,14 @@ export class AppTermList extends AppTerm {
         options.map((d) => this._listOptions.push(new AppTermListOption(d)));
     }
 
+    public addListOption(listOption: AppTermListOption): void {
+        const found = this._listOptions.find(item => item.name === listOption.name);
+        if (found) {
+            throw new Error(`List option name ${listOption.name} already exists`);
+        }
+        this._listOptions.push(listOption);
+    }
+
     /**
      * Maps a BedesTerm | BedesConstrainedList | BedescompositeTerm object
      * to the AppTermList instance.

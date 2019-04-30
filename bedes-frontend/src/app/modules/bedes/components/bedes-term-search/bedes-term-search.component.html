@@ -9,8 +9,10 @@
             </mat-card-title>
         </mat-card-header>
         <mat-card-content>
-            <app-bedes-search-parameters></app-bedes-search-parameters>
-            <app-bedes-search-results-table></app-bedes-search-results-table>
+            <app-bedes-search-parameters (searchResultOutput)="handleSearchResultOutput($event)"
+            ></app-bedes-search-parameters>
+            <app-bedes-search-results-table [dataSource]="dataSource">
+            </app-bedes-search-results-table>
         </mat-card-content>
     </mat-card>
 </div>

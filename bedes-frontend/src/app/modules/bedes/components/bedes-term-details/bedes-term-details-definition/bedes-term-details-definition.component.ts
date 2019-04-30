@@ -63,7 +63,6 @@ export class BedesTermDetailsDefinitionComponent implements OnInit {
         this.initializeSupportLists();
         this.termService.selectedTermSubject
             .subscribe((selectedTerm: BedesTerm | BedesConstrainedList | undefined) => {
-                console.log(`${this.constructor.name}: selectedTerm`, selectedTerm);
                 this.term = selectedTerm;
                 this.setFormValues();
             });
@@ -85,14 +84,9 @@ export class BedesTermDetailsDefinitionComponent implements OnInit {
         this.authService.currentUserSubject
             .pipe(takeUntil(this.ngUnsubscribe))
             .subscribe((currentUser: CurrentUser) => {
-                console.log(`${this.constructor.name}: received user status`, currentUser);
                 this.currentUser = currentUser;
                 this.isEditable = currentUser.isAdmin();
             });
-    }
-
-    private loadBedesTerm(id: number): void {
-        console.log(`load bedes term ${id}`, this.term);
     }
 
     /**
@@ -159,9 +153,6 @@ export class BedesTermDetailsDefinitionComponent implements OnInit {
     }
 
     private watchForChanges(): void {
-        this.dataForm.valueChanges.subscribe((results: any) => {
-            console.log('dataFormValue changes', results);
-        });
         this.dataForm.controls['name'].valueChanges.subscribe(
             (results: string) => {
                 if (results) {
@@ -244,14 +235,7 @@ export class BedesTermDetailsDefinitionComponent implements OnInit {
         );
         this.dataForm.controls['sectorCommercial'].valueChanges.subscribe(
             (results: boolean) => {
-                console.log('sector commercial change', results);
                 this.term.sectors.setSector(BedesSectorValues.Commercial, results);
-                // if (results) {
-                //     this.term.termCategoryId = +results;
-                // }
-                // else {
-                //     this.term.termCategoryId = undefined;
-                // }
             }
         );
     }

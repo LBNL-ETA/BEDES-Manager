@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { SupportListService } from '../../services/support-list/support-list.service';
 import { BedesTermCategory } from '@bedes-common/models/bedes-term-category';
+import { IBedesSearchResultOutput } from './bedes-search-parameters/bedes-search-parameters.component';
+import { Observable, Subject } from 'rxjs';
 
 @Component({
     selector: 'app-bedes-term-search',
@@ -9,6 +11,7 @@ import { BedesTermCategory } from '@bedes-common/models/bedes-term-category';
 })
 export class BedesTermSearchComponent implements OnInit {
     public categoryList: Array<BedesTermCategory>;
+    public dataSource = new Subject<IBedesSearchResultOutput>();
 
     constructor(
         private supportListService: SupportListService
@@ -25,5 +28,9 @@ export class BedesTermSearchComponent implements OnInit {
         console.log(`${this.constructor.name}: ngOnInit`);
     }
 
+    public handleSearchResultOutput(searchResults: IBedesSearchResultOutput): void {
+        console.log(`${this.constructor.name}: handleNewSearchSTring...`, searchResults);
+        this.dataSource.next(searchResults);
+    }
 
 }
