@@ -78,7 +78,7 @@
             </mat-form-field>
             <div style="display:flex; flex-direction: row;" *ngIf="scopeList.length">
                 <mat-form-field style="flex:1;" appearance="outline">
-                    <mat-label>Scope</mat-label>
+                    <mat-label>Sharing</mat-label>
                     <mat-select placeholder="Scope" formControlName="scopeId">
                         <mat-option *ngFor="let item of scopeList" [value]="item.id">
                             {{item.name}}

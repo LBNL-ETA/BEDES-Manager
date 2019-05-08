@@ -59,7 +59,6 @@ export class AppQuery {
                     return this.newRecord(user, item, trans);
                 })
             }
-            console.log(item);
             // check the required parameters
             if (!item._name) {
                 logger.error(`${this.constructor.name}: Missing parameters`);

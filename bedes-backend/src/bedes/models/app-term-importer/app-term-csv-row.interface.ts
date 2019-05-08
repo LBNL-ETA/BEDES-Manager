@@ -82,18 +82,22 @@ export async function getUnitIdFromName(unitName: string, trans?: any): Promise<
         }
         let unit: IBedesUnit | undefined;
         try {
-            unit = await bedesQuery.units.getRecordByName(unitName.trim());
+            unit = await bedesQuery.units.getRecordByName(unitName.trim(), trans);
         } catch (error) {
+            throw new BedesError(
+                `Unit ${unitName} doesn't exist.`,
+                HttpStatusCodes.BadRequest_400
+            );
         }
 
-        if (!unit || !unit._id) {
-            // unit doesn't exist... create it
-            const params: IBedesUnit = {
-                _id: undefined,
-                _name: unitName.trim()
-            }
-            unit = await bedesQuery.units.newRecord(params, trans)
-        }
+        // if (!unit || !unit._id) {
+        //     // unit doesn't exist... create it
+        //     const params: IBedesUnit = {
+        //         _id: undefined,
+        //         _name: unitName.trim()
+        //     }
+        //     unit = await bedesQuery.units.newRecord(params, trans)
+        // }
         if (!unit._id) {
             throw new Error('Unkown eror retrieving unit record')
         }

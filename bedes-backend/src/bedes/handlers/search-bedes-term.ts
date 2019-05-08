@@ -11,12 +11,6 @@ const logger = createLogger(module);
  */
 export async function searchBedesTermHandler(request: Request, response: Response): Promise<any> {
     try {
-        console.log('search terms...');
-        // if (!request.isAuthenticated() || !request.user || !request.user.id) {
-        //     // response.status(401).send('Unauthorized');
-        //     // return;
-        // }
-        logger.debug(util.inspect(request.params));
         const searchTerms = buildSearchParams(request.query.search);
         if (!searchTerms.length) {
             throw new BedesError(
@@ -25,12 +19,7 @@ export async function searchBedesTermHandler(request: Request, response: Respons
                 "Invalid parameters"
             );
         }
-        logger.debug(`search for bedes terms:`);
-        logger.debug(util.inspect(searchTerms));
         let results = await bedesQuery.bedesTermSearch.searchAllBedesTerms(searchTerms);
-        logger.debug('search bedes terms received results');
-        logger.debug(`type: ${typeof results}`)
-        // logger.debug(util.inspect(results));
         response.json(results);
     }
     catch (error) {

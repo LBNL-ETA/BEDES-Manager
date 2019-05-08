@@ -128,12 +128,11 @@ export class AppTermQuery {
                 // if the original list option is present, call query to save the records
                 // otherwise do nothing
                 if (Array.isArray(origAppTermList._listOptions)) {
-                    newAppTermList._listOptions = 
-                        await bedesQuery.appTermListOption.newRecords(
-                                appTermId,
-                                origAppTermList._listOptions,
-                                transaction
-                            );
+                    newAppTermList._listOptions = await bedesQuery.appTermListOption.newRecords(
+                        appTermId,
+                        origAppTermList._listOptions,
+                        transaction
+                    );
                 }
                 if (item._mapping) {
                     newAppTermList._mapping = await bedesQuery.mappedTerm.newMappingRecord(appTermId, item._mapping, transaction);

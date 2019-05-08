@@ -248,16 +248,28 @@ export class BedesTermSearchDialogComponent implements OnInit {
                     else if (searchResult.resultObjectType !== SearchResultType.CompositeTerm) {
                         scopeName = 'Approved - for use in all applications';
                     }
+                    let dataTypeName: string | undefined;
+                    if (searchResult.resultObjectType === SearchResultType.BedesTermOption) {
+                        dataTypeName = 'Constrained List Option';
+                    }
+                    else if (searchResult.resultObjectType === SearchResultType.CompositeTerm) {
+                        dataTypeName = 'Composite Term';
+                    }
+                    else {
+                        dataTypeName = this.supportListService.transformIdToName(SupportListType.BedesDataType, searchResult.dataTypeId)
+                    }
+                    // set the term name
+                    const termName = searchResult.resultObjectType === SearchResultType.BedesTermOption && searchResult.termListName
+                        ? `${searchResult.termListName}::${searchResult.name}`
+                        : searchResult.name;
                     gridData.push(<ISearchResultRow>{
-                        name: searchResult.name,
+                        name: termName,
                         uuid: searchResult.uuid,
                         unitName: this.supportListService.transformIdToName(SupportListType.BedesUnit, searchResult.unitId),
                         ref: searchResult,
                         searchResultTypeName: getResultTypeName(searchResult.resultObjectType),
                         categoryName: this.supportListService.transformIdToName(SupportListType.BedesCategory, searchResult.termCategoryId),
-                        dataTypeName: searchResult.resultObjectType === SearchResultType.BedesTermOption
-                            ? 'Constrained List Option'
-                            :  this.supportListService.transformIdToName(SupportListType.BedesDataType, searchResult.dataTypeId),
+                        dataTypeName: dataTypeName,
                         scopeName: scopeName,
                         ownerName: searchResult.resultObjectType === SearchResultType.CompositeTerm
                             ? searchResult.ownerName

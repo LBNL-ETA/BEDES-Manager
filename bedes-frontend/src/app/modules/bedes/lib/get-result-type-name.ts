@@ -8,7 +8,7 @@ export function getResultTypeName(searchResultType: SearchResultType): string {
         return 'Atomic Term';
     }
     else if (searchResultType === SearchResultType.BedesConstrainedList) {
-        return 'Constrained List';
+        return 'Atomic Term';
     }
     else if (searchResultType === SearchResultType.BedesTermOption) {
         return 'Constrained List Option';

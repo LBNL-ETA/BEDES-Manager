@@ -18,6 +18,7 @@ import { SearchResultType } from '@bedes-common/models/bedes-search-result/searc
 import { ISearchResultRow } from '../../../models/ag-grid/search-result-row.interface';
 import { getResultTypeName } from '../../../lib/get-result-type-name';
 import { IBedesSearchResultOutput } from '../bedes-search-parameters/bedes-search-parameters.component';
+import { scopeList } from '../../../../../../../../bedes-common/lookup-tables/scope-list';
 
 @Component({
     selector: 'app-bedes-search-results-table',
@@ -176,7 +177,7 @@ export class BedesSearchResultsTableComponent implements OnInit, OnDestroy {
             enableColResize: true,
             enableFilter: true,
             enableSorting: true,
-            rowSelection: 'multiple',
+            // rowSelection: 'multiple',
             columnDefs: this.buildColumnDefs(),
             // getRowNodeId: (data: any) => {
             //     return data.uuid;
@@ -220,35 +221,66 @@ export class BedesSearchResultsTableComponent implements OnInit, OnDestroy {
                 cellRendererFramework: TableCellTermNameComponent
             },
             {
-                headerName: 'Type',
+                headerName: 'Term Type',
                 field: 'searchResultTypeName'
-            },
-            {
-                headerName: 'Category',
-                field: 'categoryName'
-            },
-            {
-                headerName: 'Unit',
-                field: 'unitName'
             },
             {
                 headerName: 'Data Type',
                 field: 'dataTypeName'
+            },
+            {
+                headerName: 'Owner',
+                field: 'ownerName'
+            },
+            {
+                headerName: 'Sharing',
+                field: 'scopeName'
             }
         ];
     }
 
     private setGridData() {
         if (this.gridOptions && this.gridOptions.api && this.searchResults && this.gridInitialized) {
+            console.log(this.searchResults);
             const gridData = this.searchResults.map((searchResult: BedesSearchResult) => {
+                // set the scope name
+                let scopeName: string | undefined | null;
+                if (searchResult.scopeId) {
+                    const scopeObj = scopeList.getItemById(searchResult.scopeId);
+                    scopeName = scopeObj.name;
+                }
+                else if (searchResult.resultObjectType !== SearchResultType.CompositeTerm) {
+                    scopeName = 'Approved - for use in all applications';
+                }
+                // set the data type
+                let dataTypeName: string | undefined;
+                if (searchResult.resultObjectType === SearchResultType.BedesTermOption) {
+                    dataTypeName = 'Constrained List Option';
+                }
+                else if (searchResult.resultObjectType === SearchResultType.CompositeTerm) {
+                    dataTypeName = 'Composite Term';
+                }
+                else {
+                    dataTypeName = this.supportListService.transformIdToName(SupportListType.BedesDataType, searchResult.dataTypeId)
+                }
+                // set the term name
+                const termName = searchResult.resultObjectType === SearchResultType.BedesTermOption && searchResult.termListName
+                    ? `${searchResult.termListName}::${searchResult.name}`
+                    : searchResult.name;
+
                 return <ISearchResultRow>{
-                    name: searchResult.name,
+                    name: termName,
                     uuid: searchResult.uuid,
                     categoryName: this.supportListService.transformIdToName(SupportListType.BedesCategory, searchResult.termCategoryId),
-                    dataTypeName: this.supportListService.transformIdToName(SupportListType.BedesDataType, searchResult.dataTypeId),
+                    // dataTypeName: this.supportListService.transformIdToName(SupportListType.BedesDataType, searchResult.dataTypeId),
                     unitName: this.supportListService.transformIdToName(SupportListType.BedesUnit, searchResult.unitId),
                     ref: searchResult,
-                    searchResultTypeName: getResultTypeName(searchResult.resultObjectType)
+                    searchResultTypeName: getResultTypeName(searchResult.resultObjectType),
+                    dataTypeName: dataTypeName,
+                    scopeName: scopeName,
+                    ownerName: searchResult.resultObjectType === SearchResultType.CompositeTerm
+                        ? searchResult.ownerName
+                        : 'BEDES Admin'
                 }
             });
             this.gridOptions.api.setRowData(gridData);

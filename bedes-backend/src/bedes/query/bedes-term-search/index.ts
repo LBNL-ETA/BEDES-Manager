@@ -173,6 +173,7 @@ export class BedesTermSearchQuery {
                 t.id as "_id",
                 t.uuid as "_uuid",
                 b.uuid as "_termUUID",
+                b.name as "_termListName",
                 t.term_id as "_termId",
                 t.name as "_name",
                 t.description as "_description",
@@ -186,6 +187,8 @@ export class BedesTermSearchQuery {
                 bedes_term b on b.id = t.term_id
             where
                 ${builderOutput.bedesTermListOption.getSqlConditions()}
+            order by
+                b.name, t.name
         `;
         logger.debug(query);
         return [query, builderOutput.bedesTermListOption.buildSqlVariableObject()];

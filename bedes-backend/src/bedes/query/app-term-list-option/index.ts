@@ -62,8 +62,8 @@ export class AppTermListOptionQuery {
                     );
                 }
                 // wait for the list option queries to finish
-                await Promise.all(promises);;
             }
+            await Promise.all(promises);;
             return listOptionArray;
         } catch (error) {
             logger.error(`${this.constructor.name}: Error in newRecords`);

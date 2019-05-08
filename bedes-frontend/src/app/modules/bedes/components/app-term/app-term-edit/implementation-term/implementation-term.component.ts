@@ -181,7 +181,6 @@ export class ImplementationTermComponent implements OnInit {
     private setRouteData(): void {
         this.route.data
         .subscribe((data: any) => {
-            console.log('route data...', data);
             this.appTerm = data.appTerm;
         });
     }
@@ -192,7 +191,6 @@ export class ImplementationTermComponent implements OnInit {
     private setIsNewTerm(): void {
         this.route.url
             .subscribe((results: UrlSegment[]) => {
-                console.log('observable segment results', results);
                 if (results.length == 2 && results[1].path === 'new') {
                     this.isNewTerm = true;
                 }
@@ -223,7 +221,6 @@ export class ImplementationTermComponent implements OnInit {
         this.appTermService.activeTermSubject
             .pipe(takeUntil(this.ngUnsubscribe))
             .subscribe((activeTerm: AppTerm | AppTermList | undefined) => {
-                console.log('activeTerm = ', activeTerm);
                 this.appTerm = activeTerm;
                 // if the appTerm is undefined create a new one
                 if (!this.appTerm) {
@@ -408,7 +405,6 @@ export class ImplementationTermComponent implements OnInit {
      */
     private saveNewAppTerm(): void {
         this.resetError();
-        console.log('save the term...');
         // call the backend service
         this.appTermService.newAppTerm(this.app.id, this.appTerm)
         .subscribe((newTerm: AppTerm) => {
@@ -426,7 +422,6 @@ export class ImplementationTermComponent implements OnInit {
     }
 
     private handleSaveNewAppTermSuccess(newTerm: AppTerm): void {
-        console.log('save app term success', newTerm);
         // update the existing AppTerm object.
         AppTerm.updateObjectValues(newTerm, this.appTerm);
         this.appTermService.termListNeedsRefresh = true;
@@ -447,14 +442,11 @@ export class ImplementationTermComponent implements OnInit {
      */
     private updateAppTerm(): void {
         this.resetError();
-        console.log('update the app term..');
         // call the backend service
         this.appTermService.updateAppTerm(this.app.id, this.appTerm)
         .subscribe((updatedTerm: AppTerm) => {
-            console.log('success', updatedTerm);
             this.appTerm.clearChangeFlag();
         }, (error: any) => {
-            console.log('Error saving appTerm', error);
             this.setErrorMessage(error);
         });
     }

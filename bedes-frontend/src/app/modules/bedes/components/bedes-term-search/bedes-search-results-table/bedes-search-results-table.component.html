@@ -1,21 +1,18 @@
-<div *ngIf="hasSearched">
+<!-- <div *ngIf="hasSearched">
     <h1 class="mat-h1" style="text-align: center;" *ngIf="!searchResults || !searchResults.length">
         No records found.
     </h1>
     <h1 class="mat-h1" style="text-align: center;" *ngIf="searchResults?.length">
         Found {{ searchResults.length}} records
     </h1>
-</div>
-<div style="display:flex; justify-content: space-around;" [style.display]="searchResults.length ? 'block' : 'none'">
-    <mat-card class="bedes-card" style="margin:10px; flex: 1;">
-        <mat-card-content>
+</div> -->
+<!-- <div style="display:flex; justify-content: space-around;" [style.display]="searchResults.length ? 'block' : 'none'"> -->
+
                 <ag-grid-angular #agGrid
-                style="width: 100%; height: 700px;"
-                id="myGrid"
-                [gridOptions]="gridOptions"
-                [context]="tableContext"
-                class="ag-theme-balham">
+                    style="width: 100%; height: 100%;"
+                    id="myGrid"
+                    [gridOptions]="gridOptions"
+                    [context]="tableContext"
+                    class="ag-theme-balham">
                 </ag-grid-angular>
-        </mat-card-content>
-    </mat-card>
-</div>
+<!-- </div> -->

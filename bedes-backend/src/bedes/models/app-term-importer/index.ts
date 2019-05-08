@@ -60,9 +60,12 @@ export class AppTermImporter {
         // parse the string csv
         const parseResults: parser.ParseResult = this.parseFileContents(fileContents);
         // set queries to run as a transaction
-        await this.setTransactionContext();
+        // await this.setTransactionContext();
+        // return db.tx('app-term-importer', (transaction: any) => {
+        //     this.dbCtx = transaction;
+            return this.processParseResults(parseResults);
+        // });
         // use the results to build the AppTerms
-        return this.processParseResults(parseResults);
 
         // console.log('file contents:');
         // console.log(fileContents);
@@ -197,9 +200,8 @@ export class AppTermImporter {
         ;
         if (!termName || !termType) {
             throw new BedesError(
-                'Invalid parameters.',
-                HttpStatusCodes.BadRequest_400,
-                'Invalid parameters.'
+                'Missing required parameters',
+                HttpStatusCodes.BadRequest_400
             )
         }
         if (termType === TermType.Atomic) {
@@ -243,7 +245,7 @@ export class AppTermImporter {
         // add the first name/description pair
         if (typeof parsedCsvTerm.ListOptionName === 'string' && parsedCsvTerm.ListOptionName.trim()) {
             results.push(<IAppTermListOption>{
-                _name: parsedCsvTerm.TermName.trim(),
+                _name: parsedCsvTerm.ListOptionName.trim(),
                 _description: parsedCsvTerm.Description
             });
         }

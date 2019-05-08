@@ -5,6 +5,7 @@ export class BedesSearchResult {
     private _id: number;
     private _uuid: string;
     private _termUUID: string | null | undefined;
+    private _termListName: string | null | undefined;
     private _termId: number | null | undefined;
     private _name: string;
     private _description: string;
@@ -20,6 +21,7 @@ export class BedesSearchResult {
             this._id = data._id;
             this._uuid = data._uuid;
             this._termUUID = data._termUUID;
+            this._termListName = data._termListName;
             this._termId = data._termId;
             this._name = data._name;
             this._description = data._description;
@@ -49,6 +51,12 @@ export class BedesSearchResult {
     }
     set termUUID(value: string) {
         this._termUUID = value;
+    }
+    get termListName(): string {
+        return this._termListName;
+    }
+    set termListName(value: string) {
+        this._termListName = value;
     }
     get termId(): number {
         return this._termId;

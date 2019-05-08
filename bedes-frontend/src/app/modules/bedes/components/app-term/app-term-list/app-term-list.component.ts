@@ -24,7 +24,7 @@ import { HttpStatusCodes } from '@bedes-common/enums/http-status-codes';
 import { AuthService } from 'src/app/modules/bedes-auth/services/auth/auth.service';
 import { CurrentUser } from '@bedes-common/models/current-user/current-user';
 import { CsvImportInfoDialogComponent } from '../../dialogs/csv-import-info-dialog/csv-import-info-dialog.component';
-import { scopeList } from '../../../../../../../../bedes-common/lookup-tables/scope-list';
+import { scopeList } from '@bedes-common/lookup-tables/scope-list';
 
 @Component({
   selector: 'app-app-term-list',
@@ -423,8 +423,13 @@ export class AppTermListComponent extends MessageFromGrid<IAppRow> implements On
         dialogRef.afterClosed()
         .subscribe((selectedFile: any) => {
             if (selectedFile) {
+                this.resetError();
                 this.appTermService.uploadAppTerms(this.app.id, selectedFile)
                 .subscribe((csvTerms: Array<AppTerm | AppTermList>) => {
+                }, (error: any) => {
+                    console.log('error', error);
+                    this.errorMessage = 'Unable to create application terms.'
+                    this.hasError = true;
                 });
              }
        });
