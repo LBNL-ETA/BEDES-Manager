@@ -35,10 +35,10 @@ export async function appTermImportHandler(request: Request, response: Response)
                 'Invalid parameters'
             )
         }
-        const testPath = path.join(__dirname, '../models/app-term-importer/test-files');
-        const testFile = 'app-term-import-test.csv';
-        let importer = new AppTermImporter(testPath, testFile);
-        // let importer = new AppTermImporter(UPLOAD_PATH, request.file.filename);
+        // const testPath = path.join(__dirname, '../models/app-term-importer/test-files');
+        // const testFile = 'app-term-import-test.csv';
+        // let importer = new AppTermImporter(testPath, testFile);
+        let importer = new AppTermImporter(UPLOAD_PATH, request.file.filename);
         const appTerms = await importer.run();
         // const results = await bedesQuery.appTerm.newAppTerms(appId, appTerms.map(item => item.toInterface()));
         db.tx('saveTerms', async (trans: any) => {

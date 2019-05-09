@@ -246,7 +246,7 @@ export class AppTermImporter {
         if (typeof parsedCsvTerm.ListOptionName === 'string' && parsedCsvTerm.ListOptionName.trim()) {
             results.push(<IAppTermListOption>{
                 _name: parsedCsvTerm.ListOptionName.trim(),
-                _description: parsedCsvTerm.Description
+                _description: parsedCsvTerm.ListOptionName
             });
         }
         // process the rest of the list options
