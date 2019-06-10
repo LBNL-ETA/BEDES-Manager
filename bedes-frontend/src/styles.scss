@@ -9,6 +9,8 @@
 @import "./styles/theme";
 // @import '~@angular/material/prebuilt-themes/deeppurple-amber.css';
 @include angular-material-theme($custom-theme);
+@import "./styles/bedes-container";
+@import "./styles/bedes-header";
 
 @import "~ag-grid-community/dist/styles/ag-grid.css";
 @import "~ag-grid-community/dist/styles/ag-theme-material.css";
@@ -16,13 +18,29 @@
 
 body {
     display: flex;
-    min-height: 100vh;
     flex-direction: column;
+    min-height: 100vh;
     margin: 0;
+}
+
+.body-content {
+    padding-top: 64px;
+    height: calc(100vh - 64px - 50px);
+    overflow-y: scroll;
 }
 
 .main_content {
     flex: 1;
+}
+
+footer.bedes-footer {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 50px;
+    border: 1px black solid;
+    background-color: mat-color($custom-accent);
+    color: white;
 }
 
 div.mat-form-field-wrapper {
@@ -140,16 +158,20 @@ div.alert-accent {
     color: mat-color($custom-accent, 700);
 }
 
+.mat-card:not([class*='mat-elevation-z']) {
+    box-shadow: none;
+}
+
 
 // Cards
-.card {
-    border-radius: 0px;
-    box-shadow: 4px 6px 8px rgba(0, 0, 0, 0.5);
-}
+// .card {
+//     border-radius: 0px;
+//     box-shadow: 4px 6px 8px rgba(0, 0, 0, 0.5);
+// }
 
-.card .card {
-    box-shadow:none;
-}
+// .card .card {
+//     box-shadow:none;
+// }
 
 // Custom Card formatting
 

@@ -1,21 +1,20 @@
-<mat-card class="bedes-card bedes-content-card mat-elevation-z0" style="flex:1; padding:0">
-    <span class="bedes-card-title" style="position: relative; top: -10px; margin-left:20px; font-size:1.2rem">
-        <fa-icon [icon]="['fas', 'shield-alt']"></fa-icon>
-        {{currentUser.email}}
-    </span>
+<mat-card class="bedes-container">
+    <mat-card-header>
+        <span class="bedes-container-title">
+            <fa-icon [icon]="['fas', 'shield-alt']"></fa-icon>
+            {{currentUser.email}}
+        </span>
+    </mat-card-header>
 
-    <mat-card-content style="padding:1rem; flex:1">
-        <mat-card-actions style="display:flex; flex-direction:column; padding-left:16px; padding-right: 16px;">
-            <div style="flex: 1; display: flex; margin-top: 10px;">
-                <button style="flex: 1;"
-                mat-flat-button
-                id="loginBtn"
-                color="accent"
-                (click)="logout()">
-                    <fa-icon [icon]="['fas', 'sign-out-alt']"></fa-icon>
-                    Logout
-                </button>
-            </div>
-        </mat-card-actions>
-    </mat-card-content>
+    <mat-card-actions>
+        <button
+        mat-flat-button
+        id="loginBtn"
+        color="accent"
+        (click)="logout()">
+            <fa-icon [icon]="['fas', 'sign-out-alt']"></fa-icon>
+            Logout
+        </button>
+
+    </mat-card-actions>
 </mat-card>

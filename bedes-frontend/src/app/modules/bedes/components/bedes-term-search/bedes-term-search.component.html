@@ -1,18 +1,20 @@
-<div style="display:flex; flex-direction: row; flex: 1; margin: 10px;">
-    <mat-card class="bedes-card mat-typography">
-        <mat-card-header class="color-accent">
-            <mat-card-title>
-                <h1 class="mat-display-1">
-                    <fa-icon [icon]="['fas', 'search']"></fa-icon>
-                    Search for BEDES Terms
-                </h1>
-            </mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-            <app-bedes-search-parameters (searchResultOutput)="handleSearchResultOutput($event)"
-            ></app-bedes-search-parameters>
-            <app-bedes-search-results-table [dataSource]="dataSource">
-            </app-bedes-search-results-table>
-        </mat-card-content>
-    </mat-card>
+<div class="bedes-header-container">
+    <h1>Search for BEDES Terms</h1>
 </div>
+
+<app-bedes-search-parameters (searchResultOutput)="handleSearchResultOutput($event)">
+</app-bedes-search-parameters>
+
+<mat-card class="bedes-container">
+    <mat-card-header>
+        <span class="bedes-container-title">
+            <fa-icon [icon]="['fas', 'search']"></fa-icon>
+            Results
+        </span>
+    </mat-card-header>
+
+    <mat-card-content style="flex:1; display: flex; flex-direction:column;">
+        <app-bedes-search-results-table [dataSource]="dataSource">
+        </app-bedes-search-results-table>
+    </mat-card-content>
+</mat-card>

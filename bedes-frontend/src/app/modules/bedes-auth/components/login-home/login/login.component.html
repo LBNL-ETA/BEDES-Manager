@@ -1,10 +1,12 @@
-<mat-card class="bedes-card bedes-content-card mat-elevation-z0" style="flex:1; padding:0">
-    <span class="bedes-card-title" style="position: relative; top: -10px; margin-left:20px; font-size:1.2rem">
-        <fa-icon [icon]="['fas', 'sign-in-alt']"></fa-icon>
-        Login
-    </span>
+<mat-card class="bedes-container">
+    <mat-card-header>
+        <span class="bedes-container-title">
+            <fa-icon [icon]="['fas', 'sign-in-alt']"></fa-icon>
+            Login
+        </span>
+    </mat-card-header>
 
-    <mat-card-content style="padding:1rem; flex:1">
+    <mat-card-content>
         <form novalidate #myForm="ngForm">
             <div style="display:flex; margin-bottom: 0;">
                 <mat-form-field style="flex:1; padding: 3px" appearance="outline">
@@ -46,29 +48,29 @@
                 Login successfull!
             </div>
         </form>
-        <mat-card-actions style="display:flex; flex-direction:column; padding: 0;">
-            <div style="flex:1; display:flex; flex-direction: row;">
-                <button style="flex: 1;"
-                mat-flat-button
-                id="loginBtn"
-                color="primary"
-                [disabled]="myForm.invalid"
-                (click)="login()">
-                    <fa-icon [icon]="['fas', 'sign-in-alt']"></fa-icon>
-                    Submit
-                </button>
-                <!-- <button mat-flat-button color="primary"
-                style="flex: 1; margin-right:5px;"
-                [disabled]="true"
-                (click)="forgotPassword()">
-                    Forgot Password?
-                </button> -->
-                <button mat-flat-button color="accent"
-                style="flex:1;"
-                routerLink="/home/request-account">
-                    Request an Account
-                </button>
-            </div>
+        <mat-card-actions>
+            <button
+            mat-flat-button
+            id="loginBtn"
+            color="primary"
+            [disabled]="myForm.invalid"
+            (click)="login()">
+                <fa-icon [icon]="['fas', 'sign-in-alt']"></fa-icon>
+                Submit
+            </button>
+
+            <!-- <button mat-flat-button color="primary"
+            style="flex: 1; margin-right:5px;"
+            [disabled]="true"
+            (click)="forgotPassword()">
+                Forgot Password?
+            </button> -->
+
+            <button mat-flat-button color="accent"
+            routerLink="/home/request-account">
+                Request an Account
+            </button>
+
         </mat-card-actions>
     </mat-card-content>
 </mat-card>
