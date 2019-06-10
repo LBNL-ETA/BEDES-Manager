@@ -1,0 +1,8 @@
+@import '~@angular/material/theming';
+@import "src/styles/theme";
+
+.bedes-card-title {
+    background-color: white;
+    padding: 10px;
+    color: mat-color($custom-primary);
+}

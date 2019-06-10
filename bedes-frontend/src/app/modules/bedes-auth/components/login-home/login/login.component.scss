@@ -1,3 +1,20 @@
+@import '~@angular/material/theming';
+@import "src/styles/theme";
+
 .error-container {
-    color: red;
+    color: mat-color($custom-danger);
+}
+
+.bedes-card-title {
+    background-color: white;
+    padding: 10px;
+    color: mat-color($custom-primary);
+}
+
+.mat-form-field .mat-form-field-wrapper {
+    padding: 0;
+}
+
+div.mat-form-field-wrapper {
+    padding: 0;
 }

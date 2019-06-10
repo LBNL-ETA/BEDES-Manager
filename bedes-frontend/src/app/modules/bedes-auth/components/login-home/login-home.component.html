@@ -1,36 +1,38 @@
-<div class="mat-typography" style="display:flex; flex: 1; padding-left: 30px; padding-right: 30px; background: white; margin: 10px;">
-    <div style="flex: 1;">
-        <div style="display:flex;">
-            <div>
-                <img src="assets/bedes_logo.png"/>
-            </div>
-            <div style="flex: 1; margin-top: 30px;">
-                <h1 class="mat-display-1" style="text-align: center;">
-                    BEDES Manager
-                </h1>
-            </div>
+
+    <div style="display: flex; flex-direction: row; justify-content: center;">
+        <div class="img-container">
+            <img src="assets/bedes_logo.png"/>
         </div>
-        <p class="mat-body">
-            The BEDES Manager is a web-based application for archiving, searching, and editing BEDES terms and
-            mapping them to terms in user applications.
-        </p>
-        <p>
-            The BEDES Manager can be used in the following ways:
-        </p>
-        <ul>
-            <li>
-                Search for BEDES terms, including composite terms.
-            </li>
-            <li>
-                Create new composite terms for use in application mappings.
-            </li>
-            <li>
-                Create, manage and export application mappings.
-            </li>
-        </ul>
     </div>
 
-    <div style="width:400px; padding:20px;">
-        <router-outlet></router-outlet>
+    <div style="display: flex; justify-content: center;">
+        <div style="display:flex; flex-direction: column; max-width: 500px;">
+            <h1 class="mat-display-1" style="text-align: center; margin: 0; margin-bottom: 10px;">
+                BEDES Manager
+            </h1>
+
+            <p class="mat-body">
+                The BEDES Manager is a web-based application for archiving, searching, and editing BEDES terms and
+                mapping them to terms in user applications.
+            </p>
+            <p>
+                The BEDES Manager can be used in the following ways:
+            </p>
+            <ul>
+                <li>
+                    Search for BEDES terms, including composite terms.
+                </li>
+                <li>
+                    Create new composite terms for use in application mappings.
+                </li>
+                <li>
+                    Create, manage and export application mappings.
+                </li>
+            </ul>
+        </div>
+
+        <div style="width:400px; padding:20px;">
+            <router-outlet></router-outlet>
+        </div>
     </div>
-</div>
+

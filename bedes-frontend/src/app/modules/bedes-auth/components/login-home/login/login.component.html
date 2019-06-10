@@ -1,16 +1,13 @@
-<mat-card class="bedes-card mat-typography" style="flex:1; padding:0">
-    <mat-card-header class="color-accent">
-        <mat-card-title>
-            <h2 class="mat-h2">
-                <fa-icon [icon]="['fas', 'sign-in-alt']"></fa-icon>
-                Login
-            </h2>
-        </mat-card-title>
-    </mat-card-header>
+<mat-card class="bedes-card bedes-content-card mat-elevation-z0" style="flex:1; padding:0">
+    <span class="bedes-card-title" style="position: relative; top: -10px; margin-left:20px; font-size:1.2rem">
+        <fa-icon [icon]="['fas', 'sign-in-alt']"></fa-icon>
+        Login
+    </span>
+
     <mat-card-content style="padding:1rem; flex:1">
         <form novalidate #myForm="ngForm">
-            <div style="display:flex">
-                <mat-form-field style="flex:1; padding: 7px" appearance="outline">
+            <div style="display:flex; margin-bottom: 0;">
+                <mat-form-field style="flex:1; padding: 3px" appearance="outline">
                     <mat-label>Email</mat-label>
                     <input matInput placeholder="Enter your Email Address"
                     type="text"
@@ -20,8 +17,8 @@
                     [(ngModel)]="userLogin.email">
                 </mat-form-field>
             </div>
-            <div style="display:flex">
-                <mat-form-field style="flex:1; padding: 7px" appearance="outline">
+            <div style="display:flex; flex-direction: column; margin-bottom: 10px;">
+                <mat-form-field style="flex:1; margin: 0;" appearance="outline">
                     <mat-label>Password</mat-label>
                     <input matInput placeholder="Enter your Password" type="password"
                     name="passwordInput"
@@ -29,7 +26,11 @@
                     required
                     [(ngModel)]="userLogin.password">
                 </mat-form-field>
+                <span>
+                    Forgot Password
+                </span>
             </div>
+
             <!-- <div class="error-container" *ngIf="loginErrorMessage">
                 <fa-icon [icon]="['fas', 'exclamation-triangle']"></fa-icon>
                 {{ loginErrorMessage }}
@@ -45,10 +46,10 @@
                 Login successfull!
             </div>
         </form>
-        <mat-card-actions style="display:flex; flex-direction:column; padding-left:16px; padding-right: 16px;">
-            <div style="flex: 1; display: flex; margin-top: 10px;">
+        <mat-card-actions style="display:flex; flex-direction:column; padding: 0;">
+            <div style="flex:1; display:flex; flex-direction: row;">
                 <button style="flex: 1;"
-                mat-stroked-button
+                mat-flat-button
                 id="loginBtn"
                 color="primary"
                 [disabled]="myForm.invalid"
@@ -56,15 +57,13 @@
                     <fa-icon [icon]="['fas', 'sign-in-alt']"></fa-icon>
                     Submit
                 </button>
-            </div>
-            <div style="flex:1; display:flex; flex-direction: row;">
-                <button mat-stroked-button color="primary"
-                style="flex: 1;"
+                <!-- <button mat-flat-button color="primary"
+                style="flex: 1; margin-right:5px;"
                 [disabled]="true"
                 (click)="forgotPassword()">
                     Forgot Password?
-                </button>
-                <button mat-stroked-button color="primary"
+                </button> -->
+                <button mat-flat-button color="accent"
                 style="flex:1;"
                 routerLink="/home/request-account">
                     Request an Account
