@@ -8,6 +8,7 @@
 @include mat-core();
 @import "./styles/theme";
 // @import '~@angular/material/prebuilt-themes/deeppurple-amber.css';
+@include angular-material-theme($custom-theme);
 
 @import "~ag-grid-community/dist/styles/ag-grid.css";
 @import "~ag-grid-community/dist/styles/ag-theme-material.css";
@@ -22,6 +23,10 @@ body {
 
 .main_content {
     flex: 1;
+}
+
+div.mat-form-field-wrapper {
+    padding: 0;
 }
 
 .dialog-waiting .mat-dialog-container {
@@ -45,8 +50,100 @@ body {
     box-shadow:none;
 }
 
+// Color classes
+.color-primary {
+  background-color: mat-color($custom-primary);
+//   color: white;
+}
+
+.color-accent {
+  background-color: mat-color($custom-accent);
+//   color: white;
+}
+
+.color-warn {
+    background-color: mat-color($custom-warn);
+  //   color: white;
+  }
+
+.color-success {
+  background-color: mat-color($custom-success);
+}
+
+.color-danger {
+  background-color: mat-color($custom-danger);
+}
+
+.color-accent-200 {
+  background-color: mat-color($custom-accent, 200);
+//   color: white;
+}
+
+.font-color-accent {
+    color: mat-color($custom-accent);
+}
+.border-color-accent {
+    color: mat-color($custom-accent);
+    border: 2px mat-color($custom-accent) solid;
+}
+
+.font-color-warn {
+  color: mat-color($custom-warn);
+}
+.border-color-warn {
+    color: mat-color($custom-warn);
+    border: 2px mat-color($custom-warn) solid;
+}
+
+.font-color-success {
+  color: mat-color($custom-success);
+}
+.border-color-success {
+    color: mat-color($custom-success);
+    border: 2px mat-color($custom-success) solid;
+}
+
+// Alerts
+div.alert-success {
+    border: 2px mat-color($custom-success, 700) solid;
+    border-radius: 5px;
+    padding: 7px;
+    text-align: center;
+    // background-color: mat-color($custom-success, lighter);
+    color: mat-color($custom-success, 700);
+}
+
+div.alert-danger {
+    border: 2px mat-color($custom-danger, 700) solid;
+    border-radius: 5px;
+    padding: 7px;
+    text-align: center;
+    // background-color: mat-color($custom-danger, lighter);
+    color: mat-color($custom-danger, 700);
+}
+
+div.alert-warn {
+    border: 2px mat-color($custom-warn, 700) solid;
+    border-radius: 5px;
+    padding: 7px;
+    text-align: center;
+    // background-color: mat-color($custom-warn, lighter);
+    color: mat-color($custom-warn, 700);
+}
+
+div.alert-accent {
+    border: 2px mat-color($custom-accent, 700) solid;
+    border-radius: 5px;
+    padding: 7px;
+    text-align: center;
+    // background-color: mat-color($custom-accent, lighter);
+    color: mat-color($custom-accent, 700);
+}
+
+
+// Cards
 .card {
-    border-radius: 10px;
+    border-radius: 0px;
     box-shadow: 4px 6px 8px rgba(0, 0, 0, 0.5);
 }
 
@@ -57,6 +154,7 @@ body {
 // Custom Card formatting
 
 mat-card.bedes-card {
+    @include mat-elevation(5);
     margin:0;
     margin-bottom: 0;
     padding:0;
@@ -64,6 +162,7 @@ mat-card.bedes-card {
 }
 
 mat-card.bedes-content-card {
+    @include mat-elevation(0);
     margin:0;
     margin-bottom: 0;
     padding:0;
@@ -100,7 +199,7 @@ mat-card.bedes-card mat-card-header {
 mat-card.bedes-content-card mat-card-header {
     display:block;
     padding: 13px;
-    background-color: lightgray;
+    // background-color: lightgray;
 
     .mat-card-header-text {
         margin: 0;
@@ -166,7 +265,7 @@ mat-card.bedes-content-card mat-card-title {
 
 mat-card.bedes-content-card mat-card-content {
     padding: 10px;
-    border: 1px lightgray solid;
+    // border: 1px lightgray solid;
     border-top: none;
 }
 
@@ -178,6 +277,11 @@ mat-card.bedes-content-card mat-card-actions {
 mat-card.bedes-content-card>.mat-card-actions:last-child {
     margin-bottom: 0;
     padding-bottom: 1rem;
+}
+
+mat-card.bedes-content-card {
+    @include mat-elevation(0);
+    border: 1px mat-color($custom-primary) solid;
 }
 
 

@@ -175,64 +175,11 @@ $custom-warn: mat-palette($md-warning);
 $custom-danger: mat-palette($md-danger);
 $custom-success: mat-palette($md-success);
 
-.color-primary {
-  background-color: mat-color($custom-primary);
-//   color: white;
-}
-
-.color-accent {
-  background-color: mat-color($custom-accent);
-//   color: white;
-}
-
-.color-warn {
-    background-color: mat-color($custom-warn);
-  //   color: white;
-  }
-
-.color-success {
-  background-color: mat-color($custom-success);
-}
-
-.color-danger {
-  background-color: mat-color($custom-danger);
-}
-
-.color-accent-200 {
-  background-color: mat-color($custom-accent, 200);
-//   color: white;
-}
-
-.font-color-accent {
-    color: mat-color($custom-accent);
-}
-.border-color-accent {
-    color: mat-color($custom-accent);
-    border: 2px mat-color($custom-accent) solid;
-}
-
-.font-color-warn {
-  color: mat-color($custom-warn);
-}
-.border-color-warn {
-    color: mat-color($custom-warn);
-    border: 2px mat-color($custom-warn) solid;
-}
-
-.font-color-success {
-  color: mat-color($custom-success);
-}
-.border-color-success {
-    color: mat-color($custom-success);
-    border: 2px mat-color($custom-success) solid;
-}
-
 $default-anchor-color: mat-color($custom-accent,800);
 
 $custom-theme: mat-light-theme($custom-primary, $custom-accent, $custom-danger);
 // $custom-theme: mat-dark-theme($custom-primary, $custom-accent);
 
-@include angular-material-theme($custom-theme);
 
 // $custom-typography: mat-typography-config(
 //     $headline: mat-typography-level(32px, 48px, 700),
@@ -240,39 +187,3 @@ $custom-theme: mat-light-theme($custom-primary, $custom-accent, $custom-danger);
 //     $caption: mat-typography-level(14px, 22px, 500)
 //   );
 // @include angular-material-typography($custom-typography);
-
-div.alert-success {
-    border: 2px mat-color($custom-success, 700) solid;
-    border-radius: 5px;
-    padding: 7px;
-    text-align: center;
-    // background-color: mat-color($custom-success, lighter);
-    color: mat-color($custom-success, 700);
-}
-
-div.alert-danger {
-    border: 2px mat-color($custom-danger, 700) solid;
-    border-radius: 5px;
-    padding: 7px;
-    text-align: center;
-    // background-color: mat-color($custom-danger, lighter);
-    color: mat-color($custom-danger, 700);
-}
-
-div.alert-warn {
-    border: 2px mat-color($custom-warn, 700) solid;
-    border-radius: 5px;
-    padding: 7px;
-    text-align: center;
-    // background-color: mat-color($custom-warn, lighter);
-    color: mat-color($custom-warn, 700);
-}
-
-div.alert-accent {
-    border: 2px mat-color($custom-accent, 700) solid;
-    border-radius: 5px;
-    padding: 7px;
-    text-align: center;
-    // background-color: mat-color($custom-accent, lighter);
-    color: mat-color($custom-accent, 700);
-}
