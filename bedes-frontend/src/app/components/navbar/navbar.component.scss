@@ -1,4 +1,10 @@
+@import '~@angular/material/theming';
+@import "src/styles/theme";
 
 .active-route {
-    background-color: #024175;
+    background-color: mat-color($custom-primary, darker);
+}
+
+button {
+    margin-left: 3px;
 }
