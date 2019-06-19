@@ -1,4 +1,13 @@
-<div style="display:flex; flex-direction: row; margin-bottom: 10px;">
+<div style="display:flex; flex-direction: row; justify-content: center;">
+    <button mat-flat-button color="primary"
+    color="primary"
+    [disabled]="!isEditable || isWaiting"
+    (click)="openTermSearchDialog()">
+        Select BEDES Term(s)
+    </button>
+</div>
+
+<!-- <div style="display:flex; flex-direction: row; margin-bottom: 10px;">
     <a mat-stroked-button routerLink="/composite-term">
         <fa-icon [icon]="['fas', 'chevron-circle-left']"></fa-icon>
         Back to List
@@ -16,64 +25,81 @@
         <fa-icon [icon]="['fas', 'cloud-download-alt']"></fa-icon>
         Import BEDES Terms
     </button>
-</div>
-<!-- <h1>
-    {{compositeTerm ? compositeTerm.name : ''}}
-</h1> -->
+</div> -->
 
-<div class="alert-accent" *ngIf="!hasSelectedTerms()">
+<!-- <div class="alert-accent" *ngIf="!hasSelectedTerms()">
     <h3 style="margin: 0; padding:0;">
         <fa-icon [icon]="['fas', 'info-circle']"></fa-icon>
         Click the <strong>Import BEDES Terms</strong> button to
         start building the composite term.
     </h3>
-</div>
+</div> -->
 
-<div class="alert-accent" *ngIf="compositeTerm?.hasChanged">
+<!-- <div class="alert-accent" *ngIf="compositeTerm?.hasChanged">
     <h3 style="margin: 0; padding:0;">
         <fa-icon [icon]="['fas', 'info-circle']"></fa-icon>
         Click the <strong>Save</strong> button to
         save the composite term.
     </h3>
-</div>
+</div> -->
 
 <div *ngIf="compositeTerm && compositeTerm.items.length" style="margin-top:10px;">
     <app-selected-terms-order></app-selected-terms-order>
 </div>
 
-<form [formGroup]="dataForm" style="margin-top:10px">
-    <div style="display:flex; flex-direction: row;">
-        <!-- Description -->
-        <mat-form-field style="flex:1; margin-bottom:5px;" appearance="outline">
-            <mat-label>Description</mat-label>
-            <textarea matInput placeholder="Enter a Description" formControlName="description" rows="5">
-            </textarea>
-        </mat-form-field>
-        <!-- Unit -->
-        <mat-form-field style="flex:1;" appearance="outline">
-            <mat-label>Unit</mat-label>
-            <mat-select placeholder="Unit" formControlName="unitId" *ngIf="unitList.length">
-                <mat-option *ngFor="let item of unitList" [value]="item.id">
-                    {{item.name}}
-                </mat-option>
-            </mat-select>
-        </mat-form-field>
-    </div>
-    <!-- uuid -->
-    <div style="display:flex; flex-direction: row;">
-        <mat-form-field style="flex:1;" appearance="outline">
-            <mat-label>Visiblity</mat-label>
-            <mat-select placeholder="Visibility" formControlName="scopeId">
-                <mat-option *ngFor="let item of scopeList.items " [value]="item.id">
-                    {{item.name}}
-                </mat-option>
-            </mat-select>
-        </mat-form-field>
-        <mat-form-field style="flex:1; margin-bottom:5px;" appearance="outline">
-            <mat-label>UUID</mat-label>
-            <input matInput formControlName="uuid">
-        </mat-form-field>
+<form [formGroup]="dataForm" style="margin-top:10px" *ngIf="hasSelectedTerms()">
+    <h2 style="text-align: center;">
+        Details
+    </h2>
+    <div style="flex: 1; display:flex; flex-direction: row;">
+        <div style="flex: 1;display: flex; flex-direction: column; align-content: flex-start; margin: 5px;">
+            <!-- Description -->
+            <mat-form-field style="flex:1; margin-bottom:5px;" appearance="outline">
+                <mat-label>Description</mat-label>
+                <textarea matInput placeholder="Enter a Description" formControlName="description" rows="5">
+                </textarea>
+            </mat-form-field>
+
+            <mat-form-field style="flex:1; margin-bottom:5px;" appearance="outline">
+                <mat-label>UUID</mat-label>
+                <input matInput formControlName="uuid">
+            </mat-form-field>
+        </div>
+
+        <div style="flex: 1; display: flex; flex-direction: column; align-content: flex-start; margin: 5px;">
+            <!-- Unit -->
+            <mat-form-field style="flex:1;" appearance="outline">
+                <mat-label>Unit</mat-label>
+                <mat-select placeholder="Unit" formControlName="unitId" *ngIf="unitList.length">
+                    <mat-option *ngFor="let item of unitList" [value]="item.id">
+                        {{item.name}}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+
+            <mat-form-field style="flex:1;" appearance="outline">
+                <mat-label>Sharing</mat-label>
+                <mat-select placeholder="Visibility" formControlName="scopeId">
+                    <mat-option *ngFor="let item of scopeList.items " [value]="item.id">
+                        {{item.name}}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+        </div>
     </div>
 </form>
 
-<app-selected-terms-table></app-selected-terms-table>
+<!-- <app-selected-terms-table></app-selected-terms-table> -->
+
+<div style="text-align: center; margin-top: 10px;">
+    <a mat-flat-button routerLink="/composite-term" color="accent" style="margin-right:5px;">
+        <fa-icon [icon]="['fas', 'chevron-circle-left']"></fa-icon>
+        Back
+    </a>
+    <button mat-flat-button color="primary" *ngIf="hasSelectedTerms()"
+    [disabled]="!isEditable || !hasSelectedTerms() || !compositeTerm?.hasChanged || isWaiting"
+    (click)="updateCompositeTerm()">
+        <fa-icon [icon]="['fas', 'save']"></fa-icon>
+        Save
+    </button>
+</div>

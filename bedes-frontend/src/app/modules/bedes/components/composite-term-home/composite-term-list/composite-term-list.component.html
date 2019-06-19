@@ -1,16 +1,35 @@
 <div style="flex: 1; display:flex; flex-direction: column; margin: 10px;">
-    <div style="display:flex; margin-bottom:10px;">
-        <a mat-stroked-button color="primary" [routerLink]="['../edit']" [disabled]="!isEditable">
+
+    <div style="display:flex; flex-direction: row; align-items: center; margin-bottom:10px;">
+
+        <a mat-flat-button color="primary" [routerLink]="['../edit']" [disabled]="!isEditable">
             <fa-icon [icon]="['fas', 'plus-circle']"></fa-icon>
-            New
+            New Composite Term
         </a>
+
+        <div style="flex: 1; display: flex; align-items: center; justify-content: center;">
+            <mat-form-field style="flex:1; max-width: 500px;" appearance="outline">
+                <mat-label>Search</mat-label>
+                <input matInput placeholder="Search"
+                type="text"
+                name="searchInput"
+                #searchInput="ngModel"
+                [(ngModel)]="search">
+            </mat-form-field>
+
+            <button mat-flat-button color="primary">
+                Search
+            </button>
+        </div>
     </div>
+
     <div class="alert-danger" style="margin-top:10px;" *ngIf="hasError && errorMessage">
         <h3 style="margin: 0; padding:0;">
             <fa-icon [icon]="['fas', 'exclamation-triangle']"></fa-icon>
             An error occurred removing the application.
         </h3>
     </div>
+
     <!-- Guest and no applications -->
     <div class="alert-danger" style="margin-top:10px;"
     *ngIf="!currentUser.isLoggedIn() && (!termList || !termList?.length)">
@@ -21,6 +40,7 @@
             to begin mapping your own applications and terms.
         </h3>
     </div>
+
     <div class="alert-danger" style="margin-top:10px;"
     *ngIf="currentUser.isLoggedIn() && (!termList || !termList?.length)">
         <h3 style="margin: 0; padding:0;">
@@ -28,6 +48,7 @@
             There are no public/private composite terms available.
         </h3>
     </div>
+
     <div style="flex: 1; display:flex;  height: 100%;"
     *ngIf="termList && termList.length">
         <div style=" overflow: hidden; flex-grow: 1">

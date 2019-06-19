@@ -1,11 +1,14 @@
+
+<h2 style="text-align: center;">
+    BEDES Terms
+</h2>
+
 <div style="display:flex; flex-direction: row; align-items: center;">
-    <span style="padding-right:7px;">
-        <h2 style="margin:0;">Composite Term Name:</h2>
-    </span>
-    <div style="margin-bottom:10px; flex: 1" *ngIf="compositeTerm && isEditable">
+    <div style="margin-bottom:10px; flex: 1; justify-content: center;" *ngIf="compositeTerm && isEditable">
         <div cdkDropList
         cdkDropListOrientation="horizontal"
         class="example-list"
+        style="align-items: center;"
         (cdkDropListDropped)="drop($event)">
             <div class="example-box" *ngFor="let term of compositeTerm.items" cdkDrag>
                 {{term.listOption ? term.listOption.name : term.term.name}}

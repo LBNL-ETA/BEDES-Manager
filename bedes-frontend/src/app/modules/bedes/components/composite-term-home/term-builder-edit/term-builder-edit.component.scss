@@ -1,4 +1,15 @@
+@import '~@angular/material/theming';
+@import "src/styles/theme";
+
 .stepper-container {
     // max-width: 700px;
     border: 1px black solid;
 }
+
+:host {
+    padding: 10px;
+}
+
+// .content-container {
+//     background-color: mat-color($custom-primary, lighter)
+// }

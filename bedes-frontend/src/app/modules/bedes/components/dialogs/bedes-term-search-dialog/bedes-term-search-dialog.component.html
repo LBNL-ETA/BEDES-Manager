@@ -1,5 +1,6 @@
-<mat-card class="bedes-card mat-typography" style="flex: 1; display:flex; flex-direction: column;">
-    <mat-card-header class="color-accent">
+<mat-card class="bedes-card mat-typography"
+style="flex: 1; display:flex; flex-direction: column;">
+    <mat-card-header class="color-primary">
         <mat-card-title style="display:flex; flex-direction:row;">
             <h2 style="flex: 1;">
                 <fa-icon [icon]="['fas', 'search']"></fa-icon>
@@ -12,8 +13,8 @@
     </mat-card-header>
     <mat-card-content style="flex: 1; display:flex; flex-direction:column;">
         <form name="myForm">
-            <div style="display:flex; flex-direction: row; align-items: stretch;">
-                <mat-form-field style="flex:1;">
+            <div style="display:flex; flex-direction: row; align-items: center;">
+                <mat-form-field style="flex:1;" appearance="outline">
                     <mat-label>Search for Terms</mat-label>
                     <input matInput #searchInput name="searchStringInput"
                     placeholder="Enter Search Text..."
@@ -22,7 +23,7 @@
                 </mat-form-field>
                 <div>
                     <!-- Submit button -->
-                    <button mat-stroked-button style="margin-left: 5px;"
+                    <button mat-flat-button style="margin-left: 5px;"
                     color="primary"
                     [disabled]="waitingForResults"
                     (click)="searchForTerms()">
@@ -30,14 +31,7 @@
                         </fa-icon>
                         <fa-icon [icon]="['fas', 'spinner']" [pulse]="true" *ngIf="waitingForResults">
                         </fa-icon>
-                        Submit
-                    </button>
-                    <!-- Import selected terms button -->
-                    <button mat-raised-button color="primary"
-                    [disabled]="!selectedItems || !selectedItems.length"
-                    (click)="importSelectedTerms()">
-                        <fa-icon [icon]="['fas', 'check']"></fa-icon>
-                        Import Selected Terms
+                        Search
                     </button>
                 </div>
             </div>
@@ -52,4 +46,13 @@
             </ag-grid-angular>
         </div>
     </mat-card-content>
+    <mat-card-actions style="text-align: center; padding-top: 0;">
+        <!-- Import selected terms button -->
+        <button mat-raised-button color="primary"
+        [disabled]="!selectedItems || !selectedItems.length"
+        (click)="importSelectedTerms()">
+            <fa-icon [icon]="['fas', 'check']"></fa-icon>
+            Import Selected Terms
+        </button>
+    </mat-card-actions>
 </mat-card>
