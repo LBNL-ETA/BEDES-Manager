@@ -51,6 +51,7 @@ export class CompositeTermListComponent extends MessageFromGrid<IGridRow> implem
     public isEditable = false;
     public hasError = false;
     public errorMessage: string;
+    public search: string;
 
     constructor(
         private router: Router,
