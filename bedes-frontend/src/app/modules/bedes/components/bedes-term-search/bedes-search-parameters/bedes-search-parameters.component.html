@@ -3,12 +3,12 @@
         <div style="display:flex; flex-direction: row; align-items: center">
             <mat-form-field style="flex:1;" focused="true" appearance="outline">
                 <input matInput #searchInput name="searchStringInput"
-                placeholder="Enter Search Text..."
+                placeholder="Search..."
                 color="primary"
                 [disabled]="waitingForResults"
                 [(ngModel)]="searchString">
             </mat-form-field>
-            <button mat-raised-button style="margin-left: 5px;"
+            <button mat-flat-button style="margin-left: 5px;"
             color="accent"
             [disabled]="waitingForResults || !searchString || !searchString?.trim().length"
             (click)="searchForTerms()">

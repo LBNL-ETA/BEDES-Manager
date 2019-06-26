@@ -14,6 +14,7 @@ import { MatDialog } from '@angular/material';
 import { ConfirmDialogComponent } from '../../dialogs/confirm-dialog/confirm-dialog.component';
 import { Scope } from '@bedes-common/enums/scope.enum';
 import { scopeList } from '@bedes-common/lookup-tables/scope-list';
+import { TableCellDeleteComponent } from '../../../models/ag-grid/table-cell-delete/table-cell-delete.component';
 
 /** css formatting applied to console log statements */
 const consoleFormatString = 'background-color:green; color: white; padding: 5px;';
@@ -203,7 +204,12 @@ export class CompositeTermListComponent extends MessageFromGrid<IGridRow> implem
             {
                 headerName: 'Sharing',
                 field: 'scopeName'
-            }
+            },
+            {
+                headerName: '',
+                width: 90,
+                cellRendererFramework: TableCellDeleteComponent
+            },
         ];
     }
 

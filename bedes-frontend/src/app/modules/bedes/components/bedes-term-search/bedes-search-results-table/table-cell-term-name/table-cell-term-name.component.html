@@ -1,7 +1,11 @@
 <!-- <button mat- color="accent" (click)="viewTerm()"> -->
-    <fa-icon [icon]="['fas', 'search']" (click)="viewTerm()">
-    </fa-icon>
+    <!-- <fa-icon [icon]="['fas', 'edit']" (click)="viewTerm()">
+    </fa-icon> -->
 <!-- </button> -->
+<button mat-icon-button color="primary">
+    <fa-icon [icon]="['fas', 'edit']" (click)="viewTerm()" size="lg">
+    </fa-icon>
+</button>
 
 <span style="margin-left:10px;">{{displayLabel}}</span>
 <!-- <a [routerLink]="[ '/bedes-term', uuid]" *ngIf="uuid">{{displayLabel}}</a>
