@@ -1,0 +1,13 @@
+
+footer {
+    display: flex;
+    flex-direction: column;
+    padding-top: 5px;
+    * {
+        text-align: center;
+        color: white;
+    }
+    a {
+        text-decoration: none;
+    }
+}

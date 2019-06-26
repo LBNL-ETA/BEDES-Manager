@@ -49,7 +49,8 @@ import {
     faMapMarkedAlt,
     faFileImport,
     faCheckCircle,
-    faKey
+    faKey,
+    faCopyright
 } from '@fortawesome/free-solid-svg-icons';
 
 /**
@@ -101,4 +102,5 @@ export function addIcons (): void {
     library.add(faFileImport);
     library.add(faCheckCircle);
     library.add(faKey);
+    library.add(faCopyright);
 }
