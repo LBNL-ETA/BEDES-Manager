@@ -9,12 +9,12 @@ params.push({
 });
 params.push({
     _id: Scope.Public,
-    _name: 'Public - use limited to private application mappings',
+    _name: 'Public',
     _description: undefined
 });
 params.push({
     _id: Scope.Approved,
-    _name: 'Approved - for use in all applications',
+    _name: 'Approved',
     _description: undefined
 });
 

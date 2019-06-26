@@ -9,12 +9,20 @@
     <mat-card-header>
         <span class="bedes-container-title">
             <fa-icon [icon]="['fas', 'search']"></fa-icon>
-            Results
+            <span [matBadge]="currentResults && currentResults.results ? currentResults.results.length : 0"
+            matBadgeOverlap="false">Results</span>
         </span>
     </mat-card-header>
 
-    <mat-card-content style="flex:1; display: flex; flex-direction:column;">
+    <mat-card-content style="flex:1; display: flex; flex-direction:column;"
+    *ngIf="currentResults?.results?.length">
         <app-bedes-search-results-table [dataSource]="dataSource">
         </app-bedes-search-results-table>
+    </mat-card-content>
+
+    <mat-card-content *ngIf="!currentResults?.results?.length">
+        <h2 style="text-align: center;">
+            No Data to Display
+        </h2>
     </mat-card-content>
 </mat-card>

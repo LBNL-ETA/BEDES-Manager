@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { SupportListService } from '../../services/support-list/support-list.service';
 import { BedesTermCategory } from '@bedes-common/models/bedes-term-category';
 import { IBedesSearchResultOutput } from './bedes-search-parameters/bedes-search-parameters.component';
-import { Observable, Subject } from 'rxjs';
+import { Observable, Subject, BehaviorSubject } from 'rxjs';
 
 @Component({
     selector: 'app-bedes-term-search',
@@ -11,25 +11,27 @@ import { Observable, Subject } from 'rxjs';
 })
 export class BedesTermSearchComponent implements OnInit {
     public categoryList: Array<BedesTermCategory>;
-    public dataSource = new Subject<IBedesSearchResultOutput>();
+    public dataSource = new BehaviorSubject<IBedesSearchResultOutput>(undefined);
+    public currentResults: IBedesSearchResultOutput | undefined;
 
     constructor(
         private supportListService: SupportListService
     ) {
         this.supportListService.termCategorySubject.subscribe(
             (categoryList: Array<BedesTermCategory>) => {
-            console.log(`${this.constructor.name}: received category list`)
-            console.log(categoryList);
-            this.categoryList = categoryList;
-        });
+                this.categoryList = categoryList;
+            });
     }
 
     ngOnInit() {
-        console.log(`${this.constructor.name}: ngOnInit`);
     }
 
+    /**
+     * Handle the events from the search-parameter control
+     * @param searchResults
+     */
     public handleSearchResultOutput(searchResults: IBedesSearchResultOutput): void {
-        console.log(`${this.constructor.name}: handleNewSearchSTring...`, searchResults);
+        this.currentResults = searchResults;
         this.dataSource.next(searchResults);
     }
 

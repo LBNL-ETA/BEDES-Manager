@@ -34,6 +34,7 @@ export class BedesSearchResultsTableComponent implements OnInit, OnDestroy {
     private ngUnsubscribe: Subject<void> = new Subject<void>();
     public hasSearched = false;
     private receivedInitialValues = false;
+    public gridData = new Array<ISearchResultRow>();
     private gridInitialized = false;
     private initialized = false;
 
@@ -115,7 +116,6 @@ export class BedesSearchResultsTableComponent implements OnInit, OnDestroy {
         }
         this.dataSource
         .subscribe((results: IBedesSearchResultOutput) => {
-            console.log(`${this.constructor.name}: received search results`, results);
             this.searchResults = results.results;
             // if the grid is ready then set the grid data
             // otherwise setting the grid data is done after grid initialization
@@ -135,7 +135,6 @@ export class BedesSearchResultsTableComponent implements OnInit, OnDestroy {
      * Navigate to the bedesTerm details view for the selected term.
      */
     public viewTerm(selectedItem: ISearchResultRow): void {
-        console.log(`${this.constructor.name}: view term`, selectedItem);
         if ( selectedItem.ref.resultObjectType === SearchResultType.BedesTerm
             || selectedItem.ref.resultObjectType === SearchResultType.BedesConstrainedList
         ) {
@@ -185,7 +184,6 @@ export class BedesSearchResultsTableComponent implements OnInit, OnDestroy {
             onGridReady: () => {
                 this.gridInitialized = true;
                 if (this.gridOptions && this.gridOptions.api && this.searchResults && !this.initialized) {
-                    console.log(`** ${this.constructor.name}: call to setRowData`);
                     // this.gridOptions.api.setRowData(this.searchResults);
                     this.setGridData();
                 }
@@ -194,7 +192,6 @@ export class BedesSearchResultsTableComponent implements OnInit, OnDestroy {
                 params.api.sizeColumnsToFit();
             },
             onSelectionChanged: (event: SelectionChangedEvent) => {
-                console.log('selection changed', event.api.getSelectedRows());
             }
         };
     }
@@ -241,7 +238,6 @@ export class BedesSearchResultsTableComponent implements OnInit, OnDestroy {
 
     private setGridData() {
         if (this.gridOptions && this.gridOptions.api && this.searchResults && this.gridInitialized) {
-            console.log(this.searchResults);
             const gridData = this.searchResults.map((searchResult: BedesSearchResult) => {
                 // set the scope name
                 let scopeName: string | undefined | null;
@@ -250,7 +246,7 @@ export class BedesSearchResultsTableComponent implements OnInit, OnDestroy {
                     scopeName = scopeObj.name;
                 }
                 else if (searchResult.resultObjectType !== SearchResultType.CompositeTerm) {
-                    scopeName = 'Approved - for use in all applications';
+                    scopeName = 'Approved';
                 }
                 // set the data type
                 let dataTypeName: string | undefined;
@@ -280,10 +276,11 @@ export class BedesSearchResultsTableComponent implements OnInit, OnDestroy {
                     scopeName: scopeName,
                     ownerName: searchResult.resultObjectType === SearchResultType.CompositeTerm
                         ? searchResult.ownerName
-                        : 'BEDES Admin'
+                        : 'BEDES'
                 }
             });
             this.gridOptions.api.setRowData(gridData);
+            this.gridData = gridData;
             this.initialized = true;
         }
     }
