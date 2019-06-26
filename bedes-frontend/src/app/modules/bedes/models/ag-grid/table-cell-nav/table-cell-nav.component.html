@@ -1,8 +1,10 @@
 <!-- <button mat-mini-fab color="accent" (click)="viewItem()"> -->
-    <fa-icon [icon]="['fas', 'search']" size="lg" (click)="viewItem()">
-    </fa-icon>
-    <fa-icon [icon]="['fas', 'times']" size="lg" (click)="removeItem()" *ngIf="isEditable">
-    </fa-icon>
+    <!-- <fa-icon [icon]="['fas', 'times']" size="lg" (click)="removeItem()" *ngIf="isEditable">
+    </fa-icon> -->
 <!-- </button> -->
-
+<button mat-icon-button color="primary"
+(click)="viewItem()">
+    <fa-icon [icon]="['fas', 'edit']" size="lg">
+    </fa-icon>
+</button>
 <span style="margin-left:10px;">{{displayLabel}}</span>

@@ -1,4 +1,8 @@
+@import '~@angular/material/theming';
+@import "src/styles/theme";
+
 fa-icon {
     cursor: pointer;
     margin-right: 5px;
+    color: mat-color($custom-primary);
 }

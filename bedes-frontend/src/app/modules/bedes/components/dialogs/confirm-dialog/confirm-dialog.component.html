@@ -10,12 +10,15 @@
         <mat-card-content style="padding: 10px;">
             {{ dialogContent }}
         </mat-card-content>
+
+        <mat-divider></mat-divider>
+
         <mat-card-actions style="display:flex; justify-content: center">
-            <button mat-stroked-button color="primary" style="margin-right:5px;" (click)="confirm()">
+            <button mat-flat-button color="primary" style="margin-right:5px;" (click)="confirm()">
                 <fa-icon [icon]="['fas', 'check']"></fa-icon>
                 Yes
             </button>
-            <button mat-stroked-button color="primary" (click)="decline()">
+            <button mat-flat-button color="accent" (click)="decline()">
                 <fa-icon [icon]="['fas', 'times']"></fa-icon>
                 No
             </button>
