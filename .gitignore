@@ -8,3 +8,4 @@ set_env.sh
 environment/*.env
 !environment/docker.env
 !environment/*.sample.env
+notes/
