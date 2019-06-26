@@ -15,16 +15,16 @@ style="flex: 1; display:flex; flex-direction: column;">
         <form name="myForm">
             <div style="display:flex; flex-direction: row; align-items: center;">
                 <mat-form-field style="flex:1;" appearance="outline">
-                    <mat-label>Search for Terms</mat-label>
+                    <mat-label>Search...</mat-label>
                     <input matInput #searchInput name="searchStringInput"
-                    placeholder="Enter Search Text..."
+                    placeholder="Search..."
                     [disabled]="waitingForResults"
                     [(ngModel)]="searchString">
                 </mat-form-field>
                 <div>
                     <!-- Submit button -->
                     <button mat-flat-button style="margin-left: 5px;"
-                    color="primary"
+                    color="accent"
                     [disabled]="waitingForResults"
                     (click)="searchForTerms()">
                         <fa-icon [icon]="['fas', 'play-circle']" *ngIf="!waitingForResults">
@@ -36,20 +36,49 @@ style="flex: 1; display:flex; flex-direction: column;">
                 </div>
             </div>
         </form>
-        <div class="table-container" >
+        <!-- <div class="table-container" >
             <ag-grid-angular #agGrid
                 style="width: 100%; height: 100%"
                 id="myGrid"
                 [gridOptions]="gridOptions"
                 [context]="tableContext"
-                class="ag-theme-balham">
+                class="ag-theme-material">
             </ag-grid-angular>
-        </div>
+        </div> -->
+        <mat-card class="bedes-container" style="flex: 1; display: flex; flex-direction: column;">
+            <mat-card-header>
+                <span class="bedes-container-title">
+                    <fa-icon [icon]="['fas', 'search']"></fa-icon>
+                    <span [matBadge]="gridData.length"
+                    matBadgeOverlap="false">Results</span>
+                </span>
+            </mat-card-header>
+
+            <mat-card-content style="flex:1;" [style.display]="gridData.length ? 'block' : 'none'">
+                <ag-grid-angular #agGrid
+                    style="width: 100%; height: 100%"
+                    id="myGrid"
+                    [gridOptions]="gridOptions"
+                    [context]="tableContext"
+                    class="ag-theme-material">
+                </ag-grid-angular>
+            </mat-card-content>
+
+            <mat-card-content style="flex: 1;" *ngIf="!gridData.length">
+                <h2 style="text-align: center;">
+                    No Data to Display
+                </h2>
+            </mat-card-content>
+        </mat-card>
     </mat-card-content>
+
+    <mat-divider></mat-divider>
+
     <mat-card-actions style="text-align: center; padding-top: 0;">
         <!-- Import selected terms button -->
-        <button mat-raised-button color="primary"
+        <button mat-flat-button color="primary"
         [disabled]="!selectedItems || !selectedItems.length"
+        [matBadge]="selectedItems?.length || 0" matBadgePosition="after" matBadgeColor="accent"
         (click)="importSelectedTerms()">
             <fa-icon [icon]="['fas', 'check']"></fa-icon>
             Import Selected Terms

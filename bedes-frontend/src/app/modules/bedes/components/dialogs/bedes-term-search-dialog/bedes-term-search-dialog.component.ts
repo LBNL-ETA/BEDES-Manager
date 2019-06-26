@@ -35,6 +35,7 @@ export class BedesTermSearchDialogComponent implements OnInit {
     private gridDataNeedsRefresh = false;
     public gridOptions: GridOptions;
     public rowData: Array<BedesTerm | BedesConstrainedList>;
+    public gridData = new Array<ISearchResultRow>();
     public tableContext: any;
 
     constructor(
@@ -147,15 +148,13 @@ export class BedesTermSearchDialogComponent implements OnInit {
             columnDefs: this.buildColumnDefs(),
             onGridReady: (event: GridReadyEvent) => {
                 this.gridInitialized = true;
-                console.log('grid is ready...');
                 if (this.gridDataNeedsRefresh) {
                     this.setGridData();
-                    event.api.checkGridSize();
                 }
                 else {
                     event.api.setRowData([]);
-                    event.api.checkGridSize();
                 }
+                event.api.checkGridSize();
             },
             onFirstDataRendered(params) {
                 params.api.sizeColumnsToFit();
@@ -246,7 +245,7 @@ export class BedesTermSearchDialogComponent implements OnInit {
                         scopeName = scopeObj.name;
                     }
                     else if (searchResult.resultObjectType !== SearchResultType.CompositeTerm) {
-                        scopeName = 'Approved - for use in all applications';
+                        scopeName = 'Approved';
                     }
                     let dataTypeName: string | undefined;
                     if (searchResult.resultObjectType === SearchResultType.BedesTermOption) {
@@ -273,12 +272,14 @@ export class BedesTermSearchDialogComponent implements OnInit {
                         scopeName: scopeName,
                         ownerName: searchResult.resultObjectType === SearchResultType.CompositeTerm
                             ? searchResult.ownerName
-                            : 'BEDES Admin'
+                            : 'BEDES'
                     });
                 }
             });
+            console.log('gridData set to', gridData);
             this.gridOptions.api.setRowData(gridData);
-            this.gridDataNeedsRefresh = true;
+            this.gridData = gridData;
+            this.gridDataNeedsRefresh = false;
         }
     }
 
