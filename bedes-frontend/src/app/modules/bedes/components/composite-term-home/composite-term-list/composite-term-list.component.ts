@@ -207,7 +207,7 @@ export class CompositeTermListComponent extends MessageFromGrid<IGridRow> implem
             },
             {
                 headerName: '',
-                width: 90,
+                width: 50,
                 cellRendererFramework: TableCellDeleteComponent
             },
         ];
