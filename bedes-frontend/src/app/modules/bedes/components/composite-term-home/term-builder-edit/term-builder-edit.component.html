@@ -43,51 +43,70 @@
     </h3>
 </div> -->
 
-<div *ngIf="compositeTerm && compositeTerm.items.length" style="margin-top:10px;">
+<!-- <div *ngIf="compositeTerm && compositeTerm.items.length" style="margin-top:10px;">
     <app-selected-terms-order></app-selected-terms-order>
-</div>
+</div> -->
+<mat-card class="bedes-container" *ngIf="compositeTerm && compositeTerm.items.length">
+    <mat-card-header>
+        <span class="bedes-container-title">
+            BEDES Terms
+        </span>
+    </mat-card-header>
 
-<form [formGroup]="dataForm" style="margin-top:10px" *ngIf="hasSelectedTerms()">
-    <h2 style="text-align: center;">
-        Details
-    </h2>
-    <div style="flex: 1; display:flex; flex-direction: row;">
-        <div style="flex: 1;display: flex; flex-direction: column; align-content: flex-start; margin: 5px;">
-            <!-- Description -->
-            <mat-form-field style="flex:1; margin-bottom:5px;" appearance="outline">
-                <mat-label>Description</mat-label>
-                <textarea matInput placeholder="Enter a Description" formControlName="description" rows="5">
-                </textarea>
-            </mat-form-field>
+    <mat-card-content style="flex:1; display: flex; flex-direction:column;">
+        <app-selected-terms-order></app-selected-terms-order>
+    </mat-card-content>
+</mat-card>
 
-            <mat-form-field style="flex:1; margin-bottom:5px;" appearance="outline">
-                <mat-label>UUID</mat-label>
-                <input matInput formControlName="uuid">
-            </mat-form-field>
-        </div>
+<mat-card class="bedes-container" *ngIf="compositeTerm && compositeTerm.items.length">
+    <mat-card-header>
+        <span class="bedes-container-title">
+            Details
+        </span>
+    </mat-card-header>
 
-        <div style="flex: 1; display: flex; flex-direction: column; align-content: flex-start; margin: 5px;">
-            <!-- Unit -->
-            <mat-form-field style="flex:1;" appearance="outline">
-                <mat-label>Unit</mat-label>
-                <mat-select placeholder="Unit" formControlName="unitId" *ngIf="unitList.length">
-                    <mat-option *ngFor="let item of unitList" [value]="item.id">
-                        {{item.name}}
-                    </mat-option>
-                </mat-select>
-            </mat-form-field>
+    <mat-card-content style="flex:1; display: flex; flex-direction:column;">
+        <form [formGroup]="dataForm" style="margin-top:10px" *ngIf="hasSelectedTerms()">
+            <div style="flex: 1; display:flex; flex-direction: row;">
+                <div style="flex: 1;display: flex; flex-direction: column; align-content: flex-start; margin: 5px;">
+                    <!-- Description -->
+                    <mat-form-field style="flex:1; margin-bottom:5px;" appearance="outline">
+                        <mat-label>Description</mat-label>
+                        <textarea matInput placeholder="Enter a Description" formControlName="description" rows="5">
+                        </textarea>
+                    </mat-form-field>
 
-            <mat-form-field style="flex:1;" appearance="outline">
-                <mat-label>Sharing</mat-label>
-                <mat-select placeholder="Visibility" formControlName="scopeId">
-                    <mat-option *ngFor="let item of scopeList.items " [value]="item.id">
-                        {{item.name}}
-                    </mat-option>
-                </mat-select>
-            </mat-form-field>
-        </div>
-    </div>
-</form>
+                    <mat-form-field style="flex:1; margin-bottom:5px;" appearance="outline">
+                        <mat-label>UUID</mat-label>
+                        <input matInput formControlName="uuid">
+                    </mat-form-field>
+                </div>
+
+                <div style="flex: 1; display: flex; flex-direction: column; align-content: flex-start; margin: 5px;">
+                    <!-- Unit -->
+                    <mat-form-field style="flex:1;" appearance="outline">
+                        <mat-label>Unit</mat-label>
+                        <mat-select placeholder="Unit" formControlName="unitId" *ngIf="unitList.length">
+                            <mat-option *ngFor="let item of unitList" [value]="item.id">
+                                {{item.name}}
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+
+                    <mat-form-field style="flex:1;" appearance="outline">
+                        <mat-label>Sharing</mat-label>
+                        <mat-select placeholder="Visibility" formControlName="scopeId">
+                            <mat-option *ngFor="let item of scopeList.items " [value]="item.id">
+                                {{item.name}}
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                </div>
+            </div>
+        </form>
+    </mat-card-content>
+</mat-card>
+
 
 <!-- <app-selected-terms-table></app-selected-terms-table> -->
 
@@ -96,7 +115,7 @@
         <fa-icon [icon]="['fas', 'chevron-circle-left']"></fa-icon>
         Back
     </a>
-    <button mat-flat-button color="primary" *ngIf="hasSelectedTerms()"
+    <button mat-flat-button color="primary"
     [disabled]="!isEditable || !hasSelectedTerms() || !compositeTerm?.hasChanged || isWaiting"
     (click)="updateCompositeTerm()">
         <fa-icon [icon]="['fas', 'save']"></fa-icon>
