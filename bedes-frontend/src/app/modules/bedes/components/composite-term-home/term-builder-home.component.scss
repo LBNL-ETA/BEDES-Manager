@@ -4,7 +4,8 @@
 :host {
     display: flex;
     flex-direction: column;
-    min-height: calc(100vh - 64px - 50px);
+    min-height: calc(100vh - 64px - 62px);
+    box-sizing: border-box;
 }
 
 .heading-container {

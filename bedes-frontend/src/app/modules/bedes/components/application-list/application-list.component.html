@@ -13,7 +13,7 @@
     </div> -->
     <div style="display:flex; flex-direction: row; align-items: center; margin-bottom:10px;"
     *ngIf="currentUser.isLoggedIn()">
-        <a mat-flat-button color="accent" [routerLink]="['new']">
+        <a mat-flat-button color="primary" [routerLink]="['new']">
             <fa-icon [icon]="['fas', 'plus-circle']"></fa-icon>
             New Application
         </a>
