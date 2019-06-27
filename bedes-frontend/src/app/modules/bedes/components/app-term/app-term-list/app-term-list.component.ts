@@ -25,6 +25,7 @@ import { AuthService } from 'src/app/modules/bedes-auth/services/auth/auth.servi
 import { CurrentUser } from '@bedes-common/models/current-user/current-user';
 import { CsvImportInfoDialogComponent } from '../../dialogs/csv-import-info-dialog/csv-import-info-dialog.component';
 import { scopeList } from '@bedes-common/lookup-tables/scope-list';
+import { TableCellDeleteComponent } from '../../../models/ag-grid/table-cell-delete/table-cell-delete.component';
 
 @Component({
   selector: 'app-app-term-list',
@@ -264,7 +265,12 @@ export class AppTermListComponent extends MessageFromGrid<IAppRow> implements On
             {
                 headerName: 'Sharing',
                 field: 'scopeName'
-            }
+            },
+            {
+                headerName: '',
+                width: 50,
+                cellRendererFramework: TableCellDeleteComponent
+            },
         ];
     }
 
