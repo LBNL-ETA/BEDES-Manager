@@ -63,7 +63,6 @@
                 </div>
             </div>
 
-
             <!-- Description -->
             <mat-form-field style="flex:1; margin-bottom:5px;" appearance="outline">
                 <mat-label>Description</mat-label>
@@ -128,61 +127,60 @@
         </div>
 </div>
 
+<!-- List options -->
+<!-- List option container-->
+<!-- *ngIf="appTerm && appTerm.termTypeId === TermType.ConstrainedList && shouldShowListOptionGrid()"> -->
+<div style="flex: 1; display: flex; flex-direction: column;">
+<!-- [style.display]="appTerm && appTerm.termTypeId === TermType.ConstrainedList && shouldShowListOptionGrid() ? 'flex' : 'none'"> -->
+    <mat-divider></mat-divider>
+    <h2 style="text-align: center;">List Options</h2>
+    <!-- Button toolbar -->
+    <div>
+        <button mat-flat-button color="primary"
+        [disabled]="!canEditApplication()"
+        (click)="newListOption()">
+            <fa-icon [icon]="['fas', 'plus-circle']"></fa-icon>
+            New List Option
+        </button>
+    </div>
 
-    <!-- List options -->
-    <!-- List option container-->
-    <div style=" overflow: hidden; flex-grow: 1"
-    *ngIf="appTerm && appTerm.termTypeId === TermType.ConstrainedList && shouldShowListOptionGrid()">
-        <mat-divider></mat-divider>
-        <h2 style="text-align: center;">List Options</h2>
-        <!-- Button toolbar -->
-        <div>
-            <button mat-stroked-button color="primary"
-            [disabled]="!canEditApplication()"
-            (click)="newListOption()">
-                <fa-icon [icon]="['fas', 'plus-circle']"></fa-icon>
-                New
-            </button>
-        </div>
+    <!-- Messages -->
+    <!-- No list options -->
+    <div class="alert-accent" style="margin-top:10px;"
+    *ngIf="!appTerm?.listOptions.length">
+        <h3 style="margin: 0; padding:0;">
+            <fa-icon [icon]="['fas', 'exclamation-triangle']"></fa-icon>
+            No list options have been defined, click the <strong>New</strong>
+            button to create list options.
+        </h3>
+    </div>
+    <div class="alert-danger" style="margin-top:10px;"
+    *ngIf="isTermList() && !isMappedToConstrainedList()">
+        <h3 style="margin: 0; padding:0;">
+            <fa-icon [icon]="['fas', 'exclamation-triangle']"></fa-icon>
+            To map the application list options, the application term must be mapped to a BEDES Constrained List.
+        </h3>
+    </div>
 
-        <!-- Messages -->
-        <!-- No list options -->
-        <div class="alert-accent" style="margin-top:10px;"
-        *ngIf="!appTerm?.listOptions.length">
-            <h3 style="margin: 0; padding:0;">
-                <fa-icon [icon]="['fas', 'exclamation-triangle']"></fa-icon>
-                No list options have been defined, click the <strong>New</strong>
-                button to create list options.
-            </h3>
-        </div>
-        <div class="alert-danger" style="margin-top:10px;"
-        *ngIf="isTermList() && !isMappedToConstrainedList()">
-            <h3 style="margin: 0; padding:0;">
-                <fa-icon [icon]="['fas', 'exclamation-triangle']"></fa-icon>
-                To map the application list options, the application term must be mapped to a BEDES Constrained List.
-            </h3>
-        </div>
-
+    <div style="overflow: hidden; flex: 1; min-height: 175px;">
         <!-- List option grid -->
-        <ag-grid-angular #agGrid style="width: 100%; height: 350px;"
-        *ngIf="appTerm && appTerm.listOptions && appTerm.listOptions.length"
+        <!-- *ngIf="appTerm && appTerm.listOptions && appTerm.listOptions.length" -->
+        <ag-grid-angular #agGrid style="width: 100%; height: 100%;"
         id="myGrid"
         [gridOptions]="gridOptions"
         [context]="tableContext"
-        class="ag-theme-balham">
+        class="ag-theme-material">
         </ag-grid-angular>
-
     </div>
+</div>
 
-    <!-- New list option view -->
-    <div *ngIf="shouldShowNewListOption()">
-        <mat-divider></mat-divider>
-        <!-- EditListOptionComponent - new list option -->
-        <app-edit-list-option (backEvent)="backToListView()">
+<!-- New list option view -->
+<div *ngIf="shouldShowNewListOption()">
+    <mat-divider></mat-divider>
+    <!-- EditListOptionComponent - new list option -->
+    <app-edit-list-option (backEvent)="backToListView()">
     </app-edit-list-option>
-    </div>
+</div>
 
-    <!-- List options -->
-    <!-- <app-implementation-term-option></app-implementation-term-option> -->
-
-<!-- </div> -->
+<!-- List options -->
+<!-- <app-implementation-term-option></app-implementation-term-option> -->
