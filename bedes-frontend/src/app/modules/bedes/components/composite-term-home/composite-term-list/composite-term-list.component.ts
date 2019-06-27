@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { takeUntil } from 'rxjs/operators';
 import { Subject } from 'rxjs';
-import { GridOptions, SelectionChangedEvent, ColDef } from 'ag-grid-community';
+import { GridOptions, SelectionChangedEvent, ColDef, GridReadyEvent, GridApi } from 'ag-grid-community';
 import { CompositeTermService } from '../../../services/composite-term/composite-term.service';
 import { AuthService } from 'src/app/modules/bedes-auth/services/auth/auth.service';
 import { CurrentUser } from '@bedes-common/models/current-user/current-user';
@@ -39,6 +39,8 @@ export class CompositeTermListComponent extends MessageFromGrid<IGridRow> implem
     // ag-grid
     public gridOptions: GridOptions;
     public rowData: Array<IGridRow>;
+    /** API object for the ag-grid component */
+    private gridApi: GridApi | undefined;
     public tableContext: any;
     // Indicates if the grid has been initialized.
     private gridInitialized = false;
@@ -159,6 +161,16 @@ export class CompositeTermListComponent extends MessageFromGrid<IGridRow> implem
     }
 
     /**
+     * Links the keyboard events to the grid's quickfilter api
+     * @param event
+     */
+    public quickFilterChange(event: any): void {
+        if (this.gridApi) {
+            this.gridApi.setQuickFilter(event.target.value);
+        }
+    }
+
+    /**
      * Setup the ag-grid for the list of projects.
      */
     private gridSetup(): void {
@@ -169,7 +181,8 @@ export class CompositeTermListComponent extends MessageFromGrid<IGridRow> implem
             enableSorting: true,
             // rowSelection: 'multiple',
             columnDefs: this.buildColumnDefs(),
-            onGridReady: () => {
+            onGridReady: (event: GridReadyEvent) => {
+                this.gridApi = event.api;
                 this.gridInitialized = true;
                 if (this.gridOptions && this.gridOptions.api) {
                     this.setGridData();

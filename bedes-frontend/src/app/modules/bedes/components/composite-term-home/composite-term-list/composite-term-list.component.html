@@ -8,13 +8,9 @@
         </a>
 
         <div style="flex: 1; display: flex; align-items: center; justify-content: center;">
-            <mat-form-field style="flex:1; max-width: 700px;" appearance="outline">
+            <mat-form-field appearance="outline" style="flex:1; max-width: 700px;" >
                 <mat-label>Search</mat-label>
-                <input matInput placeholder="Search..."
-                type="text"
-                name="searchInput"
-                #searchInput="ngModel"
-                [(ngModel)]="search">
+                <input matInput type="text" (keyup)="quickFilterChange($event)">
             </mat-form-field>
         </div>
     </div>
