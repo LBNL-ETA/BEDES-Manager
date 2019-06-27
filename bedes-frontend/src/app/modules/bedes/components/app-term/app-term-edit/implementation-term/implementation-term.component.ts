@@ -312,6 +312,11 @@ export class ImplementationTermComponent implements OnInit {
         });
     }
 
+    public clearMappedTerm(): void {
+        this.appTerm.clearMapping();
+        this.mappedTerm = undefined;
+    }
+
     /**
      * Set the current mapped BedesTerm to the term identified by current AppTerm mapping.
      */
@@ -336,6 +341,7 @@ export class ImplementationTermComponent implements OnInit {
         else {
             this.mappedTerm = undefined;
         }
+        console.log(`${this.constructor.name}: setting mapped term to `, this.mappedTerm);
     }
 
     /**

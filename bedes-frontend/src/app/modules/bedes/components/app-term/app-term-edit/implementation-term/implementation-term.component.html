@@ -1,180 +1,188 @@
-<div style="display: flex;">
-    <mat-card style="flex: 1;" class="bedes-content-card mat-elevation-z0 mat-typography">
-        <mat-card-content>
-            <h1 style="text-align: center;">Application Term ({{mappedTerm?.name}})</h1>
-            <!-- Button toolbar -->
-            <div style="display:flex;">
-                <a mat-stroked-button
-                [routerLink]="['../']"
-                [disabled]="currentControlState === ControlState.Disabled">
-                    <fa-icon [icon]="['fas', 'chevron-circle-left']"></fa-icon>
-                    Back
-                </a>
-                <button mat-stroked-button color="primary"
-                (click)="saveAppTerm()"
-                [disabled]="!isNewTerm && (!appTerm?.hasChanged || !canEditApplication())" >
-                    <fa-icon [icon]="['fas', 'save']"></fa-icon>
-                    Save
-                </button>
-            </div>
-            <!-- Messages -->
-            <!-- Missing required fields -->
-            <!-- <div class="alert-warn" style="margin: 10px 0 10px 0; text-align:left;"
-                *ngIf="true">
-                <span style="font-weight:bold; padding-right:10px;">Status:</span>
-                <span>
-                    <fa-icon [icon]="['fas', 'exclamation-triangle']"></fa-icon>
-                    Missing required fields.
-                </span>
-            </div> -->
-            <!-- Known Error-->
-            <div class="alert-warn" style="margin: 10px 0 10px 0; text-align:left;"
-                *ngIf="hasError">
-                <span style="font-weight:bold; padding-right:10px;">Status:</span>
-                <span>
-                    <fa-icon [icon]="['fas', 'exclamation-triangle']"></fa-icon>
-                    {{ errorMessage }}
-                </span>
-            </div>
-
-            <!-- Data Form -->
-            <form [formGroup]="dataForm" style="display:flex; flex-direction: column; margin-top:10px">
-                <!-- Name -->
-                <div style="display:flex;">
-                    <!-- AppTerm Info -->
-                    <div style="flex:1; display:flex;">
-                        <mat-form-field style="flex:1; margin-bottom:5px;" hintLabel="* Required" appearance="outline">
-                            <mat-label>Application Field Name</mat-label>
-                            <input matInput placeholder="Enter the Implementation Field Name" formControlName="name">
-                        </mat-form-field>
-                        <span style="padding:7px;">
-                            <button mat-raised-button color="primary"
-                            [disabled]="!canEditApplication()"
-                            (click)="openTermSearchDialog()">
-                                <fa-icon [icon]="['fas', 'map-marked-alt']" size="lg"></fa-icon>
-                                Map To a BEDES Term
-                            </button>
-                        </span>
-                    </div>
-                    <!-- BedesTerm Info -->
-                    <div style="flex:1; display:flex;">
-                        <!-- No mapping doesn't exist -->
-                        <div class="alert-danger" style="margin-top:10px; margin-bottom:10px; flex:1;"
-                        *ngIf="!appTerm || !appTerm.mapping">
-                            <h3 style="margin: 0; padding:0;">
-                                <fa-icon [icon]="['fas', 'exclamation-triangle']"></fa-icon>
-                                BEDES Term Mapping is not Assigned
-                            </h3>
-                        </div>
-                        <!-- Yes mapping does exist -->
-                        <div class="alert-success" style="margin-top:10px; margin-bottom:10px; flex:1; color: black;"
-                        *ngIf="appTerm && appTerm.mapping">
-                            <h3 style="margin: 0; padding:0;">
-                                BEDES Term Mapping
-                            </h3>
-                            <span class="span-value" style="font-weight:bold;">
-                                {{appTerm.mapping.bedesName }}
-                            </span>
-                        </div>
-                    </div>
-                </div>
-
-
-                <!-- Description -->
-                <mat-form-field style="flex:1; margin-bottom:5px;" appearance="outline">
-                    <mat-label>Field Description</mat-label>
-                    <textarea matInput placeholder="Enter a Description" formControlName="description" rows="5">
-                    </textarea>
-                </mat-form-field>
-
-                <div style="flex: 1; display:flex;">
-                    <!-- Type of Term dropdown -->
-                    <div style="display:flex; flex: 1;">
-                        <mat-form-field style="flex:1; margin-bottom:5px;" appearance="outline">
-                            <mat-label>Type of Term</mat-label>
-                            <mat-select #typeOfTerm placeholder="Select a Term Type" formControlName="termTypeId">
-                                <mat-option *ngFor="let item of appTermTypeItems" [value]="item.id">
-                                    {{item.name}}
-                                </mat-option>
-                            </mat-select>
-                        </mat-form-field>
-                    </div>
-                    <!-- Units -->
-                    <div style="display:flex; flex: 1;" *ngIf="unitList">
-                        <mat-form-field style="flex:1; margin-bottom:5px;" appearance="outline">
-                            <mat-label>Unit</mat-label>
-                            <mat-select #unitInput placeholder="Select a Unit" formControlName="unitId">
-                                <mat-option *ngFor="let item of unitList" [value]="item.id">
-                                    {{item.name}}
-                                </mat-option>
-                            </mat-select>
-                        </mat-form-field>
-                    </div>
-                </div>
-                <mat-form-field style="flex:1; margin-bottom:5px;" appearance="outline">
-                    <mat-label>UUID</mat-label>
-                    <input matInput formControlName="uuid">
-                </mat-form-field>
-            </form>
-
-
-            <!-- List options -->
-            <!-- List option container-->
-            <div style=" overflow: hidden; flex-grow: 1"
-            *ngIf="appTerm && appTerm.termTypeId === TermType.ConstrainedList && shouldShowListOptionGrid()">
-                <mat-divider></mat-divider>
-                <h2 style="text-align: center;">List Options</h2>
-                <!-- Button toolbar -->
-                <div>
-                    <button mat-stroked-button color="primary"
-                    [disabled]="!canEditApplication()"
-                    (click)="newListOption()">
-                        <fa-icon [icon]="['fas', 'plus-circle']"></fa-icon>
-                        New
-                    </button>
-                </div>
-
-                <!-- Messages -->
-                <!-- No list options -->
-                <div class="alert-accent" style="margin-top:10px;"
-                *ngIf="!appTerm?.listOptions.length">
-                    <h3 style="margin: 0; padding:0;">
-                        <fa-icon [icon]="['fas', 'exclamation-triangle']"></fa-icon>
-                        No list options have been defined, click the <strong>New</strong>
-                        button to create list options.
-                    </h3>
-                </div>
-                <div class="alert-danger" style="margin-top:10px;"
-                *ngIf="isTermList() && !isMappedToConstrainedList()">
-                    <h3 style="margin: 0; padding:0;">
-                        <fa-icon [icon]="['fas', 'exclamation-triangle']"></fa-icon>
-                        To map the application list options, the application term must be mapped to a BEDES Constrained List.
-                    </h3>
-                </div>
-
-                <!-- List option grid -->
-                <ag-grid-angular #agGrid style="width: 100%; height: 350px;"
-                *ngIf="appTerm && appTerm.listOptions && appTerm.listOptions.length"
-                id="myGrid"
-                [gridOptions]="gridOptions"
-                [context]="tableContext"
-                class="ag-theme-balham">
-                </ag-grid-angular>
-
-            </div>
-
-            <!-- New list option view -->
-            <div *ngIf="shouldShowNewListOption()">
-                <mat-divider></mat-divider>
-                <!-- EditListOptionComponent - new list option -->
-                <app-edit-list-option (backEvent)="backToListView()">
-            </app-edit-list-option>
-            </div>
-
-            <!-- List options -->
-            <!-- <app-implementation-term-option></app-implementation-term-option> -->
-
-        </mat-card-content>
-    </mat-card>
-
+<!-- <div style="max-width: 900px; margin: 0px auto;"> -->
+<div class="heading-container">
+    <h1>
+        Application Term
+        <span class="font-color-primary">
+            {{appTerm?.name}}
+        </span>
+    </h1>
 </div>
+
+<!-- Button toolbar -->
+<div style="display:flex;">
+    <a mat-flat-button
+    color="accent"
+    [routerLink]="['../']"
+    [disabled]="currentControlState === ControlState.Disabled">
+        <fa-icon [icon]="['fas', 'chevron-circle-left']"></fa-icon>
+        Back to Term List
+    </a>
+    <button mat-flat-button color="primary"
+    (click)="saveAppTerm()"
+    [disabled]="!isNewTerm && (!appTerm?.hasChanged || !canEditApplication())" >
+        <fa-icon [icon]="['fas', 'save']"></fa-icon>
+        Save
+    </button>
+</div>
+<!-- Messages -->
+<!-- Missing required fields -->
+<!-- <div class="alert-warn" style="margin: 10px 0 10px 0; text-align:left;"
+    *ngIf="true">
+    <span style="font-weight:bold; padding-right:10px;">Status:</span>
+    <span>
+        <fa-icon [icon]="['fas', 'exclamation-triangle']"></fa-icon>
+        Missing required fields.
+    </span>
+</div> -->
+<!-- Known Error-->
+<div class="alert-warn" style="margin: 10px 0 10px 0; text-align:left;"
+    *ngIf="hasError">
+    <span style="font-weight:bold; padding-right:10px;">Status:</span>
+    <span>
+        <fa-icon [icon]="['fas', 'exclamation-triangle']"></fa-icon>
+        {{ errorMessage }}
+    </span>
+</div>
+
+<div style="display:flex; flex-direction: row;">
+    <div style="display:flex; flex-direction: column; flex: 1; padding: 5px;">
+        <h2 class="font-color-accent">
+            Application Term
+        </h2>
+        <!-- Data Form -->
+        <form [formGroup]="dataForm" style="display:flex; flex-direction: column; margin-top:10px">
+            <!-- Name -->
+            <div style="display:flex;">
+                <!-- AppTerm Info -->
+                <div style="flex:1; display:flex;">
+                    <mat-form-field style="flex:1; margin-bottom:5px;"
+                    hintLabel="* Required" appearance="outline">
+                        <mat-label>Application Term Name</mat-label>
+                        <input matInput placeholder="Enter the Application Term Name" formControlName="name">
+                    </mat-form-field>
+                </div>
+            </div>
+
+
+            <!-- Description -->
+            <mat-form-field style="flex:1; margin-bottom:5px;" appearance="outline">
+                <mat-label>Description</mat-label>
+                <textarea matInput placeholder="Enter a Description" formControlName="description" rows="5">
+                </textarea>
+            </mat-form-field>
+
+            <div style="flex: 1; display:flex;">
+                <!-- Type of Term dropdown -->
+                <div style="display:flex; flex: 1;">
+                    <mat-form-field style="flex:1; margin-bottom:5px;" appearance="outline">
+                        <mat-label>Type of Term</mat-label>
+                        <mat-select #typeOfTerm placeholder="Select a Term Type" formControlName="termTypeId">
+                            <mat-option *ngFor="let item of appTermTypeItems" [value]="item.id">
+                                {{item.name}}
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                </div>
+                <!-- Units -->
+                <div style="display:flex; flex: 1;" *ngIf="unitList">
+                    <mat-form-field style="flex:1; margin-bottom:5px;" appearance="outline">
+                        <mat-label>Unit</mat-label>
+                        <mat-select #unitInput placeholder="Select a Unit" formControlName="unitId">
+                            <mat-option *ngFor="let item of unitList" [value]="item.id">
+                                {{item.name}}
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                </div>
+            </div>
+            <mat-form-field style="flex:1; margin-bottom:5px;" appearance="outline">
+                <mat-label>UUID</mat-label>
+                <input matInput formControlName="uuid">
+            </mat-form-field>
+        </form>
+    </div>
+
+    <div style="flex: 1; padding: 5px;">
+        <h2 class="font-color-accent">
+            Mapped Term
+        </h2>
+        <div style="padding:7px; text-align: center;" *ngIf="!appTerm?.mapping">
+            <button mat-raised-button color="primary"
+            [disabled]="!canEditApplication()"
+            (click)="openTermSearchDialog()">
+                <fa-icon [icon]="['fas', 'map-marked-alt']" size="lg"></fa-icon>
+                Map To exisiting BEDES Term
+            </button>
+        </div>
+
+            <div style="margin-top:10px; margin-bottom:10px; flex:1; text-align: center;"
+            *ngIf="appTerm && appTerm.mapping">
+                <span class="span-value">
+                    {{appTerm.mapping.bedesName }}
+                    <button mat-icon-button (click)="clearMappedTerm()" color="accent">
+                        <fa-icon [icon]="['fas', 'times']" style="color: white;"></fa-icon>
+                    </button>
+                </span>
+            </div>
+
+        </div>
+</div>
+
+
+    <!-- List options -->
+    <!-- List option container-->
+    <div style=" overflow: hidden; flex-grow: 1"
+    *ngIf="appTerm && appTerm.termTypeId === TermType.ConstrainedList && shouldShowListOptionGrid()">
+        <mat-divider></mat-divider>
+        <h2 style="text-align: center;">List Options</h2>
+        <!-- Button toolbar -->
+        <div>
+            <button mat-stroked-button color="primary"
+            [disabled]="!canEditApplication()"
+            (click)="newListOption()">
+                <fa-icon [icon]="['fas', 'plus-circle']"></fa-icon>
+                New
+            </button>
+        </div>
+
+        <!-- Messages -->
+        <!-- No list options -->
+        <div class="alert-accent" style="margin-top:10px;"
+        *ngIf="!appTerm?.listOptions.length">
+            <h3 style="margin: 0; padding:0;">
+                <fa-icon [icon]="['fas', 'exclamation-triangle']"></fa-icon>
+                No list options have been defined, click the <strong>New</strong>
+                button to create list options.
+            </h3>
+        </div>
+        <div class="alert-danger" style="margin-top:10px;"
+        *ngIf="isTermList() && !isMappedToConstrainedList()">
+            <h3 style="margin: 0; padding:0;">
+                <fa-icon [icon]="['fas', 'exclamation-triangle']"></fa-icon>
+                To map the application list options, the application term must be mapped to a BEDES Constrained List.
+            </h3>
+        </div>
+
+        <!-- List option grid -->
+        <ag-grid-angular #agGrid style="width: 100%; height: 350px;"
+        *ngIf="appTerm && appTerm.listOptions && appTerm.listOptions.length"
+        id="myGrid"
+        [gridOptions]="gridOptions"
+        [context]="tableContext"
+        class="ag-theme-balham">
+        </ag-grid-angular>
+
+    </div>
+
+    <!-- New list option view -->
+    <div *ngIf="shouldShowNewListOption()">
+        <mat-divider></mat-divider>
+        <!-- EditListOptionComponent - new list option -->
+        <app-edit-list-option (backEvent)="backToListView()">
+    </app-edit-list-option>
+    </div>
+
+    <!-- List options -->
+    <!-- <app-implementation-term-option></app-implementation-term-option> -->
+
+<!-- </div> -->
