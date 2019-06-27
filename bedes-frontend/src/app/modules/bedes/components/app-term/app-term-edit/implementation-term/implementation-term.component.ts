@@ -39,6 +39,7 @@ import { TermMappingComposite } from '@bedes-common/models/term-mapping/term-map
 import { AuthService } from '../../../../../bedes-auth/services/auth/auth.service';
 import { CurrentUser } from '@bedes-common/models/current-user/current-user';
 import { NewListOptionDialogComponent, INewListOption } from './new-list-option-dialog/new-list-option-dialog.component';
+import { TableCellDeleteComponent } from '../../../../models/ag-grid/table-cell-delete/table-cell-delete.component';
 
 
 enum RequestStatus {
@@ -591,7 +592,12 @@ export class ImplementationTermComponent implements OnInit {
                 headerName: 'BEDES Option Mapping',
                 field: 'mappedName',
                 cellRendererFramework: TableCellMapListOptionComponent
-            }
+            },
+            {
+                headerName: '',
+                width: 50,
+                cellRendererFramework: TableCellDeleteComponent
+            },
         ];
     }
 
@@ -628,6 +634,17 @@ export class ImplementationTermComponent implements OnInit {
         return this.appTerm && this.appTerm.termTypeId === TermType.ConstrainedList
             ? true
             : false;
+    }
+
+    /**
+     * Determines how many list options are in the current AppTerm.
+     * @returns true if term list items
+     */
+    public numberTermListItems(): number {
+        return this.appTerm instanceof AppTermList
+            ? this.appTerm.listOptions.length
+            : 0;
+
     }
 
     /**
