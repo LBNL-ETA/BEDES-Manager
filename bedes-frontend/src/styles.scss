@@ -97,6 +97,10 @@ footer.bedes-footer {
 //   color: white;
 }
 
+.font-color-primary{
+    color: mat-color($custom-primary);
+}
+
 .font-color-accent {
     color: mat-color($custom-accent);
 }
