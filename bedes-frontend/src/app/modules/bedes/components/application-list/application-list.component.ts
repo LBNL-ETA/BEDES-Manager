@@ -15,6 +15,7 @@ import { ConfirmDialogComponent } from '../dialogs/confirm-dialog/confirm-dialog
 import { MatDialog } from '@angular/material';
 import { AuthService } from 'src/app/modules/bedes-auth/services/auth/auth.service';
 import { applicationScopeList } from '../../../../../../../bedes-common/lookup-tables/application-scope-list';
+import { TableCellDeleteComponent } from '../../models/ag-grid/table-cell-delete/table-cell-delete.component';
 
 /**
  * Defines the interface for the rows of grid objects.
@@ -36,6 +37,7 @@ export class ApplicationListComponent extends MessageFromGrid<IAppRow> implement
     private ngUnsubscribe: Subject<void> = new Subject<void>();
     private gridInitialized = false;
     private gridDataNeedsRefresh = false;
+    public gridData: any;
     private gridApi: GridApi | undefined;
     public selectedItem: IAppRow | undefined;
     // lists
@@ -152,6 +154,7 @@ export class ApplicationListComponent extends MessageFromGrid<IAppRow> implement
             // rowSelection: 'multiple',
             columnDefs: this.buildColumnDefs(),
             onGridReady: (event: GridReadyEvent) => {
+                console.log('grid ready!');
                 this.gridApi = event.api;
                 this.setGridData();
             },
@@ -239,7 +242,12 @@ export class ApplicationListComponent extends MessageFromGrid<IAppRow> implement
             {
                 headerName: 'Sharing',
                 field: 'scopeName'
-            }
+            },
+            {
+                headerName: '',
+                width: 50,
+                cellRendererFramework: TableCellDeleteComponent
+            },
         ];
     }
 
@@ -262,6 +270,17 @@ export class ApplicationListComponent extends MessageFromGrid<IAppRow> implement
             this.gridApi.setRowData(gridData);
         }
     }
+
+    /**
+     * Links the keyboard events to the grid's quickfilter api
+     * @param event
+     */
+    public quickFilterChange(event: any): void {
+        if (this.gridApi) {
+            this.gridApi.setQuickFilter(event.target.value);
+        }
+    }
+
 
 }
 
