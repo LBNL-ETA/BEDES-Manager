@@ -7,6 +7,9 @@
         (cdkDropListDropped)="drop($event)">
             <div class="example-box" *ngFor="let term of compositeTerm.items" cdkDrag>
                 {{term.listOption ? term.listOption.name : term.term.name}}
+                <button mat-icon-button (click)="removeDetailItem(term)">
+                    <fa-icon class="font-color-danger" [icon]="['fas', 'times']"></fa-icon>
+                </button>
             </div>
         </div>
     </div>

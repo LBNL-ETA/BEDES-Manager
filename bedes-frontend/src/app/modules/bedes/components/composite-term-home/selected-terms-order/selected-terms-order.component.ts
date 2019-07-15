@@ -8,6 +8,7 @@ import { BedesCompositeTerm } from '@bedes-common/models/bedes-composite-term/be
 import { CompositeTermService } from '../../../services/composite-term/composite-term.service';
 import { AuthService } from 'src/app/modules/bedes-auth/services/auth/auth.service';
 import { CurrentUser } from '@bedes-common/models/current-user';
+import { CompositeTermDetail } from '../../../../../../../../bedes-common/models/bedes-composite-term/composite-term-item/composite-term-detail';
 
 @Component({
   selector: 'app-selected-terms-order',
@@ -37,6 +38,13 @@ export class SelectedTermsOrderComponent implements OnInit, OnDestroy {
         // unsubscribe from the subjects
         this.ngUnsubscribe.next();
         this.ngUnsubscribe.complete();
+    }
+
+    /**
+     * Remove a term from a composite term defitition
+     */
+    public removeDetailItem(item: CompositeTermDetail): void {
+        this.compositeTerm.removeDetailItem(item);
     }
 
     /**
