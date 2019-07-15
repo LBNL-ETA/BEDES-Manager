@@ -13,18 +13,22 @@
 
 <div style="flex: 1; display: flex; flex-direction: column; padding: 5px;">
     <!-- AppTerm toolbar -->
-    <div style="display:flex; flex-direction: row; margin-bottom:10px;">
+    <div class="app-term-toolbar" style="display:flex; flex-direction: row; margin-bottom:10px;">
+        <!-- Back button -->
         <a mat-flat-button routerLink="/applications" color="accent">
             <fa-icon [icon]="['fas', 'chevron-circle-left']"></fa-icon>
             Back to Application List
         </a>
+
+        <!-- New Term button -->
         <button mat-flat-button color="primary"
         [disabled]="!canEditApplication()"
-        [routerLink]="['new']"
-        >
+        [routerLink]="['new']">
             <fa-icon [icon]="['fas', 'plus-circle']"></fa-icon>
             New Term
         </button>
+
+        <!-- Import Term button -->
         <button mat-flat-button color="primary"
         (click)="openCsvUploadDialog()"
         [disabled]="!canEditApplication()">

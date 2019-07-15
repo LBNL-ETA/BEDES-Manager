@@ -7,45 +7,6 @@
     </button>
 </div>
 
-<!-- <div style="display:flex; flex-direction: row; margin-bottom: 10px;">
-    <a mat-stroked-button routerLink="/composite-term">
-        <fa-icon [icon]="['fas', 'chevron-circle-left']"></fa-icon>
-        Back to List
-    </a>
-    <button mat-stroked-button color="primary"
-    [disabled]="!isEditable || !hasSelectedTerms() || !compositeTerm?.hasChanged || isWaiting"
-    (click)="updateCompositeTerm()">
-        <fa-icon [icon]="['fas', 'save']"></fa-icon>
-        Save
-    </button>
-    <button mat-stroked-button
-    color="primary"
-    [disabled]="!isEditable || isWaiting"
-    (click)="openTermSearchDialog()">
-        <fa-icon [icon]="['fas', 'cloud-download-alt']"></fa-icon>
-        Import BEDES Terms
-    </button>
-</div> -->
-
-<!-- <div class="alert-accent" *ngIf="!hasSelectedTerms()">
-    <h3 style="margin: 0; padding:0;">
-        <fa-icon [icon]="['fas', 'info-circle']"></fa-icon>
-        Click the <strong>Import BEDES Terms</strong> button to
-        start building the composite term.
-    </h3>
-</div> -->
-
-<!-- <div class="alert-accent" *ngIf="compositeTerm?.hasChanged">
-    <h3 style="margin: 0; padding:0;">
-        <fa-icon [icon]="['fas', 'info-circle']"></fa-icon>
-        Click the <strong>Save</strong> button to
-        save the composite term.
-    </h3>
-</div> -->
-
-<!-- <div *ngIf="compositeTerm && compositeTerm.items.length" style="margin-top:10px;">
-    <app-selected-terms-order></app-selected-terms-order>
-</div> -->
 <mat-card class="bedes-container" *ngIf="compositeTerm && compositeTerm.items.length">
     <mat-card-header>
         <span class="bedes-container-title">
@@ -107,8 +68,6 @@
     </mat-card-content>
 </mat-card>
 
-
-<!-- <app-selected-terms-table></app-selected-terms-table> -->
 
 <div style="text-align: center; margin-top: 10px;">
     <a mat-flat-button routerLink="/composite-term" color="accent" style="margin-right:5px;">

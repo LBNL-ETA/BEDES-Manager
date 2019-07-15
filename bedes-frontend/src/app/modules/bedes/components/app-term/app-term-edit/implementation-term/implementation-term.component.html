@@ -9,7 +9,8 @@
 </div>
 
 <!-- Button toolbar -->
-<div style="display:flex;">
+<div class="app-term-toolbar" style="display:flex;">
+    <!-- Back button -->
     <a mat-flat-button
     color="accent"
     [routerLink]="['../']"
@@ -17,6 +18,8 @@
         <fa-icon [icon]="['fas', 'chevron-circle-left']"></fa-icon>
         Back to Term List
     </a>
+
+    <!-- Save button -->
     <button mat-flat-button color="primary"
     (click)="saveAppTerm()"
     [disabled]="!isNewTerm && (!appTerm?.hasChanged || !canEditApplication())" >
