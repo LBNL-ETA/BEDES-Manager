@@ -112,6 +112,10 @@ footer.bedes-footer {
 .font-color-warn {
   color: mat-color($custom-warn);
 }
+.font-color-danger {
+  color: mat-color($custom-danger);
+}
+
 .border-color-warn {
     color: mat-color($custom-warn);
     border: 2px mat-color($custom-warn) solid;
