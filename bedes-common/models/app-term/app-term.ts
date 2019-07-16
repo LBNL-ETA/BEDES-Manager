@@ -31,6 +31,9 @@ export class AppTerm extends UUIDGenerator {
     public get hasChanged(): boolean {
         return this._hasChanged;
     }
+    public set hasChanged(value: boolean) {
+        this._hasChanged = value
+    }
 
     /**
      * Takes the source AppTerm values and assign them to the
@@ -246,5 +249,9 @@ export class AppTerm extends UUIDGenerator {
      */
     public clearMapping(): void {
         this.setMapping(undefined);
+    }
+
+    public isConstrainedList(): boolean {
+        return false;
     }
 }

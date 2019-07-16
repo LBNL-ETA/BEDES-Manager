@@ -133,8 +133,8 @@
 <!-- List options -->
 <!-- List option container-->
 <!-- *ngIf="appTerm && appTerm.termTypeId === TermType.ConstrainedList && shouldShowListOptionGrid()"> -->
-<div style="flex: 1; display: flex; flex-direction: column;">
-<!-- [style.display]="appTerm && appTerm.termTypeId === TermType.ConstrainedList && shouldShowListOptionGrid() ? 'flex' : 'none'"> -->
+<div style="flex: 1; display: flex; flex-direction: column;"
+[style.display]="appTerm && appTerm.termTypeId === TermType.ConstrainedList && shouldShowListOptionGrid() ? 'flex' : 'none'">
     <mat-divider></mat-divider>
     <h2 style="text-align: center;">List Options</h2>
     <!-- Button toolbar -->

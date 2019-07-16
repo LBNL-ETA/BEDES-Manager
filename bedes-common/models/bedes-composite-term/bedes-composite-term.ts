@@ -206,6 +206,26 @@ export class BedesCompositeTerm extends BedesCompositeTermShort {
         }
     }
 
+    /**
+     * Determines if the composite term qualifies as a constrained list
+     */
+    public isConstrainedList(): boolean {
+        const lastTerm = this.getLastDetailItem();
+        return lastTerm && lastTerm.term.isConstrainedList()
+            ? true
+            : false;
+    }
+
+    /**
+     * Returns the last item in the term list
+     * @returns last detail item 
+     */
+    public getLastDetailItem(): CompositeTermDetail | undefined {
+        return this._items.length
+            ? this._items[this._items.length - 1]
+            : undefined;
+    }
+
     public toInterface(): IBedesCompositeTerm {
         return <IBedesCompositeTerm>{
             _id: this.id,

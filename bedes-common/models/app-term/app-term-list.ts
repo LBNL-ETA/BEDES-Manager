@@ -43,6 +43,7 @@ export class AppTermList extends AppTerm {
             throw new Error(`List option name ${listOption.name} already exists`);
         }
         this._listOptions.push(listOption);
+        this._hasChanged = true;
     }
 
     /**
@@ -77,18 +78,10 @@ export class AppTermList extends AppTerm {
         let results = <IAppTermList>(super.toInterface());
         results._listOptions = this._listOptions.map((d) => d.toInterface());
         return results;
-        // return <IAppTermList>{
-        //     _id: this._id,
-        //     _fieldCode: this._fieldCode,
-        //     _name: this._name,
-        //     _description: this._description,
-        //     _termTypeId: this._termTypeId,
-        //     _additionalInfo: this._additionalInfo.map((d) => d.toInterface()),
-        //     _uuid: this._uuid,
-        //     _unitId: this._unitId,
-        //     _listOptions: this._listOptions.map((d) => d.toInterface()),
-        //     _mapping: this._mapping ? this._mapping.toInterface() : undefined
-        // }
+    }
+
+    public isConstrainedList(): boolean {
+        return true;
     }
 
 }

@@ -329,6 +329,8 @@ export class ImplementationTermComponent implements OnInit {
                 this.bedesTermService.getTerm(uuid)
                 .subscribe((bedesTerm: BedesTerm | BedesConstrainedList) => {
                     this.mappedTerm = bedesTerm;
+                    this.gridDataNeedsSet = true;
+                    this.setGridData();
                 });
             }
             else if (this.appTerm.mapping instanceof TermMappingComposite) {
@@ -336,13 +338,14 @@ export class ImplementationTermComponent implements OnInit {
                 this.compositeTermService.getTerm(uuid)
                 .subscribe((compositeTerm: BedesCompositeTerm) => {
                     this.mappedTerm = compositeTerm;
+                    this.gridDataNeedsSet = true;
+                    this.setGridData();
                 })
             }
         }
         else {
             this.mappedTerm = undefined;
         }
-        console.log(`${this.constructor.name}: setting mapped term to `, this.mappedTerm);
     }
 
     /**
@@ -609,7 +612,7 @@ export class ImplementationTermComponent implements OnInit {
             // const gridData = this.applicationList;
             const gridData = new Array<IGridRow>();
             const canEditApp = this.currentUser.canEditApplication(this.app);
-            const shouldShowMappingButtons = this.shouldShowMappingButtons();
+            const shouldShowMappingButtons = this.isMappedToConstrainedList();
             if (this.appTerm instanceof AppTermList && this.appTerm.listOptions.length) {
                 this.appTerm.listOptions.forEach((item: AppTermListOption) => {
                     gridData.push(<IGridRow>{
@@ -654,8 +657,17 @@ export class ImplementationTermComponent implements OnInit {
     public isMappedToConstrainedList(): boolean {
         if (
             this.appTerm
-            && this.appTerm.mapping instanceof TermMappingAtomic
-            && this.appTerm.mapping.bedesTermType === TermType.ConstrainedList
+            && (
+                (
+                    this.appTerm.mapping instanceof TermMappingAtomic
+                    && this.appTerm.mapping.bedesTermType === TermType.ConstrainedList
+                )
+                ||
+                (
+                    this.appTerm.mapping instanceof TermMappingComposite
+                    && this.mappedTerm && this.mappedTerm.isConstrainedList()
+                )
+            )
         ) {
             return true;
         }
@@ -664,17 +676,6 @@ export class ImplementationTermComponent implements OnInit {
         }
     }
 
-    public shouldShowMappingButtons(): boolean {
-        if (this.appTerm
-            && this.appTerm.mapping instanceof TermMappingAtomic
-            && this.appTerm.mapping.bedesTermType === TermType.ConstrainedList
-        ) {
-            return true;
-        }
-        else {
-            return false;
-        }
-    }
     /**
      * Set the execution context for the table.  Used for cell renderers
      * to be able to access the parent component methods.
@@ -883,28 +884,53 @@ export class ImplementationTermComponent implements OnInit {
      * Open the dialog to assign the BEDES List options.
      */
     public listOptionMapping(listOption: AppTermListOption): void {
-        if (!(this.appTerm
-            && this.appTerm.mapping
-            && this.appTerm.mapping instanceof TermMappingAtomic
-            && this.mappedTerm instanceof BedesConstrainedList
-        )) {
+        if (
+            !this.appTerm
+            || !this.appTerm.isConstrainedList()
+            || !this.mappedTerm
+            || !this.mappedTerm.isConstrainedList()
+        ) {
             throw new Error('A BedesConstrainedList term is required.');
         }
+
+        /** subscriber function for handling the selected mapped option */
+        const subscriberFunction = (selectedOption: BedesTermOption) => {
+            if (selectedOption) {
+                this.setMappedListOption(listOption, selectedOption);
+            }
+        }
+
+        if (this.mappedTerm instanceof BedesCompositeTerm) {
+            // handle composite terms
+            const lastItem = this.mappedTerm.getLastDetailItem();
+            if (lastItem) {
+                this.bedesTermService.getTerm(lastItem.term.uuid)
+                .subscribe((term: BedesTerm | BedesConstrainedList) => {
+                    if (term instanceof BedesConstrainedList) {
+                        this.getMappedOptionFromDialog(term)
+                        .subscribe(subscriberFunction);
+                    }
+                })
+            }
+        }
+        else if (this.mappedTerm instanceof BedesConstrainedList) {
+            this.getMappedOptionFromDialog(this.mappedTerm)
+            .subscribe(subscriberFunction);
+        }
+    }
+
+    private getMappedOptionFromDialog(term: BedesConstrainedList): Observable<BedesTermOption> {
         const dialogRef = this.dialog.open(ListOptionMapDialogComponent, {
             panelClass: 'dialog-no-padding',
             width: '650px',
             position: {top: '20px'},
             data: {
-                constrainedList: this.mappedTerm,
+                constrainedList: term,
                 dialogContent: 'Remove the selected terms?',
             }
         });
-        dialogRef.afterClosed()
-        .subscribe((selectedOption: BedesTermOption) => {
-            if (selectedOption) {
-                this.setMappedListOption(listOption, selectedOption);
-            }
-        });
+        return dialogRef.afterClosed();
+
     }
 
     /**
@@ -1020,6 +1046,7 @@ export class ImplementationTermComponent implements OnInit {
     private setMappedListOption(appTermOption: AppTermListOption, bedesTermOption: BedesTermOption): void {
         // map the bedesTerm
         appTermOption.map(bedesTermOption);
+        this.appTerm.hasChanged = true;
         this.appTermService.activeTermSubject.next(this.appTerm);
         this.gridDataNeedsSet = true;
         this.setGridData();

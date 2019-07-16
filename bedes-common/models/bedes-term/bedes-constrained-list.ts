@@ -13,6 +13,10 @@ export class BedesConstrainedList extends BedesTerm {
         }
     }
 
+    public isConstrainedList(): boolean {
+        return true;
+    }
+
     /**
      * Returns the array of Term Options
      */

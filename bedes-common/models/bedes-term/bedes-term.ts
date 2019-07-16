@@ -2,6 +2,7 @@ import { IBedesTerm } from "./bedes-term.interface";
 import { BedesTermSectorLink } from '../bedes-term-sector-link/bedes-term-sector-link';
 import { BedesSectorList } from './bedes-sector-list';
 import { MatchByUUIDOrId } from '../match-by-uuid-or-id/match-by-uuid-or-id';
+import { BedesDataType } from "@bedes-common/enums";
 
 export class BedesTerm extends MatchByUUIDOrId {
     protected _id: number | null | undefined;
@@ -86,6 +87,12 @@ export class BedesTerm extends MatchByUUIDOrId {
     }
     get sectors(): BedesSectorList {
         return this._sectors;
+    }
+
+    public isConstrainedList(): boolean {
+        return this._dataTypeId === BedesDataType.ConstrainedList
+            ? true
+            : false;
     }
 
     /**

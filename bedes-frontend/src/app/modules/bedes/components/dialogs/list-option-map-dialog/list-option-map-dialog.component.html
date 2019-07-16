@@ -19,11 +19,11 @@
                 class="ag-theme-balham">
             </ag-grid-angular>
             <div style="margin-top:10px;">
-                <button mat-stroked-button (click)="selectListOption()" color="primary" [disabled]="!selectedOption">
+                <button mat-flat-button (click)="selectListOption()" color="primary" [disabled]="!selectedOption">
                     <fa-icon [icon]="['fas', 'check']"></fa-icon>
                     Map to Selected Term
                 </button>
-                <button mat-stroked-button (click)="close()">
+                <button mat-flat-button color="accent" (click)="close()">
                     <fa-icon [icon]="['fas', 'times']"></fa-icon>
                     Cancel
                 </button>
