@@ -41,6 +41,7 @@ select
     t.field_code as "_fieldCode",
     t.term_type_id as "_termTypeId",
     t.uuid as "_uuid",
+    t.unit_id as "_unitId",
     case
         when t.term_type_id = 2 then
             wo.items
