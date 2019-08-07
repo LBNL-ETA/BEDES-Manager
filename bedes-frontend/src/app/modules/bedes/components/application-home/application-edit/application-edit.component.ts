@@ -14,6 +14,8 @@ import { takeUntil } from 'rxjs/operators';
 import { CurrentUser } from '@bedes-common/models/current-user';
 import { applicationScopeList } from '@bedes-common/lookup-tables/application-scope-list';
 import { authLoggedInFactory } from '../../../../bedes-auth/services/auth/auth-factory.service';
+import { ApplicationScope } from '../../../../../../../../bedes-common/enums/application-scope.enum';
+import { CompositeTermService } from '../../../services/composite-term/composite-term.service';
 
 enum RequestStatus {
     Idle=1,
@@ -67,7 +69,8 @@ export class ApplicationEditComponent implements OnInit, OnDestroy {
         private authService: AuthService,
         private formBuilder: FormBuilder,
         private appService: ApplicationService,
-        private appTermService: AppTermService
+        private appTermService: AppTermService,
+        private compositeTermService: CompositeTermService
     ) { }
 
     ngOnInit() {
@@ -142,8 +145,7 @@ export class ApplicationEditComponent implements OnInit, OnDestroy {
      * @returns true if change application scope
      */
     public canChangeApplicationScope(): boolean {
-        return this.currentUser && this.currentUser.isAdmin()
-            ? true : false;
+        return this.canEditApplication();
     }
 
     /**
@@ -163,6 +165,8 @@ export class ApplicationEditComponent implements OnInit, OnDestroy {
         const newApp: IMappingApplication = this.getAppFromForm();
         newApp._id = this.app.id;
         this.resetError();
+        const scopeChange = (this.app && this.app.scopeId === ApplicationScope.Private && newApp._scopeId === ApplicationScope.Public)
+            ? true : false;
         this.appService.updateApplication(newApp)
         .subscribe(
             (newApp: MappingApplication) => {
@@ -175,6 +179,9 @@ export class ApplicationEditComponent implements OnInit, OnDestroy {
                 this.currentControlState = ControlState.FormSuccess;
                 this.currentRequestStatus = RequestStatus.Success;
                 this.theForm.form.markAsPristine();
+                if (scopeChange) {
+                    this.compositeTermService.load();
+                }
             },
             (error: any) => {
                 console.log(`${this.constructor.name}: Error creating new application`, error);

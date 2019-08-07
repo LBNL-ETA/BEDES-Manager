@@ -3,7 +3,7 @@
 update
 	public.bedes_composite_term as bct
 set
-	scope_id = 3
+	scope_id = 2
 from
 	public.mapping_application ma,
 	public.app_term t,

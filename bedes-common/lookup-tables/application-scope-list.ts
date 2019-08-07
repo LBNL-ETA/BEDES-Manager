@@ -10,7 +10,7 @@ params.push({
 });
 params.push({
     _id: ApplicationScope.Public,
-    _name: 'Approved',
+    _name: 'Public',
     _description: undefined
 });
 

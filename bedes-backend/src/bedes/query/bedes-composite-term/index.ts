@@ -549,12 +549,6 @@ export class BedesCompositeTermQuery {
         transaction?: any
     ): Promise<void> {
         try {
-            if (!currentUser || !currentUser.isAdmin()) {
-                throw new BedesError(
-                    'Unauthorized.',
-                    HttpStatusCodes.Unauthorized_401
-                );
-            }
             if (!appId) {
                 logger.error(`${this.constructor.name}: missing appId in setApplicationComppositeTermsToPublic`);
                 throw new BedesError(

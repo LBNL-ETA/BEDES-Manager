@@ -159,20 +159,37 @@ export class AppQuery {
                 logger.error(`${this.constructor.name}: Missing parameters in updateRecord`);
                 throw new BedesError('Invalid parameters', HttpStatusCodes.BadRequest_400);
             }
-            // run the admin query if the authenticated user is an admin
-            if (currentUser.isAdmin()) {
-                return this.updateRecordAdmin(currentUser, item, transaction);
+            // make sure the query runs inside a transaction context
+            if (!transaction) {
+                return db.tx('update-record-admin', (newTrans: any) => {
+                    return this.updateRecord(currentUser, item, newTrans);
+                });
             }
-            // otherwise run the unprivileged query, which won't update the scope_id
+            // get the current record to see what the scope is
+            const current = await this.getRecordById(currentUser, item._id);
+            if (!current) {
+                throw new BedesError('Error updating record.', HttpStatusCodes.ServerError_500);
+            }
+            // determine if scope is changing from private to public
+            const scopeToPublic = current._scopeId === ApplicationScope.Private && item._scopeId === ApplicationScope.Public
+                ? true
+                : false;
+
+            if (scopeToPublic) {
+                // Set all corresponding private bedes composite terms to public
+                await bedesQuery.compositeTerm.setApplicationCompositeTermsToPublic(currentUser, item._id, transaction);
+            }
+
             // build the query parameters
             const params = {
                 _id: item._id,
                 _name: item._name,
-                _description: item._description
+                _description: item._description,
+                _scopeId: item._scopeId
             };
             // determine the db transaction context for the query
             const ctx = transaction || db;
-            return ctx.one(this.sqlUpdate, params);
+            return ctx.one(this.sqlUpdateAdmin, params);
         } catch (error) {
             // Duplicate record
             if (error && error.code === "23505") {
