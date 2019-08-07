@@ -3,6 +3,7 @@ create table public.term_category (
     id serial primary key,
     name varchar(100) not null unique
 );
+alter table public.term_category owner to bedes_admin;
 
 insert into public.term_category (name) values
     ('Global Terms'),
@@ -26,21 +27,25 @@ create table public.data_type (
     id serial primary key,
     name varchar(100) not null unique
 );
+alter table public.data_type owner to bedes_admin;
 
 create table public.unit (
     id serial primary key,
     name varchar(30) not null unique
 );
+alter table public.unit owner to bedes_admin;
 
 create table public.definition_source (
     id serial primary key,
     name text not null unique
 );
+alter table public.definition_source owner to bedes_admin;
 
 create table public.sector (
     id int primary key,
     name text not null unique
 );
+alter table public.sector owner to bedes_admin;
 insert into public.sector (id, name) values
     (1, 'Multifamily'),
     (2, 'Residential'),
@@ -58,6 +63,7 @@ create table public.bedes_term (
     definition_source_id int references public.definition_source (id),
     unit_id int references public.unit (id) not null
 );
+alter table public.bedes_term owner to bedes_admin;
 create index on public.bedes_term (term_category_id);
 create index on public.bedes_term (data_type_id);
 create index on public.bedes_term (definition_source_id);
@@ -74,6 +80,7 @@ create table public.bedes_term_list_option (
     url varchar(250),
     uuid uuid unique
 );
+alter table public.bedes_term_list_option owner to bedes_admin;
 -- Want to ensure uniqueness, but some terms have the same name and different descriptions
 -- Use an md5 hash of the text field instead of using the actual text as the unique constraint.
 -- e.g. Premises - Assessment Level
@@ -89,6 +96,7 @@ create table public.bedes_term_sector_link (
     sector_id int not null references public.sector (id),
     unique(term_id, sector_id)
 );
+alter table public.bedes_term_sector_link owner to bedes_admin;
 create index on public.bedes_term_sector_link (term_id);
 create index on public.bedes_term_sector_link (sector_id);
 
@@ -97,6 +105,7 @@ create table public.scope (
     id int primary key,
     name varchar (30) not null unique
 );
+alter table public.scope owner to bedes_admin;
 insert into public.scope (id, name) values
     (1, 'Private'),
     (2, 'Public'),
@@ -116,6 +125,7 @@ create table public.bedes_composite_term (
     created_date timestamp default now(),
     modified_date timestamp default now()
 );
+alter table public.bedes_composite_term owner to bedes_admin;
 create index on public.bedes_composite_term (uuid);
 
 create table public.bedes_composite_term_details (
@@ -128,6 +138,7 @@ create table public.bedes_composite_term_details (
     -- unique (composite_term_id, bedes_term_id),
     unique (composite_term_id, order_number)
 );
+alter table public.bedes_composite_term_details owner to bedes_admin;
 
 -- ApplicationRole
 create table public.application_role_type (
@@ -135,6 +146,7 @@ create table public.application_role_type (
     name varchar(30) not null unique,
     description varchar(200)
 );
+alter table public.application_role_type owner to bedes_admin;
 insert into
     application_role_type (id, name, description)
 values
@@ -148,6 +160,7 @@ create table public.mapping_application (
     description varchar(500),
     scope_id int not null references public.scope (id) default 1
 );
+alter table public.mapping_application owner to bedes_admin;
 
 -- Links authenticated users to mapping applications
 create table public.mapping_application_roles (
@@ -158,12 +171,14 @@ create table public.mapping_application_roles (
     created_date timestamp default now(),
     unique (app_id, user_id)
 );
+alter table public.mapping_application_roles owner to bedes_admin;
 
 create table public.app_field (
     id int primary key,
     name varchar(100) unique not null,
     description text 
 );
+alter table public.app_field owner to bedes_admin;
 
 insert into public.app_field (id, name) values
     (1, 'Data Type'),
@@ -180,6 +195,7 @@ create table public.term_type (
     id int primary key,
     name varchar(50) not null unique
 );
+alter table public.term_type owner to bedes_admin;
 insert into public.term_type (id, name) values
     (1, '[Value]'),
     (2, 'Constrained List')
@@ -196,6 +212,7 @@ create table public.app_term (
     unit_id int references public.unit(id),
     unique (app_id, name)
 );
+alter table public.app_term owner to bedes_admin;
 create index on public.app_term (uuid);
 
 create table public.app_term_list_option (
@@ -207,6 +224,7 @@ create table public.app_term_list_option (
     uuid uuid not null unique,
     unique (app_term_id, name)
 );
+alter table public.app_term_list_option owner to bedes_admin;
 
 create table public.app_term_additional_data (
     id serial primary key,
@@ -215,6 +233,7 @@ create table public.app_term_additional_data (
     value text,
     unique(app_term_id, app_field_id)
 );
+alter table public.app_term_additional_data owner to bedes_admin;
 
 -- create table public.app_enumerated_values (
 --     id serial primary key,
@@ -230,6 +249,7 @@ create table public.atomic_term_maps (
     app_term_id int not null references public.app_term (id) on delete cascade,
     app_list_option_uuid uuid references public.app_term_list_option (uuid)
 );
+alter table public.atomic_term_maps owner to bedes_admin;
 
 create table public.atomic_term_list_option_maps (
     id serial primary key,
@@ -237,6 +257,7 @@ create table public.atomic_term_list_option_maps (
     app_term_id int not null references public.app_term (id),
     app_list_option_uuid uuid references public.app_term_list_option (uuid)
 );
+alter table public.atomic_term_list_option_maps owner to bedes_admin;
 
 -- create table public.bedes_term_maps (
 --     id serial primary key,
@@ -252,3 +273,4 @@ create table public.composite_term_maps (
     app_list_option_uuid uuid references public.app_term_list_option (uuid),
     bedes_composite_term_uuid uuid not null references public.bedes_composite_term (uuid) on delete cascade
 );
+alter table public.composite_term_maps owner to bedes_admin;

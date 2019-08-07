@@ -10,6 +10,7 @@ create table if not exists auth.user_status (
     name varchar(15) not null unique,
     description varchar(100)
 );
+alter table auth.user_status owner to bedes_admin;
 
 insert into auth.user_status (id, name, description) values
     (1, 'verification', 'Verification needed'),
@@ -26,6 +27,7 @@ create table auth.user_group (
     name varchar(100) not null unique,
     description varchar(200)
 );
+alter table auth.user_group owner to bedes_admin;
 -- create the bedes user groups
 insert into auth.user_group (id, name, description) values
     (1, 'Standard', 'Standard user'),
@@ -45,6 +47,7 @@ create table if not exists auth.user (
     created_date timestamp default now(),
     modified_date timestamp default now()
 );
+alter table auth.user owner to bedes_admin;
 create index on auth.user (email);
 
 -- attach the trigger to update the modified date
@@ -63,4 +66,5 @@ create table auth.registration_code (
     time_stamp timestamp default now(),
     expire_time timestamp default now() + interval '24 hour'
 );
+alter table auth.registration_code owner to bedes_admin;
 create index on auth.registration_code (user_id);
