@@ -1,6 +1,14 @@
 # BEDES Manager
 The BEDES Manager is a web-based application for managing the superset of BEDES Atomic and Composite Terms and the related application mappings in which they are used.
 
+## Quick Start
+
+1. Create a copy of `sample.env` and rename it to `.env`. Edit the `.env` file to make sure all passwords are entered.
+2. `make init_docker` - Builds dependent Docker images and creates the database volume.
+3. `docker-compose up` - Builds the images, if they don't exist, and brings up the app.
+4. `docker-compose logs`, or the console output if running in the foreground, will indicate when the database has been built and the node.js server is ready to accept connections.
+5. `make run_scripts_data_init` - Load the initial set of BEDES terms and create the bedes admin/user test accounts.
+
 ## Setting up the Environment
 
 ### Environment and Environment Variables
