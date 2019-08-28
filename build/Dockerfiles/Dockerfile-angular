@@ -1,23 +1,13 @@
-FROM node:11.12.0
-
-ARG NODE_USER_ID
-#ARG NODE_GROUP_ID=20
+FROM node:10.16.3-alpine
 
 USER root
-RUN apt-get update -y
 
 ENV NPM_CONFIG_LOGLEVEL warn
 RUN npm install -g @angular/cli@7.0.4
 
-RUN usermod -u $NODE_USER_ID node
-#RUN groupmod -g ${NODE_GROUP_ID} node
+COPY --chown=node:node bedes-frontend /app/bedes-frontend
+COPY --chown=node:node bedes-common /app/bedes-common
 
-RUN mkdir -p /app && chown -R node.node /app && mkdir -p /bedes-common && chown -R node.node /bedes-common
-WORKDIR /app
-RUN mkdir -p /scripts
-COPY build/lib/make-angular-build.sh /scripts
-RUN chown -R node.node /scripts
-USER node
-
-CMD ["/scripts/make-angular-build.sh"]
-
+RUN cd /app/bedes-common && npm install && cd /app/bedes-frontend && npm install
+WORKDIR /app/bedes-frontend
+RUN npm run build

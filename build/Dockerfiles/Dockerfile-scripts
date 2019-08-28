@@ -1,36 +1,26 @@
-FROM node:11.12.0
+FROM node:10.16.3-alpine
 
 USER root
 
-ENV NPM_CONFIG_LOGLEVEL warn
-RUN npm install -g ts-node@7.0.1
-RUN apt-get update -y && apt-get install -y postgresql-client
+RUN apk update && apk add postgresql-client && rm -rf /var/cache/apk/*
 
-COPY ./scripts /scripts
-COPY ./bedes-common /bedes-common
-COPY ./bedes-backend /bedes-backend
-COPY ./bedes-mappings /bedes-mappings
-COPY ./environment /environment
+RUN apk --no-cache add build-base python
+RUN npm config set python /usr/bin/python
 
-RUN mkdir /entrypoint
-COPY ./build/lib/scripts-entrypoint.sh /entrypoint
-
-RUN chown -R node.node /environment
-RUN chown -R node.node /bedes-common
-RUN chown -R node.node /bedes-backend
-RUN chown -R node.node /bedes-mappings
-RUN chown -R node.node /scripts
+COPY --chown=node:node ./scripts /app/scripts
+COPY --chown=node:node ./bedes-common /app/bedes-common
+COPY --chown=node:node ./bedes-backend /app/bedes-backend
+COPY --chown=node:node ./bedes-mappings /app/bedes-mappings
 
 USER node
 
-WORKDIR /bedes-common
+RUN cd /app/bedes-backend && rm -rf node_modules && npm install
+RUN npm rebuild bcrypt --build-from-source
+RUN cd /app/bedes-common && rm -rf node_modules && npm install
+
+WORKDIR /app/scripts/ts
 RUN rm -rf node_modules && npm install
 
-WORKDIR /bedes-backend
-RUN rm -rf node_modules && npm install
+RUN ls -lhrt /app/scripts
 
-WORKDIR /scripts/ts
-RUN rm -rf node_modules && npm install
-
-CMD ["/entrypoint/scripts-entrypoint.sh"]
-EXPOSE 3000
+ENTRYPOINT ["npm", "run"]

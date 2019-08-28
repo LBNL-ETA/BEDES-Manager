@@ -20,10 +20,10 @@ const pgp:IMain = pgPromise({
 // if the UNDER_TEST env variable is set, use the test database.
 let cn: string;
 if (process.env.UNDER_TEST) {
-    cn = `postgres://${process.env.DB_ADMIN_USER}:${process.env.DB_ADMIN_PASSWORD}@${process.env.DB_HOST}:${process.env.PG_TEST_PORT}/${process.env.PG_DB_NAME}`;
+    cn = `postgres://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}:${process.env.PG_TEST_PORT}/${process.env.PG_DB_NAME}`;
 }
 else {
-    cn = `postgres://${process.env.DB_ADMIN_USER}:${process.env.DB_ADMIN_PASSWORD}@${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`;
+    cn = `postgres://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`;
 }
 const db:IDatabase<any> = pgp(cn);
 

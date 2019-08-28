@@ -1,6 +1,7 @@
-FROM nginx:latest
+FROM bedes_angular_img as angular
+FROM nginx:1.17.3-alpine
 USER root
-COPY ./bedes-frontend/dist/Bedes-App /usr/share/nginx/html
-COPY ./build/nginx_config/nginx.conf /etc/nginx
-COPY ./build/nginx_config/conf.dev.d/default.conf /etc/nginx/conf.d
+COPY --from=bedes_angular_img /app/bedes-frontend/dist/Bedes-App /usr/share/nginx/html
+COPY ./nginx_config/nginx.conf /etc/nginx
+COPY ./nginx_config/conf.dev.d/default.conf /etc/nginx/conf.d
 EXPOSE 80

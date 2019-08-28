@@ -1,56 +1,61 @@
 include .env
 
-build_frontend_build_image:
-	docker build \
-	--build-arg NODE_USER_ID=1000 \
-	--build-arg NODE_GROUP_ID=1000 \
-	-t=${FRONTEND_BUILD_IMG_NAME} \
-	-f Dockerfiles/Dockerfile-angular \
-	--rm=true \
-	.
+# build the angular builder
+build_ng_image:
+	cd .. && docker build \
+		-t ${ANGULAR_BUILD_IMAGE} \
+		-f ./build/Dockerfiles/Dockerfile-angular \
+		--rm=true \
+		.
 
-push_frontend_build_image_to_registry:
-	docker push ${FRONTEND_BUILD_IMG_NAME}
+# build the script runner image
+build_scripts_image:
+	cd .. && docker build \
+		-t ${SCRIPT_IMAGE} \
+		-f ./build/Dockerfiles/Dockerfile-scripts \
+		--rm=true \
+		.
 
-node_modules:
-	docker run -ti --rm -u node --name=${FRONTEND_BUILD_CONTAINER_NAME} \
-	-e "MODE=production" \
-	-v ${CURDIR}/epb/epb-frontend/:/app \
-	-v ${CURDIR}/epb/epb-common/:/epb-common \
-	${FRONTEND_BUILD_IMG_NAME}
+# run all initialization scripts
+run_scripts-init:
+	make run_scripts-load-data
+	make run_scripts-add-bedes-admin-user
+	make run_scripts-add-bedes-test-users
 
-ng_build:
-	docker run -ti --rm -u node --name=${FRONTEND_BUILD_CONTAINER_NAME} \
-	-e "MODE=production" \
-	-v ${CURDIR}/epb/epb-frontend/:/app \
-	-v ${CURDIR}/epb/epb-common/:/epb-common \
-	${FRONTEND_BUILD_IMG_NAME} \
-	ng build --prod --build-optimizer=true
+# load an initial set of bedes-terms
+run_scripts-load-data:
+	docker run \
+		--network=${DOCKER_NET_NAME} \
+		--env-file=.env \
+		--rm \
+		--name=${SCRIPT_CONTAINER} \
+		${SCRIPT_IMAGE} \
+		load-all-compose
 
-# backend functions
-build_backend_image:
-	docker build \
-	--build-arg NODE_USER_ID=1000 \
-	--build-arg NODE_GROUP_ID=1000 \
-	-t=${BACKEND_IMG_NAME} \
-	-f Dockerfiles/Dockerfile-backend \
-	--rm=true \
-	.
+# create the bedes-admin account
+run_scripts-add-bedes-admin-user:
+	docker run \
+		--network=${DOCKER_NET_NAME} \
+		--env-file=.env \
+		--rm \
+		--name=${SCRIPT_CONTAINER} \
+		${SCRIPT_IMAGE} \
+		add-bedes-admin-user
 
-push_backend_image_to_registry:
-	docker push ${BACKEND_IMG_NAME}
+# create the bedes test-user accounts
+run_scripts-add-bedes-test-users:
+	docker run \
+		--network=${DOCKER_NET_NAME} \
+		--env-file=.env \
+		--rm \
+		--name=${SCRIPT_CONTAINER} \
+		${SCRIPT_IMAGE} \
+		add-bedes-test-users
 
-# nginx image functions
-build_nginx_local_image:
-	docker build \
-	-t=${NGINX_LOCAL_IMG_NAME} \
-	-f Dockerfiles/Dockerfile-nginx-local \
-	--rm=true \
-	.
+# create the database volume
+volume_create:
+	docker volume create ${POSTGRES_VOLUME_NAME}
 
-build_nginx_production_image:
-	docker build \
-	-t=${NGINX_PRODUCTION_IMG_NAME} \
-	-f Dockerfiles/Dockerfile-nginx-production \
-	--rm=true \
-	.
+# remove the database volume
+volume_rm:
+	docker volume rm ${POSTGRES_VOLUME_NAME}

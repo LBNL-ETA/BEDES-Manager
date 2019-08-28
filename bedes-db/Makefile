@@ -7,10 +7,8 @@ run:
 		-e POSTGRES_PASSWORD=${POSTGRES_PASSWORD} \
 		-e PGDATA=/var/lib/postgresql/data/pgdata \
 		-e DB_NAME=${DB_NAME} \
-		-e DB_ADMIN_USER=${DB_ADMIN_USER} \
-		-e DB_ADMIN_PASSWORD=${DB_ADMIN_PASSWORD} \
-		-e DB_APP_USER=${DB_APP_USER} \
-		-e DB_APP_PASSWORD=${DB_APP_PASSWORD} \
+		-e DB_USER=${DB_USER} \
+		-e DB_PASSWORD=${DB_PASSWORD} \
 		-v ${PWD}/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d \
 		-v ${POSTGRES_VOLUME_NAME}:/var/lib/postgresql/data/pgdata \
 		-v ${PWD}/../scripts/db:/create-epb-db \

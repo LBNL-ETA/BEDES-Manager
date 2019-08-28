@@ -1,12 +1,6 @@
-#!/bin/bash
+#!/bin/sh
 set -e
 
-# host="$1"
-# shift
-# cmd="$@"
-# cmd="npm start"
-
-# echo "next cmd is $@"
 cmd="npm start"
 
 echo "Waiting for Postgres..."
