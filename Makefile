@@ -4,7 +4,6 @@ init_docker:
 	make build_ng_image
 	make build_scripts_image
 	make volume_create
-	make clean_dangling_images
 
 # build the angular builder
 build_ng_image:
@@ -65,6 +64,3 @@ volume_create:
 # remove the database volume
 volume_rm:
 	docker volume rm ${POSTGRES_VOLUME_NAME}
-
-clean_dangling_images:
-	docker rmi $(docker images --quiet --filter "dangling=true")
