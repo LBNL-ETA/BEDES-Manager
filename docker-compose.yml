@@ -5,7 +5,7 @@ services:
     env_file:
       - .env
     build:
-      context: "../"
+      context: "."
       dockerfile: "./build/Dockerfiles/Dockerfile-backend"
     # ports:
     #   - "127.0.0.1:3009:3000"
@@ -16,7 +16,7 @@ services:
   frontend:
     container_name: "${WEB_CONTAINER}"
     build:
-      context: "./"
+      context: "./build"
       dockerfile: "./Dockerfiles/Dockerfile-nginx-local"
     ports:
       - "8086:80"
@@ -24,7 +24,7 @@ services:
       - bedes-web-net
     depends_on:
       - "backend"
-    command: [nginx-debug, '-g', 'daemon off;']
+    # command: [nginx-debug, '-g', 'daemon off;']
   db:
     image: "${POSTGRES_IMG}"
     container_name: "${DB_CONTAINER}"
@@ -32,13 +32,13 @@ services:
       - .env
     expose:
       - 5432
-    ports:
-      - "127.0.0.1:5461:5432"
+    # ports:
+    #   - "127.0.0.1:5461:5432"
     networks:
       - bedes-web-net
     volumes:
-      - ../scripts/db:/create-epb-db
-      - ../bedes-db/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+      - ./scripts/db:/create-epb-db
+      - ./bedes-db/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
       - db-volume:/var/lib/postgresql/data/pgdata
 
 volumes:
