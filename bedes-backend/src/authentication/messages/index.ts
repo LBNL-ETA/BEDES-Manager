@@ -1,4 +1,4 @@
-import { postman } from '../../postman';
+import { bedesPostman } from '../../postman';
 import { authQuery } from '../query';
 
 import * as util from 'util';
@@ -33,7 +33,7 @@ export async function sendVerificationCode(user: IUserProfile): Promise<boolean>
             </p>
             </html>
         `;
-        return postman.sendEmail(String(user.email), 'BEDES Manager Verification', message)
+        return bedesPostman.sendEmail(String(user.email), 'BEDES Manager Verification', message)
     }
     catch (error) {
         logger.error('error sending verification email');

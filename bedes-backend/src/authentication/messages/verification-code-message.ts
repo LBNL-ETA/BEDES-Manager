@@ -1,4 +1,4 @@
-import { postman } from '@bedes-backend/postman';
+import { bedesPostman } from '@bedes-backend/postman';
 import * as util from 'util';
 import { createLogger } from '@bedes-backend/logging';
 const logger = createLogger(module);
@@ -39,7 +39,7 @@ export function sendVerificationCodeMessage(user: any, res: any) {
     // send the email
     // TODO: Handle situations where the email was actually sent or not,
     // right now there's no check
-    postman.sendEmail('mspears@lbl.gov', 'New ePB Account', htmlMessage)
+    bedesPostman.sendEmail('mspears@lbl.gov', 'New ePB Account', htmlMessage)
     .then((results: any) => {
         logger.debug('email successfully sent...');
         logger.debug(results);

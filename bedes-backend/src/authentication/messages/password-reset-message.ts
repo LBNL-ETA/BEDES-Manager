@@ -1,4 +1,4 @@
-import { postman } from '@bedes-backend/postman';
+import { bedesPostman } from '@bedes-backend/postman';
 import * as util from 'util';
 import { createLogger } from '@bedes-backend/logging';
 import { IUserProfile } from '@bedes-common/models/authentication/user-profile';
@@ -31,7 +31,7 @@ export function sendPasswordResetMessage(user: IUserProfile, password: string) {
     </p>
     </html>
     `;
-    postman.sendEmail(user.email, 'Password Reset', message)
+    bedesPostman.sendEmail(user.email, 'Password Reset', message)
     .then((results: any) => {
         logger.debug('password reset email sent...');
         logger.debug(results);
