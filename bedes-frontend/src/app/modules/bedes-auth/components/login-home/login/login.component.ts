@@ -62,8 +62,11 @@ export class LoginComponent implements OnInit {
         .pipe(takeUntil(this.ngUnsubscribe))
         .subscribe((currentUser: CurrentUser) => {
             this.currentUser = currentUser;
-            const nextUrl = getNextAuthUrl(currentUser.status);
-            this.router.navigateByUrl(nextUrl);
+            // redirect to the correct authentication state
+            if (!currentUser.isNotLoggedIn()) {
+                const nextUrl = this.authService.getNextAuthUrl();
+                this.router.navigateByUrl(nextUrl);
+            }
         });
     }
 
@@ -73,16 +76,51 @@ export class LoginComponent implements OnInit {
     public login(): void {
         this.resetLoginError();
         this.waiting = true;
-        this.authService.login(this.userLogin).subscribe(
-            (userLoginResponse: UserLoginResponse) => {
+        this.authService.login(this.userLogin)
+        .subscribe((userLoginResponse: UserLoginResponse) => {
                 this.loginSuccess = true;
-                const url = this.authService.getPostLoginUrl();
-                // navigate to home after 1 second
-                setTimeout(() => {
-                        this.router.navigateByUrl(url);
-                    },
-                    1000
-                );
+                console.log('LoginComponent analyze login response')
+                // if (this.authService.needsVerify()) {
+                //     let url: string;
+                //     console.log('check url')
+                //     if (
+                //         this.authService.hasRedirectUrl()
+                //         && this.authService.redirectUrl.match(/^\/home\/verify\/[a-zA-Z0-9]+/)
+                //     ) {
+                //         url = this.authService.redirectUrl;
+                //     }
+                //     else {
+                //         url = '/home/verify'
+                //     }
+                //     console.log(`${this.constructor.name}: set url to ${url}`)
+                //     // verify the account if need be
+                //     // setTimeout(() => {
+                //             this.router.navigateByUrl(url);
+                //     //     },
+                //     //     1000
+                //     // );
+                // }
+                // else if (this.authService.hasRedirectUrl()) {
+                //     // redirect to the original url if cought by the auth guard
+                //     // get the redirect url and set to undefined
+                //     const url = this.authService.redirectUrl;
+                //     this.authService.redirectUrl = undefined;
+                //     // setTimeout(() => {
+                //             this.router.navigateByUrl(url);
+                //     //     },
+                //     //     1000
+                //     // );
+                // }
+                // else if (this.authService.isLoggedIn()) {
+                //     // setTimeout(() => {
+                //             this.router.navigateByUrl('/home');
+                //     //     },
+                //     //     1000
+                //     // );
+                // }
+                // else {
+                //     throw new Error('An error occured processing the authentication response');
+                // }
             },
             (err: any) => {
                 // login was denied (401) or some other error
@@ -116,6 +154,6 @@ export class LoginComponent implements OnInit {
      * Reset's the user password with the given email address.
      */
     public forgotPassword(): void {
-        // TODO: write this
+        console.log('forgot password');
     }
 }

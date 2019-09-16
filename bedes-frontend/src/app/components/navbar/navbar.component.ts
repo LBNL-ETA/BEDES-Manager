@@ -50,7 +50,7 @@ export class NavbarComponent implements OnInit {
     }
 
     public isLoggedIn(): boolean {
-        return this.currentUser.isLoggedIn();
+        return this.currentUser.isNotLoggedIn() ? false : true;
     }
 
     public isAdmin(): boolean {

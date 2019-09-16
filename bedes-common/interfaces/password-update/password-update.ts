@@ -1,4 +1,4 @@
-
+import { IPasswordUpdate } from './password-update.interface';
 export class PasswordUpdate {
     private _password: string;
     get password(): string {
@@ -35,6 +35,13 @@ export class PasswordUpdate {
         }
         else {
             return false;
+        }
+    }
+
+    public toInterface(): IPasswordUpdate {
+        return <IPasswordUpdate>{
+            _password: this._password,
+            _passwordConfirm: this._passwordConfirm
         }
     }
 }

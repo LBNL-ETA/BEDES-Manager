@@ -37,6 +37,7 @@ insert into auth.user_group (id, name, description) values
 -- create the user table
 create table if not exists auth.user (
     id serial primary key,
+    uuid uuid unique not null,
     first_name varchar(100) not null,
     last_name varchar(100) not null,
     email varchar(100) not null unique,
@@ -68,3 +69,14 @@ create table auth.registration_code (
 );
 alter table auth.registration_code owner to bedes_admin;
 create index on auth.registration_code (user_id);
+
+-- for password resets
+create table auth.pw_reset_code (
+    id serial primary key,
+    uuid uuid not null unique,
+    user_id int not null references auth.user (id),
+    time_stamp timestamp default now(),
+    expire_time timestamp default now() + interval '1 hour'
+);
+alter table auth.pw_reset_code owner to bedes_admin;
+create index on auth.pw_reset_code (user_id);

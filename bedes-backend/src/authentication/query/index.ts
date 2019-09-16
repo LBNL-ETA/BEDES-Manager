@@ -10,21 +10,23 @@ import { ICurrentUser } from '@bedes-common/models/current-user';
 
 import { createLogger } from '@bedes-backend/logging';
 const logger = createLogger(module);
-import { UserPasswordUpdate } from '../models/user-password-update';
 import { INewRegistrationCodeResults } from '../interfaces/new-registration-code-results.interface';
-import { IValidateRegistrationCodeResult } from '../interfaces/validate-registration-code-result.interface';
 import { BedesError } from '@bedes-common/bedes-error';
 import { HttpStatusCodes } from '@bedes-common/enums/http-status-codes';
 import { UserStatus } from '@bedes-common/enums/user-status.enum';
 import { IUserProfile } from '@bedes-common/models/authentication/user-profile';
 import { ICurrentUserAuth } from '../models/current-user-auth/current-user-auth.interface';
-import { CurrentUser } from '../../../../bedes-common/models/current-user/current-user';
+import { CurrentUser } from '@bedes-common/models/current-user/current-user';
 import { IGetVerificationCodeResult } from './get-verification-code/get-verification-code-result.interface';
 import { PasswordUpdateAuth } from '../models/password-update-auth';
+import { v4 } from 'uuid';
+import { isUUID } from '@bedes-common/util/is-uuid';
+import { IValidToken } from '../models/password-reset-updater';
 
 class AuthQuery {
     private sqlGetByEmail!: QueryFile;
     private sqlGetById!: QueryFile;
+    private sqlGetByUUID: QueryFile;
     private sqlAddUser!: QueryFile;
     private sqlUpdateUser!: QueryFile;
     private sqlUpdateUserStatus!: QueryFile;
@@ -33,20 +35,13 @@ class AuthQuery {
     private sqlNewRegistrationCode!: QueryFile;
     private sqlGetRegistrationCode!: QueryFile;
     private sqlRemoveRegistrationCode!: QueryFile;
+    private sqlInsertPwCode: QueryFile;
+    private sqlDeletePwCode: QueryFile;
 
     constructor() { 
-        this.initSql();
-    }
-
-    /**
-     * Loads the sql queries.
-     *
-     * @private
-     * @memberof User
-     */
-    private initSql(): void {
         this.sqlGetByEmail = sqlLoader(path.join(__dirname, 'getByEmail.sql'));
         this.sqlGetById = sqlLoader(path.join(__dirname, 'getById.sql'));
+        this.sqlGetByUUID = sqlLoader(path.join(__dirname, 'getByUUID.sql'));
         this.sqlAddUser = sqlLoader(path.join(__dirname, 'addUser.sql'));
         this.sqlUpdateUser = sqlLoader(path.join(__dirname, 'updateUser.sql'));
         this.sqlGetUserStatus = sqlLoader(path.join(__dirname, 'getUserStatus.sql'));
@@ -55,6 +50,8 @@ class AuthQuery {
         this.sqlNewRegistrationCode = sqlLoader(path.join(__dirname, 'newRegistrationCode.sql'));
         this.sqlGetRegistrationCode = sqlLoader(path.join(__dirname, 'get-verification-code/getVerificationCode.sql'));
         this.sqlRemoveRegistrationCode = sqlLoader(path.join(__dirname, 'removeRegistrationCode.sql'));
+        this.sqlInsertPwCode = sqlLoader(path.join(__dirname, 'insert-pw-code.sql'));
+        this.sqlDeletePwCode = sqlLoader(path.join(__dirname, 'delete-pw-code.sql'));
     }
 
     /**
@@ -111,6 +108,26 @@ class AuthQuery {
     }
 
     /**
+     * Get a UserProfile record by uuid 
+     */
+    public async getByUUID(uuid: string, transaction?: any): Promise<ICurrentUserAuth> {
+        try {
+            if (!isUUID(uuid)) {
+                throw new BedesError('Invalid parameters.', HttpStatusCodes.BadRequest_400);
+            }
+            // build the query params
+            const params = { uuid };
+            const ctx = transaction || db;
+            return ctx.one(this.sqlGetByUUID, params);
+        }
+        catch (error) {
+            logger.error(`${this.constructor.name}: Error in getByUUID.`);
+            console.log(error);
+            throw error;
+        }
+    }
+
+    /**
      * Add a new UserProfile record.
      *
      * @param {UserProfileNew} user
@@ -119,14 +136,14 @@ class AuthQuery {
      */
     public async addUser(user: UserProfileNew): Promise<IUserProfile>{
         try {
-            logger.info(`Added new user ${user}`);
             const hashPassword = await user.hashPassword()
             const params = {
                 firstName: user.firstName,
                 lastName: user.lastName,
                 email: user.email,
                 organization: user.organization,
-                password: hashPassword
+                password: hashPassword,
+                uuid: v4()
             };
             return db.one(this.sqlAddUser, params);
         }
@@ -145,7 +162,6 @@ class AuthQuery {
      * @memberof AuthQuery
      */
     public updateUser(user: UserProfileUpdate): any {
-        logger.info(`Added new user ${user}`);
         return db.result(this.sqlUpdateUser, {
             id: +user.id,
             firstName: user.firstName,
@@ -157,35 +173,22 @@ class AuthQuery {
     /**
      * Updates a user password.
      */
-    public updateUserPassword(currentUser: CurrentUser, passwordUpdate: PasswordUpdateAuth): Promise<boolean> {
-        return new Promise((resolve, reject) => {
-            // first hash the password
-            passwordUpdate.hashPassword().then(
-                (passwordHash: string) => {
-                    // update the db with the new hashed password
-                    db.result(this.sqlUpdateUserPassword, {
-                        id: currentUser.id,
-                        passwordHash: passwordHash
-                    }, (r: any) => r.rowCount).then(
-                        async (rowCount: number) => {
-                            // update password success!
-                            // TODO: check results for success?
-                            logger.debug('updateUserPassword success');
-                            await this.updateUserStatus(currentUser.id, UserStatus.IsLoggedIn);
-                            if (rowCount) {
-                                resolve(true);
-                            }
-                            else {
-                                resolve(false);
-                            }
-                        }
-                    )
-                },
-                (error) => {
-                    reject();
-                }
-            )
-        });
+    public async updateUserPassword(userId: number, passwordUpdate: PasswordUpdateAuth, trans: any): Promise<void> {
+        try {
+            // hash the password
+            const passwordHash = await passwordUpdate.hashPassword();
+            // create the query params
+            const params = {
+                id: userId,
+                passwordHash: passwordHash
+            }
+            return trans.none(this.sqlUpdateUserPassword, params);
+        } catch (error) {
+            console.log('Error updating the user password');
+            console.log(error);
+            throw new BedesError('Error updating the user password', HttpStatusCodes.ServerError_500);
+            
+        }
     }
 
     /**
@@ -195,15 +198,60 @@ class AuthQuery {
         return db.one(this.sqlGetUserStatus, {userId: userId});
     }
 
-    public updateUserStatus(userId: number, status: UserStatus): Promise<ICurrentUser> {
+    public updateUserStatus(userId: number, status: UserStatus, transaction: any): Promise<UserStatus> {
         try {
-            return db.one(this.sqlUpdateUserStatus, {userId: userId, status: status});
+            const ctx = transaction || db;
+            return ctx.one(this.sqlUpdateUserStatus, {userId: userId, status: status})
+                .then((results: {status: number}) => {
+                    return results.status;
+                });
         }
         catch (error) {
             logger.error(`${this.constructor.name}: error in updateUserStatus`);
             console.log(error);
             throw error;
         }
+    }
+
+    /**
+     * Insert a password reset token, returning the uuid linked to the user's request
+     * @returns password reset token 
+     */
+    public async getPasswordResetToken(userId: number, trans: any): Promise<string> {
+        try {
+            // create a new uuid
+            const params = {
+                userId: userId,
+                uuid: v4()
+            }
+            const result = await trans.one(this.sqlInsertPwCode, params)
+            return result.uuid;
+            
+        }
+        catch (error) {
+            console.log('error inserting password reset token');
+            console.log(error);
+            throw error;
+        }
+
+    }
+
+    public async validatePasswordResetToken(userId: number, token: string, trans: any): Promise<IValidToken> {
+        try {
+            // create a new uuid
+            const params = {
+                userId: userId,
+                uuid: token
+            }
+            return trans.one(this.sqlDeletePwCode, params)
+            
+        }
+        catch (error) {
+            console.log('error inserting password reset token');
+            console.log(error);
+            throw error;
+        }
+
     }
 
     /**
@@ -230,56 +278,7 @@ class AuthQuery {
         }
     }
 
-    // public async removeRegistrationCode(id: number): Promise<any> {
-    //     try {
-    //         const params = {
-    //             id: id
-    //         };
-    //         return db.result(this.sqlRemoveRegistrationCode, params);
-    //     }
-    //     catch (error) {
-    //         logger.error(`${this.constructor.name}: error in removeRegistrationCode(${id})`);
-    //         logger.error(util.inspect(error));
-    //         throw error;
-    //     }
-    // }
-
-    // public async validateRegistrationCode(userId: number, registrationCode: string): Promise<ICurrentUser> {
-    //     try {
-    //         const params = {
-    //             userId: userId,
-    //             registrationCode: registrationCode
-    //         };
-    //         const validationResult: IValidateRegistrationCodeResult = await db.oneOrNone(this.sqlGetRegistrationCode, params);
-    //         console.log('validation success');
-    //         console.log(validationResult);
-    //         if (!validationResult || !validationResult.id) {
-    //             logger.error(`${this.constructor.name}: expected getRegistrationCode(${userId}, '${registrationCode}'`);
-    //             throw new BedesError(
-    //                 `${this.constructor.name}: expected getRegistrationCode(${userId}, '${registrationCode}'`,
-    //                 HttpStatusCodes.BadRequest_400,
-    //                 'Invalid or Expired Registration Code'
-    //             )
-    //         }
-    //         else if (!validationResult.isValid) {
-    //             // this.removeRegistrationCode(validationResult.id);
-    //             logger.error(`invalid verification code encountered for user ${userId}, code ${registrationCode}`);
-    //             throw new BedesError('Registration code expired.', HttpStatusCodes.BadRequest_400, 'Registration code expired.');
-    //         }
-    //         // validation result is valid
-    //         // remove the verification code
-    //         this.removeRegistrationCode(validationResult.id);
-    //         // update the user status
-    //         return this.updateUserStatus(userId, UserStatus.IsLoggedIn);
-    //     }
-    //     catch (error) {
-    //         logger.error(`${this.constructor.name}: error in validateRegistrationCode(${userId}, '${registrationCode})`);
-    //         logger.error(util.inspect(error));
-    //         throw error;
-    //     }
-    // }
-
-        /**
+    /**
      * Validate a registration code for a given user.
      *
      * @param user The CurrentUser record for the user in question (usually from req.user).
@@ -298,11 +297,6 @@ class AuthQuery {
                 _userId: user.id,
                 _registrationCode: registrationCode
             };
-            console.log('this.validateVerificationCode');
-            console.log(user);
-            console.log(registrationCode);
-            console.log('get params');
-            console.log(getParams);
             // get the verification code record
             const result: IGetVerificationCodeResult= await db.oneOrNone(this.sqlGetRegistrationCode, getParams);
             // make sure a valid object is returned
@@ -323,8 +317,6 @@ class AuthQuery {
                 )
             }
             // valid registration codes...
-            logger.debug('validation success');
-            console.log(result);
             // wrap the cleanup process in a transaction
             const saveFunction = async (transaction: any): Promise<boolean> => {
                 // array of promises

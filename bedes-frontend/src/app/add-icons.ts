@@ -50,7 +50,8 @@ import {
     faFileImport,
     faCheckCircle,
     faKey,
-    faCopyright
+    faCopyright,
+    faPaperPlane
 } from '@fortawesome/free-solid-svg-icons';
 
 /**
@@ -103,4 +104,5 @@ export function addIcons (): void {
     library.add(faCheckCircle);
     library.add(faKey);
     library.add(faCopyright);
+    library.add(faPaperPlane);
 }

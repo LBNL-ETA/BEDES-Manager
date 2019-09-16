@@ -6,6 +6,7 @@ import { AuthService } from '../../../services/auth/auth.service';
 import { CurrentUser } from '@bedes-common/models/current-user/current-user';
 import { getNextAuthUrl } from '../lib/get-next-url';
 import { takeUntil } from 'rxjs/operators';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
     selector: 'app-verify',
@@ -17,14 +18,18 @@ export class VerifyComponent implements OnInit {
     private verificationCode: string | undefined;
     // The current ePB user
     public currentUser: CurrentUser | undefined;
-    // Error message displayed to the user in the ui when set.
-    public verifyErrorMessage: string | undefined;
+    // error indicators
+    public hasError = false;
+    public errorMessage = '';
     // Indicates if the code verification was successfull
     public verifySuccess = false;
     // Data form
     public dataForm = this.formBuilder.group({
         verificationCode: ['', Validators.required],
     });
+    /** indicates if a waiting for a response from the server  */
+    public waitingForResponse = false;
+    public waitingForResendResponse = false;
 
     constructor(
         private route: ActivatedRoute,
@@ -72,8 +77,10 @@ export class VerifyComponent implements OnInit {
         .pipe(takeUntil(this.ngUnsubscribe))
         .subscribe((currentUser: CurrentUser) => {
             this.currentUser = currentUser;
-            const nextUrl = getNextAuthUrl(currentUser.status);
-            this.router.navigateByUrl(nextUrl);
+            if (!currentUser.needsVerify()) {
+                const nextUrl = getNextAuthUrl(currentUser.status);
+                this.router.navigateByUrl(nextUrl);
+            }
         });
     }
 
@@ -86,8 +93,15 @@ export class VerifyComponent implements OnInit {
     }
 
     public newVerificationCode(): void {
+        // this.resetErrorIndicators();
+        this.waitingForResendResponse = true;
         this.authService.newVerificationCode()
         .subscribe((results: any) => {
+            this.waitingForResendResponse = false;
+        }, (error: HttpErrorResponse) => {
+            this.errorMessage = 'Error sending the verification code';
+            this.hasError = true;
+            this.waitingForResendResponse = false;
         });
     }
 
@@ -101,12 +115,28 @@ export class VerifyComponent implements OnInit {
         if (!verificationCode) {
             throw new Error(`${this.constructor.name}: verify expects verificationCode to be set.`);
         }
+        this.resetErrorIndicators();
+        this.waitingForResponse = true;
         this.authService.verify(verificationCode)
         .subscribe((results: any) => {
+            this.waitingForResponse = false;
+            this.verifySuccess = true;
         },
-        (error: Error) => {
-            console.log('Error verifying the code...', error);
+        (error: HttpErrorResponse) => {
+            this.hasError = true;
+            if (error.status === 400 && error.error) {
+                this.errorMessage = String(error.error);
+            }
+            else {
+                this.errorMessage = 'An error occured creating verifying your account.'
+            }
+            this.waitingForResponse = false;
         });
+    }
+
+    private resetErrorIndicators(): void {
+        this.hasError = false;
+        this.errorMessage = '';
     }
 
     /**
@@ -115,7 +145,6 @@ export class VerifyComponent implements OnInit {
     public logout(): void {
         this.authService.logout()
         .subscribe((results: any) => {
-            console.log('logout = ', results);
         })
 
     }

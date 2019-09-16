@@ -18,8 +18,8 @@ export class AuthGuardService implements CanActivate {
             return true;
         }
         else if (this.authService.needsVerify()) {
-            if (!url || !url.match(/^\/home\/verify/)) {
-                this.authService.redirectUrl = url;
+            if (!url || !url.match(/^\/home\/verify.*/)) {
+                this.authService.setRedirectUrl(url);
                 this.router.navigate(['/home/verify']);
                 return false;
             }
@@ -28,7 +28,7 @@ export class AuthGuardService implements CanActivate {
             }
         }
         else {
-            this.authService.redirectUrl = url;
+            this.authService.setRedirectUrl(url);
             this.router.navigate(['/home']);
             return false;
         }

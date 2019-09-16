@@ -8,6 +8,8 @@ import { LoginHomeComponent } from './components/login-home/login-home.component
 import { LogoutComponent } from './components/login-home/logout/logout.component';
 import { RequestAccountComponent } from './components/login-home/request-account/request-account.component';
 import { PasswordChangeComponent } from './components/login-home/password-change/password-change.component';
+import { ForgotPasswordComponent } from './components/login-home/forgot-password/forgot-password.component';
+import { ForgotPasswordResetComponent } from './components/login-home/forgot-password-reset/forgot-password-reset.component';
 
 const appRoutes: Routes = [
     // { path: 'login', component: LoginComponent }
@@ -41,6 +43,14 @@ const appRoutes: Routes = [
             {
                 path: 'password-update',
                 component: PasswordChangeComponent
+            },
+            {
+                path: 'password-reset/:uuid/:token',
+                component: ForgotPasswordResetComponent
+            },
+            {
+                path: 'password-reset',
+                component: ForgotPasswordComponent
             },
             {
                 path: 'logout',

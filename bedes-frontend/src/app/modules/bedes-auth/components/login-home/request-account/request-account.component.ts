@@ -24,6 +24,8 @@ export class RequestAccountComponent implements OnInit {
         password: ['', Validators.required],
         passwordConfirm: ['', Validators.required]
     });
+    /** indicates if a waiting for a response from the server  */
+    public waitingForResponse = false;
 
     constructor(
         private formBuilder: FormBuilder,
@@ -49,21 +51,22 @@ export class RequestAccountComponent implements OnInit {
         console.log('create account', account);
         this.resetErrorIndicators();
 
+        this.waitingForResponse = true;
         this.authService.requestAccount(account).subscribe(
             (results: any) => {
-                console.log(`${this.constructor.name}: results`, results);
                 this.requestSuccess = true;
                 this.requestForm.disable();
+                this.waitingForResponse = false;
             },
             (error: HttpErrorResponse) => {
-                console.log(`${this.constructor.name}: Error creating new account`);
-                console.log(error);
+                this.hasError = true;
                 if (error.status === 400 && error.error) {
                     this.errorMessage = String(error.error);
                 }
                 else {
-                    this.errorMessage = 'An error occured creating the new project.'
+                    this.errorMessage = 'An error occured creating the new account.'
                 }
+                this.waitingForResponse = false;
             }
         );
     }

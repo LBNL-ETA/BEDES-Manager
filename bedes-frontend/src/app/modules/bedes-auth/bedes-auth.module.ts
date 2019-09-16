@@ -21,6 +21,8 @@ import { LogoutComponent } from './components/login-home/logout/logout.component
 import { RequestAccountComponent } from './components/login-home/request-account/request-account.component';
 import { InterceptorService } from './services/interceptor/interceptor.service';
 import { PasswordChangeComponent } from './components/login-home/password-change/password-change.component';
+import { ForgotPasswordComponent } from './components/login-home/forgot-password/forgot-password.component';
+import { ForgotPasswordResetComponent } from './components/login-home/forgot-password-reset/forgot-password-reset.component';
 
 @NgModule({
     imports: [
@@ -41,6 +43,8 @@ import { PasswordChangeComponent } from './components/login-home/password-change
         LogoutComponent,
         RequestAccountComponent,
         PasswordChangeComponent,
+        ForgotPasswordComponent,
+        ForgotPasswordResetComponent,
     ],
     providers: [
         AuthService,

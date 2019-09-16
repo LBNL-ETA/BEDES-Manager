@@ -5,5 +5,5 @@ set
 where 
     id = ${userId}
 returning 
-    status as "status"
+    status
 ;
