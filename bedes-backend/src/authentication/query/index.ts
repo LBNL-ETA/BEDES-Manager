@@ -173,7 +173,7 @@ class AuthQuery {
     /**
      * Updates a user password.
      */
-    public async updateUserPassword(userId: number, passwordUpdate: PasswordUpdateAuth, trans: any): Promise<void> {
+    public async updateUserPassword(userId: number, passwordUpdate: PasswordUpdateAuth, trans?: any): Promise<void> {
         try {
             // hash the password
             const passwordHash = await passwordUpdate.hashPassword();
@@ -182,7 +182,8 @@ class AuthQuery {
                 id: userId,
                 passwordHash: passwordHash
             }
-            return trans.none(this.sqlUpdateUserPassword, params);
+            const ctx = trans || db;
+            return ctx.none(this.sqlUpdateUserPassword, params);
         } catch (error) {
             console.log('Error updating the user password');
             console.log(error);
