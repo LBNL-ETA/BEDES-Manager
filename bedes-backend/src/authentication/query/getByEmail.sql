@@ -1,6 +1,7 @@
 -- get a user record by email
 select 
     u.id as "_id",
+    u.uuid as "_uuid",
     u.first_name as "_firstName",
     u.last_name as "_lastName",
     u.email as "_email",
@@ -20,6 +21,7 @@ where
     u.email = ${_email}
 group by
 	u.id,
+    u.uuid,
 	u.first_name,
 	u.last_name,
 	u.email,

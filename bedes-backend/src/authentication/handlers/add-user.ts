@@ -8,6 +8,7 @@ import { createLogger } from '@bedes-backend/logging';
 import { HttpStatusCodes } from '@bedes-common/enums/http-status-codes';
 import { sendVerificationCode } from '../messages';
 import { IUserProfile } from '@bedes-common/models/authentication/user-profile';
+import { AccountCreater } from '../models/account-creater';
 const logger = createLogger(module);
 
 /**
@@ -32,20 +33,16 @@ export async function addUser(req: Request, res: Response): Promise<any> {
             req.body.password,
             req.body.passwordConfirm
         );
-        logger.debug('create user');
-        logger.debug(util.inspect(user));
-        if (!user.isValid()) {
-            res.status(HttpStatusCodes.BadRequest_400).send('Invalid parameters.');
-            return;
+        const creater = new AccountCreater(user);
+        const result = await creater.run();
+
+        if (result) {
+            res.status(HttpStatusCodes.Created_201).json();
         }
-        // try creating the user record in the database
-        const newUser: IUserProfile = await authQuery.addUser(user);
-        // user record has been created
-        logger.debug(`user ${user.email} successfully created`);
-        logger.debug(util.inspect(newUser));
-        // send the new account email to the user
-        const verificationCodeResults = await sendVerificationCode(newUser);
-        res.status(HttpStatusCodes.Created_201).json();
+        else {
+            res.status(HttpStatusCodes.ServerError_500)
+                .send('An error occured creating the user account');
+        }
         return;
 
     }

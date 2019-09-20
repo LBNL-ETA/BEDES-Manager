@@ -1,13 +1,11 @@
-<mat-card class="bedes-card" style="flex:1; padding:0">
-    <mat-card-header class="color-accent" >
-        <mat-card-title>
-            <h2 class="mat-h2">
+<mat-card class="bedes-container">
+    <mat-card-header>
+        <span class="bedes-container-title">
                 <fa-icon [icon]="['fas', 'user-plus']"></fa-icon>
                 New Account
-            </h2>
-        </mat-card-title>
+        </span>
     </mat-card-header>
-    <mat-card-content style="padding:1rem">
+    <mat-card-content>
         <form [formGroup]="requestForm">
             <div style="display:flex; flex-direction: column;">
                 <mat-form-field appearance="outline">
@@ -28,42 +26,56 @@
                 </mat-form-field>
                 <mat-form-field appearance="outline">
                     <mat-label>Password</mat-label>
-                    <input matInput type="password" placeholder="Password" formControlName="password" >
+                    <input matInput
+                    #passwordInput1
+                    type="password"
+                    placeholder="Password"
+                    formControlName="password" >
                 </mat-form-field>
                 <mat-form-field appearance="outline">
                     <mat-label>Confirm Password</mat-label>
-                    <input matInput type="password" placeholder="Confirm Password" formControlName="passwordConfirm" >
+                    <input matInput
+                    #passwordInput2
+                    type="password"
+                    placeholder="Confirm Password"
+                    formControlName="passwordConfirm"
+                    (keyup.enter)="submitForm()">
                 </mat-form-field>
-                <span *ngIf="hasError" class="font-color-warn">
-                    {{errorMessage}}
-                </span>
+
+                <!-- Error Message -->
                 <div class="alert-danger" style="margin-top:10px;" *ngIf="hasError">
                     <h3 style="margin: 0; padding:0;">
                         <fa-icon [icon]="['fas', 'exclamation-triangle']"></fa-icon>
                         {{errorMessage}}
                     </h3>
                 </div>
+
+                <!-- Success Message -->
                 <div class="alert-success" style="margin-top:10px;" *ngIf="requestSuccess">
                     <div style="margin: 0; padding:0;">
                         <fa-icon [icon]="['fas', 'check']"></fa-icon>
                         Your account has been successfully created.
                     </div>
-                    <div>
+                    <div style="margin-top:10px;">
                         You'll receive an email with a verification code, which you'll
                         need to enter after the first time you login.
                     </div>
                 </div>
             </div>
         </form>
-        <mat-card-actions style="display:flex; padding-left:16px; padding-right: 16px;">
-            <button mat-stroked-button color="primary" style="flex: 1;"[routerLink]="['/home']">
+        <mat-card-actions style="text-align: center; padding-left:16px; padding-right: 16px; margin-top:10px;">
+            <button mat-flat-button color="accent"
+            style="margin-right: 5px;"
+            [disabled]="waitingForResponse"
+            [routerLink]="['/home']">
                 <fa-icon [icon]="['fas', 'chevron-circle-left']"></fa-icon>
-                Existing User Login
+                Back to Login
             </button>
-            <button mat-stroked-button color="primary" style="flex:1;"
-            [disabled]="requestForm.invalid || requestSuccess"
+            <button mat-flat-button color="primary" style=""
+            [disabled]="requestForm.invalid || requestSuccess || waitingForResponse || (requestForm.valid && passwordInput1.value !== passwordInput2.value)"
             (click)="submitForm()">
-                <fa-icon [icon]="['fas', 'sign-in-alt']"></fa-icon>
+                <fa-icon [icon]="['fas', 'sign-in-alt']" *ngIf="!waitingForResponse"></fa-icon>
+                <fa-icon [icon]="['fas', 'spinner']" [spin]="true" *ngIf="waitingForResponse"></fa-icon>
                 Submit
             </button>
         </mat-card-actions>

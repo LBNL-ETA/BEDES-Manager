@@ -1,4 +1,4 @@
-import { IUserProfile } from '@epb-common/interfaces/authentication/user-profile.interface';
+import { IUserProfile } from '@bedes-common/models/authentication/user-profile/user-profile.interface';
 
 declare namespace Express {
     export interface Request {

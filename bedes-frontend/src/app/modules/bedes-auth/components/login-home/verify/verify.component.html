@@ -4,50 +4,65 @@
             Verify Account
         </span>
     </mat-card-header>
-    <mat-card-content style="flex:1">
+    <mat-card-content style="flex:1; margin-bottom: 0px;">
         <form id="form" [formGroup]="dataForm">
             <div style="display:flex">
                 <mat-form-field style="flex:1;" appearance="outline">
                     <mat-label>Verification Code</mat-label>
                     <input matInput
+                    (keyup.enter)="verify()"
                     placeholder="Enter your Verification Code"
                     formControlName="verificationCode">
                 </mat-form-field>
             </div>
 
-            <div class="error-container" *ngIf="verifyErrorMessage">
-                <fa-icon [icon]="['fas', 'exclamation-triangle']"></fa-icon>
-                {{ verifyErrorMessage }}
+            <!-- Error Message -->
+            <div class="alert-danger" style="margin-top:10px;" *ngIf="hasError">
+                <h3 style="margin: 0; padding:0;">
+                    <fa-icon [icon]="['fas', 'exclamation-triangle']"></fa-icon>
+                    {{errorMessage}}
+                </h3>
             </div>
-            <div id="verifySuccessMessage" class="success-container" *ngIf="verifySuccess">
-                <fa-icon [icon]="['fas', 'check']"></fa-icon>
-                Login successfull!
+
+            <!-- Success Message -->
+            <div class="alert-success" style="margin-top:10px;" *ngIf="verifySuccess">
+                <div style="margin: 0; padding:0;">
+                    <fa-icon [icon]="['fas', 'check']"></fa-icon>
+                    Your account has been verified.
+                </div>
             </div>
         </form>
     </mat-card-content>
 
     <mat-card-actions style="display:flex; flex-direction: column;">
-        <div style="flex: 1; display: flex; margin-bottom: 5px;">
-            <button style="flex: 1;"
+        <div style="text-align: center; margin-bottom: 7px;">
+            <button
             mat-flat-button
             id="loginBtn"
             color="primary"
-            [disabled]="dataForm.invalid"
+            [disabled]="dataForm.invalid || waitingForResponse || waitingForResendResponse"
             (click)="verify()">
-                <fa-icon [icon]="['fas', 'sign-in-alt']"></fa-icon>
+                <fa-icon [icon]="['fas', 'sign-in-alt']" *ngIf="!waitingForResponse"></fa-icon>
+                <fa-icon [icon]="['fas', 'spinner']" [spin]="true" *ngIf="waitingForResponse"></fa-icon>
                 Verify Code
             </button>
         </div>
-        <div style="display:flex; flex-direction: row; flex: 1;">
+        <div style="text-align: center">
             <button mat-flat-button color="accent"
-            style="flex: 1; margin-right:5px;"
-            (click)="newVerificationCode()">
-                Request New Code
-            </button>
-            <button mat-flat-button color="accent"
-            style="flex:1;"
+            style="margin-right: 5px;"
+            [disabled]="waitingForResponse"
             (click)="logout()">
+                <fa-icon [icon]="['fas', 'sign-out-alt']"></fa-icon>
                 Logout
+            </button>
+
+            <button mat-flat-button color="accent"
+            style="margin-right:5px;"
+            [disabled]="waitingForResponse || waitingForResendResponse"
+            (click)="newVerificationCode()">
+                <fa-icon [icon]="['fas', 'paper-plane']" *ngIf="!waitingForResendResponse"></fa-icon>
+                <fa-icon [icon]="['fas', 'spinner']" [spin]="true" *ngIf="waitingForResendResponse"></fa-icon>
+                Request New Code
             </button>
         </div>
     </mat-card-actions>

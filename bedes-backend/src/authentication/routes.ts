@@ -11,6 +11,8 @@ export function mountRoutes(router: Router) {
     router.get('/logout', handlers.logout);
     router.post('/user_profile', handlers.addUser);
     router.put('/password-update', handlers.updatePassword);
+    router.post('/password-reset/:uuid/:token', handlers.resetPassword);
+    router.post('/password-reset', handlers.resetPasswordRequest);
     router.get('/status', handlers.status);
     router.put('/validate', handlers.verifyRegistrationCode);
     router.get('/verification-code', handlers.newRegistrationCode);

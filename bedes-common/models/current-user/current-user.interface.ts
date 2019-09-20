@@ -3,6 +3,7 @@ import { UserGroup } from '../../enums/user-group.enum';
 
 export interface ICurrentUser {
     _id: number;
+    _uuid: string;
     _status: UserStatus;
     _userGroupId?: UserGroup | undefined;
     _firstName?: string | undefined;

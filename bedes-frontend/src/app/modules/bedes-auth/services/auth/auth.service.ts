@@ -3,7 +3,6 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, BehaviorSubject, throwError } from 'rxjs';
 import { map, tap, catchError } from 'rxjs/operators';
 import { API_URL_TOKEN } from 'src/app/services/api-url/api-url.service';
-
 import { UserStatus } from '@bedes-common/enums/user-status.enum';
 import { UserLoginResponse } from '../..//models/auth/user-login-response';
 import { IUserLoginResponse } from '@bedes-common/interfaces/user-login-response.interface';
@@ -11,6 +10,41 @@ import { CurrentUser, ICurrentUser } from '@bedes-common/models/current-user';
 import { IUserLogin } from '@bedes-common/interfaces/user-login.interface';
 import { NewAccount } from '../../models/auth/new-account';
 import { PasswordUpdate } from '@bedes-common/interfaces/password-update/password-update';
+import { looksLikeEmailAddress } from '@bedes-common/util/looks-like-email-address';
+import { IPasswordResetRequest, IPasswordResetResponse } from '@bedes-common/models/password-reset/password-reset';
+
+class RedirectUrl {
+    constructor(
+        private _url?: string | undefined
+    ) {}
+
+    get url(): string | undefined {
+        return this._url;
+    }
+    set url(value: string | undefined) {
+        this._url = value;
+    }
+
+    public hasValidUrl(): boolean {
+        return typeof this._url === 'string' && this._url.length
+            ? true : false;
+    }
+
+    /**
+     * Determines if the verification url with a code,
+     * ie does the url look like /home/verify/CODE
+     */
+    public isVerifyUrlWithCode(): boolean {
+        return typeof this._url === 'string'
+            && this._url.match(/^\/home\/verify\/[a-zA-Z0-9]+/)
+            ? true : false;
+    }
+
+    public clear(): void {
+        this._url = undefined;
+    }
+
+}
 
 /**
  * Handles the interaction between the frontend components and the backend api
@@ -38,6 +72,9 @@ export class AuthService {
     // password-update
     private apiEndpointPasswordUpdate = 'api/password-update';
     private urlPasswordUpdate: string = null;
+    // password-reset
+    private apiEndpointPasswordReset = 'api/password-reset';
+    private urlPasswordReset: string = null;
     // stores info about the current user
     private _currentUser: CurrentUser
     private _currentUserSubject: BehaviorSubject<CurrentUser>;
@@ -46,13 +83,7 @@ export class AuthService {
     }
     // stores a redirect url if the user was directed to a login
     // screen and needs to be sent back to the original target url
-    private _redirectUrl: string | undefined;
-    get redirectUrl(): string | undefined {
-        return this._redirectUrl;
-    }
-    set redirectUrl(value: string | undefined) {
-        this._redirectUrl = value;
-    }
+    private _redirectUrl = new RedirectUrl();
 
     constructor(
         private http: HttpClient,
@@ -70,6 +101,8 @@ export class AuthService {
         this.urlNewAccount = `${ this.apiUrl }${ this.apiEndpointNewAccount }`;
         // url for password updates
         this.urlPasswordUpdate = `${ this.apiUrl }${ this.apiEndpointPasswordUpdate }`;
+        // url for password resets
+        this.urlPasswordReset = `${ this.apiUrl }${ this.apiEndpointPasswordReset }`;
         // create a default user (ie a user with no privileges)
         this._currentUser = CurrentUser.makeDefaultUser();
         // setup the BehaviorSubject with the defualt user
@@ -77,6 +110,26 @@ export class AuthService {
     }
 
     /* Public Implementation Methods */
+
+    /**
+     * Determines if there's a url the user needs to be redirected to once they've logged in
+     */
+    public hasRedirectUrl(): boolean {
+        return this._redirectUrl.hasValidUrl() ? true : false;
+    }
+
+    public setRedirectUrl(url: string): void {
+        this._redirectUrl.url = url;
+    }
+
+    public getRedirectUrl(): string | undefined {
+        return this._redirectUrl.url;
+    }
+
+    public clearRedirectUrl(): void {
+        this._redirectUrl.clear();
+    }
+
 
     /**
      * Authentication the userLogin information against the backend api.
@@ -88,7 +141,10 @@ export class AuthService {
         return this.http.post<ICurrentUser>(this.urlLogin, userLogin, {withCredentials: true})
             .pipe(
                 map((results: ICurrentUser) => {
+                    console.log('auth service received response')
                     this.setCurrentUser(new CurrentUser(results));
+                    console.log('current user is ');
+                    console.log(this._currentUser);
                     return new UserLoginResponse();
                 }
             ));
@@ -187,6 +243,43 @@ export class AuthService {
     }
 
     /**
+     * Sends a reqeust for an account to have its password reset.
+     */
+    public sendResetPasswordRequest(accountEmail: string): Observable<IPasswordResetResponse> {
+        if (!looksLikeEmailAddress(accountEmail)) {
+            throw new Error(`${this.constructor.name}: ressetPassword expects a valid email`);
+        }
+        const payload: IPasswordResetRequest = { accountEmail };
+        return this.http.post<IPasswordResetResponse>(this.urlPasswordReset, payload, {withCredentials: true})
+            .pipe(tap((results: IPasswordResetResponse) => {
+                if (results && results.success) {
+                    this.checkLoginStatusPromise();
+                }
+            }));
+    }
+
+    /**
+     * Reset a forgotton password.
+     * Follows a sendResetPasswordRequest
+     */
+    public resetPassword(uuid: string, token: string, passwordUpdate: PasswordUpdate): Observable<IPasswordResetResponse> {
+        if (!passwordUpdate.isValid()) {
+            throw new Error(`${this.constructor.name}: ressetPassword expects a valid PasswordUpdate object`);
+        }
+        const url = this.getResetPasswordUrl(uuid, token);
+        const payload = passwordUpdate.toInterface();
+        return this.http.post<IPasswordResetResponse>(url, payload, {withCredentials: true});
+    }
+
+    /**
+     * Builds the url for restting a forgotten password.
+     */
+    private getResetPasswordUrl(uuid: string, token: string): string {
+        return `${ this.apiUrl }api/password-reset/${uuid}/${token}`;
+    }
+
+
+    /**
      * Verify a user registration code.
      */
     public verify(verificationCode: string): Observable<boolean> {
@@ -212,23 +305,30 @@ export class AuthService {
     }
 
     /**
-     * Retrieve's the url to navivate to after a user has been logged in.
-     *
-     * This is used for redirection purposes for user authentication.  If the user
-     * attempts to navigate to an authenticated url, the authenticated url is stored
-     * in this.redirectURL, then after login navigate back to this url.
+     * Get the next url after an authentication event has occured
      */
-    public getPostLoginUrl(): string {
-        if (this._currentUser.needsVerify()) {
-            if (this.redirectUrl && this.redirectUrl.match(/\/home\/verify/)) {
-                return this.redirectUrl;
+    public getNextAuthUrl(): string {
+        if (this._currentUser.isNotLoggedIn()) {
+            return '/home/login';
+        }
+        else if (this._currentUser.needsVerify()) {
+            if (this._redirectUrl.isVerifyUrlWithCode()) {
+                const url = this._redirectUrl.url;
+                this._redirectUrl.clear();
+                return url;
             }
             else {
                 return '/home/verify';
             }
         }
+        else if (this._currentUser.needsPasswordReset()) {
+            return '/home/password-update';
+        }
+        else if (this._currentUser.isLoggedIn()) {
+            return '/home/logout';
+        }
         else {
-            return '/home';
+            throw new Error(`No valid handler for status_id ${this._currentUser.status}`);
         }
     }
 

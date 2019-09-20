@@ -33,7 +33,7 @@ export async function updatePassword(req: Request, res: Response): Promise<any> 
         }
         logger.debug(`password object is valid`);
         console.log(passwordUpdate);
-        const result = await authQuery.updateUserPassword(user, passwordUpdate);
+        const result = await authQuery.updateUserPassword(user.id, passwordUpdate);
         logger.debug(`done validating code`);
         console.log(result);
         res.json(result);

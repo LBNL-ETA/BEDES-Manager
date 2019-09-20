@@ -7,6 +7,7 @@ import { db } from '@bedes-backend/db';
 import { UserProfileNew } from '@bedes-backend/authentication/models/user-profile-new';
 import { UserGroup } from '@bedes-common/enums/user-group.enum';
 import { UserStatus } from '@bedes-common/enums/user-status.enum';
+import { v4 } from 'uuid';
 
 // get the bedesAdmin email and password
 const bedesAdminEmail = process.env.BEDES_ADMIN_EMAIL || '';
@@ -89,11 +90,12 @@ async function createAdminAccount(): Promise<boolean> {
         _organization: user.organization,
         _status: UserStatus.IsLoggedIn,
         _userGroupId: UserGroup.Administrator,
-        _password: hashedPasseword
+        _password: hashedPasseword,
+        _uuid: v4()
     }
     const query = `
         insert into auth.user (
-            first_name, last_name, email, organization, status, user_group_id, password
+            first_name, last_name, email, organization, status, user_group_id, password, uuid
         )
         values (
             \${_firstName},
@@ -102,7 +104,8 @@ async function createAdminAccount(): Promise<boolean> {
             \${_organization},
             \${_status},
             \${_userGroupId},
-            \${_password}
+            \${_password},
+            \${_uuid}
         )
         returning
             id

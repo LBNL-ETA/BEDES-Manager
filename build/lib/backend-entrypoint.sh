@@ -1,7 +1,7 @@
 #!/bin/sh
 set -e
 
-cmd="npm start"
+cmd="npm run run-compose"
 
 echo "Waiting for Postgres..."
 until PGPASSWORD=$POSTGRES_PASSWORD psql -h $DB_HOST -U postgres -c '\q'; do

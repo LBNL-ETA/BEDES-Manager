@@ -13,7 +13,7 @@ export async function sendVerificationCode(user: IUserProfile): Promise<boolean>
         logger.debug('registration code ==');
         logger.debug(util.inspect(results));
         const verificationCode = results.registrationCode;
-        const host = (process.env.MODE === 'production' ? 'https://bedes-manager.lbl.gov' : 'http://localhost:4200');
+        const host = process.env.HTTP_HOST || 'http://localhost:4200';
         const message = `
             <html>
             ${user.firstName} ${user.lastName},

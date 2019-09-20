@@ -34,6 +34,10 @@ export class CurrentUser {
     get id(): number {
         return this._id;
     }
+    private _uuid: string;
+    get uuid(): string {
+        return this._uuid;
+    }
     // User login Status
     private _status: UserStatus;
     get status(): UserStatus {
@@ -74,6 +78,7 @@ export class CurrentUser {
      */
     constructor(data: ICurrentUser) {
         this._id = data._id;
+        this._uuid = data._uuid;
         this._status = data._status || UserStatus.NotLoggedIn;
         this._firstName = data._firstName;
         this._lastName = data._lastName;

@@ -64,3 +64,9 @@ volume_create:
 # remove the database volume
 volume_rm:
 	docker volume rm ${POSTGRES_VOLUME_NAME}
+
+dev-clean-data:
+	make volume_rm
+	make volume_create
+	(cd bedes-db && make run && sleep 10)
+	(cd scripts/ts && npm run load-all && npm run add-bedes-admin-user && npm run add-bedes-test-users)

@@ -18,7 +18,7 @@ left outer join
 left outer join
 	public.bedes_composite_term bct on bct.user_id = u.id
 where 
-    u.id = ${_id}
+    u.uuid = ${uuid}
 group by
 	u.id,
     u.uuid,

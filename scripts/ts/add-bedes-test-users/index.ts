@@ -11,6 +11,7 @@ import { db } from '@bedes-backend/db';
 import { UserProfileNew } from '@bedes-backend/authentication/models/user-profile-new';
 import { UserGroup } from '@bedes-common/enums/user-group.enum';
 import { UserStatus } from '@bedes-common/enums/user-status.enum';
+import { v4 } from 'uuid';
 
 (async () => {
     try {
@@ -116,11 +117,12 @@ export async function createUserAccountRecord(user: UserProfileNew, status: User
         _organization: user.organization,
         _status: status,
         _userGroupId: group,
-        _password: hashedPasseword
+        _password: hashedPasseword,
+        _uuid: v4()
     }
     const query = `
         insert into auth.user (
-            first_name, last_name, email, organization, status, user_group_id, password
+            first_name, last_name, email, organization, status, user_group_id, password, uuid
         )
         values (
             \${_firstName},
@@ -129,7 +131,8 @@ export async function createUserAccountRecord(user: UserProfileNew, status: User
             \${_organization},
             \${_status},
             \${_userGroupId},
-            \${_password}
+            \${_password},
+            \${_uuid}
         )
         returning
             id
