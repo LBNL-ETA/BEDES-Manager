@@ -18,6 +18,8 @@ services:
     build:
       context: "./build"
       dockerfile: "./Dockerfiles/Dockerfile-nginx-local"
+      args:
+        - angular_app_image=${ANGULAR_BUILD_IMAGE}
     ports:
       - "8086:80"
     networks:
