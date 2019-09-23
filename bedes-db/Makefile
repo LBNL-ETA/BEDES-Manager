@@ -1,6 +1,4 @@
-include ../environment/backend.env
-include ../environment/postgres.env
-include ../environment/docker.env
+include ../.env
 
 run:
 	docker run --name ${DB_CONTAINER_NAME} \

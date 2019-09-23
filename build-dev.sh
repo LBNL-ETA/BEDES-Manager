@@ -3,22 +3,20 @@ set -e
 
 # load environment variables into script
 set -o allexport
-. ./environment/postgres.env
-. ./environment/backend.env
-. ./environment/docker.env
+. .env
 set +o allexport
 
 # check env variables
 if [ -z "${DB_CONTAINER_NAME}" ]; then
-    echo "Database container name not set, set DB_CONTAINER_NAME in docker.env"
+    echo "Database container name not set, set DB_CONTAINER_NAME in .env"
     exit 1
 fi
 if [ -z "${DB_PASSWORD}" ]; then
-    echo "Database admin not set, set DB_PASSWORD in backend.env"
+    echo "Database admin not set, set DB_PASSWORD in .env"
     exit 1
 fi
 if [ -z "${BEDES_ADMIN_PASSWORD}" ]; then
-    echo "bedes admin not set, set BEDES_ADMIN_PASSWORD in backend.env"
+    echo "bedes admin not set, set BEDES_ADMIN_PASSWORD in .env"
     exit 1
 fi
 

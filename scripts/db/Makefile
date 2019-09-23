@@ -1,6 +1,4 @@
-include ../../environment/docker.env
-include ../../environment/backend.env
-include ../../environment/postgres.env
+include ../../.env
 
 db_drop_all:
 	cat db-drop.sql | \

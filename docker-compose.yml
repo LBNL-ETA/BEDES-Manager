@@ -26,7 +26,7 @@ services:
       - "backend"
     # command: [nginx-debug, '-g', 'daemon off;']
   db:
-    image: "${POSTGRES_IMG}"
+    image: "${DB_IMAGE}"
     container_name: "${DB_CONTAINER}"
     env_file:
       - .env

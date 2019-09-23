@@ -1,7 +1,7 @@
 require('module-alias/register');
 import * as path from 'path';
 require('dotenv').config({
-    path: path.resolve(__dirname, '../../../environment/backend.env')
+    path: path.resolve(__dirname, '../../../.env')
 })
 import { db } from '@bedes-backend/db';
 import { UserProfileNew } from '@bedes-backend/authentication/models/user-profile-new';
@@ -12,11 +12,11 @@ import { v4 } from 'uuid';
 // get the bedesAdmin email and password
 const bedesAdminEmail = process.env.BEDES_ADMIN_EMAIL || '';
 if (!bedesAdminEmail) {
-    throw new Error('BEDES_ADMIN_PASSWORD has not been set in /environment/backend.env');
+    throw new Error('BEDES_ADMIN_PASSWORD has not been set in /.env');
 }
 const bedesAdminPassword = process.env.BEDES_ADMIN_PASSWORD || '';
 if (!bedesAdminPassword) {
-    throw new Error('BEDES_ADMIN_PASSWORD has not been set in /environment/backend.env');
+    throw new Error('BEDES_ADMIN_PASSWORD has not been set in /.env');
 }
 
 // check if the account exists

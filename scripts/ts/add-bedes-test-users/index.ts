@@ -1,7 +1,7 @@
 require('module-alias/register');
 import * as path from 'path';
 import * as fs from 'fs';
-const envPath = path.resolve(__dirname, '../../../environment/backend.env');
+const envPath = path.resolve(__dirname, '../../../.env');
 if (fs.existsSync(envPath)) {
     require('dotenv').config({
         path: envPath
