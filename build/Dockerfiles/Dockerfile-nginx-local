@@ -2,7 +2,7 @@ ARG angular_app_image
 FROM $angular_app_image as angular
 FROM nginx:1.17.3-alpine
 USER root
-COPY --from=bedes_angular_img /app/bedes-frontend/dist/Bedes-App /usr/share/nginx/html
+COPY --from=angular /app/bedes-frontend/dist/Bedes-App /usr/share/nginx/html
 COPY ./nginx_config/nginx.conf /etc/nginx
 COPY ./nginx_config/conf.dev.d/default.conf /etc/nginx/conf.d
 EXPOSE 80
