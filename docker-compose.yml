@@ -27,7 +27,7 @@ services:
     # command: [nginx-debug, '-g', 'daemon off;']
   db:
     image: "${DB_IMAGE}"
-    container_name: "${DB_CONTAINER}"
+    container_name: "${DB_CONTAINER_NAME}"
     env_file:
       - .env
     expose:
