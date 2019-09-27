@@ -2,11 +2,17 @@
     <div style="margin-bottom:10px; flex: 1; justify-content: center;" *ngIf="compositeTerm && isEditable">
         <div cdkDropList
         cdkDropListOrientation="horizontal"
-        class="example-list"
-        style="align-items: center;"
+        class="term-list"
         (cdkDropListDropped)="drop($event)">
-            <div class="example-box" *ngFor="let term of compositeTerm.items" cdkDrag>
-                {{term.listOption ? term.listOption.name : term.term.name}}
+            <div class="term-box" *ngFor="let term of compositeTerm.items" cdkDrag>
+                <div style="flex: 1; text-align: center; display: flex; flex-direction: column">
+                    <span style="font-weight: bold;">
+                        {{term.listOption ? term.listOption.name : term.term.name}}
+                    </span>
+                    <span *ngIf="term.listOption">
+                        (<span>List</span>: {{term.term.name}})
+                    </span>
+                </div>
                 <button mat-icon-button (click)="removeDetailItem(term)">
                     <fa-icon class="font-color-danger" [icon]="['fas', 'times']"></fa-icon>
                 </button>
@@ -14,7 +20,7 @@
         </div>
     </div>
     <!-- Only display the term name if it's not editable -->
-    <span *ngIf="compositeTerm && !isEditable" style="flex: 1; font-size:1.1rem; padding-left:7px;">
+    <span *ngIf="compositeTerm && !isEditable" style="flex: 1; font-size:1.1rem; padding-left:7px; text-align: center;">
         {{ compositeTerm.name }}
     </span>
 </div>
