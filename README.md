@@ -1,112 +1,119 @@
 # BEDES Manager
 The BEDES Manager is a web-based application for managing the superset of BEDES Atomic and Composite Terms and the related application mappings in which they are used.
 
-## Quick Start
+The BEDES Manager is built using Angular 7, a Node.js Express server running the backend, and a PostgreSQL database.
+
+# Running the BEDES Manager
+
+There are 2 different ways to run the BEDES Manager:
+
+1. [docker-compose](https://docs.docker.com/compose/)
+2. the console using Node.js
+
+# Setting up Environment Variables
+
+The applicaton uses enviornment variables, taken from a file named `.env` in the project root directory, for various configuration parameters.
+
+The `/sample.env` file contains all of the enviornment variables used by the application.  Create a copy of this file and rename it to `.env`.
+At a minimum, the passwords for the `bedes-manager` user needs to be set.
+
+<!-- ## Quick Start
 
 1. Create a copy of `sample.env` and rename it to `.env`. Edit the `.env` file to make sure all passwords are entered.
 2. `make init_docker` - Builds dependent Docker images and creates the database volume.
 3. `docker-compose up` - Builds the images, if they don't exist, and brings up the app.
 4. `docker-compose logs`, or the console output if running in the foreground, will indicate when the database has been built and the node.js server is ready to accept connections.
-5. `make run_scripts_data_init` - Load the initial set of BEDES terms and create the bedes admin/user test accounts.
+5. `make run_scripts_data_init` - Load the initial set of BEDES terms and create the bedes admin/user test accounts. -->
 
-## Setting up the Environment
+# Running BEDES Manager with Docker Compose
 
-### Environment and Environment Variables
-Environment variables used throughout the app are set in the *.env files located in `./environment`.
-There should be a xyz.env file for each xyz.sample.env file in the folder, where all of the
-runtime parameters and passwords should be set to one's own specification.
-
-## Running the BEDES Manager
-There are two ways to run the BEDES Mapping Manger in your local environment:
-
-1. Docker Compose - Runs all components in a single command.
-2. Local installation of Node.js and PostgreSQL, running each component seprately.
-
-### Docker Compose
 To launch the BEDES Manager using docker-compose:
 
-1. All of the environment variables, as indicated above, should be set.
-2. at the project root type:
-
+1. Set the environment variables, as indicated above, in the `.env` file.
+2. Build the dependent Docker images:
 ```
-$ make angular
+$ make init_docker
+```
+3. Start the Docker containers:
+```
 $ docker-compose up
 ```
 
-The `make angular` command runs the angular build in the context of a Docker container. The resulting output of which should be in `./bedes-frontend/dist/Bedes-App`. The nginx Dockerfile copies this build directory when building the nginx image.
-
-Running `docker-compose up` will launch 4 containers:
+Running `docker-compose up` will launch 3 containers:
 
 1. The PostgreSQL database container.
     * Initialization scripts passed into the container are in `./bedes-db/docker-entrypoint-initdb.d`, will run whenever a database needs to be initialized.
 2. The Backend Node.js image
-3. The Frontend Nginx image, which uses the build folder generated from the `make angular` command.
-4. The **Scripts** container
-    * When the containers are started, this container checks the `public.bedes_term` table for any entries. If there are no records present, this container initiates the scripts to load:
-        I. The `BEDES V2.2.xlsx` file.
-        II. The `BEDES_all-terms_V2-2.xml` file.
-        III. The `BEDES_all-terms_V2-2.xml` file.
+3. The Frontend Nginx image.
 
-### Node.js and PostgreSQL
-Running the components in your local environment requires Node.js and PostgreSQL to be running on your machine.
+## Loading Test Data and Setting up User Accounts
 
-### Building the Database
+Running `docker-compose up` will initially load a database with all of the BEDES tables, but no data or users created.
 
-#### Install Command
-A Makefile in the app root provides a quick method of building the database and install the npm packages:
+To load the initial set of BEDES terms, the `bedes-admin` account, and the test user accounts:
 
-        $ make install
+```
+$ make run_scripts_data_init
+```
 
-This command will:
+This will laucnch another Docker container that attachees to the docker network defined in the `.env` file, and run 3 separate scripts located in `scripts/ts`, that perform each of the three actions listed above.
 
-1. Run the PostgreSQL Docker image
-2. Build the database objects.
-3. Install the npm packages
+The user information for the `bedes-admin` and test user accounts are set in the `.env` file.
 
-#### PostgreSQL 11.0
+# Running BEDES Manager with Node.js
 
-The BEDES Manager uses PostgreSQL 11.0, which can be running locally or remotely.
+The BEDES Manager requires Node.js 10.
 
-Docker is not required to run the BEDES Mapping Manger, but there's `Docker run` commands defined in `/bedes-db/Makefile`
-which make using the PostgreSQL Docker image easier than setting it up locally.
+## Install npm dependencies
 
-To install and run the official Docker PostgreSQL 11.0 image:
+Install all npm dependencies by running `npm install` in these directories:
+1. bedes-frontend/
+2. bedes-common/
+3. bedes-backend/
+4. scripts/ts
 
-    // Docker (https://www.docker.com/) should already be installed and running
-    // Both .env files described above should already be setup with secure passwords
-    $ cd bedes-db/
-    $ make install_and_run
+## Setup the PostgreSQL database
 
-One could also point the BEDES Manager database to a different host using the `/.env` file instead of running it locally.
+The database was built using PostgreSQL 11.
 
-#### Building the Tables
+The easiest way to get the database up and running is:
 
-The database object definitions can be found at `/scripts/db/db-build.sql`.
+```
+$ cd bedes-db
+$ make run
+```
 
+This will launch a Docker container running PostgreSQL, the version of which is defined in the `.env` file.
 
-The Makefile at `/scripts/db/Makefile` defines commands to:
+Note: the various scripts in the package assume a Docker instance of PostgreSQL, so running a local non-Docker version of PostgreSQL will require some modifications to the scripts.
 
-- Build all the database objects (executes the `db-build.sql` script):
+## Loading Test Data and Setting up User Accounts 
 
-        $ make db_build_all
+To load the initial set of BEDES terms, the `bedes-admin` account, and the test user accounts:
 
-- Drop all the database objects (executes the `db-drop.sql` script):
+```
+$ make load-dev-data
+```
 
-        $ make db_drop_all
+This will run 3 separate scripts located in `scripts/ts`, that perform each of the three actions listed above.
 
-- rebuilding the database (combination of the two make commands above):
+The user information for the `bedes-admin` and test user accounts are set in the `.env` file.
 
-        $ make db_rebuild_all
+## Starting the Frontend and Backend
 
+Once the database is up and running, and has user accounts + test data loaded:
 
-## Populating the Database
+Start the Node.js Express server
 
-The TypeScript files for loading the BEDES terms and application mappings can be found at `/scripts/ts`.
+```
+$ cd bedes-backend
+$ npm start
+```
 
-To load the initial set of BEDES Terms:
+and
 
-        $ cd scripts/ts
-        $ npm run load-all
-
-This runs the loads the BEDES terms from the `/bedes-mappings/BEDES V2.2.xlsx`, and then supplements missing information (eg UUID) from the `BEDES_all-terms_V2-2.xml` and `BEDES_all_list_options_V2-2.xml` files.
-    
+Start the Angular development server
+```
+$ cd bedes-frontend
+$ npm start
+```
