@@ -34,20 +34,20 @@ export class BedesTermDetailsDefinitionComponent implements OnInit {
 
 
     public dataForm = this.formBuilder.group({
-        name: ['', Validators.required],
-        description: [''],
-        dataTypeId: ['', Validators.required],
-        unitId: [''],
-        definitionSourceId: [''],
-        termCategoryId: [''],
+        name: [{value: null, disabled: true}, Validators.required],
+        description: [{value: null, disabled: true}],
+        dataTypeId: [{value: null, disabled: true}, Validators.required],
+        unitId: [{value: null, disabled: true}],
+        definitionSourceId: [{value: null, disabled: true}],
+        termCategoryId: [{value: null, disabled: true}],
         uuid: [{
             value: null,
             disabled: true
         }],
-        url: [''],
-        sectorCommercial: [''],
-        sectorResidential: [''],
-        sectorMultifamily: ['']
+        url: [{value: null, disabled: true}],
+        sectorCommercial: [{value: null, disabled: true}],
+        sectorResidential: [{value: null, disabled: true}],
+        sectorMultifamily: [{value: null, disabled: true}]
       });
 
     constructor(
@@ -101,7 +101,6 @@ export class BedesTermDetailsDefinitionComponent implements OnInit {
         this.supportListService.dataTypeSubject.subscribe(
             (results: Array<BedesDataType>) => {
                 this.dataTypeList = results;
-                console.log('data types', this.dataTypeList);
             }
         );
         this.supportListService.termCategorySubject.subscribe(
