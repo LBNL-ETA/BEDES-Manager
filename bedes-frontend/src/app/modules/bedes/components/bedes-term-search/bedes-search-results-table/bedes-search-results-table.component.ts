@@ -63,41 +63,14 @@ export class BedesSearchResultsTableComponent implements OnInit, OnDestroy {
 
         this.gridSetup();
         this.setTableContext();
-        // subscribe to the search results service
-        // this.termSearchService.searchResultsSubject()
-        //     .pipe(takeUntil(this.ngUnsubscribe))
-        //     .subscribe((results: Array<BedesSearchResult>) => {
-        //         console.log(`${this.constructor.name}: received search results...`, results);
-        //         // set the search results
-        //         this.searchResults = results;
-        //         // if the grid is ready then set the grid data
-        //         // otherwise setting the grid data is done after grid initialization
-        //         if (this.gridInitialized) {
-        //             this.setGridData();
-        //             if(!this.receivedInitialValues) {
-        //                 this.receivedInitialValues = true;
-        //             }
-        //             else {
-        //                 this.hasSearched = true;
-        //             }
-        //         }
-        //     },
-        //     (error: any) => {
-        //         console.error(`${this.constructor.name}: error in ngOnInit`)
-        //         console.error(error);
-        //         throw error;
-        //     });
         // subscribe to the requestStatus of the search
         // will indicate if the current state of the search
         this.termSearchService.requestStatusSubject
             .pipe(takeUntil(this.ngUnsubscribe))
             .subscribe((newStatus: RequestStatus) => {
-                console.log(`${this.constructor.name}: status = ${newStatus}`);
                 this.currentRequestStatus = newStatus;
             },
             (error: any) => {
-                console.error(`${this.constructor.name}: error in ngOnInit`)
-                console.error(error);
                 throw error;
             });
         //
@@ -145,7 +118,6 @@ export class BedesSearchResultsTableComponent implements OnInit, OnDestroy {
                 this.router.navigate(['/bedes-term', selectedItem.ref.id]);
             }
             else {
-                console.error('unable to find route for selectedRow', selectedItem);
             }
         }
         else if (selectedItem.ref.resultObjectType === SearchResultType.BedesTermOption) {
@@ -163,7 +135,6 @@ export class BedesSearchResultsTableComponent implements OnInit, OnDestroy {
             this.router.navigate(['/composite-term/edit', termId]);
         }
         else {
-            console.error('unable to find route for selectedRow', selectedItem);
         }
     }
 

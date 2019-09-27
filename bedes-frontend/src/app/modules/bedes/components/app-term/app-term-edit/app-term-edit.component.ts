@@ -111,7 +111,6 @@ export class AppTermEditComponent implements OnInit {
     private setIsNewTerm(): void {
         this.route.url
             .subscribe((results: UrlSegment[]) => {
-                console.log('observable segment results', results);
                 if (results.length == 2 && results[1].path === 'new') {
                     this.isNewTerm = true;
                 }
@@ -135,11 +134,9 @@ export class AppTermEditComponent implements OnInit {
      * active Mapping Application's set of AppTerms.
      */
     private subscribeToActiveTerm(): void {
-        console.log('subscribe to the active AppTerm')
         this.appTermService.activeTermSubject
             .pipe(takeUntil(this.ngUnsubscribe))
             .subscribe((activeTerm: AppTerm | AppTermList | undefined) => {
-                console.log(`${this.constructor.name}: received activeTerm`, activeTerm);
                 this.appTerm = activeTerm;
                 this.setFormData();
             });
@@ -149,27 +146,6 @@ export class AppTermEditComponent implements OnInit {
      * Calls the api to update the MappingApplication record.
      */
     public updateAppTerm(): void {
-        console.log(`${this.constructor.name}: update app term`);
-        // const newApp: IMappingApplication = this.getAppFromForm();
-        // newApp._id = this.app.id;
-        // console.log(`${this.constructor.name}: update mapping application`, newApp);
-        // this.resetError();
-        // this.appService.updateApplication(newApp)
-        // .subscribe(
-        //     (newApp: MappingApplication) => {
-        //         // application successfully created
-        //         console.log(`${this.constructor.name}: create new App success`, newApp);
-        //         // update the MappingApplication object with the new properties
-        //         this.app.name = newApp.name;
-        //         this.app.description = newApp.description;
-        //         this.currentControlState = ControlState.FormSuccess;
-        //         this.currentRequestStatus = RequestStatus.Success;
-        //     },
-        //     (error: any) => {
-        //         console.log(`${this.constructor.name}: Error creating new application`, error);
-        //         this.setErrorMessage(error);
-        //     }
-        // );
     }
 
     /**
@@ -202,14 +178,10 @@ export class AppTermEditComponent implements OnInit {
 
     /**
      * Subscribe to the form fields
-     *
-     * @private
-     * @memberof AppTermEditComponent
      */
     private subscribeToFormChanges(): void {
         this.dataForm.controls['termTypeId'].valueChanges
         .subscribe(() => {
-            console.log(this.dataForm.controls.termTypeId.value);
         });
     }
 
@@ -265,7 +237,6 @@ export class AppTermEditComponent implements OnInit {
                 params.api.sizeColumnsToFit();
             },
             onSelectionChanged: (event: SelectionChangedEvent) => {
-                console.log('selection changed', event.api.getSelectedRows());
                 const rows = event.api.getSelectedRows();
                 // this.selectedItem = rows && rows.length ? rows[0] : undefined;
             }

@@ -126,7 +126,6 @@ export class CompositeTermListComponent extends MessageFromGrid<IGridRow> implem
             this.compositeTermService.deleteTerm(term)
             .subscribe((results: number) => {
             }, (error: any) => {
-                console.log('An error occurred removing AppTerm', error);
             });
         }
         else {

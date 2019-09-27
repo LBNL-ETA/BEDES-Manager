@@ -39,7 +39,6 @@ export class TableCellBedesDataTypeComponent implements OnInit {
     agInit(params: any): void {
         this.params = params;
         this.setDisplayLabel();
-        console.log(`${this.constructor.name}: params`, this.params);
     }
 
     refresh(): boolean {

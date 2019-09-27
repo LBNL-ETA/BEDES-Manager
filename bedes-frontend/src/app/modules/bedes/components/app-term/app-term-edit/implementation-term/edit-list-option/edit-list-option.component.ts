@@ -139,10 +139,6 @@ export class EditListOptionComponent implements OnInit {
      * Subscribe to the form changes Observables for each form control.
      */
     private subscribeToFormChanges(): void {
-        // this.dataForm.controls.name.valueChanges
-        // .subscribe((newValue: any) => {
-        //     console.log(`${this.constructor.name}: name changed to ${newValue} (${typeof newValue})`)
-        // })
     }
 
     /**
@@ -217,7 +213,6 @@ export class EditListOptionComponent implements OnInit {
             // this.dataForm.disable();
         },
         (error: Error) => {
-            console.log(`${this.constructor.name}: error creating the new list option`);
             this.currentRequestStatus = RequestStatus.Error;
             this.currentControlState = ControlState.Normal;
         });
@@ -248,7 +243,6 @@ export class EditListOptionComponent implements OnInit {
             // this.dataForm.disable();
         },
         (error: Error) => {
-            console.log(`${this.constructor.name}: error creating the new list option`);
             this.currentRequestStatus = RequestStatus.Error;
             this.currentControlState = ControlState.Normal;
         });

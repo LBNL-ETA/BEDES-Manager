@@ -40,7 +40,6 @@ export class BedesTermListOptionService {
         return this.http.post<IBedesTermOption>(this.url, params, { withCredentials: true })
         .pipe(
             tap((newOption: IBedesTermOption) => {
-                console.log(`${this.constructor.name}: received new option`, newOption);
                 const term = <BedesConstrainedList>this.termService.selectedTerm;
                 if (term && term.options) {
                     // add the list option to the constrained list option list
@@ -48,7 +47,6 @@ export class BedesTermListOptionService {
                         .addOption(new BedesTermOption(newOption));
                 }
                 else {
-                    console.error('An error occured appending the list option to the current term.')
                 }
             })
         );
@@ -68,7 +66,6 @@ export class BedesTermListOptionService {
         return this.http.delete<any>(this.specificItemUrl(listOptionid), { withCredentials: true })
         .pipe(
             tap((results: any) => {
-                console.log(`${this.constructor.name}: received delete results`, results);
                 this.termService.listOptionRemoved(listOptionid);
             })
         );
@@ -85,7 +82,6 @@ export class BedesTermListOptionService {
         return this.http.put<IBedesTermOption>(url, listOption.toInterface(), { withCredentials: true })
         .pipe(
             map((updatedOption: IBedesTermOption) => {
-                console.log(`${this.constructor.name}: received update results`, updatedOption);
                 return new BedesTermOption(updatedOption);
             })
         );

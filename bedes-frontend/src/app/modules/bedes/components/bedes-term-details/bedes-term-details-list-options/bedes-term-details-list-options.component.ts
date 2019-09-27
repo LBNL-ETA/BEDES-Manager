@@ -96,7 +96,7 @@ export class BedesTermDetailsListOptionsComponent implements OnInit {
             enableColResize: true,
             enableFilter: true,
             enableSorting: true,
-            rowSelection: 'single',
+            // rowSelection: 'none',
             rowDragManaged: true,
             animateRows: true,
             columnDefs: this.buildColumnDefs(),
@@ -142,7 +142,7 @@ export class BedesTermDetailsListOptionsComponent implements OnInit {
 
     private buildColumnDefs(): Array<ColDef> {
         return [
-            {headerName: 'Name', field: 'name', checkboxSelection: true},
+            {headerName: 'Name', field: 'name', checkboxSelection: false},
             {headerName: 'Description', field: 'description'},
             {headerName: 'Data Type', field: 'dataTypeId'},
             {

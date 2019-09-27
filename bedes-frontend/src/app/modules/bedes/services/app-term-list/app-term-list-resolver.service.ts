@@ -21,7 +21,6 @@ export class AppTermListResolverService {
     ) {
         this.appService.selectedItemSubject
             .subscribe((activeApp: MappingApplication) => {
-                console.log(`${this.constructor.name}: activeApp`, activeApp)
             });
     }
 
@@ -32,7 +31,6 @@ export class AppTermListResolverService {
         // check the current selected term for a matching id
         // don't make the http request if we already have the term selected
         if (this.appTermService.activeAppId === appId && !this.appTermService.termListNeedsRefresh) {
-            // console.log('active AppTerms already set', this.appTermService.getActiveTermList());
             const terms = this.appTermService.getActiveTermList();
             this.setActiveAppTerm(appTermUUID, terms);
             return of(terms);

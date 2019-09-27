@@ -31,7 +31,6 @@ export class TableCellTermNameComponent implements ICellRendererAngularComp {
 
     public viewTerm(): void {
         if (this.params && this.params.context) {
-            console.log(this.params);
             this.params.context.parent.viewTerm(this.params.data);
         }
     }

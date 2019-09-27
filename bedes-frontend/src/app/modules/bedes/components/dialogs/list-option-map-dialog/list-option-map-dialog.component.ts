@@ -35,7 +35,6 @@ export class ListOptionMapDialogComponent implements OnInit {
         this.gridSetup();
         this.setTableContext();
         this.setGridData();
-        console.log(`${this.constructor.name}: data`, this.term)
     }
 
     /**
@@ -49,7 +48,6 @@ export class ListOptionMapDialogComponent implements OnInit {
         if (!this.selectedOption) {
             throw new Error(`${this.constructor.name}: expected to have valid selected listOption, none found`);
         }
-        console.log('import sel items', this.selectedOption);
         // send back the selected list option
         this.dialogRef.close(this.selectedOption);
     }

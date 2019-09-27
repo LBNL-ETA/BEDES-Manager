@@ -93,7 +93,6 @@ export class ManageUnitListComponent implements OnInit {
     public getUsageCount(): void {
         this.unitService.getUsageCount(this.selectedUnit.id)
         .subscribe((usageCount: IUsageCount) => {
-            console.log(`${this.constructor.name}: received usage count`, usageCount);
             if (usageCount._usageCount > 0) {
                 this.isReplacing = true;
             }

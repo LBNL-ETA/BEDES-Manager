@@ -34,7 +34,6 @@ export class BedesUnitService {
      * Get the usage count for a particular unit.
      */
     public getUsageCount(unitId: number): Observable<IUsageCount> {
-        console.log(`${this.constructor.name}: get the usage count for unit ${unitId}`)
         if (!unitId) {
             throw new Error('Invalid parameter.');
         }

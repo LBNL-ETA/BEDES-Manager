@@ -57,20 +57,17 @@ export class ApplicationNewComponent implements OnInit {
      */
     public createNewApplication(): void {
         const newApp: IMappingApplication = this.getAppFromForm();
-        console.log(`${this.constructor.name}: create new mapping application`, newApp);
         this.resetError();
         this.appService.newApplication(newApp)
         .subscribe(
             (newApp: MappingApplication) => {
                 // application successfully created
-                console.log(`${this.constructor.name}: create new App success`, newApp);
                 this.appService.load();
                 this.currentControlState = ControlState.FormSuccess;
                 this.currentRequestStatus = RequestStatus.Success;
                 this.dataForm.disable();
             },
             (error: any) => {
-                console.log(`${this.constructor.name}: Error creating new application`, error);
                 this.setErrorMessage(error);
             }
         );

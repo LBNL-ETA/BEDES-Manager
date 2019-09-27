@@ -215,10 +215,6 @@ export class ImplementationTermComponent implements OnInit {
      * active Mapping Application's set of AppTerms.
      */
     private subscribeToActiveTerm(): void {
-        // this.route.data
-        //     .subscribe((data: { appTerm: AppTerm | AppTermList }) => {
-        //         console.log('%cReceived route AppTerm', 'background-color: red', data);
-        //     });
         this.appTermService.activeTermSubject
             .pipe(takeUntil(this.ngUnsubscribe))
             .subscribe((activeTerm: AppTerm | AppTermList | undefined) => {
@@ -426,7 +422,6 @@ export class ImplementationTermComponent implements OnInit {
 
             // add the new term to the current list of terms
         }, (error: any) => {
-            console.log('Error saving appTerm', error);
             this.setErrorMessage(error);
         });
     }
@@ -873,8 +868,6 @@ export class ImplementationTermComponent implements OnInit {
                 }
             },
             (error: any) => {
-                console.log('Error removing MappingApplication', listOption);
-                console.log(error);
                 this.hasError = true;
                 this.errorMessage = "An error occurred removing the application.";
             });
@@ -1036,7 +1029,6 @@ export class ImplementationTermComponent implements OnInit {
             this.gridDataNeedsSet = true;
             this.setGridData();
         }, (error: any) => {
-            console.error(`${this.constructor.name}: error mapping the atomic term`, error);
         });
     }
 

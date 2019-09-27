@@ -4,7 +4,6 @@ import { HttpEvent, HttpInterceptor, HttpHandler, HttpRequest, HttpResponse } fr
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { AuthService } from '../auth/auth.service';
-import { UserStatus } from '@bedes-common/enums/user-status.enum';
 
 @Injectable()
 export class InterceptorService implements HttpInterceptor {
@@ -22,8 +21,6 @@ export class InterceptorService implements HttpInterceptor {
                     }
                 }
             }, (error: any) => {
-                console.log('**http interceptor error');
-                console.log(error);
                 if (error && error.status === 401) {
                     this.authService.setUnauthorizedUser();
                 }

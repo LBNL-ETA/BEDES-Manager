@@ -27,7 +27,6 @@ export class BedesSearchQueryBuilderComponent implements OnInit {
      * Initiates the http request for the term search.
      */
     public searchForTerms(): void {
-        console.log('search for terms...', this.searchString);
         this.waitingForResults = true;
         this.bedesTermSearchService.searchAndNotify([this.searchString])
             .subscribe((results: Array<BedesSearchResult>) => {

@@ -83,7 +83,6 @@ export class PasswordChangeComponent implements OnInit {
             this.updateSuccess;
         },
         (error: Error) => {
-            console.log('Error updating the password...', error);
             this.setError('An error occurred updating the password.');
         });
     }

@@ -23,27 +23,13 @@ export class VerificationService {
 
     /* Public Implementation Methods */
 
-    // public newVerificationCode(): Observable<any> {
-    //     this.http.get<ICurrentUser>(this.url)
-    // }
-
     /**
      * Verify a verification code for the current user.
-     *
-     * @param verificationCode The verification code for the user to verify.
-     * @returns {Observable<CurrentUser>}
-     * @memberof VerificationService
      */
     public verify(verificationCode: string): Observable<CurrentUser> {
-        console.log(`verify code ${verificationCode}`);
-        const params = {
-            verificationCode: verificationCode
-        }
         return this.http.post<ICurrentUser>(this.url, verificationCode)
             .pipe(
                 map((results: ICurrentUser) => {
-                    console.log('success!!', results);
-                    // this.authService.setCurrentUser(new CurrentUser(results));
                     return new CurrentUser(results);
                 }
             ));

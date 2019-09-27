@@ -276,7 +276,6 @@ export class BedesTermSearchDialogComponent implements OnInit {
                     });
                 }
             });
-            console.log('gridData set to', gridData);
             this.gridOptions.api.setRowData(gridData);
             this.gridData = gridData;
             this.gridDataNeedsRefresh = false;

@@ -60,7 +60,6 @@ export class NewTermListOptionComponent implements OnInit {
         this.assignFormValues();
         this.termService.selectedTermSubject
             .subscribe((selectedTerm: BedesTerm | BedesConstrainedList | undefined) => {
-                console.log(`${this.constructor.name}: selectedTerm`, selectedTerm);
                 this.term = selectedTerm;
             });
 
@@ -112,13 +111,11 @@ export class NewTermListOptionComponent implements OnInit {
         .subscribe(
             (results: IBedesTermOption) => {
                 this.currentRequestStatus = RequestStatus.Success;
-                console.log(`${this.constructor.name}: createNewListOption success`, results);
                 this.currentControlState = ControlState.FormSuccess;
                 // this.dataForm.controls.name.disable();
                 this.dataForm.disable();
             },
             (error: Error) => {
-                console.log(`${this.constructor.name}: error creating the new list option`);
                 this.currentRequestStatus = RequestStatus.Error;
                 this.currentControlState = ControlState.Normal;
             }

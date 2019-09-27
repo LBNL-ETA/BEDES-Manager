@@ -48,7 +48,6 @@ export class RequestAccountComponent implements OnInit {
             password: this.requestForm.get('password').value,
             passwordConfirm: this.requestForm.get('passwordConfirm').value
         });
-        console.log('create account', account);
         this.resetErrorIndicators();
 
         this.waitingForResponse = true;

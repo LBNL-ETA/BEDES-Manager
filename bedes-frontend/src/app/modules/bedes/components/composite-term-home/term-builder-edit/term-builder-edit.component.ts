@@ -192,8 +192,6 @@ export class TermBuilderEditComponent implements OnInit {
                 this.addDetailItemsFromRequestInfo(results);
             },
             (error: any) => {
-                console.log('Error retrieving terms from backend');
-                console.log(error);
             }
         );
     }

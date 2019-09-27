@@ -22,7 +22,6 @@ export class AppTermResolverService {
     ) {
         this.appService.selectedItemSubject
             .subscribe((activeApp: MappingApplication) => {
-                console.log(`${this.constructor.name}: activeApp`, activeApp)
             });
     }
 

@@ -32,7 +32,6 @@ export class TableCellItemNameComponent implements ICellRendererAngularComp {
 
     public viewTerm(): void {
         if (this.params && this.params.context) {
-            console.log(this.params);
             this.params.context.parent.removeSelectedItem(this.params.data);
         }
     }

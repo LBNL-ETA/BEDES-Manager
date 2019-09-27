@@ -18,7 +18,6 @@ export class CsvImportInfoDialogComponent implements OnInit {
     }
 
     public importFile(): void {
-        console.log('import the file');
     }
 
     public fileSelected(event: any): void {

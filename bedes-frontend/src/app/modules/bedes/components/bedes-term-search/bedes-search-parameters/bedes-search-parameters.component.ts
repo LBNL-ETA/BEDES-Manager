@@ -29,7 +29,6 @@ export class BedesSearchParametersComponent implements OnInit {
     ) { }
 
     ngOnInit() {
-        console.log('search input init!!!');
     }
 
     /**

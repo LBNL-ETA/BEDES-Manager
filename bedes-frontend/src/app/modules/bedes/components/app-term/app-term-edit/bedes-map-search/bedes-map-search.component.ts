@@ -100,7 +100,6 @@ export class BedesMapSearchComponent implements OnInit {
      * active Mapping Application's set of AppTerms.
      */
     private subscribeToActiveTerm(): void {
-        console.log('subscribe to the active AppTerm')
         this.appTermService.activeTermSubject
             .pipe(takeUntil(this.ngUnsubscribe))
             .subscribe((activeTerm: AppTerm | undefined) => {
@@ -138,7 +137,6 @@ export class BedesMapSearchComponent implements OnInit {
         if (!this.selectedItem) {
             throw new Error(`${this.constructor.name}: no selected term found`);
         }
-        console.log('map the term', this.selectedItem);
         const item = this.selectedItem.ref;
         if(item.resultObjectType === SearchResultType.CompositeTerm) {
             // get the composite term from the backend

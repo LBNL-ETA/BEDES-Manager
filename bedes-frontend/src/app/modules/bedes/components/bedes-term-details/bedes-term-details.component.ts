@@ -29,14 +29,12 @@ export class BedesTermDetailsComponent implements OnInit {
         // subscribe to the state change BehaviorSubject
         this.currentViewStateSubject.subscribe(
             (newViewState: OptionViewState) => {
-                console.log(`${this.constructor.name}: received state change..`, newViewState);
                 this.currentViewState = newViewState;
             }
         )
         // subscribe to the selected term subject
         this.termService.selectedTermSubject
             .subscribe((selectedTerm: BedesTerm | BedesConstrainedList | undefined) => {
-                console.log(`${this.constructor.name}: selectedTerm`, selectedTerm);
                 this.term = selectedTerm;
             });
     }

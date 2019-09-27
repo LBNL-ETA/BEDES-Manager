@@ -92,7 +92,6 @@ export class ApplicationEditComponent implements OnInit, OnDestroy {
         this.appService.selectedItemSubject
         .pipe(takeUntil(this.ngUnsubscribe))
         .subscribe((app: MappingApplication) => {
-            console.log('current application', app);
             this.app = app;
             this.setFormData();
             this.setScopeControlStatus();
@@ -107,7 +106,6 @@ export class ApplicationEditComponent implements OnInit, OnDestroy {
         this.authService.currentUserSubject
             .pipe(takeUntil(this.ngUnsubscribe))
             .subscribe((currentUser: CurrentUser) => {
-                console.log(`${this.constructor.name}: received user status`, currentUser);
                 this.currentUser = currentUser;
                 this.isEditable = currentUser.isLoggedIn();
                 this.setFormData();
@@ -121,11 +119,9 @@ export class ApplicationEditComponent implements OnInit, OnDestroy {
      * active Mapping Application's set of AppTerms.
      */
     private subscribeToAppTerms(): void {
-        console.log('subscribe to app terms')
         this.appTermService.termListSubject
         .pipe(takeUntil(this.ngUnsubscribe))
         .subscribe((termList: Array<AppTerm | AppTermList>) => {
-            console.log(`${this.constructor.name}: received app terms`, termList);
             this.termList = termList;
         });
     }
@@ -184,7 +180,6 @@ export class ApplicationEditComponent implements OnInit, OnDestroy {
                 }
             },
             (error: any) => {
-                console.log(`${this.constructor.name}: Error creating new application`, error);
                 this.setErrorMessage(error);
             }
         );

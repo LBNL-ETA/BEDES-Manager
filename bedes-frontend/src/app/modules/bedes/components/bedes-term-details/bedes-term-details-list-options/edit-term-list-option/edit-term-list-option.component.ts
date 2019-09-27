@@ -65,13 +65,11 @@ export class EditTermListOptionComponent implements OnInit {
         this.termService.selectedTermSubject
             .pipe(takeUntil(this.ngUnsubscribe))
             .subscribe((selectedTerm: BedesTerm | BedesConstrainedList | undefined) => {
-                console.log(`${this.constructor.name}: selectedTerm`, selectedTerm);
                 this.term = selectedTerm;
             });
         this.listOptionService.activeListOptionSubject
             .pipe(takeUntil(this.ngUnsubscribe))
             .subscribe((selectedOption: BedesTermOption | undefined) => {
-                console.log(`${this.constructor.name}: selectedOption`, selectedOption);
                 this.listOption = selectedOption;
                 this.assignFormValues();
             });
@@ -136,13 +134,11 @@ export class EditTermListOptionComponent implements OnInit {
         .subscribe(
             (listOption: BedesTermOption) => {
                 this.currentRequestStatus = RequestStatus.Success;
-                console.log(`${this.constructor.name}: createNewListOption success`, listOption);
                 this.currentControlState = ControlState.Normal;
                 // this.dataForm.controls.name.disable();
                 // this.dataForm.disable();
             },
             (error: Error) => {
-                console.log(`${this.constructor.name}: error creating the new list option`);
                 this.currentRequestStatus = RequestStatus.Error;
                 this.currentControlState = ControlState.Normal;
             }

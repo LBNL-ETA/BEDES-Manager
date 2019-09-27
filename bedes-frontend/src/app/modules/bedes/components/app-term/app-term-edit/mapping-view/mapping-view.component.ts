@@ -86,7 +86,6 @@ export class MappingViewComponent implements OnInit {
         // After the dialog is close...
         dialogRef.afterClosed()
         .subscribe((results: Array<BedesSearchResult> | undefined) => {
-            console.log('dialogRef.afterClosed()', results);
             if (Array.isArray(results) && results.length) {
                 this.setMappedTermFromSearchResult(results[0]);
             }
@@ -117,18 +116,6 @@ export class MappingViewComponent implements OnInit {
         this.compositeTermService.getTerm(searchResult.uuid)
         .subscribe((compositeTerm: BedesCompositeTerm) => {
             this.activeAppTerm.map(compositeTerm);
-            // received the compositeTerm
-            // console.log(`${this.constructor.name}: received the compositeTerm`);
-            // // create the new mapping object and assign it to the active appTerm
-            // const mapping = new TermMappingComposite()
-            // this.activeAppTerm.mapping = mapping;
-            // // assign the active AppTermListOption if it's set
-            // if (this.activeAppListOption) {
-            //     mapping.appListOption = this.activeAppListOption;
-            // }
-            // // assign the bedesTerm
-            // mapping.compositeTerm = compositeTerm;
-            // console.log('done', mapping);
         })
 
     }
@@ -148,51 +135,7 @@ export class MappingViewComponent implements OnInit {
         // get the atomic term from the backend
         this.bedesTermService.getTerm(termUUID)
         .subscribe((bedesTerm: BedesTerm | BedesConstrainedList) => {
-            // holds the reference to the mapped BedesTermOption, if applicable
-            // let bedesTermOption: BedesTermOption | undefined;
-            // if(optionUUID && bedesTerm instanceof BedesConstrainedList) {
-            //     // find the matching listOption by UUID
-            //     const found = bedesTerm.options.find((item) => item.uuid === optionUUID);
-            //     if (found) {
-            //         // assign the bedesListOption if there is one
-            //         bedesTermOption = found;
-            //     }
-            //     else {
-            //         throw new Error(`Couldn't find term ${optionUUID}`)
-            //     }
-            // }
-            // if (this.appTerm instanceof AppTermList) {
-            //     // if this is an appTermList include the activeListOption
-            //     this.appTerm.map(bedesTerm, bedesTermOption, this.activeListOption);
-            // }
-            // else {
-            //     this.appTerm.map(bedesTerm, bedesTermOption);
-
-            // }
-            // // create the new mapping object and assign it to the active appTerm
-            // const mapping = new TermMappingAtomic()
-            // this.activeAppTerm.mapping = mapping;
-            // // assign the active AppTermListOption if it's set
-            // if (this.activeAppListOption) {
-            //     mapping.appListOption = this.activeAppListOption;
-            // }
-            // // assign the bedesTerm
-            // mapping.bedesTerm = bedesTerm;
-            // // assign the listOption to the mapping
-            // if(optionUUID && bedesTerm instanceof BedesConstrainedList) {
-            //     // find the matching listOption by UUID
-            //     const found = bedesTerm.options.find((item) => item.uuid === optionUUID);
-            //     if (found) {
-            //         // assign the bedesListOption if there is one
-            //         mapping.bedesListOption = found;
-            //     }
-            //     else {
-            //         throw new Error(`Couldn't find term ${optionUUID}`)
-            //     }
-            // }
-            // console.log('done', mapping);
         }, (error: any) => {
-            console.error(`${this.constructor.name}: error mapping the atomic term`, error);
         });
     }
 

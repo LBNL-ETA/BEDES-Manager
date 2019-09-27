@@ -48,7 +48,6 @@ export class BedesTermService {
         const url = this.url.replace(/:id$/, String(id));
         return this.http.get<IBedesTerm | IBedesConstrainedList>(url, { withCredentials: true })
             .pipe(map((results: IBedesTerm | IBedesConstrainedList) => {
-                console.log(`${this.constructor.name}: received results`, results);
                 if (results._dataTypeId === BedesDataType.ConstrainedList) {
                     return new BedesConstrainedList(<IBedesConstrainedList>results);
                 }
@@ -67,7 +66,6 @@ export class BedesTermService {
         };
         return this.http.post<Array<IBedesTerm | IBedesConstrainedList>>(this.urlMultiple, params, { withCredentials: true })
             .pipe(map((results: Array<IBedesTerm | IBedesConstrainedList>) => {
-                console.log(`${this.constructor.name}: received results`, results);
                 // transform the incoming array of interface objects with class objects.
                 return results.map((term: IBedesTerm | IBedesConstrainedList) => {
                     if (term._dataTypeId === BedesDataType.ConstrainedList) {

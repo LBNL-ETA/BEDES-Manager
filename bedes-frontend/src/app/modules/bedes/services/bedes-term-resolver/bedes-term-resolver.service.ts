@@ -45,7 +45,6 @@ export class BedesTermResolverService {
                 .pipe(
                     take(1),
                     mergeMap(bedesTerm => {
-                        console.log(`${this.constructor.name}: received results`, bedesTerm);
                         if (bedesTerm) {
                             // set the term as the "selected term"
                             this.termService.selectedTermSubject.next(bedesTerm);
@@ -62,9 +61,6 @@ export class BedesTermResolverService {
                         }
                     }),
                     catchError((err: any, caught: any) => {
-                        console.log('caught term resolve error');
-                        console.log(err);
-                        console.log(caught);
                         this.router.navigate(['/search']);
                         return EMPTY;
                     })

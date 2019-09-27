@@ -109,7 +109,6 @@ export class SelectTermsTableComponent implements OnInit, OnDestroy {
                 params.api.sizeColumnsToFit();
             },
             onSelectionChanged: (event: SelectionChangedEvent) => {
-                console.log('selection changed', event.api.getSelectedRows());
                 this.selectedTerms = event.api.getSelectedRows();
             }
         };
@@ -143,7 +142,6 @@ export class SelectTermsTableComponent implements OnInit, OnDestroy {
         this.termSearchService.searchResultsSubject()
             .pipe(takeUntil(this.ngUnsubscribe))
             .subscribe((results: Array<BedesSearchResult>) => {
-                console.log(`${this.constructor.name}: received search results...`, results);
                 // TODO: this needs to return bedes terms and options only, not composite terms
                 this.searchResults = results;
                 if (this.gridOptions.api) {
@@ -158,8 +156,6 @@ export class SelectTermsTableComponent implements OnInit, OnDestroy {
                 }
             },
             (error: any) => {
-                console.error(`${this.constructor.name}: error in ngOnInit`)
-                console.error(error);
                 throw error;
             });
     }
@@ -170,12 +166,9 @@ export class SelectTermsTableComponent implements OnInit, OnDestroy {
         this.termSearchService.requestStatusSubject
             .pipe(takeUntil(this.ngUnsubscribe))
             .subscribe((newStatus: RequestStatus) => {
-                console.log(`${this.constructor.name}: status = ${newStatus}`);
                 this.currentRequestStatus = newStatus;
             },
             (error: any) => {
-                console.error(`${this.constructor.name}: error in ngOnInit`)
-                console.error(error);
                 throw error;
             });
     }
@@ -239,7 +232,6 @@ export class SelectTermsTableComponent implements OnInit, OnDestroy {
         // call the api to retrieve the term objects
         this.termService.getTerms(ids)
         .subscribe((results: Array<BedesTerm | BedesConstrainedList>) => {
-            console.log(`${this.constructor.name}: received results`, results);
             // update the selected terms service with the new terms
             this.termSelectorService.setSelectedTerms(results);
             this.resetSelectedTerms();

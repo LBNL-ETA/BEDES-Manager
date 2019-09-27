@@ -55,15 +55,12 @@ export class ApplicationService {
                         resolve(true);
                     },
                     (error: any) => {
-                        console.log(`${this.constructor.name}: error retrieving application list`);
-                        console.log(error);
                          reject(error);
                     }
                 );
             });
         }
         catch (error) {
-            console.log(`${this.constructor.name}: Error during application load()`, error);
             throw error;
         }
     }

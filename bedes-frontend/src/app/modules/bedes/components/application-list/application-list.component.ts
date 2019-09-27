@@ -80,9 +80,7 @@ export class ApplicationListComponent extends MessageFromGrid<IAppRow> implement
 
     private setRouteData(): void {
         this.route.data
-        // .subscribe((data: {applicationList: Array<MappingApplication>}) => {
         .subscribe((data: any) => {
-            console.log(data)
             this.applicationList = data.applicationList;
             this.currentUser = data.currentUser;
             this.handleRouteDataSet();
@@ -120,7 +118,6 @@ export class ApplicationListComponent extends MessageFromGrid<IAppRow> implement
         this.appService.appListSubject
             .pipe(takeUntil(this.ngUnsubscribe))
             .subscribe((appList: Array<MappingApplication>) => {
-                console.log(`received application list`, appList);
                 this.applicationList = appList;
                 this.gridDataNeedsRefresh = true;
                 this.setGridData();
@@ -154,7 +151,6 @@ export class ApplicationListComponent extends MessageFromGrid<IAppRow> implement
             // rowSelection: 'multiple',
             columnDefs: this.buildColumnDefs(),
             onGridReady: (event: GridReadyEvent) => {
-                console.log('grid ready!');
                 this.gridApi = event.api;
                 this.setGridData();
             },
@@ -167,10 +163,6 @@ export class ApplicationListComponent extends MessageFromGrid<IAppRow> implement
             }
         };
     }
-
-    // public viewTerm(selectedItem: any): void {
-    //     console.log(`${this.constructor.name}: view the selected item`);
-    // }
 
     /**
      * Confirm the removal of a MappingApplication before calling the backend API.
@@ -201,8 +193,6 @@ export class ApplicationListComponent extends MessageFromGrid<IAppRow> implement
             (results: boolean) => {
             },
             (error: any) => {
-                console.log('Error removing MappingApplication', this.selectedItem);
-                console.log(error);
                 this.hasError = true;
                 this.errorMessage = "An error occurred removing the application.";
             });

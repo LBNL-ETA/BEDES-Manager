@@ -60,7 +60,6 @@ export class BedesSearchResultsComponent implements OnInit {
         this.termSearchService.searchResultsSubject()
             .pipe(takeUntil(this.ngUnsubscribe))
             .subscribe((results: Array<BedesSearchResult>) => {
-                console.log(`${this.constructor.name}: received search results...`, results);
                 // set the search results
                 this.searchResults = results;
                 // if the grid is ready then set the grid data
@@ -76,8 +75,6 @@ export class BedesSearchResultsComponent implements OnInit {
                 }
             },
             (error: any) => {
-                console.error(`${this.constructor.name}: error in ngOnInit`)
-                console.error(error);
                 throw error;
             });
         // subscribe to the requestStatus of the search
@@ -85,12 +82,9 @@ export class BedesSearchResultsComponent implements OnInit {
         this.termSearchService.requestStatusSubject
             .pipe(takeUntil(this.ngUnsubscribe))
             .subscribe((newStatus: RequestStatus) => {
-                console.log(`${this.constructor.name}: status = ${newStatus}`);
                 this.currentRequestStatus = newStatus;
             },
             (error: any) => {
-                console.error(`${this.constructor.name}: error in ngOnInit`)
-                console.error(error);
                 throw error;
             });
 
@@ -106,7 +100,6 @@ export class BedesSearchResultsComponent implements OnInit {
      * Navigate to the bedesTerm details view for the selected term.
      */
     public viewTerm(selectedItem: ISearchResultRow): void {
-        console.log(`${this.constructor.name}: view term`, selectedItem);
         if ( selectedItem.ref.resultObjectType === SearchResultType.BedesTerm
             || selectedItem.ref.resultObjectType === SearchResultType.BedesConstrainedList
         ) {
@@ -117,7 +110,6 @@ export class BedesSearchResultsComponent implements OnInit {
                 this.router.navigate(['/bedes-term', selectedItem.ref.id]);
             }
             else {
-                console.error('unable to find route for selectedRow', selectedItem);
             }
         }
         else if (selectedItem.ref.resultObjectType === SearchResultType.BedesTermOption) {
@@ -127,7 +119,6 @@ export class BedesSearchResultsComponent implements OnInit {
             this.router.navigate(['/bedes-term', termId, 'edit', optionId]);
         }
         else {
-            console.error('unable to find route for selectedRow', selectedItem);
         }
     }
 
@@ -148,7 +139,6 @@ export class BedesSearchResultsComponent implements OnInit {
             onGridReady: () => {
                 this.gridInitialized = true;
                 if (this.gridOptions && this.gridOptions.api && this.searchResults && !this.initialized) {
-                    console.log(`** ${this.constructor.name}: call to setRowData`);
                     // this.gridOptions.api.setRowData(this.searchResults);
                     this.setGridData();
                 }
@@ -157,7 +147,6 @@ export class BedesSearchResultsComponent implements OnInit {
                 params.api.sizeColumnsToFit();
             },
             onSelectionChanged: (event: SelectionChangedEvent) => {
-                console.log('selection changed', event.api.getSelectedRows());
             }
         };
     }

@@ -132,7 +132,6 @@ export class AppTermListOptionService {
         return this.http.put<IAppTermListOption>(url, listOption.toInterface(), { withCredentials: true })
         .pipe(
             map((updatedOption: IAppTermListOption) => {
-                console.log(`${this.constructor.name}: received update results`, updatedOption);
                 // this.updateListOptionCleanup(appTermList, listOption);
                 return new AppTermListOption(updatedOption);
             })

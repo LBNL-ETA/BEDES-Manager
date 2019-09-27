@@ -84,8 +84,6 @@ export class CompositeTermService {
                 this.termListSubject.next(this.termList);
             },
             (error: any) => {
-                console.log(`${this.constructor.name}: error retrieving composite term list`);
-                console.log(error);
                 throw error;
             }
         );

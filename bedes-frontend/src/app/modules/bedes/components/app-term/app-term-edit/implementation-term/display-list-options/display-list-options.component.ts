@@ -24,7 +24,6 @@ export class DisplayListOptionsComponent implements OnInit {
     constructor() { }
 
     ngOnInit() {
-        console.log(`${this.constructor.name}: appTerm`, this.appTerm);
     }
 
 }
