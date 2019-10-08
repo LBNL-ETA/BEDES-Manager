@@ -26,6 +26,8 @@ import { CurrentUser } from '@bedes-common/models/current-user/current-user';
 import { CsvImportInfoDialogComponent } from '../../dialogs/csv-import-info-dialog/csv-import-info-dialog.component';
 import { scopeList } from '@bedes-common/lookup-tables/scope-list';
 import { TableCellDeleteComponent } from '../../../models/ag-grid/table-cell-delete/table-cell-delete.component';
+import { BedesTermService } from '../../../services/bedes-term/bedes-term.service';
+import { SupportListService } from '../../../services/support-list/support-list.service';
 
 @Component({
   selector: 'app-app-term-list',
@@ -64,7 +66,9 @@ export class AppTermListComponent extends MessageFromGrid<IAppRow> implements On
         private appService: ApplicationService,
         private appTermService: AppTermService,
         private dialog: MatDialog,
-        private snackBar: MatSnackBar
+        private snackBar: MatSnackBar,
+        private bedesTermService: BedesTermService,
+        private supportListService: SupportListService,
     ) {
         super();
     }
@@ -77,6 +81,7 @@ export class AppTermListComponent extends MessageFromGrid<IAppRow> implements On
         this.setTableContext();
         this.subscrbeToApplicationData();
         this.subscribeToAppTermList();
+        this.initializeSupportLists();
     }
 
     ngOnDestroy() {
@@ -381,6 +386,106 @@ export class AppTermListComponent extends MessageFromGrid<IAppRow> implements On
                 });
              }
        });
+    }
+
+    /**
+     * Subscribe to the supportList Observable to get the UnitList.
+     */
+    private initializeSupportLists(): void {
+        // Get the Array of BedesUnit objects.
+        this.supportListService.unitListSubject.subscribe(
+            (results: Array<BedesUnit>) => {
+                this.unitList = results;
+            }
+        );
+    }
+
+    /**
+     * Download mappings to csv.
+     */
+    public downloadCSV(): void {
+        // TODO:
+        // 1. Add checks to make sure appTermList is not empty.
+        // 2. App Term Description cannot have new lines in it.
+        // 3. Check if initializeSupportLists() is necessary? Modify BedesUnit to get name by ID?
+        // 4. Check if forkJoin() is necessary.
+
+        // Questions:
+        // 1. Check whether the export file can have BEDES Atomic OR Composite term.
+
+        // Typescript Questions:
+        // 1. In ".subscribe((bedesTerm: BedesTerm | BedesConstrainedList)", will the line give an error if it's neither of those types?
+
+        var filename: string = 'sample.csv';
+        var csvContent: string = 'data:text/csv;charset=utf-8,' + '\n';
+
+        // Define columns of the .csv file
+        csvContent += 'Application Term,Application Term Description,Application Unit,'
+                    + 'BEDES Composite Term,BEDES Composite Term Description,BEDES Unit,'
+                    + 'BEDES Atomic Term Mapping,BEDES Constrained List Mapping,'
+                    + 'BEDES Composite Term UUID,BEDES Atomic Term UUID,'
+                    + 'BEDES Constrained List Option UUID' + '\n';
+
+        var listOfObservables: Observable<any>[] = [];
+        this.appTermList.forEach((data) => {
+            let uuid: string = (data.mapping as any).bedesTermUUID;
+            listOfObservables.push(this.bedesTermService.getTerm(uuid));
+        });
+
+        // Retrieve the mapped BEDES Terms of all the application terms
+        forkJoin(listOfObservables)
+            .subscribe((results) => {
+
+                this.appTermList.forEach((data, i) => {
+                    var appTermName: string = data.name;
+                    var appTermDescription: string = data.description;
+                    var appTermUnit: string = '';
+                    var bedesTermName: string = results[i].name;
+                    var bedesTermDescription: string = results[i].description;
+                    var bedesTermUnit: string = '';
+                    var bedesAtomicTermMapping: string = '';            // TODO
+                    var bedesConstrainedListMapping: string = '';       // TODO
+                    var bedesCompositeTermUUID: string = '';
+                    var bedesAtomicTermUUID: string = '';
+                    var bedesConstrainedListOptionUUID: string = '';    // TODO
+
+                    // Get application term units
+                    this.unitList.forEach((unitData) => {
+                        if (data.unitId == unitData.id) {
+                            appTermUnit = unitData.name;
+                        }
+                    });
+
+                    // Get BEDES term units
+                    this.unitList.forEach((unitData) => {
+                        if (results[i].unitId == unitData.id) {
+                            bedesTermUnit = unitData.name;
+                        }
+                    });
+
+                    // Get UUIDs
+                    if (data.mapping instanceof TermMappingAtomic) {
+                        bedesAtomicTermUUID = data.mapping.bedesTermUUID;
+                    } else if (data.mapping instanceof TermMappingComposite) {
+                        bedesCompositeTermUUID = data.mapping.compositeTermUUID;
+                    }
+
+                    let rowContent: string = appTermName + "," + appTermDescription + "," + appTermUnit + ","
+                                        + bedesTermName + "," + bedesTermDescription + "," + bedesTermUnit + ","
+                                        + bedesAtomicTermMapping + "," + bedesConstrainedListMapping + ","
+                                        + bedesCompositeTermUUID + "," + bedesAtomicTermUUID + ","
+                                        + bedesConstrainedListOptionUUID + "\n";
+                    csvContent += rowContent;
+                });
+
+                // Download .csv file
+                var encodedUri = encodeURI(csvContent);
+                var link = document.createElement("a");
+                link.setAttribute("href", encodedUri);
+                link.setAttribute("download", filename);
+                document.body.appendChild(link);
+                link.click();
+        });
     }
 
 }
