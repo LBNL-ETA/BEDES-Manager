@@ -58,6 +58,9 @@ export class AppTermListComponent extends MessageFromGrid<IAppRow> implements On
     /* The current user */
     public currentUser: CurrentUser;
 
+    // PG
+    private csvExportData: string = '';
+
     constructor(
         private authService: AuthService,
         private router: Router,
@@ -404,88 +407,126 @@ export class AppTermListComponent extends MessageFromGrid<IAppRow> implements On
      * Download mappings to csv.
      */
     public downloadCSV(): void {
-        // TODO:
-        // 1. Add checks to make sure appTermList is not empty.
-        // 2. App Term Description cannot have new lines in it.
-        // 3. Check if initializeSupportLists() is necessary? Modify BedesUnit to get name by ID?
-        // 4. Check if forkJoin() is necessary.
-
-        // Questions:
-        // 1. Check whether the export file can have BEDES Atomic OR Composite term.
-
-        // Typescript Questions:
-        // 1. In ".subscribe((bedesTerm: BedesTerm | BedesConstrainedList)", will the line give an error if it's neither of those types?
-
-        var filename: string = 'sample.csv';
-        var csvContent: string = 'data:text/csv;charset=utf-8,' + '\n';
-
-        // Define columns of the .csv file
-        csvContent += 'Application Term,Application Term Description,Application Unit,'
-                    + 'BEDES Composite Term,BEDES Composite Term Description,BEDES Unit,'
-                    + 'BEDES Atomic Term Mapping,BEDES Constrained List Mapping,'
-                    + 'BEDES Composite Term UUID,BEDES Atomic Term UUID,'
-                    + 'BEDES Constrained List Option UUID' + '\n';
-
-        var listOfObservables: Observable<any>[] = [];
-        this.appTermList.forEach((data) => {
-            let uuid: string = (data.mapping as any).bedesTermUUID;
-            listOfObservables.push(this.bedesTermService.getTerm(uuid));
-        });
-
-        // Retrieve the mapped BEDES Terms of all the application terms
-        forkJoin(listOfObservables)
-            .subscribe((results) => {
-
-                this.appTermList.forEach((data, i) => {
-                    var appTermName: string = data.name;
-                    var appTermDescription: string = data.description;
-                    var appTermUnit: string = '';
-                    var bedesTermName: string = results[i].name;
-                    var bedesTermDescription: string = results[i].description;
-                    var bedesTermUnit: string = '';
-                    var bedesAtomicTermMapping: string = '';            // TODO
-                    var bedesConstrainedListMapping: string = '';       // TODO
-                    var bedesCompositeTermUUID: string = '';
-                    var bedesAtomicTermUUID: string = '';
-                    var bedesConstrainedListOptionUUID: string = '';    // TODO
-
-                    // Get application term units
-                    this.unitList.forEach((unitData) => {
-                        if (data.unitId == unitData.id) {
-                            appTermUnit = unitData.name;
-                        }
-                    });
-
-                    // Get BEDES term units
-                    this.unitList.forEach((unitData) => {
-                        if (results[i].unitId == unitData.id) {
-                            bedesTermUnit = unitData.name;
-                        }
-                    });
-
-                    // Get UUIDs
-                    if (data.mapping instanceof TermMappingAtomic) {
-                        bedesAtomicTermUUID = data.mapping.bedesTermUUID;
-                    } else if (data.mapping instanceof TermMappingComposite) {
-                        bedesCompositeTermUUID = data.mapping.compositeTermUUID;
-                    }
-
-                    let rowContent: string = appTermName + "," + appTermDescription + "," + appTermUnit + ","
-                                        + bedesTermName + "," + bedesTermDescription + "," + bedesTermUnit + ","
-                                        + bedesAtomicTermMapping + "," + bedesConstrainedListMapping + ","
-                                        + bedesCompositeTermUUID + "," + bedesAtomicTermUUID + ","
-                                        + bedesConstrainedListOptionUUID + "\n";
-                    csvContent += rowContent;
-                });
-
-                // Download .csv file
-                var encodedUri = encodeURI(csvContent);
-                var link = document.createElement("a");
-                link.setAttribute("href", encodedUri);
-                link.setAttribute("download", filename);
-                document.body.appendChild(link);
-                link.click();
-        });
+        // PG: Debug
+        console.log("downloadCSV()");
+        this.appTermService.downloadAppTerms(this.app.id)
+            .subscribe( 
+                (data) => {
+                    this.csvExportData = data;
+                },
+                (error) => {
+                    console.log('error');
+                },
+                () => {
+                    // Download .csv file
+                    var encodedUri = encodeURI(this.csvExportData);
+                    var link = document.createElement("a");
+                    link.setAttribute("href", encodedUri);
+                    link.setAttribute("download", 'sample.csv');
+                    document.body.appendChild(link);
+                    link.click();
+                }
+            );
     }
+            // .subscribe(
+            //     (data: String) => { 
+            //         console.log("frontend downloadCSV data: ", data);      
+            //     },
+            //     (error: any) => {
+            //         this.errorMessage = 'Unable to download terms.';
+            //         this.hasError = true;
+            //     }
+            // );
+
+        // // TODO:
+        // // 1. Add checks to make sure appTermList is not empty.
+        // // 2. App Term Description cannot have new lines in it.
+        // // 3. Check if initializeSupportLists() is necessary? Modify BedesUnit to get name by ID?
+        // // 4. Check if forkJoin() is necessary.
+
+        // // Questions:
+        // // 1. Check whether the export file can have BEDES Atomic OR Composite term.
+
+        // // Typescript Questions:
+        // // 1. In ".subscribe((bedesTerm: BedesTerm | BedesConstrainedList)", will the line give an error if it's neither of those types?
+
+        // var filename: string = 'sample.csv';
+        // var csvContent: string = 'data:text/csv;charset=utf-8,' + '\n';
+
+        // // Define columns of the .csv file
+        // csvContent += 'Application Term,Application Term Description,Application Unit,'
+        //             + 'BEDES Composite Term,BEDES Composite Term Description,BEDES Unit,'
+        //             + 'BEDES Atomic Term Mapping,BEDES Constrained List Mapping,'
+        //             + 'BEDES Composite Term UUID,BEDES Atomic Term UUID,'
+        //             + 'BEDES Constrained List Option UUID' + '\n';
+
+        // var listOfObservables: Observable<any>[] = [];
+        // this.appTermList.forEach((data) => {
+        //     let uuid: string = (data.mapping as any).bedesTermUUID;
+        //     listOfObservables.push(this.bedesTermService.getTerm(uuid));
+        // });
+
+        // // Retrieve the mapped BEDES Terms of all the application terms
+        // forkJoin(listOfObservables)
+        //     .subscribe((results) => {
+
+        //         this.appTermList.forEach((data, i) => {
+        //             var appTermName: string = data.name;
+        //             var appTermDescription: string = data.description;
+        //             var appTermUnit: string = '';
+        //             var bedesTermName: string = results[i].name;
+        //             var bedesTermDescription: string = results[i].description;
+        //             var bedesTermUnit: string = '';
+        //             var bedesAtomicTermMapping: string = '';            // TODO
+        //             var bedesConstrainedListMapping: string = '';       // TODO
+        //             var bedesCompositeTermUUID: string = '';
+        //             var bedesAtomicTermUUID: string = '';
+        //             var bedesConstrainedListOptionUUID: string = '';    // TODO
+
+        //             // TODO: The newline description doesn't show in excel.
+        //             if (data.description.includes('\n')) {
+        //                 appTermDescription = '\"' + data.description + '\"';
+        //             }
+
+        //             // Get application term units
+        //             this.unitList.forEach((unitData) => {
+        //                 if (data.unitId == unitData.id) {
+        //                     appTermUnit = unitData.name;
+        //                 }
+        //             });
+
+        //             // Get BEDES term units
+        //             this.unitList.forEach((unitData) => {
+        //                 if (results[i].unitId == unitData.id) {
+        //                     bedesTermUnit = unitData.name;
+        //                 }
+        //             });
+
+        //             // Get UUIDs
+        //             if (data.mapping instanceof TermMappingAtomic) {
+        //                 // If the mapping is to a single atomic term, then
+        //                 // both the AtomicTerm and CompositeTerm UUIDs are the same
+        //                 bedesAtomicTermUUID = data.mapping.bedesTermUUID;
+        //                 bedesCompositeTermUUID = data.mapping.bedesTermUUID;
+        //             } else if (data.mapping instanceof TermMappingComposite) {
+        //                 bedesCompositeTermUUID = data.mapping.compositeTermUUID;
+        //             }
+
+        //             let rowContent: string = appTermName + "," + appTermDescription + "," + appTermUnit + ","
+        //                                 + bedesTermName + "," + bedesTermDescription + "," + bedesTermUnit + ","
+        //                                 + bedesAtomicTermMapping + "," + bedesConstrainedListMapping + ","
+        //                                 + bedesCompositeTermUUID + "," + bedesAtomicTermUUID + ","
+        //                                 + bedesConstrainedListOptionUUID + "\n";
+        //             csvContent += rowContent;
+        //         });
+
+        //         // Download .csv file
+        //         var encodedUri = encodeURI(csvContent);
+        //         var link = document.createElement("a");
+        //         link.setAttribute("href", encodedUri);
+        //         link.setAttribute("download", filename);
+        //         document.body.appendChild(link);
+        //         link.click();
+        // });
 
 }

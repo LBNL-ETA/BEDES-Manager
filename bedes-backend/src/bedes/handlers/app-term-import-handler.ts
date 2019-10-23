@@ -22,6 +22,7 @@ const logger = createLogger(module);
  */
 export async function appTermImportHandler(request: Request, response: Response): Promise<any> {
     try {
+        console.log("Entered appTermImportHandler!");
         logger.debug('appTermImportHandler received request');
         if (!request.isAuthenticated()) {
             throw new BedesError('Unauthorized', HttpStatusCodes.Unauthorized_401);
@@ -38,6 +39,9 @@ export async function appTermImportHandler(request: Request, response: Response)
         // const testPath = path.join(__dirname, '../models/app-term-importer/test-files');
         // const testFile = 'app-term-import-test.csv';
         // let importer = new AppTermImporter(testPath, testFile);
+        console.log("upload_path: ", UPLOAD_PATH);
+        console.log("filename: ", request.file.filename);
+
         let importer = new AppTermImporter(UPLOAD_PATH, request.file.filename);
         const appTerms = await importer.run();
         // const results = await bedesQuery.appTerm.newAppTerms(appId, appTerms.map(item => item.toInterface()));

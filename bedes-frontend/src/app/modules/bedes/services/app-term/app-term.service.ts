@@ -39,6 +39,9 @@ export class AppTermService {
     /** api endpoint for uploading csv file for template definitions. */
     private apiEndpointUpload = 'api/mapping-application/:appId/import';
     private urlUpload: string;
+    /** api endpoint for downloading csv files */
+    private apiEndpointDownload = 'api/mapping-application/:appId/export';
+    private urlDownload: string;
     /** the id of the active MappingApplication */
     private _activeAppId: number | undefined;
     get activeAppId(): number | undefined {
@@ -81,6 +84,7 @@ export class AppTermService {
         this.urlTerm = `${this.apiUrl}${this.apiEndpointTerm}`;
         this.urlSibling = `${this.apiUrl}${this.apiEndpointSibling}`;
         this.urlUpload = `${this.apiUrl}${this.apiEndpointUpload}`;
+        this.urlDownload = `${this.apiUrl}${this.apiEndpointDownload}`;
         this._termListSubject = new BehaviorSubject<Array<AppTerm | AppTermList> | undefined>([]);
         this._activeTermSubject = new BehaviorSubject<AppTerm | AppTermList | undefined>(undefined);
     }
@@ -89,7 +93,9 @@ export class AppTermService {
      * Get the AppTerm objects for the given application id.
      */
     public getAppTerms(appId: number): Observable<Array<AppTerm | AppTermList>> {
+        // PG: CHECK
         const url = this.urlTerm.replace(':appId/term/:termId', `${String(appId)}/term`);
+        console.log("app-term.service.ts - getAppTerms url: ", url);
         return this.http.get<Array<IAppTerm | IAppTermList>>(url, { withCredentials: true })
             .pipe(
                 map((results: Array<IAppTerm | IAppTermList>) => {
@@ -353,9 +359,13 @@ export class AppTermService {
         const formData = new FormData();
         formData.append('appTermImport', file);
         const url = this.getUploadUrl(appId);
+        // PG: Debug
+        // http://localhost:3000/api/mapping-application/1/import
+        console.log('url: ', url);
         return this.http.post<Array<IAppTerm | IAppTermList>>(url, formData, {withCredentials: true})
             .pipe(
                 map((results: Array<IAppTerm | IAppTermList>) => {
+                    console.log("results: ", results);
                     const appTerms = results.map(appTermTransformer);
                     // appTerms.forEach(item => this.addAppTermToList(item, true));
                     for (let index = appTerms.length - 1; index >= 0; index--) {
@@ -366,6 +376,27 @@ export class AppTermService {
             ));
     }
 
+
+    /**
+     * Downloads a csv file with AppTerm and AppTermList definitions,
+     * and returns them as AppTerm | AppTermList objects    // PG: CHECK
+     * @param appId
+     * @returns An array of AppTerm | AppTermList objects   // PG: CHECK
+     */
+    public downloadAppTerms(appId: number): Observable<string> {
+        // PG: Debug
+        console.log("downloadAppTerms()");
+        const url = this.getDownloadUrl(appId);
+        console.log("url: ", url);
+        return this.http.get<string>(url, {withCredentials: true})
+            // .pipe(
+            //     map((result: String) => {
+            //         console.log("result: ", result);
+            //         return result;
+            //     })
+            // );
+    }
+
     /**
      * Returns the url for uploading a csv file of AppTerm definitions
      * for a specific MappingApplication.
@@ -374,5 +405,15 @@ export class AppTermService {
      */
     private getUploadUrl(appId: number): string {
         return this.urlUpload.replace(':appId', String(appId));
+    }
+
+    /**
+     * Returns the url for downloading a csv file of AppTerm definitions
+     * for a specific MappingApplication.
+     * @param appId
+     * @returns upload url
+     */
+    private getDownloadUrl(appId: number): string {
+        return this.urlDownload.replace(':appId', String(appId));
     }
 }

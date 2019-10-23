@@ -437,7 +437,7 @@ export class AppTermQuery {
      * Retrieves an array of all AppTerm objects for a given appId.
      * @param appId The id of the AppTerms MappingApplication.
      * @param [transaction] Optional transaction context to run the query.
-     * @returns Array of AppTerm|AppTermLilst objects for the MappingApplication.
+     * @returns Array of AppTerm|AppTermList objects for the MappingApplication.
      */
     public async getAppTermsByAppId(appId: number, transaction?: any): Promise<Array<IAppTerm | IAppTermList>> {
         try {

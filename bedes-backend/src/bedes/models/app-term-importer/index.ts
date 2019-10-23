@@ -58,12 +58,14 @@ export class AppTermImporter {
         // read the file into a string
         const fileContents: string = await this.getFileContents();
         // parse the string csv
+        console.log("before parseResults");
         const parseResults: parser.ParseResult = this.parseFileContents(fileContents);
+        console.log("after parseResults");
         // set queries to run as a transaction
         // await this.setTransactionContext();
         // return db.tx('app-term-importer', (transaction: any) => {
         //     this.dbCtx = transaction;
-            return this.processParseResults(parseResults);
+        return this.processParseResults(parseResults);
         // });
         // use the results to build the AppTerms
 
@@ -124,13 +126,31 @@ export class AppTermImporter {
 
     private async processParseResults(parseResults: parser.ParseResult): Promise<Array<AppTerm | AppTermList>> {
         try {
+            // parseResults = {data: [{Row1}, {Row2}, ...], errors: [], meta: {}}
+            console.log("parseResults: ", parseResults);
+            
             const promises = new Array<Promise<AppTerm | AppTermList>>();
             const headerFields = this.transformHeaderFieldNames(parseResults.meta.fields);
+            console.log("headerFields: ", headerFields);
             for (const csvData of parseResults.data) {
                 if (Object.keys(csvData).length === 1 && !csvData['Term Name']) {
                     continue;
                 }
                 const appTermCsv = this.makeIAppTermCsvRow(csvData, parseResults.meta.fields);
+                
+                // appTermCsv:  { 'ApplicationTerm': 'Company',
+                // ApplicationTermDescription: 'Company name',
+                // ApplicationUnit: '',
+                // BEDESCompositeTerm: 'Company Name',
+                // BEDESCompositeTermDescription: 'Company name',
+                // BEDESUnit: '',
+                // 'BEDESAtomicTermMapping\n(listof{BEDESAtomicTerm=Value})': 'Company Name = [value]',
+                // 'BEDESConstrainedListMapping\n(listof{ApplicationTermEnumeration=BEDESConstrainedListOption)': '',
+                // BEDESCompositeTermUUID: '176033b2-10b3-475b-aee0-ae4393c77cfb',
+                // 'BEDESAtomicTermUUID\n(listof{BEDESAtomicTermUUID})': '176033b2-10b3-475b-aee0-ae4393c77cfb',
+                // 'BEDESConstrainedListOptionUUID\n(listof{BEDESConstrainedListOptionUUID})': '' }
+                console.log("appTermCsv: ", appTermCsv);
+                
                 promises.push(this.processCsvTerm(appTermCsv, headerFields));
             }
             return await Promise.all(promises);
@@ -153,6 +173,8 @@ export class AppTermImporter {
         for (const headerField of headerFieldNames) {
             results.push(headerField.replace(/ /g, ''))
         }
+
+        // PG: CHECK there exists constrained list options mapping column already
         // add the extra columns for the list options
         results.push('__parsed_extra');
         return results;
@@ -166,17 +188,44 @@ export class AppTermImporter {
      * @returns iappterm csv row 
      */
     private makeIAppTermCsvRow(csvData: any, fieldNames: Array<string>): IAppTermCsvRow {
+
         let result: any = {};
         for (const fieldName of fieldNames) {
             // make the new name
-            const newName = fieldName.replace(/ /g, '');
-            // assign the new column name
-            result[newName] = csvData[fieldName];
+            var newName = fieldName.replace(/ /g, '');
+            console.log("type(newName): ", typeof(newName));
+            console.log("newName: ", newName);
+            if (newName == 'ApplicationTerm ') {
+                console.log("HERE!!");
+                result['TermName'] = csvData[newName];
+            } else if (newName == 'ApplicationTermDescription') {
+                result['Description'] = csvData[newName];
+            } else {
+                result[newName] = csvData[newName];
+            }
         }
         if (csvData['__parsed_extra']) {
             result['__parsed_extra'] = csvData['__parsed_extra'];
         }
+        // PG: Temp! 
+        result['TermType'] = '[value]';
+        result['TermName'] = 'Hi';
+        // console.log("IAppTermCsvRow result: ", <IAppTermCsvRow>result);
+        console.log("result: ", result);
+
         return <IAppTermCsvRow>result;
+
+        // let result: any = {};
+        // for (const fieldName of fieldNames) {
+        //     // make the new name
+        //     const newName = fieldName.replace(/ /g, '');
+        //     // assign the new column name
+        //     result[newName] = csvData[fieldName];
+        // }
+        // if (csvData['__parsed_extra']) {
+        //     result['__parsed_extra'] = csvData['__parsed_extra'];
+        // }
+        // return <IAppTermCsvRow>result;
     }
 
     /**
@@ -226,6 +275,7 @@ export class AppTermImporter {
                 _unitId: unitId,
                 _listOptions: this.extractListOptions(parsedCsvTerm)
             }
+            console.log("before apptermlist: ", params);
             // return the AppTermList object.
             return new AppTermList(params);
         }
