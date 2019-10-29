@@ -93,9 +93,7 @@ export class AppTermService {
      * Get the AppTerm objects for the given application id.
      */
     public getAppTerms(appId: number): Observable<Array<AppTerm | AppTermList>> {
-        // PG: CHECK
         const url = this.urlTerm.replace(':appId/term/:termId', `${String(appId)}/term`);
-        console.log("app-term.service.ts - getAppTerms url: ", url);
         return this.http.get<Array<IAppTerm | IAppTermList>>(url, { withCredentials: true })
             .pipe(
                 map((results: Array<IAppTerm | IAppTermList>) => {
@@ -359,13 +357,9 @@ export class AppTermService {
         const formData = new FormData();
         formData.append('appTermImport', file);
         const url = this.getUploadUrl(appId);
-        // PG: Debug
-        // http://localhost:3000/api/mapping-application/1/import
-        console.log('url: ', url);
         return this.http.post<Array<IAppTerm | IAppTermList>>(url, formData, {withCredentials: true})
             .pipe(
                 map((results: Array<IAppTerm | IAppTermList>) => {
-                    console.log("results: ", results);
                     const appTerms = results.map(appTermTransformer);
                     // appTerms.forEach(item => this.addAppTermToList(item, true));
                     for (let index = appTerms.length - 1; index >= 0; index--) {
@@ -378,23 +372,13 @@ export class AppTermService {
 
 
     /**
-     * Downloads a csv file with AppTerm and AppTermList definitions,
-     * and returns them as AppTerm | AppTermList objects    // PG: CHECK
+     * Downloads a csv file with appTerm mappings,
      * @param appId
-     * @returns An array of AppTerm | AppTermList objects   // PG: CHECK
+     * @returns comma separated string
      */
     public downloadAppTerms(appId: number): Observable<string> {
-        // PG: Debug
-        console.log("downloadAppTerms()");
         const url = this.getDownloadUrl(appId);
-        console.log("url: ", url);
         return this.http.get<string>(url, {withCredentials: true})
-            // .pipe(
-            //     map((result: String) => {
-            //         console.log("result: ", result);
-            //         return result;
-            //     })
-            // );
     }
 
     /**
