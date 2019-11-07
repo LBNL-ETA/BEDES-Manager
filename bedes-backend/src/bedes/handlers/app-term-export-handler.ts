@@ -6,13 +6,14 @@ import { bedesQuery } from '../query';
 import { BedesError } from '../../../../bedes-common/bedes-error/bedes-error';
 import { ITermMappingAtomic } from '@bedes-common/models/term-mapping/term-mapping-atomic.interface';
 import { IAppTermList } from '@bedes-common/models/app-term';
+import { appTerm } from '.';
 const logger = createLogger(module);
 
 /**
  * 
  * TODO
- * 1. Check if app description has newlines in it.
- * 2. Code organization: 
+ * 1. Check if app description, app name has newlines in it.
+ * 2. Code organization:
  *      1. Create models/app-term-exporter like  models/app-term-import.
  *      2. Rename app-term-export-handler to csv-export-handler
  * 3. Double check columns - Application Unit, BEDES Unit, BEDES Description.
@@ -57,8 +58,10 @@ export async function appTermExportHandler(request: Request, response: Response)
 
         // CSV header columns
         var csvContent: string = 'data:text/csv;charset=utf-8,' + '\n';
-        csvContent += 'Application Term,Application Term Description,Application Unit,'
-                    + 'BEDES Composite Term,BEDES Composite Term Description,BEDES Unit,'
+        csvContent += 'Application Term,Application Term Description,'
+                    + 'Application Term Unit,Application Term Data Type,'
+                    + 'BEDES Term,BEDES Term Description,'
+                    + 'BEDES Term Unit,BEDES Term Data Type,'
                     + 'BEDES Atomic Term Mapping,BEDES Constrained List Mapping,'
                     + 'BEDES Composite Term UUID,BEDES Atomic Term UUID,'
                     + 'BEDES Constrained List Option UUID' + '\n';
@@ -75,9 +78,11 @@ export async function appTermExportHandler(request: Request, response: Response)
             let appTermName: string = '';
             let appTermDescription: string = '';
             let appTermUnit: string = '';
+            let appTermDataType: string = '';
             let bedesTermName: string = '';
             let bedesTermDescription: string = '';
             let bedesTermUnit: string = '';
+            let bedesTermDataType: string = '';
             let bedesAtomicTermMapping: string = '';                // TODO: Join each element with \n
             let bedesConstrainedListMapping: string = '';           // TODO: Join each element with \n
             let bedesCompositeTermUUID: string = '';
@@ -96,8 +101,12 @@ export async function appTermExportHandler(request: Request, response: Response)
             }
 
             if (results[i]._termTypeId == 1) {                      // Atomic Term
-                // pass
+                appTermDataType = 'Atomic';
+                bedesTermDataType = 'Atomic';
             } else if (results[i]._termTypeId == 2) {               // Constrained List Term
+                appTermDataType = 'Constrained List';
+                bedesTermDataType = 'Constrained List';
+
                 if ((<IAppTermList>results[i])._listOptions) {
                     (<IAppTermList>results[i])._listOptions!.forEach((listOption) => {
                         bedesConstrainedListMapping += listOption._name + '=';
@@ -166,8 +175,10 @@ export async function appTermExportHandler(request: Request, response: Response)
                 }
             }
 
-            let rowContent: string = appTermName + "," + appTermDescription + "," + appTermUnit + ","
-                    + bedesTermName + "," + bedesTermDescription + "," + bedesTermUnit + ","
+            let rowContent: string = appTermName + "," + appTermDescription + ","
+                    + appTermUnit + "," + appTermDataType + ","
+                    + bedesTermName + "," + bedesTermDescription + ","
+                    + bedesTermUnit + "," + bedesTermDataType + ","
                     + bedesAtomicTermMapping + "," + bedesConstrainedListMapping + ","
                     + bedesCompositeTermUUID + "," + bedesAtomicTermUUID + ","
                     + bedesConstrainedListOptionUUID + "\n";
