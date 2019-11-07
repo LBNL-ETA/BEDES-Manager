@@ -7,24 +7,33 @@ import { BedesUnit } from '../../../../../bedes-common/models/bedes-unit/bedes-u
 import { IBedesUnit } from '../../../../../bedes-common/models/bedes-unit/bedes-unit.template';
 const logger = createLogger(module);
 
+/**
+ * Note
+ * 1. CSV should contain ApplicationTerm and BEDESCompositeTerm for all rows.
+ *      (for no mapping, put 'NO MAPPING' in BEDESCompositeTerm column)
+ */
+
+var delimiter: string = '\n';
+
 export interface IAppTermCsvRow {
-    TermName: string;
-    Description?: string | null | undefined;
-    TermType: string;
-    Unit?: string | null | undefined;
-    /** The first the list option's name */
-    ListOptionName?: string | null | undefined;
-    /** The first the list option's description. */
-    ListOptionDescription?: string | null | undefined;
-    /**
-     * papaparse puts the columns without a header in here,
-     * so this is an array of list option name as one array element,
-     * and that list options description as the following array element.
-     * 
-     * @example
-     * ['list option name 1', 'description 1', 'option 2', 'description 2', 'option 3', ...]
-     *  */
-    __parsed_extra?: Array<string> | null | undefined;
+
+    ApplicationTerm: string;
+    ApplicationTermDescription?: string | null | undefined;
+    ApplicationTermUnit?: string | null | undefined;
+    ApplicationTermDataType?: string | null | undefined;
+
+    BedesTerm?: string | null | undefined;
+    BedesTermDescription?: string | null | undefined;
+    BedesTermUnit?: string | null | undefined;
+    BedesTermDataType?: string | null | undefined;
+
+    BedesAtomicTermMapping?: string | null | undefined;
+    BedesConstrainedListMapping?: string | null | undefined;
+
+    BedesCompositeTermUUID?: string | null | undefined;
+    BedesAtomicTermUUID?: string | null | undefined;
+    BedesConstrainedListOptionUUID?: string | null | undefined;
+
 }
 
 /**
@@ -35,35 +44,103 @@ export interface IAppTermCsvRow {
  * @returns true if there's enough information to build an AppTerm or AppTermList
  */
 export function isValidAppTermCsvRow(item: IAppTermCsvRow): boolean {
-        if (item && item.TermName && item.TermType) {
-            return true;
-        }
-        else {
-            return false;
-        }
+    if (item && item.ApplicationTerm) {
+        return true;
+    }
+    else {
+        return false;
+    }
 }
 
-export function getTermTypeFromCsvName(termTypeString: string): TermType {
+/**
+ * Determines whether a term has a mapping to a BEDES term or not.
+ * @param item
+ * @returns true if there's no mapping.
+ */
+export function termhasNoMapping(item: IAppTermCsvRow): boolean {
+    if (!item.BedesAtomicTermUUID || !item.BedesCompositeTermUUID || !item.BedesTerm) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+/**
+ * Determines whether a term has a mapping to a BEDES term or not.
+ * @param item
+ * @returns true if there is mapping.
+ */
+export function termhasMapping(item: IAppTermCsvRow): boolean {
+    if (item.BedesAtomicTermUUID && item.BedesCompositeTermUUID && item.BedesTerm) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+/**
+ * Determines the TermType based on the BedesConstrainedListOptionUUID.
+ * If len(BedesConstrainedListOptionUUID) == 1 then TermType = Atomic, Else Constrained List
+ * [Note] If it is null, then function returns TermType=Atomic.
+ * @param termTypeString BedesConstrainedListOptionUUID string
+ */
+export function getTermTypeFromCsvName(item: IAppTermCsvRow): TermType {
+
     try {
-        if (typeof termTypeString !== 'string') {
-            logger.error(`getTermTypeFromCsvName: invalid term type (${termTypeString})`);
-            throw new Error('Invalid term type')
-        }
-        else if (termTypeString.toLowerCase().trim() === '[value]') {
+
+        if (!item.BedesConstrainedListMapping && !item.BedesConstrainedListOptionUUID) {
             return TermType.Atomic;
         }
-        else if (termTypeString.toLowerCase().trim() === 'constrained list') {
-            return TermType.ConstrainedList;
+
+        if (!item.BedesConstrainedListMapping || !item.BedesConstrainedListOptionUUID) {
+            logger.error(`BedesConstrainedListMapping & BedesConstrainedListOptionUUIDs have unequal lengths.`);
+            throw new Error(`BedesConstrainedListMapping & BedesConstrainedListOptionUUIDs have unequal lengths.`);
         }
-        else {
-            logger.error(`getTermTypeFromCsvName: invalid term type (${termTypeString})`);
-            throw new Error('Invalid term type')
+
+        let numBedesConstrainedListMapping: Array<string> =  item.BedesConstrainedListMapping.trim().split(delimiter);
+        let numBedesConstrainedListOptionUUIDs: Array<string> =  item.BedesConstrainedListOptionUUID.trim().split(delimiter);
+
+        if (numBedesConstrainedListMapping.length != numBedesConstrainedListOptionUUIDs.length) {
+
+            // "Other" is a generic list option that can be added to any constrained list, and so does not have
+            // an assigned UUID.
+            if (!numBedesConstrainedListMapping[numBedesConstrainedListMapping.length - 1].toLowerCase().includes('other')) {
+                logger.error(`BedesConstrainedListMapping & BedesConstrainedListOptionUUIDs have unequal lengths.`);
+                throw new Error(`BedesConstrainedListMapping & BedesConstrainedListOptionUUIDs have unequal lengths.`);
+            }
         }
-    }
-    catch(error) {
-        logger.error(`getTermTypeFromCsvName: error in getTermType`)
+
+        if (numBedesConstrainedListMapping.length < 2) {
+            logger.error(`BedesConstrainedListMapping & BedesConstrainedListOptionUUIDs need to have more than 1 option.`);
+            throw new Error(`BedesConstrainedListMapping & BedesConstrainedListOptionUUIDs need to have more than 1 option.`);
+        }
+
+        return TermType.ConstrainedList;
+
+    } catch (error) {
         throw error;
     }
+
+    // try {
+    //     if (typeof termTypeString !== 'string') {
+    //         logger.error(`getTermTypeFromCsvName: invalid term type (${termTypeString})`);
+    //         throw new Error('Invalid term type')
+    //     }
+    //     else if (termTypeString.toLowerCase().trim() === '[value]') {
+    //         return TermType.Atomic;
+    //     }
+    //     else if (termTypeString.toLowerCase().trim() === 'constrained list') {
+    //         return TermType.ConstrainedList;
+    //     }
+    //     else {
+    //         logger.error(`getTermTypeFromCsvName: invalid term type (${termTypeString})`);
+    //         throw new Error('Invalid term type')
+    //     }
+    // }
+    // catch(error) {
+    //     logger.error(`getTermTypeFromCsvName: error in getTermType`)
+    //     throw error;
+    // }
 }
 
 /**
@@ -99,7 +176,7 @@ export async function getUnitIdFromName(unitName: string, trans?: any): Promise<
         //     unit = await bedesQuery.units.newRecord(params, trans)
         // }
         if (!unit._id) {
-            throw new Error('Unkown eror retrieving unit record')
+            throw new Error('Unknown error retrieving unit record')
         }
         else {
             return unit._id;
@@ -109,4 +186,35 @@ export async function getUnitIdFromName(unitName: string, trans?: any): Promise<
         logger.error('getUnitIdFromName: Error finding matching unit.');
         throw error;
     }
+}
+
+/**
+ * Returns true if the application term is mapped to a BEDES Atomic Term.
+ * @param BedesAtomicTermUUID
+ * @param BedesCompositeTermUUID
+ */
+export function mappedToBedesAtomicTerm(item: IAppTermCsvRow): boolean {
+    if (item.BedesAtomicTermUUID == item.BedesCompositeTermUUID) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+/**
+ * Returns true if the application term is mapped to a BEDES Composite Term.
+ * @param BedesAtomicTermUUID
+ * @param BedesCompositeTermUUID
+ */
+export function mappedToBedesCompositeTerm(item: IAppTermCsvRow): boolean {
+
+    let numBedesAtomicTermUUID: Array<string> =  item.BedesAtomicTermUUID!.trim().split(delimiter);
+    let numBedesCompositeTermUUID: Array<string> =  item.BedesCompositeTermUUID!.trim().split(delimiter);
+
+    if (numBedesAtomicTermUUID.length <= numBedesCompositeTermUUID.length) {
+        logger.error(`#BedesAtomicTermUUIDs is less than or equal to #BedesCompositeTermUUIDs.`);
+        throw new Error(`#BedesAtomicTermUUIDs is less than or equal to #BedesCompositeTermUUIDs.`);
+    }
+
+    return true;
 }
