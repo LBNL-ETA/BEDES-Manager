@@ -3,8 +3,11 @@ import { createLogger } from '@bedes-backend/logging';
 import { BedesError } from '../../../../../bedes-common/bedes-error/bedes-error';
 import { HttpStatusCodes } from '../../../../../bedes-common/enums/http-status-codes';
 import { bedesQuery } from '@bedes-backend/bedes/query';
+import { IBedesTerm } from '@bedes-common/models/bedes-term';
 import { BedesUnit } from '../../../../../bedes-common/models/bedes-unit/bedes-unit';
 import { IBedesUnit } from '../../../../../bedes-common/models/bedes-unit/bedes-unit.template';
+import { IBedesTermOption } from '@bedes-common/models/bedes-term-option';
+import { bedesTerm } from '@bedes-backend/bedes/handlers';
 const logger = createLogger(module);
 
 /**
@@ -201,20 +204,92 @@ export function mappedToBedesAtomicTerm(item: IAppTermCsvRow): boolean {
     }
 }
 
+export function capital_letter(str: string) {
+    let temp = str.split(" ");
+
+    for (let j = 0; j < temp.length; j += 1) {
+        temp[j] = temp[j][0].toUpperCase() + temp[j].substr(1);
+    }
+
+    return temp.join(" ");
+}
+
 /**
  * Returns true if the application term is mapped to a BEDES Composite Term.
  * @param BedesAtomicTermUUID
  * @param BedesCompositeTermUUID
  */
-export function mappedToBedesCompositeTerm(item: IAppTermCsvRow): boolean {
+export async function mappedToBedesCompositeTerm(item: IAppTermCsvRow): Promise<boolean> {
 
     let numBedesAtomicTermUUID: Array<string> =  item.BedesAtomicTermUUID!.trim().split(delimiter);
     let numBedesCompositeTermUUID: Array<string> =  item.BedesCompositeTermUUID!.trim().split(delimiter);
+    let numAtomicTerms: Array<string> = item.BedesAtomicTermMapping!.trim().split(delimiter);
 
     if (numBedesAtomicTermUUID.length <= numBedesCompositeTermUUID.length) {
         logger.error(`#BedesAtomicTermUUIDs is less than or equal to #BedesCompositeTermUUIDs.`);
         throw new Error(`#BedesAtomicTermUUIDs is less than or equal to #BedesCompositeTermUUIDs.`);
     }
 
-    return true;
+    if (numAtomicTerms.length <= 1) {
+        logger.error(`#Number of Atomic Terms should be greater than 1.`);
+        throw new Error(`#Number of Atomic Terms should be greater than 1.`);
+    }
+
+    // Split BEDESAtomicTerm=BEDESAtomicTermValue into their own lists
+    let bedesAtomicTerms: Array<string> = [];
+    let bedesAtomicTermValues: Array<string> = [];
+    for (let i = 0; i < numAtomicTerms.length; i += 1) {
+        let temp: Array<string> = numAtomicTerms[i].split("=");
+        bedesAtomicTerms.push(temp[0].trim());
+        bedesAtomicTermValues.push(temp[1].trim());
+    }
+
+    const termPromises = new Array<Promise<IBedesTerm>>();
+    const termValuePromises = new Array<Promise<IBedesTermOption>>();
+    // Check if all BEDES Atomic Terms exist
+    for (let i = 0; i < bedesAtomicTerms.length; i += 1) {
+        termPromises.push(bedesQuery.terms.getRecordByName(bedesAtomicTerms[i]));
+        if (bedesAtomicTermValues[i] != '[value]') {
+            termValuePromises.push(bedesQuery.termListOption.getRecordByName(
+                numBedesAtomicTermUUID[i], bedesAtomicTermValues[i].replace(/['"]+/g, "")
+            ));
+        }
+    }
+
+    const results1 = await Promise.all(termPromises)
+    .catch((error: any) => {
+        logger.error('BEDES Atomic Term(s) does not exist.');
+        return new Promise<boolean>((resolve, reject) => {
+            reject(false);
+        });
+    });
+
+    const results2 = await Promise.all(termValuePromises)
+    .catch((error: any) => {
+        logger.error('BEDES Atomic Term Value(s) does not exist.');
+        return new Promise<boolean>((resolve, reject) => {
+            reject(false);
+        });
+    });
+
+    // Check if BEDES Composite Term Name is correct
+    let bedesTermName: string = "";
+    for (let i = 0; i < bedesAtomicTermValues.length; i += 1) {
+        if (bedesAtomicTermValues[i] == '[value]') {
+            bedesTermName += bedesAtomicTerms[i];
+        } else {
+            bedesTermName += bedesAtomicTermValues[i].replace(/['"]+/g, "") + " ";
+        }
+    }
+
+    if (capital_letter(bedesTermName) != item.BedesTerm) {
+        logger.error('BEDES Composite Term Name is wrong.');
+        return new Promise<boolean>((resolve, reject) => {
+            reject(false);
+        });
+    }
+
+    return new Promise<boolean>((resolve, reject) => {
+        resolve(true);
+    });
 }

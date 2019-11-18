@@ -15,12 +15,17 @@ import { ITermMappingListOption } from '@bedes-common/models/term-mapping/term-m
 import { IAppTermListOption, AppTermListOption } from '@bedes-common/models/app-term';
 import { db } from '@bedes-backend/db';
 import { ITermMappingComposite } from '@bedes-common/models/term-mapping/term-mapping-composite.interface';
+import { IBedesTermOption } from '@bedes-common/models/bedes-term-option';
+import { IBedesTerm } from '@bedes-common/models/bedes-term';
+import { bedesQuery } from '@bedes-backend/bedes/query';
+
 const logger = createLogger(module);
 
 /**
  * TODO
  * 1. Change IAppTermCsvRow to IImportCsvRow.
  * 2. [Bug] Deleting appTermList on GUI doesn't work.
+ * 3. Create functions for populating IAppTerm, IAppTermList...
  *
  * NOTE
  * 1. _termCategoryId not needed for import/export.
@@ -349,7 +354,8 @@ export class AppTermImporter {
                 }
             }
 
-            else if (mappedToBedesCompositeTerm(parsedCsvTerm)) {
+            // mappedToBedesCompositeTerm checks if the necessary variables are present or not
+            else if (await mappedToBedesCompositeTerm(parsedCsvTerm)) {
 
                 // Not a constrained list
                 if (appTermTypeId == TermType.Atomic) {
