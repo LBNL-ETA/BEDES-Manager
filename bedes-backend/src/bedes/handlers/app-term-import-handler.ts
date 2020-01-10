@@ -12,6 +12,8 @@ import { AppTerm } from '@bedes-common/models/app-term/app-term';
 import { bedesQuery } from '../query';
 import { BedesError } from '../../../../bedes-common/bedes-error/bedes-error';
 import { db } from '@bedes-backend/db';
+import { IBedesTerm, BedesTerm, IBedesConstrainedList, BedesConstrainedList } from '@bedes-common/models/bedes-term';
+import { bedesTerm } from '.';
 const logger = createLogger(module);
 
 /**
@@ -38,14 +40,38 @@ export async function appTermImportHandler(request: Request, response: Response)
         // const testPath = path.join(__dirname, '../models/app-term-importer/test-files');
         // const testFile = 'app-term-import-test.csv';
         // let importer = new AppTermImporter(testPath, testFile);
-        let importer = new AppTermImporter(UPLOAD_PATH, request.file.filename);
-        const appTerms = await importer.run();
-        // const results = await bedesQuery.appTerm.newAppTerms(appId, appTerms.map(item => item.toInterface()));
+        var upload_path: string = path.join(__dirname, '../uploads/files');
+        
+        // BEDES_all-terms_Version 2.3.csv, BEDES_all_list_options_Version 2.3.csv
+        var files: Array<string> = ['a931d3bbd795befba32300445c4041e8', 'e960b663105a371ca2f4f6b04f87b118'];
+
+        // let importer = new AppTermImporter(UPLOAD_PATH, request.file.filename);
+        let importer = new AppTermImporter(upload_path, files);
+        const bedesTerms = await importer.run();
+
+        // Add ids to all the terms.
+        for (var i = 0; i < bedesTerms.length; i += 1) {
+            bedesTerms[i].id = i;
+        } 
+
         db.tx('saveTerms', async (trans: any) => {
             const promises = new Array<Promise<any>>();
-            for (let appTerm of appTerms) {
-                const data = appTerm.toInterface();
-                promises.push(bedesQuery.appTerm.newAppTerm(appId, data, trans));
+            
+            for (let bedesTerm of bedesTerms) {
+                
+                if (bedesTerm instanceof BedesConstrainedList) {
+                    // console.log('bedesConstrainedList: ', bedesTerm);
+                    const bedesConstListInterface = bedesTerm.toInterface();
+                    promises.push(bedesQuery.terms.newConstrainedList(bedesConstListInterface));
+                }
+                else if (bedesTerm instanceof BedesTerm) {
+                    // console.log('bedesTerm: ', bedesTerm);
+                    const bedesTermInterface = bedesTerm.toInterface();
+                    promises.push(bedesQuery.terms.newRecord(bedesTermInterface));
+                } 
+                else {
+                    throw new Error('error term is neither BedesTerm nor BedesConstrainedList')
+                }
             }
             const results = await Promise.all(promises)
             .catch((error: any) => {
@@ -55,6 +81,22 @@ export async function appTermImportHandler(request: Request, response: Response)
             // response.json(results.map(item => item.appTerm));
             response.json(results);
         })
+        
+        // // const results = await bedesQuery.appTerm.newAppTerms(appId, appTerms.map(item => item.toInterface()));
+        // db.tx('saveTerms', async (trans: any) => {
+        //     const promises = new Array<Promise<any>>();
+        //     for (let appTerm of appTerms) {
+        //         const data = appTerm.toInterface();
+        //         promises.push(bedesQuery.appTerm.newAppTerm(appId, data, trans));
+        //     }
+        //     const results = await Promise.all(promises)
+        //     .catch((error: any) => {
+        //         response.status(HttpStatusCodes.BadRequest_400).send('Error creating terms');
+        //         return;
+        //     });
+        //     // response.json(results.map(item => item.appTerm));
+        //     response.json(results);
+        // })
     }
     catch (error) {
         logger.error('Error importing appTerms');

@@ -58,7 +58,9 @@ export class BedesTermQuery {
                 _termTypeId: item._termCategoryId,
                 _dataTypeId: item._dataTypeId,
                 _unitId: item._unitId,
-                _definitionSourceId: item._definitionSourceId
+                _definitionSourceId: item._definitionSourceId,
+                _url: item._url,
+                _uuid: item._uuid,
             };
             // set the database context
             let dbContext: any;
@@ -73,10 +75,9 @@ export class BedesTermQuery {
             const newTerm: IBedesTerm = await dbContext.one(this.sqlInsert, params);
             if (!newTerm._id) {
                 throw new Error('New BedesTerm missing id');
-            }
+            }            
             // save the sector info
             const sectors = await bedesQuery.bedesTermSectorLink.insertAll(newTerm._id, item._sectors, transaction);
-            sectors.forEach((d) => newTerm._sectors.push(d));
             return newTerm;
             
         } catch (error) {
@@ -104,7 +105,9 @@ export class BedesTermQuery {
                 _termTypeId: item._termCategoryId,
                 _dataTypeId: item._dataTypeId,
                 _unitId: item._unitId,
-                _definitionSourceId: item._definitionSourceId
+                _definitionSourceId: item._definitionSourceId,
+                _url: item._url,
+                _uuid: item._uuid,
             };
             // create the constrained list, wait for promise to resolve
             let constrainedList: IBedesConstrainedList;
@@ -121,8 +124,7 @@ export class BedesTermQuery {
                 throw new Error(`${this.constructor.name}: Missing _id on new BedesConstrainedList`);
             }
             const termId: number = constrainedList._id;
-
-            let promises = new Array<Promise<IBedesTermOption>>();
+            let promises = new Array<Promise<IBedesTermOption>>();            
             item._options.map((d) => promises.push(bedesQuery.termListOption.newRecord(termId, d)));
             constrainedList._options = await Promise.all(promises);
             return constrainedList;
