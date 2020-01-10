@@ -60,12 +60,10 @@ export async function appTermImportHandler(request: Request, response: Response)
             for (let bedesTerm of bedesTerms) {
                 
                 if (bedesTerm instanceof BedesConstrainedList) {
-                    // console.log('bedesConstrainedList: ', bedesTerm);
                     const bedesConstListInterface = bedesTerm.toInterface();
                     promises.push(bedesQuery.terms.newConstrainedList(bedesConstListInterface));
                 }
                 else if (bedesTerm instanceof BedesTerm) {
-                    // console.log('bedesTerm: ', bedesTerm);
                     const bedesTermInterface = bedesTerm.toInterface();
                     promises.push(bedesQuery.terms.newRecord(bedesTermInterface));
                 } 

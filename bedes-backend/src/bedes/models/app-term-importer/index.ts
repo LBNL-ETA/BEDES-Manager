@@ -352,8 +352,9 @@ export class AppTermImporter {
             let result: Array<IBedesTermSectorLink> = [];
             let arraySector = sectorName.split(',');
             for (const secName of arraySector) {
+                var trimmedSecName: string = secName.trim();
                 for (const sectorResult of sectors) {
-                    if (secName == sectorResult._name) {
+                    if (trimmedSecName == sectorResult._name) {
                         let temp: IBedesTermSectorLink = {
                             _sectorId: sectorResult._id!
                         }
