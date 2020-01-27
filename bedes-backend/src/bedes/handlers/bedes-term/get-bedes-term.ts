@@ -34,8 +34,6 @@ export async function getBedesTermHandler(request: Request, response: Response):
         else {
             // uuid
             let results = await bedesQuery.terms.getTermOrListByUUID(termId);
-            console.log(termId);
-            console.log(results);
             response.json(results)
         }
     }

@@ -49,7 +49,7 @@ export async function appTermImportHandler(request: Request, response: Response)
         // const testFile = 'app-term-import-test.csv';
         // let importer = new AppTermImporter(testPath, testFile);
 
-        let importer = new AppTermImporter(UPLOAD_PATH, request.file.filename);
+        let importer = new AppTermImporter(UPLOAD_PATH, request, request.file.filename);
         const appTerms = await importer.run();
         // const results = await bedesQuery.appTerm.newAppTerms(appId, appTerms.map(item => item.toInterface()));
 

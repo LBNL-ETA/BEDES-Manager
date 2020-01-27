@@ -3,7 +3,7 @@ import { createLogger } from '@bedes-backend/logging';
 import { BedesError } from '../../../../../bedes-common/bedes-error/bedes-error';
 import { HttpStatusCodes } from '../../../../../bedes-common/enums/http-status-codes';
 import { bedesQuery } from '@bedes-backend/bedes/query';
-import { IBedesTerm } from '@bedes-common/models/bedes-term';
+import { IBedesTerm, IBedesConstrainedList } from '@bedes-common/models/bedes-term';
 import { BedesUnit } from '../../../../../bedes-common/models/bedes-unit/bedes-unit';
 import { IBedesUnit } from '../../../../../bedes-common/models/bedes-unit/bedes-unit.template';
 import { IBedesTermOption } from '@bedes-common/models/bedes-term-option';
@@ -11,6 +11,8 @@ import { bedesTerm } from '@bedes-backend/bedes/handlers';
 const logger = createLogger(module);
 
 /**
+ * TODO
+ * 1. Rewrite docstrings of all functions (many are wrong)
  * Note
  * 1. CSV should contain ApplicationTerm and BEDESCompositeTerm for all rows.
  *      (for no mapping, put 'NO MAPPING' in BEDESCompositeTerm column)
@@ -49,33 +51,6 @@ export interface IAppTermCsvRow {
 export function isValidAppTermCsvRow(item: IAppTermCsvRow): boolean {
     if (item && item.ApplicationTerm) {
         return true;
-    }
-    else {
-        return false;
-    }
-}
-
-/**
- * Determines whether a term has a mapping to a BEDES term or not.
- * @param item
- * @returns true if there's no mapping.
- */
-export function termhasNoMapping(item: IAppTermCsvRow): boolean {
-    if (!item.BedesAtomicTermUUID || !item.BedesCompositeTermUUID || !item.BedesTerm) {
-        return true;
-    } else {
-        return false;
-    }
-}
-
-/**
- * Determines whether a term has a mapping to a BEDES term or not.
- * @param item
- * @returns true if there is mapping.
- */
-export function termhasMapping(item: IAppTermCsvRow): boolean {
-    if (item.BedesAtomicTermUUID && item.BedesCompositeTermUUID && item.BedesTerm) {
-        return true;
     } else {
         return false;
     }
@@ -89,61 +64,37 @@ export function termhasMapping(item: IAppTermCsvRow): boolean {
  */
 export function getTermTypeFromCsvName(item: IAppTermCsvRow): TermType {
 
+    // TODO: Check if the case where the delimiter is something other than \n will work or not.
     try {
-
-        if (!item.BedesConstrainedListMapping && !item.BedesConstrainedListOptionUUID) {
-            return TermType.Atomic;
-        }
-
-        if (!item.BedesConstrainedListMapping || !item.BedesConstrainedListOptionUUID) {
-            logger.error(`BedesConstrainedListMapping & BedesConstrainedListOptionUUIDs have unequal lengths.`);
-            throw new Error(`BedesConstrainedListMapping & BedesConstrainedListOptionUUIDs have unequal lengths.`);
-        }
-
-        let numBedesConstrainedListMapping: Array<string> =  item.BedesConstrainedListMapping.trim().split(delimiter);
-        let numBedesConstrainedListOptionUUIDs: Array<string> =  item.BedesConstrainedListOptionUUID.trim().split(delimiter);
-
-        if (numBedesConstrainedListMapping.length != numBedesConstrainedListOptionUUIDs.length) {
-
-            // "Other" is a generic list option that can be added to any constrained list, and so does not have
-            // an assigned UUID.
-            if (!numBedesConstrainedListMapping[numBedesConstrainedListMapping.length - 1].toLowerCase().includes('other')) {
-                logger.error(`BedesConstrainedListMapping & BedesConstrainedListOptionUUIDs have unequal lengths.`);
-                throw new Error(`BedesConstrainedListMapping & BedesConstrainedListOptionUUIDs have unequal lengths.`);
+        if (item.BedesConstrainedListMapping && item.BedesConstrainedListOptionUUID) {
+            let numBedesConstrainedListMapping: Array<string> =  item.BedesConstrainedListMapping.trim().split(delimiter);
+            let numBedesConstrainedListOptionUUIDs: Array<string> =  item.BedesConstrainedListOptionUUID.trim().split(delimiter);
+            if (numBedesConstrainedListMapping.length != numBedesConstrainedListOptionUUIDs.length) {
+                // "Other" is a generic list option that can be added to any constrained list, and so does not have
+                // an assigned UUID.
+                // TODO: Update if statement condition to numBCLM[numBCLM.length - 1].split("=")[1] == 'other'            
+                if (!numBedesConstrainedListMapping[numBedesConstrainedListMapping.length - 1].toLowerCase().includes('other')) {
+                    logger.error(`BedesConstrainedListMapping & BedesConstrainedListOptionUUIDs have unequal lengths.`);
+                    throw new Error(`BedesConstrainedListMapping & BedesConstrainedListOptionUUIDs have unequal lengths.`);
+                }
             }
+            // TODO: Double check if this is true.
+            if (numBedesConstrainedListMapping.length < 2) {
+                logger.error(`BedesConstrainedListMapping & BedesConstrainedListOptionUUIDs need to have more than 1 option.`);
+                throw new Error(`BedesConstrainedListMapping & BedesConstrainedListOptionUUIDs need to have more than 1 option.`);
+            }
+            return TermType.ConstrainedList;
+        } else if (item.BedesConstrainedListMapping && !item.BedesConstrainedListOptionUUID) {
+            return TermType.ConstrainedList;
+        } else if (item.BedesConstrainedListOptionUUID && !item.BedesConstrainedListMapping) {
+            logger.error(`BedesConstrainedListMapping is missing.`);
+            throw new Error(`BedesConstrainedListMapping is missing.`);
         }
-
-        if (numBedesConstrainedListMapping.length < 2) {
-            logger.error(`BedesConstrainedListMapping & BedesConstrainedListOptionUUIDs need to have more than 1 option.`);
-            throw new Error(`BedesConstrainedListMapping & BedesConstrainedListOptionUUIDs need to have more than 1 option.`);
-        }
-
-        return TermType.ConstrainedList;
-
+        // If !item.BedesConstrainedListOptionUUID && !item.BedesConstrainedListMapping then,
+        return TermType.Atomic;
     } catch (error) {
         throw error;
     }
-
-    // try {
-    //     if (typeof termTypeString !== 'string') {
-    //         logger.error(`getTermTypeFromCsvName: invalid term type (${termTypeString})`);
-    //         throw new Error('Invalid term type')
-    //     }
-    //     else if (termTypeString.toLowerCase().trim() === '[value]') {
-    //         return TermType.Atomic;
-    //     }
-    //     else if (termTypeString.toLowerCase().trim() === 'constrained list') {
-    //         return TermType.ConstrainedList;
-    //     }
-    //     else {
-    //         logger.error(`getTermTypeFromCsvName: invalid term type (${termTypeString})`);
-    //         throw new Error('Invalid term type')
-    //     }
-    // }
-    // catch(error) {
-    //     logger.error(`getTermTypeFromCsvName: error in getTermType`)
-    //     throw error;
-    // }
 }
 
 /**
@@ -163,26 +114,16 @@ export async function getUnitIdFromName(unitName: string, trans?: any): Promise<
         let unit: IBedesUnit | undefined;
         try {
             unit = await bedesQuery.units.getRecordByName(unitName.trim(), trans);
+            if (unit._id) {
+                return unit._id;
+            } else {
+                throw new Error('Error retrieving unit ID of BEDES Term');
+            }
         } catch (error) {
             throw new BedesError(
                 `Unit ${unitName} doesn't exist.`,
                 HttpStatusCodes.BadRequest_400
             );
-        }
-
-        // if (!unit || !unit._id) {
-        //     // unit doesn't exist... create it
-        //     const params: IBedesUnit = {
-        //         _id: undefined,
-        //         _name: unitName.trim()
-        //     }
-        //     unit = await bedesQuery.units.newRecord(params, trans)
-        // }
-        if (!unit._id) {
-            throw new Error('Unknown error retrieving unit record')
-        }
-        else {
-            return unit._id;
         }
     }
     catch (error) {
@@ -192,104 +133,188 @@ export async function getUnitIdFromName(unitName: string, trans?: any): Promise<
 }
 
 /**
- * Returns true if the application term is mapped to a BEDES Atomic Term.
- * @param BedesAtomicTermUUID
- * @param BedesCompositeTermUUID
+ * Determines whether a term has a mapping to a BEDES term or not.
+ * @param item
+ * @returns true if there's no mapping.
  */
-export function mappedToBedesAtomicTerm(item: IAppTermCsvRow): boolean {
-    if (item.BedesAtomicTermUUID == item.BedesCompositeTermUUID) {
+export function termhasNoMapping(item: IAppTermCsvRow): boolean {
+
+    if (!item.BedesTerm) {
         return true;
     } else {
         return false;
     }
 }
 
-export function capital_letter(str: string) {
-    let temp = str.split(" ");
+/**
+ * Determines whether a term has a mapping to a BEDES term or not.
+ * @param item
+ * @returns true if there is mapping.
+ */
+export function termhasMapping(item: IAppTermCsvRow): boolean {
+    if (item.BedesAtomicTermMapping) {
+        return true;
+    } else {
+        return false;
+    }
+}
 
+/**
+ * Returns true if the application term is mapped to a BEDES Atomic Term.
+ * @param BedesAtomicTermUUID
+ * @param BedesCompositeTermUUID
+ * @returns true if it is mapped to a BEDES Atomic Term
+ */
+export async function mappedToBedesAtomicTerm(item: IAppTermCsvRow): Promise<boolean> {
+
+    // TODO: Check if the case where the delimiter is something other than \n will work or not.
+    let bedesAtomicTermMappings: Array<string> = item.BedesAtomicTermMapping!.trim().split(delimiter);
+    if (bedesAtomicTermMappings.length == 1) {
+        
+        let termValue: Array<string> = bedesAtomicTermMappings[0].trim().split("=");
+        if (termValue.length == 2 && termValue[1].trim() == '[value]') {
+            var uuid: string = '';
+            if (item.BedesAtomicTermUUID && item.BedesCompositeTermUUID) {
+                if (item.BedesAtomicTermUUID == item.BedesCompositeTermUUID) {
+                    uuid = item.BedesAtomicTermUUID;
+                } else {
+                    throw new Error('For BEDES Atomic Term, AtomicTermUUID and CompositeTermUUID must be equal.');
+                }
+            } else {
+                if (item.BedesAtomicTermUUID) {
+                    uuid = item.BedesAtomicTermUUID;
+                } else if (item.BedesCompositeTermUUID) {
+                    uuid = item.BedesCompositeTermUUID;
+                }
+            }
+
+            var bedesTerm: IBedesTerm = await bedesQuery.terms.getRecordByName(item.BedesTerm!);
+            if (uuid) {
+                if (bedesTerm._uuid != uuid) {
+                    throw new Error('Incorrect BedesTerm UUID.');
+                }
+            }
+            
+            // Validate constrained list mappings
+            if (item.BedesConstrainedListMapping) {
+                var bedesConstrainedListUUIDs: Array<string> = [];
+                let bedesConstrainedListMappings: Array<string> = item.BedesConstrainedListMapping!.trim().split(delimiter);
+                if (item.BedesConstrainedListOptionUUID) {
+                    bedesConstrainedListUUIDs = item.BedesConstrainedListOptionUUID.trim().split(delimiter);
+                    if (bedesConstrainedListMappings.length != bedesConstrainedListUUIDs.length) {
+                        throw new Error('#BEDESConstrainedListMappings and #BEDESConstrainedListUUIDs do not match');
+                    }
+                }
+                let termUUID: string = item.BedesAtomicTermUUID ? item.BedesAtomicTermUUID : bedesTerm._uuid!;
+                for (let i = 0; i < bedesConstrainedListMappings.length; i += 1) {
+                    let termValue: Array<string> = bedesConstrainedListMappings[i].trim().split("=");
+                    let result = await bedesQuery.termListOption.getRecordByName(termUUID, termValue[1].trim());
+                    if (bedesConstrainedListUUIDs && result._uuid != bedesConstrainedListUUIDs[i]) {
+                        throw new Error('Incorrect BEDESConstrainedListMappingUUID.');
+                    }
+                }
+            }
+        } else {
+            // TODO: Change error message.
+            throw new Error('BedesAtomicTerm with one term value should be equal to [value]');
+        }
+        return true;
+    }
+    return false;
+}
+
+export function capitalizeEachWord(str: string) {
+    let temp = str.split(" ");
     for (let j = 0; j < temp.length; j += 1) {
         temp[j] = temp[j][0].toUpperCase() + temp[j].substr(1);
     }
-
     return temp.join(" ");
 }
 
 /**
  * Returns true if the application term is mapped to a BEDES Composite Term.
- * @param BedesAtomicTermUUID
- * @param BedesCompositeTermUUID
+ * @param item The IAppTermCsvRow object whose validity is being determined.
  */
 export async function mappedToBedesCompositeTerm(item: IAppTermCsvRow): Promise<boolean> {
 
-    let numBedesAtomicTermUUID: Array<string> =  item.BedesAtomicTermUUID!.trim().split(delimiter);
-    let numBedesCompositeTermUUID: Array<string> =  item.BedesCompositeTermUUID!.trim().split(delimiter);
-    let numAtomicTerms: Array<string> = item.BedesAtomicTermMapping!.trim().split(delimiter);
+    // NOTE: item.BedesAtomicTermUUID IS THE UUID OF THE LIST OPTION NOT THE TERM ITSELF!
 
-    if (numBedesAtomicTermUUID.length <= numBedesCompositeTermUUID.length) {
-        logger.error(`#BedesAtomicTermUUIDs is less than or equal to #BedesCompositeTermUUIDs.`);
-        throw new Error(`#BedesAtomicTermUUIDs is less than or equal to #BedesCompositeTermUUIDs.`);
-    }
+    var compositeTermMappings: Array<string> = item.BedesAtomicTermMapping!.trim().split(delimiter);
 
-    if (numAtomicTerms.length <= 1) {
-        logger.error(`#Number of Atomic Terms should be greater than 1.`);
-        throw new Error(`#Number of Atomic Terms should be greater than 1.`);
-    }
+    // The last mapping should be "x=[value]"
+    if (compositeTermMappings[compositeTermMappings.length - 1].split("=")[1].trim() == '[value]') {
 
-    // Split BEDESAtomicTerm=BEDESAtomicTermValue into their own lists
-    let bedesAtomicTerms: Array<string> = [];
-    let bedesAtomicTermValues: Array<string> = [];
-    for (let i = 0; i < numAtomicTerms.length; i += 1) {
-        let temp: Array<string> = numAtomicTerms[i].split("=");
-        bedesAtomicTerms.push(temp[0].trim());
-        bedesAtomicTermValues.push(temp[1].trim());
-    }
-
-    const termPromises = new Array<Promise<IBedesTerm>>();
-    const termValuePromises = new Array<Promise<IBedesTermOption>>();
-    // Check if all BEDES Atomic Terms exist
-    for (let i = 0; i < bedesAtomicTerms.length; i += 1) {
-        termPromises.push(bedesQuery.terms.getRecordByName(bedesAtomicTerms[i]));
-        if (bedesAtomicTermValues[i] != '[value]') {
-            termValuePromises.push(bedesQuery.termListOption.getRecordByName(
-                numBedesAtomicTermUUID[i], bedesAtomicTermValues[i].replace(/['"]+/g, "")
-            ));
+        if (item.BedesAtomicTermUUID) {
+            var numBedesAtomicTermUUID: Array<string> =  item.BedesAtomicTermUUID!.trim().split(delimiter);
+            if (item.BedesCompositeTermUUID) {
+                var numBedesCompositeTermUUID: Array<string> =  item.BedesCompositeTermUUID!.trim().split(delimiter);
+                if (numBedesCompositeTermUUID.length != 1 || numBedesAtomicTermUUID.length <= numBedesCompositeTermUUID.length) {
+                    throw new Error('#BedesAtomicTermUUID should be greater than #BedesCompositeTermUUID');
+                }
+            }
         }
-    }
 
-    const results1 = await Promise.all(termPromises)
-    .catch((error: any) => {
-        logger.error('BEDES Atomic Term(s) does not exist.');
-        return new Promise<boolean>((resolve, reject) => {
-            reject(false);
-        });
-    });
-
-    const results2 = await Promise.all(termValuePromises)
-    .catch((error: any) => {
-        logger.error('BEDES Atomic Term Value(s) does not exist.');
-        return new Promise<boolean>((resolve, reject) => {
-            reject(false);
-        });
-    });
-
-    // Check if BEDES Composite Term Name is correct
-    let bedesTermName: string = "";
-    for (let i = 0; i < bedesAtomicTermValues.length; i += 1) {
-        if (bedesAtomicTermValues[i] == '[value]') {
-            bedesTermName += bedesAtomicTerms[i];
-        } else {
-            bedesTermName += bedesAtomicTermValues[i].replace(/['"]+/g, "") + " ";
+        // All testcases have passed; term is mapped to BedesCompositeTerm.
+        // Now check if the BedesCompositeTermName is correct or not.
+        // Turn the below chunk of code into its own function "validatedBedesCompositeTermName"
+        if (!item.BedesAtomicTermUUID) {
+            var numBedesAtomicTermUUID: Array<string> = [];
+            for (let i = 0; i < compositeTermMappings.length; i += 1) {
+                let termValue: Array<string> = compositeTermMappings[i].split("=");
+                let bedesTerm: IBedesTerm = await bedesQuery.terms.getRecordByName(termValue[0].trim());
+                let bedesTermOption: IBedesTermOption = await bedesQuery.termListOption.getRecordByName(bedesTerm._uuid!, 
+                                                                                                    termValue[1].trim().replace(/['"]+/g, ""));
+                numBedesAtomicTermUUID.push(bedesTermOption._uuid!);
+            }
         }
-    }
 
-    if (capital_letter(bedesTermName) != item.BedesTerm) {
-        logger.error('BEDES Composite Term Name is wrong.');
-        return new Promise<boolean>((resolve, reject) => {
-            reject(false);
+        // Split BEDESAtomicTerm=BEDESAtomicTermValue into their own lists
+        let bedesAtomicTerms: Array<string> = [];
+        let bedesAtomicTermValues: Array<string> = [];
+        for (let i = 0; i < compositeTermMappings.length; i += 1) {
+            let termValue: Array<string> = compositeTermMappings[i].split("=");
+            bedesAtomicTerms.push(termValue[0].trim());
+            bedesAtomicTermValues.push(termValue[1].trim());
+        }
+
+        const termPromises = new Array<Promise<IBedesTerm>>();
+        const termValuePromises = new Array<Promise<IBedesTermOption>>();
+        // Check if all BEDES Atomic Terms and their values exist
+        for (let i = 0; i < compositeTermMappings.length; i += 1) {
+            termPromises.push(bedesQuery.terms.getRecordByName(bedesAtomicTerms[i]));
+            if (bedesAtomicTermValues[i] != '[value]') {
+                termValuePromises.push(bedesQuery.termListOption.getRecordByUUID(numBedesAtomicTermUUID![i]));
+            }
+        }
+
+        const termPromisesResults = await Promise.all(termPromises)
+        .catch((error: any) => {
+            logger.error('BEDES Atomic Term(s) does not exist.');
+            throw new Error('BEDES Atomic Term(s) does not exist.');
         });
-    }
 
-    return new Promise<boolean>((resolve, reject) => {
-        resolve(true);
-    });
+        const termValuePromisesResults = await Promise.all(termValuePromises)
+        .catch((error: any) => {
+            logger.error('BEDES Atomic Term Value(s) does not exist.');
+            throw new Error('BEDES Atomic Value(s) does not exist.');
+        });
+
+        // Check if BEDES Composite Term Name is correct
+        let bedesTermName: string = "";
+        for (let i = 0; i < bedesAtomicTermValues.length; i += 1) {
+            if (bedesAtomicTermValues[i] == '[value]') {
+                bedesTermName += bedesAtomicTerms[i];
+            } else {
+                bedesTermName += bedesAtomicTermValues[i].replace(/['"]+/g, "") + " ";
+            }
+        }
+
+        if (capitalizeEachWord(bedesTermName) != item.BedesTerm) {
+            logger.error('BEDES Composite Term Name is wrong.');
+            throw new Error('BEDES Composite Term Name is wrong.')
+        }
+        return true;
+    } else {
+        throw new Error('The last mapping should be "x=[value]"');
+    }
 }
