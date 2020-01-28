@@ -1,10 +1,11 @@
 import { Injectable, Inject } from '@angular/core';
 import { API_URL_TOKEN } from '../url/url.service';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpParams, HttpErrorResponse } from '@angular/common/http';
 import { Observable, BehaviorSubject, of } from 'rxjs';
-import { map, tap } from 'rxjs/operators';
+import { map, tap, catchError } from 'rxjs/operators';
 import { AppTerm, AppTermList, IAppTerm, IAppTermList } from '@bedes-common/models/app-term';
 import { TermType } from '@bedes-common/enums/term-type.enum';
+import { throwError } from 'rxjs';
 
 /** Transforms IAppTerm and IAppTermList objects into AppTerm | AppTermList objects. */
 const appTermTransformer = (item: IAppTerm | IAppTermList): AppTerm | AppTermList =>{
@@ -358,18 +359,22 @@ export class AppTermService {
         formData.append('appTermImport', file);
         const url = this.getUploadUrl(appId);
         return this.http.post<Array<IAppTerm | IAppTermList>>(url, formData, {withCredentials: true})
-            .pipe(
-                map((results: Array<IAppTerm | IAppTermList>) => {
-                    const appTerms = results.map(appTermTransformer);
-                    // appTerms.forEach(item => this.addAppTermToList(item, true));
-                    for (let index = appTerms.length - 1; index >= 0; index--) {
-                        this.addAppTermToList(appTerms[index], true);
-                    }
-                    return appTerms;
+        .pipe(
+            map((results: Array<IAppTerm | IAppTermList>) => {
+                const appTerms = results.map(appTermTransformer);
+                // appTerms.forEach(item => this.addAppTermToList(item, true));
+                for (let index = appTerms.length - 1; index >= 0; index--) {
+                    this.addAppTermToList(appTerms[index], true);
                 }
-            ));
+                return appTerms;
+            }),
+            catchError(this.handleError)
+        );
     }
 
+    private handleError(error: HttpErrorResponse) {        
+        return throwError(error.error || "Server error");
+    }
 
     /**
      * Downloads a csv file with appTerm mappings,

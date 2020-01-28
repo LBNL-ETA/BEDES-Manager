@@ -382,9 +382,11 @@ export class AppTermListComponent extends MessageFromGrid<IAppRow> implements On
                 this.resetError();
                 this.appTermService.uploadAppTerms(this.app.id, selectedFile)
                 .subscribe((csvTerms: Array<AppTerm | AppTermList>) => {
+                    console.log('Successfully imported csv terms');
                 }, (error: any) => {
-                    this.errorMessage = 'Unable to create application terms.'
-                    this.hasError = true;
+                    alert(error);
+                    // this.errorMessage = 'Unable to create application terms.'
+                    // this.hasError = true;
                 });
              }
        });

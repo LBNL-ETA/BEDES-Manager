@@ -73,7 +73,6 @@ export async function appTermImportHandler(request: Request, response: Response)
     catch (error) {
         logger.error('Error importing appTerms');
         logger.error(util.inspect(error));
-        logger.error(util.inspect(error));
         if (error && error.code === "23505") {
             response.status(HttpStatusCodes.BadRequest_400).send('Term already exists.');
         }
@@ -81,7 +80,7 @@ export async function appTermImportHandler(request: Request, response: Response)
             response.status((<BedesError>error).responseStatusCode).send(error.responseMessage);
         }
         else {
-            response.status(HttpStatusCodes.ServerError_500).send('Unknown error.');
+            response.status(HttpStatusCodes.BadRequest_400).send('Unknown error: ' + error.responseMessage);
         }
     }
 }
