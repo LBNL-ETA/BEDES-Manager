@@ -525,7 +525,7 @@ export class AppTermImporter {
                                 _unitId: listOptionUnitId,
                                 // _definitionSourceId?: number | null | undefined;
                                 _url: x['_url'],
-                                _uuid: x['_uuid']
+                                // _uuid: x['_uuid']
                             }
                             arrayBedesTermOptions.push(bedesTermOptionParams);
                         }
