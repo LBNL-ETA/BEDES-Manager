@@ -278,13 +278,17 @@ export async function mappedToBedesCompositeTerm(item: IAppTermCsvRow): Promise<
                 var numBedesAtomicTermUUID: Array<string> = [];
                 for (let i = 0; i < compositeTermMappings.length; i += 1) {
                     let termValue: Array<string> = compositeTermMappings[i].split("=");
-                    if (termValue[1].trim().replace(/['"]+/g, "") != '[value]') {
-                        console.log('i: ', i);
-                        
+                    // 'Other' is a generic list option value that can be used by any term and is not stored in db
+                    if (termValue[1].trim().replace(/['"]+/g, "") != '[value]'
+                        && !termValue[1].trim().replace(/['"]+/g, "").toLowerCase().includes('other')) {
+                        // console.log('i: ', i);
+                        // console.log('value: ', termValue[1].trim().replace(/['"]+/g, "").toLowerCase().includes('other'));
                         let bedesTerm: IBedesTerm = await bedesQuery.terms.getRecordByName(termValue[0].trim());
                         let bedesTermOption: IBedesTermOption = await bedesQuery.termListOption.getRecordByName(bedesTerm._uuid!, 
                             termValue[1].trim().replace(/['"]+/g, ""));
                         numBedesAtomicTermUUID.push(bedesTermOption._uuid!);
+                    } else {
+                        numBedesAtomicTermUUID.push('');
                     }
                 }
                 console.log('numBATU: ', numBedesAtomicTermUUID);
@@ -306,11 +310,18 @@ export async function mappedToBedesCompositeTerm(item: IAppTermCsvRow): Promise<
             const termValuePromises = new Array<Promise<IBedesTermOption>>();
             // Check if all BEDES Atomic Terms and their values exist
             for (let i = 0; i < compositeTermMappings.length; i += 1) {
+                console.log('i: ', i);
+                
                 termPromises.push(bedesQuery.terms.getRecordByName(bedesAtomicTerms[i]));
-                if (bedesAtomicTermValues[i] != '[value]') {
+                // 'Other' is a generic list option value that can be used by any term and is not stored in db
+                if (bedesAtomicTermValues[i] != '[value]'
+                    && !bedesAtomicTermValues[i].trim().replace(/['"]+/g, "").toLowerCase().includes('other')) {
                     termValuePromises.push(bedesQuery.termListOption.getRecordByUUID(numBedesAtomicTermUUID![i]));
                 }
             }
+
+            console.log('after for loops');
+            
 
             const termPromisesResults = await Promise.all(termPromises)
             .catch((error: any) => {

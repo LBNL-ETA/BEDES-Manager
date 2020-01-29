@@ -372,7 +372,8 @@ export class AppTermImporter {
                         for (let i = 0; i < numAtomicTerms.length; i += 1) {
                             let arr: Array<string> = numAtomicTerms[i].split("=");
                             let bedesTerm: IBedesTerm = await bedesQuery.terms.getRecordByName(arr[0].trim());
-                            if (arr[1].trim().replace(/['"]+/g, "") != '[value]') {
+                            if (arr[1].trim().replace(/['"]+/g, "") != '[value]'
+                                && !arr[1].trim().replace(/['"]+/g, "").toLowerCase().includes('other')) {
                                 bedesTermOption = await bedesQuery.termListOption.getRecordByName(bedesTerm._uuid!, 
                                     arr[1].trim().replace(/['"]+/g, ""));
                                 signature += bedesTerm._id! + ':' + bedesTermOption._id!;
