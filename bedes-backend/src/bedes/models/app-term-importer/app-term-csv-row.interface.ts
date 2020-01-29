@@ -181,7 +181,8 @@ export async function mappedToBedesAtomicTerm(item: IAppTermCsvRow): Promise<boo
                     if (item.BedesAtomicTermUUID == item.BedesCompositeTermUUID) {
                         uuid = item.BedesAtomicTermUUID;
                     } else {
-                        throw new BedesError('For BEDES Atomic Term, AtomicTermUUID and CompositeTermUUID must be equal.', HttpStatusCodes.BadRequest_400);
+                        throw new BedesError(`For BEDES Atomic Term, AtomicTermUUID and CompositeTermUUID must be equal. Term=(${item.ApplicationTerm})`, 
+                                                HttpStatusCodes.BadRequest_400);
                     }
                 } else {
                     if (item.BedesAtomicTermUUID) {
@@ -194,7 +195,7 @@ export async function mappedToBedesAtomicTerm(item: IAppTermCsvRow): Promise<boo
                 var bedesTerm: IBedesTerm = await bedesQuery.terms.getRecordByName(item.BedesTerm!);
                 if (uuid) {
                     if (bedesTerm._uuid != uuid) {
-                        throw new BedesError('Incorrect BedesTerm UUID.', HttpStatusCodes.BadRequest_400);
+                        throw new BedesError(`Incorrect BedesTerm UUID. Term=(${item.ApplicationTerm})`, HttpStatusCodes.BadRequest_400);
                     }
                 }
                 
@@ -264,7 +265,8 @@ export async function mappedToBedesCompositeTerm(item: IAppTermCsvRow): Promise<
                 if (item.BedesCompositeTermUUID) {
                     var numBedesCompositeTermUUID: Array<string> =  item.BedesCompositeTermUUID!.trim().split(delimiter);
                     if (numBedesCompositeTermUUID.length != 1 || numBedesAtomicTermUUID.length <= numBedesCompositeTermUUID.length) {
-                        throw new BedesError('#BedesAtomicTermUUID should be greater than #BedesCompositeTermUUID', HttpStatusCodes.BadRequest_400);
+                        throw new BedesError(`#BedesAtomicTermUUID should be greater than #BedesCompositeTermUUID. Term=(${item.ApplicationTerm})`, 
+                                                HttpStatusCodes.BadRequest_400);
                     } else {
                         bedesQuery.compositeTerm.getRecordByUUID(item.BedesCompositeTermUUID.trim());
                     }
@@ -326,13 +328,13 @@ export async function mappedToBedesCompositeTerm(item: IAppTermCsvRow): Promise<
             const termPromisesResults = await Promise.all(termPromises)
             .catch((error: any) => {
                 logger.error('BEDES Atomic Term(s) does not exist.');
-                throw new BedesError('BEDES Atomic Term(s) does not exist.', HttpStatusCodes.BadRequest_400);
+                throw new BedesError(`BEDES Atomic Term(s) does not exist. Term=(${item.ApplicationTerm})`, HttpStatusCodes.BadRequest_400);
             });
 
             const termValuePromisesResults = await Promise.all(termValuePromises)
             .catch((error: any) => {
                 logger.error('BEDES Atomic Term Value(s) does not exist.');
-                throw new BedesError('BEDES Atomic Value(s) does not exist.', HttpStatusCodes.BadRequest_400);
+                throw new BedesError(`BEDES Atomic Value(s) does not exist. Term=(${item.ApplicationTerm})`, HttpStatusCodes.BadRequest_400);
             });
 
             // Check if BEDES Composite Term Name is correct
@@ -347,9 +349,9 @@ export async function mappedToBedesCompositeTerm(item: IAppTermCsvRow): Promise<
 
             console.log('bedesTermName: ', bedesTermName);
 
-            if (capitalizeEachWord(bedesTermName) != item.BedesTerm) {
+            if (bedesTermName != item.BedesTerm && capitalizeEachWord(bedesTermName) != item.BedesTerm) {
                 logger.error('BEDES Composite Term Name is wrong.');
-                throw new BedesError('BEDES Composite Term Name is wrong.', HttpStatusCodes.BadRequest_400)
+                throw new BedesError(`BEDES Composite Term Name is wrong. Term=(${item.ApplicationTerm})`, HttpStatusCodes.BadRequest_400)
             }
 
             if (item.BedesConstrainedListMapping) {
@@ -360,7 +362,8 @@ export async function mappedToBedesCompositeTerm(item: IAppTermCsvRow): Promise<
                     if (bedesConstrainedListMappings.length != bedesConstrainedListUUIDs.length) {
                         // Other is a generic list option. Any term can use it and its not stored in db.
                         if (!bedesConstrainedListMappings[bedesConstrainedListMappings.length - 1].split("=")[1].toLowerCase().includes('other')) {
-                            throw new BedesError('#BEDESConstrainedListMappings and #BEDESConstrainedListUUIDs do not match', HttpStatusCodes.BadRequest_400);
+                            throw new BedesError(`#BEDESConstrainedListMappings and #BEDESConstrainedListUUIDs do not match. Term=(${item.ApplicationTerm})`, 
+                                                    HttpStatusCodes.BadRequest_400);
                         }
                     }
                 }      
@@ -378,7 +381,7 @@ export async function mappedToBedesCompositeTerm(item: IAppTermCsvRow): Promise<
             }
             return true;
         } else {
-            throw new BedesError('The last mapping should be "x=[value]"', HttpStatusCodes.BadRequest_400);
+            throw new BedesError(`The last mapping should be "x=[value]". Term=(${item.ApplicationTerm})`, HttpStatusCodes.BadRequest_400);
         }
     } catch (error) {
         logger.error(`error in mappedToBedesCompositeTerm: Term=(${item.ApplicationTerm})`);

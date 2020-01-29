@@ -357,73 +357,80 @@ export class AppTermImporter {
                 else if (await mappedToBedesCompositeTerm(parsedCsvTerm)) {
     
                     console.log('mapped to bedes composite term');
-    
+                    
+                    var result: IBedesCompositeTerm | undefined = undefined;
                     // Create a new composite term
                     if (!parsedCsvTerm.BedesCompositeTermUUID) {
+
+                        try {
+                            let temp: ICompositeTermDetail = await bedesQuery.compositeTermDetail.getRecordByName(parsedCsvTerm.BedesTerm!);
+                            result = await bedesQuery.compositeTerm.getRecordById(temp._id!);
+                        } catch (error) { }
     
-                        console.log('creating new composite term');
-    
-                        // TODO: Create below chunk of code into its own function.
-                        var signature: string = '';
-                        var items: Array<ICompositeTermDetail> = [];
-                        var bedesTermOption: IBedesTermOption | null = null;
-                        var numAtomicTerms: Array<string> = parsedCsvTerm.BedesAtomicTermMapping!.trim().split(delimiter);
-    
-                        for (let i = 0; i < numAtomicTerms.length; i += 1) {
-                            let arr: Array<string> = numAtomicTerms[i].split("=");
-                            let bedesTerm: IBedesTerm = await bedesQuery.terms.getRecordByName(arr[0].trim());
-                            if (arr[1].trim().replace(/['"]+/g, "") != '[value]'
-                                && !arr[1].trim().replace(/['"]+/g, "").toLowerCase().includes('other')) {
-                                bedesTermOption = await bedesQuery.termListOption.getRecordByName(bedesTerm._uuid!, 
-                                    arr[1].trim().replace(/['"]+/g, ""));
-                                signature += bedesTerm._id! + ':' + bedesTermOption._id!;
-                                signature += '-';
-                            } else {
-                                bedesTermOption = null;
-                                signature += bedesTerm._id!; // TODO: Change -1 to whatever was initially used.
+                        if (!result) {
+                            console.log('creating new composite term');
+
+                            // TODO: Create below chunk of code into its own function.
+                            var signature: string = '';
+                            var items: Array<ICompositeTermDetail> = [];
+                            var bedesTermOption: IBedesTermOption | null = null;
+                            var numAtomicTerms: Array<string> = parsedCsvTerm.BedesAtomicTermMapping!.trim().split(delimiter);
+        
+                            for (let i = 0; i < numAtomicTerms.length; i += 1) {
+                                let arr: Array<string> = numAtomicTerms[i].split("=");
+                                let bedesTerm: IBedesTerm = await bedesQuery.terms.getRecordByName(arr[0].trim());
+                                if (arr[1].trim().replace(/['"]+/g, "") != '[value]'
+                                    && !arr[1].trim().replace(/['"]+/g, "").toLowerCase().includes('other')) {
+                                    bedesTermOption = await bedesQuery.termListOption.getRecordByName(bedesTerm._uuid!, 
+                                        arr[1].trim().replace(/['"]+/g, ""));
+                                    signature += bedesTerm._id! + ':' + bedesTermOption._id!;
+                                    signature += '-';
+                                } else {
+                                    bedesTermOption = null;
+                                    signature += bedesTerm._id!; // TODO: Change -1 to whatever was initially used.
+                                }
+        
+                                let compositeTermDetailParams: ICompositeTermDetail = {
+                                    _term: bedesTerm,
+                                    _listOption: bedesTermOption,
+                                    _orderNumber: i + 1 // _orderNumber is 1-indexed
+                                }
+                                items.push(compositeTermDetailParams);
                             }
-    
-                            let compositeTermDetailParams: ICompositeTermDetail = {
-                                _term: bedesTerm,
-                                _listOption: bedesTermOption,
-                                _orderNumber: i + 1 // _orderNumber is 1-indexed
+                            if (signature[signature.length - 1] == '-') { // "signature += '-'" appends a hypen at the end which needs to be removed
+                                signature = signature.slice(0, -1);
                             }
-                            items.push(compositeTermDetailParams);
+                            console.log('signature: ', signature);
+        
+                            var bedesCompositeTermUnitId: number | undefined = parsedCsvTerm.BedesTermUnit
+                                                                                ? await getUnitIdFromName(parsedCsvTerm.BedesTermUnit)
+                                                                                : undefined
+        
+                            var compositeTermParams: IBedesCompositeTerm = {
+                                _signature: signature,
+                                _name: parsedCsvTerm.BedesTerm,
+                                _description: parsedCsvTerm.BedesTermDescription,
+                                _unitId: bedesCompositeTermUnitId,
+                                _items: items,
+                                _scopeId: 1,                               // TODO: PG: "private, public, approved"
+                                _ownerName: 'null'                         // TODO: PG: Change this.
+                            }
+        
+                            let compositeTerm = new BedesCompositeTerm(compositeTermParams);
+                            compositeTermParams._uuid = compositeTerm.uuid;
+        
+                            // get the current user that's logged in
+                            const currentUser = getAuthenticatedUser(this.currentUser);
+        
+                            // save the term
+                            var savedTerm = await bedesQuery.compositeTerm.newCompositeTerm(currentUser, compositeTermParams);
+                            if (!savedTerm || !savedTerm._id) {
+                                throw new BedesError(`Error creating new composite term. Term=(${parsedCsvTerm.ApplicationTerm})`, 400);
+                            }
+                            console.log('savedTerm: ', savedTerm);
+                            // // return the new record
+                            // let newTerm = await bedesQuery.compositeTerm.getRecordComplete(savedTerm._id);
                         }
-                        if (signature[signature.length - 1] == '-') { // "signature += '-'" appends a hypen at the end which needs to be removed
-                            signature = signature.slice(0, -1);
-                        }
-                        console.log('signature: ', signature);
-    
-                        var bedesCompositeTermUnitId: number | undefined = parsedCsvTerm.BedesTermUnit
-                                                                            ? await getUnitIdFromName(parsedCsvTerm.BedesTermUnit)
-                                                                            : undefined
-    
-                        var compositeTermParams: IBedesCompositeTerm = {
-                            _signature: signature,
-                            _name: parsedCsvTerm.BedesTerm,
-                            _description: parsedCsvTerm.BedesTermDescription,
-                            _unitId: bedesCompositeTermUnitId,
-                            _items: items,
-                            _scopeId: 1,                               // TODO: PG: "private, public, approved"
-                            _ownerName: 'null'                         // TODO: PG: Change this.
-                        }
-    
-                        let compositeTerm = new BedesCompositeTerm(compositeTermParams);
-                        compositeTermParams._uuid = compositeTerm.uuid;
-    
-                        // get the current user that's logged in
-                        const currentUser = getAuthenticatedUser(this.currentUser);
-    
-                        // save the term
-                        var savedTerm = await bedesQuery.compositeTerm.newCompositeTerm(currentUser, compositeTermParams);
-                        if (!savedTerm || !savedTerm._id) {
-                            throw new BedesError(`Error creating new composite term. Term=(${parsedCsvTerm.ApplicationTerm})`, 400);
-                        }
-                        console.log('savedTerm: ', savedTerm);
-                        // // return the new record
-                        // let newTerm = await bedesQuery.compositeTerm.getRecordComplete(savedTerm._id);
-    
                     } else {
                         // TODO: This is wrong.
                         // If composite term is not found, it will throw an error. Catch this error properly instead of the incorrect if statement
@@ -434,13 +441,23 @@ export class AppTermImporter {
                     }
     
                     if (appTermTypeId == TermType.Atomic) {
-    
+
+                        var bedesCompositeTermUUID: string = '';
+                        if (!parsedCsvTerm.BedesCompositeTermUUID) {
+                            if (result) {
+                                bedesCompositeTermUUID = result._uuid!;
+                            } else {
+                                bedesCompositeTermUUID = savedTerm!._uuid!;
+                            }
+                        }
+
                         logger.info(parsedCsvTerm.ApplicationTerm + ` is mapped to a BEDES Composite Term and has no constrained list.`);
                         let termMappingCompositeParams: ITermMappingComposite = {
                             _bedesName: parsedCsvTerm.BedesTerm!,
                             _compositeTermUUID: parsedCsvTerm.BedesCompositeTermUUID 
                                                 ? parsedCsvTerm.BedesCompositeTermUUID!
-                                                : savedTerm!._uuid!,
+                                                // : savedTerm!._uuid!,
+                                                : bedesCompositeTermUUID,
                             _ownerName: 'null',                         // TODO: PG: Change this.
                             _scopeId: 1,                                // TODO: PG: "private, public, approved"
                         }
