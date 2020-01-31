@@ -32,14 +32,11 @@ const logger = createLogger(module);
 
 /**
  * TODO
- * 1. Create Composite Terms only if the csv file has no errors.
- * 2. Check if composite term name exists if no UUID is present. If not, then create a new composite term.
- * 3. [Bug] Deleting appTermList on GUI doesn't work.
- * 4. Create functions for populating IAppTerm, IAppTermList...
- * 5. Check if description can contain newlines.
- * 6. Check what is the use of BEDES Term Data Type.
- * 7. Talk to Mike and figure out what IAppTermAdditionalInfo is used for.
- * 8. [Imp] Determine Application Term's type and set it accordingly on GUI.
+ * 1. Create functions for populating IAppTerm, IAppTermList...
+ * 2. Check if description can contain newlines.
+ * 3. Check what is the use of BEDES Term Data Type.
+ * 4. Talk to Mike and figure out what IAppTermAdditionalInfo is used for.
+ * 5. [Imp] Determine Application Term's type and set it accordingly on GUI.
  *
  * NOTE
  * 1. _termCategoryId not needed for import/export.

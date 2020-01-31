@@ -13,9 +13,6 @@ const logger = createLogger(module);
 /**
  * TODO
  * 1. Rewrite docstrings of all functions (many are wrong)
- * Note
- * 1. CSV should contain ApplicationTerm and BEDESCompositeTerm for all rows.
- *      (for no mapping, put 'NO MAPPING' in BEDESCompositeTerm column)
  */
 
 var delimiter: string = '\n';

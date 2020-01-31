@@ -211,7 +211,7 @@ export class AppTermService {
      * @param  appTerm The AppTerm to remove.
      * @returns The number of records removed.
      */
-    public removeTerm(appId: number, appTerm: AppTerm): Observable<number> {
+    public removeTerm(appId: number, appTerm: AppTerm | AppTermList): Observable<number> {
         if(!appId || !appTerm) {
             throw new Error('Invalid AppTerm object, an existing object was expected.');
         }
@@ -232,7 +232,7 @@ export class AppTermService {
      * @param appTerm
      * @returns existing term
      */
-    public removeExistingTerm(appId: number, appTerm: AppTerm): Observable<number> {
+    public removeExistingTerm(appId: number, appTerm: AppTerm | AppTermList): Observable<number> {
         if(!appId || !appTerm || !appTerm.id) {
             throw new Error('Invalid AppTerm object, an existing object was expected.');
         }
