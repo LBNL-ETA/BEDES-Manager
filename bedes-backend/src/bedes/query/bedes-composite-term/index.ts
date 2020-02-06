@@ -424,7 +424,7 @@ export class BedesCompositeTermQuery {
             const ctx = transaction || db;
             return ctx.oneOrNone(this.sqlGetByUUID, params);
         } catch (error) {
-            logger.error(`${this.constructor.name}: Error in getRecordById`);
+            logger.error(`${this.constructor.name}: Error in getRecordByUUID`);
             logger.error(util.inspect(error));
             throw error;
         }

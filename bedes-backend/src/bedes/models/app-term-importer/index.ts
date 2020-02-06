@@ -1,26 +1,48 @@
 import path from 'path';
 import fs from 'fs';
+import { Request } from 'express';
 import * as parser from 'papaparse';
-import { UPLOAD_PATH } from '../../uploads';
 import { HttpStatusCodes } from '@bedes-common/enums/http-status-codes';
-import { BedesError } from '@bedes-common/bedes-error/bedes-error';
 import { AppTermList } from '@bedes-common/models/app-term/app-term-list';
 import { AppTerm } from '@bedes-common/models/app-term/app-term';
 import { TermType } from '@bedes-common/enums/term-type.enum';
-import { IAppTermCsvRow, isValidAppTermCsvRow, getTermTypeFromCsvName, getUnitIdFromName } from './app-term-csv-row.interface';
+import { IAppTermCsvRow, isValidAppTermCsvRow, getTermTypeFromCsvName, getUnitIdFromName, 
+        termhasNoMapping, mappedToBedesAtomicTerm, mappedToBedesCompositeTerm, createNewCompositeTerm,
+        ICsvBedesAtomicTermMapping, ICsvBedesCompositeTermMapping } from './app-term-csv-row.interface';
 import { createLogger } from '@bedes-backend/logging';
-import { IAppTerm } from '@bedes-common/models/app-term/app-term.interface';
+import { IAppTerm } from "@bedes-common/models/app-term";
 import { IAppTermList } from '@bedes-common/models/app-term/app-term-list.interface';
+import { ITermMappingAtomic } from '@bedes-common/models/term-mapping/term-mapping-atomic.interface';
+import { ITermMappingListOption } from '@bedes-common/models/term-mapping/term-mapping-list-option.interface';
 import { IAppTermListOption } from '@bedes-common/models/app-term';
-import { db } from '@bedes-backend/db';
+import { ITermMappingComposite } from '@bedes-common/models/term-mapping/term-mapping-composite.interface';
+import { bedesQuery } from '@bedes-backend/bedes/query';
+import { IBedesCompositeTerm, ICompositeTermDetail } from '@bedes-common/models/bedes-composite-term';
+import { BedesError } from '@bedes-common/bedes-error';
+
 const logger = createLogger(module);
+
+/**
+ * TODO
+ * 1. Create functions for populating IAppTerm, IAppTermList...
+ * 2. Check if description can contain newlines.
+ * 3. Check what is the use of BEDES Term Data Type.
+ * 4. Talk to Mike and figure out what IAppTermAdditionalInfo is used for.
+ * 5. [Imp] Determine Application Term's type and set it accordingly on GUI.
+ * 6. Later: Delete entire application even if multiple terms exists in it._
+ *
+ * NOTE
+ * 1. _termCategoryId not needed for import/export.
+ */
 
 /**
  * Parses an uploaded application term definition file, and builds
  * a set of objects that can be imported and loaded into the
  * BEDES Manager database.
  */
+
 export class AppTermImporter {
+
     /** The absoluate file path to the file upload folder. */
     private filePath: string;
     /** The absolute path to the uploaded file */
@@ -29,6 +51,8 @@ export class AppTermImporter {
     private fileName: string
     /** The database transaction context */
     private dbCtx: any;
+    /** Current User */
+    private currentUser: Request;
 
     /**
      * Build the object.
@@ -36,10 +60,13 @@ export class AppTermImporter {
      */
     constructor(
         filePath: string,
+        request: Request,
         fileName: string
     ) {
         // set the upload file path
         this.filePath = filePath;
+        // Express Request object
+        this.currentUser = request;
         // set the upload file
         this.fileName = fileName;
         // Set the abosolute path
@@ -50,42 +77,33 @@ export class AppTermImporter {
      * Runs the importer.
      */
     public async run(): Promise<Array<AppTerm | AppTermList>> {
+
         // make sure the file exists
         if (!this.fileExists()) {
             logger.error(`file ${this.absoluteFilePath} doesn't exist`)
-            throw new Error(`The file ${this.fileName} doesn't exist`);
+            throw new BedesError(`The file ${this.fileName} doesn't exist`, 400);
         }
+
         // read the file into a string
         const fileContents: string = await this.getFileContents();
         // parse the string csv
         const parseResults: parser.ParseResult = this.parseFileContents(fileContents);
-        // set queries to run as a transaction
-        // await this.setTransactionContext();
-        // return db.tx('app-term-importer', (transaction: any) => {
-        //     this.dbCtx = transaction;
-            return this.processParseResults(parseResults);
-        // });
-        // use the results to build the AppTerms
 
-        // console.log('file contents:');
-        // console.log(fileContents);
-        // console.log('parseReslts');
-        // console.log(parseResults);
-        // run the parser
+        return this.processParseResults(parseResults);
     }
 
-    /**
-     * Sets database transaction context for the set of queries
-     * @returns transaction context 
-     */
-    private async setTransactionContext(): Promise<any> {
-        return new Promise((resolve, reject) => {
-            db.tx('app-term-importer', (transaction: any) => {
-                this.dbCtx = transaction;
-                resolve();
-            });
-        });
-    }
+    // /**
+    //  * Sets database transaction context for the set of queries
+    //  * @returns transaction context 
+    //  */
+    // private async setTransactionContext(): Promise<any> {
+    //     return new Promise((resolve, reject) => {
+    //         db.tx('app-term-importer', (transaction: any) => {
+    //             this.dbCtx = transaction;
+    //             resolve();
+    //         });
+    //     });
+    // }
 
     /**
      * Returns the file contents as a string.
@@ -102,7 +120,7 @@ export class AppTermImporter {
     }
 
     /**
-     * Parse the file content string csf file, and return the
+     * Parse the file content string of csv file, and return the
      * papaparse result object.
      * @param fileContents 
      * @returns file contents 
@@ -122,10 +140,16 @@ export class AppTermImporter {
         return fs.existsSync(this.absoluteFilePath);
     }
 
+    /**
+     * Parses the papaparse result object
+     * @param parseResults papaparse result object
+     * @returns array of AppTerm | AppTermList
+     */
     private async processParseResults(parseResults: parser.ParseResult): Promise<Array<AppTerm | AppTermList>> {
         try {
             const promises = new Array<Promise<AppTerm | AppTermList>>();
             const headerFields = this.transformHeaderFieldNames(parseResults.meta.fields);
+
             for (const csvData of parseResults.data) {
                 if (Object.keys(csvData).length === 1 && !csvData['Term Name']) {
                     continue;
@@ -137,8 +161,7 @@ export class AppTermImporter {
         }
         catch (error) {
             logger.error('Error in processParseResults');
-            console.log(error);
-            throw error
+            throw error;
         }
     }
 
@@ -153,8 +176,6 @@ export class AppTermImporter {
         for (const headerField of headerFieldNames) {
             results.push(headerField.replace(/ /g, ''))
         }
-        // add the extra columns for the list options
-        results.push('__parsed_extra');
         return results;
     }
 
@@ -166,129 +187,228 @@ export class AppTermImporter {
      * @returns iappterm csv row 
      */
     private makeIAppTermCsvRow(csvData: any, fieldNames: Array<string>): IAppTermCsvRow {
+
+        // Mappings of the headers in csv to the names used in code.
+        let csvCodeMapping = {
+            'Application Term': 'ApplicationTerm',
+            'Application Term Description': 'ApplicationTermDescription',
+            'Application Term Unit': 'ApplicationTermUnit',
+            'Application Term Data Type': 'AppTermTermDataType',
+            'BEDES Term': 'BedesTerm',
+            'BEDES Term Description': 'BedesTermDescription',
+            'BEDES Term Unit': 'BedesTermUnit',
+            'BEDES Term Data Type': 'BedesTermDataType',
+            'BEDES Atomic Term Mapping\n(list of {BEDES Atomic Term = Value})': 'BedesAtomicTermMapping',
+            'BEDES Constrained List Mapping\n(list of {Application Term Enumeration = BEDES Constrained List Option)': 'BedesConstrainedListMapping',
+            'BEDES Composite Term UUID': 'BedesCompositeTermUUID',
+            'BEDES Atomic Term UUID\n(list of {BEDES Atomic Term UUID})': 'BedesAtomicTermUUID',
+            'BEDES Constrained List Option UUID\n(list of {BEDES Constrained List Option UUID})': 'BedesConstrainedListOptionUUID'
+        }
         let result: any = {};
+
         for (const fieldName of fieldNames) {
-            // make the new name
-            const newName = fieldName.replace(/ /g, '');
+            const newName = fieldName.trim();
             // assign the new column name
-            result[newName] = csvData[fieldName];
+            result[(csvCodeMapping as any)[newName]] = csvData[fieldName];
         }
-        if (csvData['__parsed_extra']) {
-            result['__parsed_extra'] = csvData['__parsed_extra'];
-        }
+
         return <IAppTermCsvRow>result;
     }
 
     /**
-     * Builds an AppTerm or AppTermList object from a parsed line from the csv file.
-     * @param csvTerm The Array element from the parser.ParseResult.data
-     * @param fields 
+     * Builds an AppTerm or AppTermList object from a parsed line from csv file.
+     * @param parsedCsvTerm The Array element from the parser.ParseResult.data
+     * @param fields sanitized column name in csv file
      * @returns Array of AppTerm | AppTermList objects
      */
     private async processCsvTerm(parsedCsvTerm: IAppTermCsvRow, fields: Array<string>): Promise<AppTerm | AppTermList> {
-        // make sure required fields are there
-        if (!isValidAppTermCsvRow(parsedCsvTerm)) {
-            logger.error(`Invalid parsed csv row encountered: (${parsedCsvTerm})`);
-            console.log(parsedCsvTerm);
-            throw new Error(`Invalid parsed csv row encountered: (${parsedCsvTerm})`);
-        }
-        const termName = parsedCsvTerm.TermName.trim();
-        const termType = getTermTypeFromCsvName(parsedCsvTerm.TermType);
-        const unitId: number | undefined = parsedCsvTerm.Unit
-            ? await getUnitIdFromName(parsedCsvTerm.Unit)
-            : undefined
-        ;
-        if (!termName || !termType) {
-            throw new BedesError(
-                'Missing required parameters',
-                HttpStatusCodes.BadRequest_400
-            )
-        }
-        if (termType === TermType.Atomic) {
-            // build the AppTerm params
-            let params: IAppTerm = {
-                _name: parsedCsvTerm.TermName,
-                _termTypeId: termType,
-                _description: parsedCsvTerm.Description,
-                _unitId: unitId
+        try {
 
+            // Check if row is valid
+            if (!isValidAppTermCsvRow(parsedCsvTerm)) {
+                logger.error(`Invalid parsed csv row encountered: Term=(${parsedCsvTerm})`);
+                throw new BedesError(`Invalid parsed csv row encountered: Term=(${parsedCsvTerm.ApplicationTerm})`, 400);
             }
-            // return the AppTerm object
-            return new AppTerm(params);
-        }
-        else if (termType === TermType.ConstrainedList) {
-            const listOptions = new Array<string>();
-            // build the AppTermList params
-            let params: IAppTermList = {
-                _name: parsedCsvTerm.TermName,
-                _termTypeId: termType,
-                _description: parsedCsvTerm.Description,
-                _unitId: unitId,
-                _listOptions: this.extractListOptions(parsedCsvTerm)
-            }
-            // return the AppTermList object.
-            return new AppTermList(params);
-        }
-        else {
-            throw new Error(`Invalid term type encountered (${termType})`);
-        }
 
-    }
+            // Get TermType ID and Unit ID
+            let appTermTypeId: number = getTermTypeFromCsvName(parsedCsvTerm);
+            let appTermUnitId: number | undefined = parsedCsvTerm.ApplicationTermUnit
+                                                    ? await getUnitIdFromName(parsedCsvTerm.ApplicationTermUnit)
+                                                    : undefined
+                                                    ;
 
-    /**
-     * Takes the parsedCsvTerm and extracts the list option name/description
-     * strings, and returns them as a single array.
-     */
-    private extractListOptions(parsedCsvTerm: IAppTermCsvRow): Array<IAppTermListOption> {
-        //Holds the resulting array
-        const results = new Array<IAppTermListOption>();
-        // add the first name/description pair
-        if (typeof parsedCsvTerm.ListOptionName === 'string' && parsedCsvTerm.ListOptionName.trim()) {
-            results.push(<IAppTermListOption>{
-                _name: parsedCsvTerm.ListOptionName.trim(),
-                _description: parsedCsvTerm.ListOptionName
-            });
-        }
-        // process the rest of the list options
-        if (Array.isArray(parsedCsvTerm.__parsed_extra)) {
-            let hasName = false;
-            let listOption: IAppTermListOption | undefined;
-            for (const item of parsedCsvTerm.__parsed_extra) {
-                if (!hasName) {
-                    // create the listOption object
-                    listOption = <IAppTermListOption>{
-                        _name: item
-                    }
-                    // add the list option object to the result array
-                    results.push(listOption);
-                    hasName = true;
+            // Application Term has no mapping
+            if (termhasNoMapping(parsedCsvTerm)) {
+                logger.info(parsedCsvTerm.ApplicationTerm + ` is not mapped to any BEDES Term.`);
+                let appTermParams: IAppTerm = {
+                    _name: parsedCsvTerm.ApplicationTerm,
+                    _termTypeId: appTermTypeId,
+                    _description: parsedCsvTerm.ApplicationTermDescription,
+                    _unitId: appTermUnitId
                 }
+                return new AppTerm(appTermParams);
+            }
+
+            // Application Term has mapping
+            else {
+                let resultBedesAtomicTermMap: ICsvBedesAtomicTermMapping = await mappedToBedesAtomicTerm(parsedCsvTerm);
+
+                // Mapped to BEDES Atomic Term
+                if (resultBedesAtomicTermMap.MappedToBedesAtomicTerm) {
+
+                    // Mapped to BEDES Atomic Term with no constrained list
+                    if (appTermTypeId == TermType.Atomic) {
+                        logger.info(parsedCsvTerm.ApplicationTerm + ` is mapped to a BEDES Atomic Term with no constrained list.`);
+
+                        // Create AppTerm object
+                        let termMappingAtomicParams: ITermMappingAtomic = {
+                            _bedesTermType: TermType.Atomic,
+                            _bedesTermUUID: resultBedesAtomicTermMap.BedesTermUUID, 
+                            _bedesName: parsedCsvTerm.BedesTerm!
+                        }
+                        let appTermParams: IAppTerm = {
+                            _name: parsedCsvTerm.ApplicationTerm,
+                            _termTypeId: appTermTypeId,
+                            _description: parsedCsvTerm.ApplicationTermDescription,
+                            _unitId: appTermUnitId,
+                            _mapping: termMappingAtomicParams
+                        }
+                        return new AppTerm(appTermParams);
+                    }
+
+                    // Mapped to BEDES Atomic Term with constrained list
+                    else {
+                        logger.info(parsedCsvTerm.ApplicationTerm + ` is mapped to a BEDES Atomic Term with constrained list.`);
+
+                        // Create array of constrained list mappings for AppTermList object
+                        const results = new Array<IAppTermListOption>();
+                        for (let i = 0; i < resultBedesAtomicTermMap.BedesConstrainedListID!.length; i += 1) {
+                            if (resultBedesAtomicTermMap.BedesConstrainedListUUID![i] && resultBedesAtomicTermMap.BedesConstrainedListID![i]) {
+                                let termMappingListOptionParams: ITermMappingListOption = {
+                                    _id: resultBedesAtomicTermMap.BedesConstrainedListID![i],
+                                    _bedesTermOptionUUID: resultBedesAtomicTermMap.BedesConstrainedListUUID![i],
+                                    _bedesOptionName: resultBedesAtomicTermMap.BedesConstrainedListMapping![i].split('=')[1].trim()
+                                }
+                                let appTermListOptionParams: IAppTermListOption = {
+                                    _name: resultBedesAtomicTermMap.BedesConstrainedListMapping![i].split('=')[0].trim(),
+                                    _mapping: termMappingListOptionParams
+                                }
+                                results.push(appTermListOptionParams);
+                            } else {
+                                let appTermListOptionParams: IAppTermListOption = {
+                                    _name: resultBedesAtomicTermMap.BedesConstrainedListMapping![i].split('=')[0].trim()
+                                }
+                                results.push(appTermListOptionParams);
+                            }
+                        }
+                        // Create AppTermList object
+                        let termMappingAtomicParams: ITermMappingAtomic = {
+                            _bedesTermType: TermType.ConstrainedList,
+                            _bedesTermUUID: resultBedesAtomicTermMap.BedesTermUUID,
+                            _bedesName: parsedCsvTerm.BedesTerm!
+                        }
+                        let appTermListParams: IAppTermList = {
+                            _name: parsedCsvTerm.ApplicationTerm,
+                            _termTypeId: appTermTypeId,
+                            _description: parsedCsvTerm.ApplicationTermDescription,
+                            _unitId: appTermUnitId,
+                            _listOptions: results,
+                            _mapping: termMappingAtomicParams
+                        }
+                        return new AppTermList(appTermListParams);
+                    }
+                }
+
+                // Check if term is mapped to BEDES Composite Term
+                let resultBedesCompositeTermMap: ICsvBedesCompositeTermMapping = await mappedToBedesCompositeTerm(parsedCsvTerm);
+                let compositeTermExists: IBedesCompositeTerm | undefined = undefined;
+
+                // TODO: Can put this within mappedToBedesCompositeTerm()
+                // Check if Composite Term exists in db
+                // If it doesn't, catch the error and don't do anything (create new composite term later)
+                if (!parsedCsvTerm.BedesCompositeTermUUID) {
+                    try {
+                        let temp: ICompositeTermDetail = await bedesQuery.compositeTermDetail.getRecordByName(parsedCsvTerm.BedesTerm!);                        
+                        compositeTermExists = await bedesQuery.compositeTerm.getRecordById(temp._id!);                        
+                        resultBedesCompositeTermMap.BedesCompositeTermUUID = compositeTermExists._uuid!;
+                    } catch (error) { }
+                }
+
+                // Create new composite term
+                if (!resultBedesCompositeTermMap.BedesCompositeTermUUID && !compositeTermExists) {
+                    let savedTerm = await createNewCompositeTerm(parsedCsvTerm, resultBedesCompositeTermMap, this.currentUser);
+                    resultBedesCompositeTermMap.BedesCompositeTermUUID = savedTerm.BedesCompositeTermUUID;                    
+                }
+
+                // Mapped to BEDES Composite Term with no constrained list
+                if (appTermTypeId == TermType.Atomic) {
+                    logger.info(parsedCsvTerm.ApplicationTerm + ` is mapped to a BEDES Composite Term and has no constrained list.`);
+                    let termMappingCompositeParams: ITermMappingComposite = {
+                        _bedesName: parsedCsvTerm.BedesTerm!,
+                        _compositeTermUUID: resultBedesCompositeTermMap.BedesCompositeTermUUID,
+                        _ownerName: 'null',                         // TODO: PG: Change this.
+                        _scopeId: 1,                                // TODO: PG: "private, public, approved"
+                    }
+                    let appTermParams: IAppTerm = {
+                        _name: parsedCsvTerm.ApplicationTerm,
+                        _termTypeId: appTermTypeId,
+                        _description: parsedCsvTerm.ApplicationTermDescription,
+                        _unitId: appTermUnitId,
+                        _mapping: termMappingCompositeParams
+                    }
+                    return new AppTerm(appTermParams);
+                }
+
+                // Mapped to BEDES Composite Term with constrained list
                 else {
-                    // listOption
-                    if (!listOption) {
-                        throw new Error('Unknonw Error');
+                    // Create array of constrained list mappings for AppTermList object
+                    const results = new Array<IAppTermListOption>();
+                    for (let i = 0; i < resultBedesCompositeTermMap.BedesConstrainedListID!.length; i += 1) {
+
+                        if (resultBedesCompositeTermMap.BedesCompositeTermUUID![i] && resultBedesCompositeTermMap.BedesConstrainedListID![i]) {
+                            let termMappingListOptionParams: ITermMappingListOption = {
+                                _id: resultBedesCompositeTermMap.BedesConstrainedListID![i],
+                                _bedesTermOptionUUID: resultBedesCompositeTermMap.BedesConstrainedListUUID![i],
+                                _bedesOptionName: resultBedesCompositeTermMap.BedesConstrainedListMapping![i].split('=')[1].trim()
+                            }
+                            let appTermListOptionParams: IAppTermListOption = {
+                                _name: resultBedesCompositeTermMap.BedesConstrainedListMapping![i].split('=')[0].trim(),
+                                _mapping: termMappingListOptionParams
+                            }
+                            results.push(appTermListOptionParams);
+                        } else {
+                            let appTermListOptionParams: IAppTermListOption = {
+                                _name: resultBedesCompositeTermMap.BedesConstrainedListMapping![i].split('=')[0].trim()
+                            }
+                            results.push(appTermListOptionParams);
+                        }
                     }
-                    // assign the list option
-                    listOption._description = item;
-                    hasName = false;
+
+                    logger.info(parsedCsvTerm.ApplicationTerm + ` is mapped to a BEDES Composite Term and has a constrained list.`);
+                    let termMappingCompositeParams: ITermMappingComposite = {
+                        _bedesName: parsedCsvTerm.BedesTerm!,
+                        _compositeTermUUID: resultBedesCompositeTermMap.BedesCompositeTermUUID,
+                        _ownerName: 'null',                         // TODO: PG: Change this.
+                        _scopeId: 1,                                // TODO: PG: "private, public, approved"
+                    }
+                    let appTermListParams: IAppTermList = {
+                        _name: parsedCsvTerm.ApplicationTerm,
+                        _termTypeId: appTermTypeId,
+                        _description: parsedCsvTerm.ApplicationTermDescription,
+                        _unitId: appTermUnitId,
+                        _listOptions: results,
+                        _mapping: termMappingCompositeParams
+                    }
+                    return new AppTermList(appTermListParams);
                 }
             }
-        }
-        return results;
-    }
-
-    /**
-     * Valids list option
-     * @param name 
-     * @returns true if list option 
-     */
-    private validListOption(name: string | null | undefined): boolean {
-        if (typeof name === 'string' && name.trim()) {
-            return true;
-        }
-        else {
-            return false;
+        } catch (error) {
+            logger.error(`error in processCsvTerm: Term=(${parsedCsvTerm.ApplicationTerm})`);
+            if (error instanceof BedesError) {
+                throw error;
+            } else {
+                throw new BedesError(error.message + `Term=(${parsedCsvTerm.ApplicationTerm})`, HttpStatusCodes.BadRequest_400);
+            }
         }
     }
-
 }

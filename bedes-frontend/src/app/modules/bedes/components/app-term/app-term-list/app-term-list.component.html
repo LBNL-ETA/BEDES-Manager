@@ -35,6 +35,16 @@
             <fa-icon [icon]="['fas', 'file-import']"></fa-icon>
             Import Application Terms (CSV)
         </button>
+
+        <!-- TODO: Change export file button image. -->
+        <!-- Export Term button -->
+        <button mat-flat-button color="primary"
+        (click)="downloadCSV()"
+        [disabled]="!canEditApplication()">
+            <fa-icon [icon]="['fas', 'file-import']"></fa-icon>
+            Export Application Terms (CSV)
+        </button>
+
     </div>
 
     <!-- Alerts/messages -->

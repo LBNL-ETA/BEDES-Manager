@@ -32,6 +32,8 @@ function mountRoutes(router: Router) {
     router.get('/mapping-application/sibling/:id', handlers.appTerm.getAppTermsSiblingHandler);
     // AppTerm Imports
     router.post('/mapping-application/:id/import', uploadMiddleware, handlers.appTermImportHandler);
+    // AppTerm Exports
+    router.get('/mapping-application/:id/export', handlers.appTermExportHandler);
     // AppTermListOption
     router.post('/app-term/:appTermId/list-option', handlers.appTermListOption.newListOptionHandler);
     router.delete('/app-term-list-option/:id', handlers.appTermListOption.deleteListOptionHandler);

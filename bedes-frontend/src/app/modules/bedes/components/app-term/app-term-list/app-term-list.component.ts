@@ -26,6 +26,8 @@ import { CurrentUser } from '@bedes-common/models/current-user/current-user';
 import { CsvImportInfoDialogComponent } from '../../dialogs/csv-import-info-dialog/csv-import-info-dialog.component';
 import { scopeList } from '@bedes-common/lookup-tables/scope-list';
 import { TableCellDeleteComponent } from '../../../models/ag-grid/table-cell-delete/table-cell-delete.component';
+import { BedesTermService } from '../../../services/bedes-term/bedes-term.service';
+import { SupportListService } from '../../../services/support-list/support-list.service';
 
 @Component({
   selector: 'app-app-term-list',
@@ -55,6 +57,8 @@ export class AppTermListComponent extends MessageFromGrid<IAppRow> implements On
     public errorMessage: string;
     /* The current user */
     public currentUser: CurrentUser;
+    // String containing csv data
+    private csvExportData: string = '';
 
     constructor(
         private authService: AuthService,
@@ -64,7 +68,9 @@ export class AppTermListComponent extends MessageFromGrid<IAppRow> implements On
         private appService: ApplicationService,
         private appTermService: AppTermService,
         private dialog: MatDialog,
-        private snackBar: MatSnackBar
+        private snackBar: MatSnackBar,
+        private bedesTermService: BedesTermService,
+        private supportListService: SupportListService,
     ) {
         super();
     }
@@ -77,6 +83,7 @@ export class AppTermListComponent extends MessageFromGrid<IAppRow> implements On
         this.setTableContext();
         this.subscrbeToApplicationData();
         this.subscribeToAppTermList();
+        this.initializeSupportLists();
     }
 
     ngOnDestroy() {
@@ -375,12 +382,50 @@ export class AppTermListComponent extends MessageFromGrid<IAppRow> implements On
                 this.resetError();
                 this.appTermService.uploadAppTerms(this.app.id, selectedFile)
                 .subscribe((csvTerms: Array<AppTerm | AppTermList>) => {
+                    console.log('Successfully imported csv terms');
                 }, (error: any) => {
-                    this.errorMessage = 'Unable to create application terms.'
-                    this.hasError = true;
+                    alert(error);
+                    // this.errorMessage = 'Unable to create application terms.'
+                    // this.hasError = true;
                 });
              }
        });
     }
 
+    /**
+     * Subscribe to the supportList Observable to get the UnitList.
+     */
+    private initializeSupportLists(): void {
+        // Get the Array of BedesUnit objects.
+        this.supportListService.unitListSubject.subscribe(
+            (results: Array<BedesUnit>) => {
+                this.unitList = results;
+            }
+        );
+    }
+
+    /**
+     * Download mappings to csv.
+     */
+    public downloadCSV(): void {
+        this.appTermService.downloadAppTerms(this.app.id)
+            .subscribe( 
+                (data) => {
+                    this.csvExportData = data;
+                },
+                (error) => {
+                    console.log('Error downloading csv.');
+                },
+                () => {
+                    // console.log("csvContent: ", this.csvExportData);
+                    // Download .csv file
+                    var encodedUri = encodeURI(this.csvExportData);
+                    var link = document.createElement("a");
+                    link.setAttribute("href", encodedUri);
+                    link.setAttribute("download", 'sample.csv');
+                    document.body.appendChild(link);
+                    link.click();
+                }
+            );
+    }
 }
