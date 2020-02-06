@@ -11,6 +11,7 @@ import * as applications from './applications';
 import * as appTerm from './app-term';
 import * as appTermListOption from './app-term-list-option';
 import { appTermImportHandler } from './app-term-import-handler';
+import { appTermExportHandler } from './app-term-export-handler';
 import * as bedesTerm from './bedes-term';
 
 export {
@@ -27,5 +28,6 @@ export {
     appTerm,
     appTermListOption,
     appTermImportHandler,
+    appTermExportHandler,
     bedesTerm
 }

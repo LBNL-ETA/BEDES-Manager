@@ -21,10 +21,21 @@ export async function deleteAppTermHandler(request: Request, response: Response)
                 "Invalid parameters"
             );
         }
-        let results = await bedesQuery.appTerm.deleteAppTermById(id);
-        logger.debug('success');
-        console.log(results);
-        response.json(results)
+
+        try {
+            let results = await bedesQuery.appTerm.deleteAppTermById(id);
+            response.json(results)
+        } catch (error) {
+            // foreign key violation. Delete app term list options first, then delete app term.
+            if (error.code == "23503") {
+                let temp1 = await bedesQuery.mappedTerm.deleteMappingsByAppTerm(id);
+                let temp2 = await bedesQuery.appTermListOption.deleteByTermTypeId(id);
+                let results = await bedesQuery.appTerm.deleteAppTermById(id);
+                response.json(results)
+            } else {
+                throw error;
+            }
+        }
     }
     catch (error) {
         logger.error('Error in deleteAppTermHandler');

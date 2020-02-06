@@ -1,10 +1,11 @@
 import { Injectable, Inject } from '@angular/core';
 import { API_URL_TOKEN } from '../url/url.service';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpParams, HttpErrorResponse } from '@angular/common/http';
 import { Observable, BehaviorSubject, of } from 'rxjs';
-import { map, tap } from 'rxjs/operators';
+import { map, tap, catchError } from 'rxjs/operators';
 import { AppTerm, AppTermList, IAppTerm, IAppTermList } from '@bedes-common/models/app-term';
 import { TermType } from '@bedes-common/enums/term-type.enum';
+import { throwError } from 'rxjs';
 
 /** Transforms IAppTerm and IAppTermList objects into AppTerm | AppTermList objects. */
 const appTermTransformer = (item: IAppTerm | IAppTermList): AppTerm | AppTermList =>{
@@ -39,6 +40,9 @@ export class AppTermService {
     /** api endpoint for uploading csv file for template definitions. */
     private apiEndpointUpload = 'api/mapping-application/:appId/import';
     private urlUpload: string;
+    /** api endpoint for downloading csv files */
+    private apiEndpointDownload = 'api/mapping-application/:appId/export';
+    private urlDownload: string;
     /** the id of the active MappingApplication */
     private _activeAppId: number | undefined;
     get activeAppId(): number | undefined {
@@ -81,6 +85,7 @@ export class AppTermService {
         this.urlTerm = `${this.apiUrl}${this.apiEndpointTerm}`;
         this.urlSibling = `${this.apiUrl}${this.apiEndpointSibling}`;
         this.urlUpload = `${this.apiUrl}${this.apiEndpointUpload}`;
+        this.urlDownload = `${this.apiUrl}${this.apiEndpointDownload}`;
         this._termListSubject = new BehaviorSubject<Array<AppTerm | AppTermList> | undefined>([]);
         this._activeTermSubject = new BehaviorSubject<AppTerm | AppTermList | undefined>(undefined);
     }
@@ -206,7 +211,7 @@ export class AppTermService {
      * @param  appTerm The AppTerm to remove.
      * @returns The number of records removed.
      */
-    public removeTerm(appId: number, appTerm: AppTerm): Observable<number> {
+    public removeTerm(appId: number, appTerm: AppTerm | AppTermList): Observable<number> {
         if(!appId || !appTerm) {
             throw new Error('Invalid AppTerm object, an existing object was expected.');
         }
@@ -227,7 +232,7 @@ export class AppTermService {
      * @param appTerm
      * @returns existing term
      */
-    public removeExistingTerm(appId: number, appTerm: AppTerm): Observable<number> {
+    public removeExistingTerm(appId: number, appTerm: AppTerm | AppTermList): Observable<number> {
         if(!appId || !appTerm || !appTerm.id) {
             throw new Error('Invalid AppTerm object, an existing object was expected.');
         }
@@ -354,16 +359,31 @@ export class AppTermService {
         formData.append('appTermImport', file);
         const url = this.getUploadUrl(appId);
         return this.http.post<Array<IAppTerm | IAppTermList>>(url, formData, {withCredentials: true})
-            .pipe(
-                map((results: Array<IAppTerm | IAppTermList>) => {
-                    const appTerms = results.map(appTermTransformer);
-                    // appTerms.forEach(item => this.addAppTermToList(item, true));
-                    for (let index = appTerms.length - 1; index >= 0; index--) {
-                        this.addAppTermToList(appTerms[index], true);
-                    }
-                    return appTerms;
+        .pipe(
+            map((results: Array<IAppTerm | IAppTermList>) => {
+                const appTerms = results.map(appTermTransformer);
+                // appTerms.forEach(item => this.addAppTermToList(item, true));
+                for (let index = appTerms.length - 1; index >= 0; index--) {
+                    this.addAppTermToList(appTerms[index], true);
                 }
-            ));
+                return appTerms;
+            }),
+            catchError(this.handleError)
+        );
+    }
+
+    private handleError(error: HttpErrorResponse) {        
+        return throwError(error.error || "Server error");
+    }
+
+    /**
+     * Downloads a csv file with appTerm mappings,
+     * @param appId
+     * @returns comma separated string
+     */
+    public downloadAppTerms(appId: number): Observable<string> {
+        const url = this.getDownloadUrl(appId);
+        return this.http.get<string>(url, {withCredentials: true})
     }
 
     /**
@@ -374,5 +394,15 @@ export class AppTermService {
      */
     private getUploadUrl(appId: number): string {
         return this.urlUpload.replace(':appId', String(appId));
+    }
+
+    /**
+     * Returns the url for downloading a csv file of AppTerm definitions
+     * for a specific MappingApplication.
+     * @param appId
+     * @returns upload url
+     */
+    private getDownloadUrl(appId: number): string {
+        return this.urlDownload.replace(':appId', String(appId));
     }
 }

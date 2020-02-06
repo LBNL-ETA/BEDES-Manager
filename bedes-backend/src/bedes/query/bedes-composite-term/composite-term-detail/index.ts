@@ -102,6 +102,7 @@ export class CompositeTermDetailQuery {
         } catch (error) {
             logger.error(`${this.constructor.name}: Error in getRecordByName`);
             logger.error(util.inspect(error));
+            console.log('compTermDetailgetRecordByName error: ', error);
             throw error;
         }
     }
