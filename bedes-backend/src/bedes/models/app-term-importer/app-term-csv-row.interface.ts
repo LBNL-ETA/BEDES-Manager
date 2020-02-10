@@ -229,8 +229,7 @@ export async function mappedToBedesAtomicTerm(item: IAppTermCsvRow): Promise<ICs
                     let arrResultBedesTermOptionID: Array<number | null> = [];
                     let arrResultBedesTermOptionUUID: Array<string | null> = [];
                     let arrResultBedesConstrainedListMapping: Array<string> = [];
-                    
-                    // TODO: Check if this works if constrained list mapping has "other"
+
                     for (let i = 0; i < arrBedesConstrainedListMappings.length; i += 1) {
                         let constListMapping: Array<string> = arrBedesConstrainedListMappings[i].trim().split("=");
 
@@ -298,7 +297,6 @@ export async function mappedToBedesCompositeTerm(item: IAppTermCsvRow): Promise<
             // Check if BEDES Composite Term UUID is correct
             if (item.BedesCompositeTermUUID) {
                 arrBedesCompositeTermUUID =  item.BedesCompositeTermUUID!.trim().split(delimiter);
-                // TODO LATER: Can put this if statement in termHasNoMapping function.
                 if (arrBedesCompositeTermUUID.length != 1) {
                     throw new BedesError(`Cannot have more than 1 BEDESCompositeTermUUID. Term=(${item.ApplicationTerm})`, HttpStatusCodes.BadRequest_400);
                 }
@@ -311,9 +309,15 @@ export async function mappedToBedesCompositeTerm(item: IAppTermCsvRow): Promise<
                     );
                 }
                 result.BedesCompositeTermUUID = item.BedesCompositeTermUUID.trim();
+            } else {
+                // Check if Composite Term exists in db - query by Composite Term name.
+                try {
+                    let temp: ICompositeTermDetail = await bedesQuery.compositeTermDetail.getRecordByName(item.BedesTerm!);                        
+                    let compositeTermExists: IBedesCompositeTerm = await bedesQuery.compositeTerm.getRecordById(temp._id!);
+                    result.BedesCompositeTermUUID = compositeTermExists._uuid!;                    
+                } catch (error) { }
             }
 
-            // TODO LATER: Can put this checking in termHasNoMapping function.
             if (item.BedesAtomicTermUUID) {
                 arrBedesAtomicTermUUIDs =  item.BedesAtomicTermUUID!.trim().split(delimiter);
                 if (arrBedesCompositeTermUUID) {
@@ -349,7 +353,6 @@ export async function mappedToBedesCompositeTerm(item: IAppTermCsvRow): Promise<
                 let arrResultBedesTermOptionUUID: Array<string | null> = [];
                 let arrResultBedesConstrainedListMapping: Array<string> = [];
 
-                // TODO: Check if this works if constrained list mapping has "other"
                 for (let i = 0; i < arrBedesConstrainedListMappings.length; i += 1) {
                     let constListMapping: Array<string> = arrBedesConstrainedListMappings[i].trim().split("=");
 
@@ -422,18 +425,16 @@ export async function validateBedesCompositeTermName(item: IAppTermCsvRow) {
             if (item.BedesAtomicTermUUID) {
                 if (bedesTermOption) {
                     if (bedesTermOption._uuid != item.BedesAtomicTermUUID.split(delimiter)[i]) {
-                        // TODO: This error is not caught by the try catch block 
                         throw new BedesError(
-                            `1Incorrect BedesAtomicTermUUID. Term=(${item.ApplicationTerm})`, 
+                            `Incorrect BedesAtomicTermUUID. Term=(${item.ApplicationTerm})`, 
                             HttpStatusCodes.BadRequest_400
                         );
                     }
                 } else {
                     if (!termValue[1].trim().replace(/['"]+/g, "").toLowerCase().includes('other')
                         && bedesTerm._uuid != item.BedesAtomicTermUUID.split(delimiter)[i]) {
-                        // TODO: This error is not caught by the try catch block
                         throw new BedesError(
-                            `2Incorrect BedesAtomicTermUUID. Term=(${item.ApplicationTerm})`, 
+                            `Incorrect BedesAtomicTermUUID. Term=(${item.ApplicationTerm})`, 
                             HttpStatusCodes.BadRequest_400
                         );
                     }
@@ -467,7 +468,6 @@ export async function validateBedesCompositeTermName(item: IAppTermCsvRow) {
 }
 
 /**
- * TODO: Revise this function!!
  * Creates new composite term
  * @param item csv row object
  * @param result contains CompositeTerm objects through prior queries to db
@@ -484,9 +484,8 @@ export async function createNewCompositeTerm(item: IAppTermCsvRow, result: ICsvB
             let arr: Array<string> = arrAtomicTerms[i].split("=");
             let bedesTerm: IBedesTerm = await bedesQuery.terms.getRecordByName(arr[0].trim());
             if (arr[1].trim().replace(/['"]+/g, "") != '[value]'
-                && !arr[1].trim().replace(/['"]+/g, "").toLowerCase().includes('other')) {
-                bedesTermOption = await bedesQuery.termListOption.getRecordByName(bedesTerm._uuid!, 
-                    arr[1].trim().replace(/['"]+/g, ""));
+            && !arr[1].trim().replace(/['"]+/g, "").toLowerCase().includes('other')) {
+                bedesTermOption = await bedesQuery.termListOption.getRecordByName(bedesTerm._uuid!, arr[1].trim().replace(/['"]+/g, ""));
                 signature += bedesTerm._id! + ':' + bedesTermOption._id!;
                 signature += '-';
             } else {

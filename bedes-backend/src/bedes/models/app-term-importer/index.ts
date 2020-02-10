@@ -16,8 +16,6 @@ import { ITermMappingAtomic } from '@bedes-common/models/term-mapping/term-mappi
 import { ITermMappingListOption } from '@bedes-common/models/term-mapping/term-mapping-list-option.interface';
 import { IAppTermListOption } from '@bedes-common/models/app-term';
 import { ITermMappingComposite } from '@bedes-common/models/term-mapping/term-mapping-composite.interface';
-import { bedesQuery } from '@bedes-backend/bedes/query';
-import { IBedesCompositeTerm, ICompositeTermDetail } from '@bedes-common/models/bedes-composite-term';
 import { BedesError } from '@bedes-common/bedes-error';
 
 const logger = createLogger(module);
@@ -223,7 +221,6 @@ export class AppTermImporter {
      */
     private async processCsvTerm(parsedCsvTerm: IAppTermCsvRow, fields: Array<string>): Promise<AppTerm | AppTermList> {
         try {
-
             // Check if row is valid
             if (!isValidAppTermCsvRow(parsedCsvTerm)) {
                 logger.error(`Invalid parsed csv row encountered: Term=(${parsedCsvTerm})`);
@@ -319,87 +316,77 @@ export class AppTermImporter {
                     }
                 }
 
-                // Check if term is mapped to BEDES Composite Term
-                let resultBedesCompositeTermMap: ICsvBedesCompositeTermMapping = await mappedToBedesCompositeTerm(parsedCsvTerm);
-                let compositeTermExists: IBedesCompositeTerm | undefined = undefined;
-
-                // TODO: Can put this within mappedToBedesCompositeTerm()
-                // Check if Composite Term exists in db
-                // If it doesn't, catch the error and don't do anything (create new composite term later)
-                if (!parsedCsvTerm.BedesCompositeTermUUID) {
-                    try {
-                        let temp: ICompositeTermDetail = await bedesQuery.compositeTermDetail.getRecordByName(parsedCsvTerm.BedesTerm!);                        
-                        compositeTermExists = await bedesQuery.compositeTerm.getRecordById(temp._id!);                        
-                        resultBedesCompositeTermMap.BedesCompositeTermUUID = compositeTermExists._uuid!;
-                    } catch (error) { }
-                }
-
-                // Create new composite term
-                if (!resultBedesCompositeTermMap.BedesCompositeTermUUID && !compositeTermExists) {
-                    let savedTerm = await createNewCompositeTerm(parsedCsvTerm, resultBedesCompositeTermMap, this.currentUser);
-                    resultBedesCompositeTermMap.BedesCompositeTermUUID = savedTerm.BedesCompositeTermUUID;                    
-                }
-
-                // Mapped to BEDES Composite Term with no constrained list
-                if (appTermTypeId == TermType.Atomic) {
-                    logger.info(parsedCsvTerm.ApplicationTerm + ` is mapped to a BEDES Composite Term and has no constrained list.`);
-                    let termMappingCompositeParams: ITermMappingComposite = {
-                        _bedesName: parsedCsvTerm.BedesTerm!,
-                        _compositeTermUUID: resultBedesCompositeTermMap.BedesCompositeTermUUID,
-                        _ownerName: 'null',                         // TODO: PG: Change this.
-                        _scopeId: 1,                                // TODO: PG: "private, public, approved"
-                    }
-                    let appTermParams: IAppTerm = {
-                        _name: parsedCsvTerm.ApplicationTerm,
-                        _termTypeId: appTermTypeId,
-                        _description: parsedCsvTerm.ApplicationTermDescription,
-                        _unitId: appTermUnitId,
-                        _mapping: termMappingCompositeParams
-                    }
-                    return new AppTerm(appTermParams);
-                }
-
-                // Mapped to BEDES Composite Term with constrained list
                 else {
-                    // Create array of constrained list mappings for AppTermList object
-                    const results = new Array<IAppTermListOption>();
-                    for (let i = 0; i < resultBedesCompositeTermMap.BedesConstrainedListID!.length; i += 1) {
+                    // Check if term is mapped to BEDES Composite Term
+                    let resultBedesCompositeTermMap: ICsvBedesCompositeTermMapping = await mappedToBedesCompositeTerm(parsedCsvTerm);
 
-                        if (resultBedesCompositeTermMap.BedesCompositeTermUUID![i] && resultBedesCompositeTermMap.BedesConstrainedListID![i]) {
-                            let termMappingListOptionParams: ITermMappingListOption = {
-                                _id: resultBedesCompositeTermMap.BedesConstrainedListID![i],
-                                _bedesTermOptionUUID: resultBedesCompositeTermMap.BedesConstrainedListUUID![i],
-                                _bedesOptionName: resultBedesCompositeTermMap.BedesConstrainedListMapping![i].split('=')[1].trim()
-                            }
-                            let appTermListOptionParams: IAppTermListOption = {
-                                _name: resultBedesCompositeTermMap.BedesConstrainedListMapping![i].split('=')[0].trim(),
-                                _mapping: termMappingListOptionParams
-                            }
-                            results.push(appTermListOptionParams);
-                        } else {
-                            let appTermListOptionParams: IAppTermListOption = {
-                                _name: resultBedesCompositeTermMap.BedesConstrainedListMapping![i].split('=')[0].trim()
-                            }
-                            results.push(appTermListOptionParams);
+                    // Create new composite term
+                    if (!resultBedesCompositeTermMap.BedesCompositeTermUUID) {
+                        let savedTerm = await createNewCompositeTerm(parsedCsvTerm, resultBedesCompositeTermMap, this.currentUser);
+                        resultBedesCompositeTermMap.BedesCompositeTermUUID = savedTerm.BedesCompositeTermUUID;                    
+                    }
+
+                    // Mapped to BEDES Composite Term with no constrained list
+                    if (appTermTypeId == TermType.Atomic) {
+                        logger.info(parsedCsvTerm.ApplicationTerm + ` is mapped to a BEDES Composite Term and has no constrained list.`);
+                        let termMappingCompositeParams: ITermMappingComposite = {
+                            _bedesName: parsedCsvTerm.BedesTerm!,
+                            _compositeTermUUID: resultBedesCompositeTermMap.BedesCompositeTermUUID,
+                            _ownerName: 'null',                         // TODO: PG: Change this.
+                            _scopeId: 1,                                // TODO: PG: "private, public, approved"
                         }
+                        let appTermParams: IAppTerm = {
+                            _name: parsedCsvTerm.ApplicationTerm,
+                            _termTypeId: appTermTypeId,
+                            _description: parsedCsvTerm.ApplicationTermDescription,
+                            _unitId: appTermUnitId,
+                            _mapping: termMappingCompositeParams
+                        }
+                        return new AppTerm(appTermParams);
                     }
 
-                    logger.info(parsedCsvTerm.ApplicationTerm + ` is mapped to a BEDES Composite Term and has a constrained list.`);
-                    let termMappingCompositeParams: ITermMappingComposite = {
-                        _bedesName: parsedCsvTerm.BedesTerm!,
-                        _compositeTermUUID: resultBedesCompositeTermMap.BedesCompositeTermUUID,
-                        _ownerName: 'null',                         // TODO: PG: Change this.
-                        _scopeId: 1,                                // TODO: PG: "private, public, approved"
+                    // Mapped to BEDES Composite Term with constrained list
+                    else {
+                        // Create array of constrained list mappings for AppTermList object
+                        const results = new Array<IAppTermListOption>();
+                        for (let i = 0; i < resultBedesCompositeTermMap.BedesConstrainedListID!.length; i += 1) {
+
+                            if (resultBedesCompositeTermMap.BedesCompositeTermUUID![i] && resultBedesCompositeTermMap.BedesConstrainedListID![i]) {
+                                let termMappingListOptionParams: ITermMappingListOption = {
+                                    _id: resultBedesCompositeTermMap.BedesConstrainedListID![i],
+                                    _bedesTermOptionUUID: resultBedesCompositeTermMap.BedesConstrainedListUUID![i],
+                                    _bedesOptionName: resultBedesCompositeTermMap.BedesConstrainedListMapping![i].split('=')[1].trim()
+                                }
+                                let appTermListOptionParams: IAppTermListOption = {
+                                    _name: resultBedesCompositeTermMap.BedesConstrainedListMapping![i].split('=')[0].trim(),
+                                    _mapping: termMappingListOptionParams
+                                }
+                                results.push(appTermListOptionParams);
+                            } else {
+                                let appTermListOptionParams: IAppTermListOption = {
+                                    _name: resultBedesCompositeTermMap.BedesConstrainedListMapping![i].split('=')[0].trim()
+                                }
+                                results.push(appTermListOptionParams);
+                            }
+                        }
+
+                        logger.info(parsedCsvTerm.ApplicationTerm + ` is mapped to a BEDES Composite Term and has a constrained list.`);
+                        let termMappingCompositeParams: ITermMappingComposite = {
+                            _bedesName: parsedCsvTerm.BedesTerm!,
+                            _compositeTermUUID: resultBedesCompositeTermMap.BedesCompositeTermUUID,
+                            _ownerName: 'null',                         // TODO: PG: Change this.
+                            _scopeId: 1,                                // TODO: PG: "private, public, approved"
+                        }
+                        let appTermListParams: IAppTermList = {
+                            _name: parsedCsvTerm.ApplicationTerm,
+                            _termTypeId: appTermTypeId,
+                            _description: parsedCsvTerm.ApplicationTermDescription,
+                            _unitId: appTermUnitId,
+                            _listOptions: results,
+                            _mapping: termMappingCompositeParams
+                        }
+                        return new AppTermList(appTermListParams);
                     }
-                    let appTermListParams: IAppTermList = {
-                        _name: parsedCsvTerm.ApplicationTerm,
-                        _termTypeId: appTermTypeId,
-                        _description: parsedCsvTerm.ApplicationTermDescription,
-                        _unitId: appTermUnitId,
-                        _listOptions: results,
-                        _mapping: termMappingCompositeParams
-                    }
-                    return new AppTermList(appTermListParams);
                 }
             }
         } catch (error) {
