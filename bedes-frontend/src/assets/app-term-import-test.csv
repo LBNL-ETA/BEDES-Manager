@@ -3,8 +3,8 @@
 (list of {Application Term Enumeration = BEDES Constrained List Option)",BEDES Composite Term UUID,"BEDES Atomic Term UUID
 (list of {BEDES Atomic Term UUID})","BEDES Constrained List Option UUID
 (list of {BEDES Constrained List Option UUID})"
-Company,Company name,,String,Company Name,Company name,,String,Company Name = [value],,176033b2-10b3-475b-aee0-ae4393c77cfb,176033b2-10b3-475b-aee0-ae4393c77cfb,
-Contact,Contact name,,String,Contact Name,Contact name,,String,Contact Name = [value],,028bb2ae-c261-4c5d-b247-3db21cff10ab,028bb2ae-c261-4c5d-b247-3db21cff10ab,
+Company,Company name,,String,Company Name,Company name,,String,Company Name = [value],,,176033b2-10b3-475b-aee0-ae4393c77cfb,
+Contact,Contact name,,String,Contact Name,Contact name,,String,Contact Name = [value],,,028bb2ae-c261-4c5d-b247-3db21cff10ab,
 Advanced RTU Control Retrofits,Number of advanced RTU control retrofits,,Integer,Roof Air Handler Controlled Retrofit Quantity,Number of roof air handler control retrofits,,Integer,"Location = ""Roof""
 Heating Delivery Type = ""Air handler""
 Control Strategy = ""Controlled""
@@ -22,7 +22,7 @@ c5de9d64-e3cc-4d1b-8265-42934ca210b3
 4ff6a8b1-b171-4711-b104-70019401d11d
 aa28ba03-dba1-486a-a2ca-f14c4fa99253",
 Construction Status,,,String,Construction Status,,,String,Construction Status = [value],"Design Project = Design Development
-Existing = Other",82d70db7-2d3d-4d6f-bcba-b8e76789d383,82d70db7-2d3d-4d6f-bcba-b8e76789d383,"947e186d-1fde-4ee1-a96a-42b9b48d09dc
+Existing = Other",,82d70db7-2d3d-4d6f-bcba-b8e76789d383,"947e186d-1fde-4ee1-a96a-42b9b48d09dc
 a9b0e70c-ca83-42e4-9de0-d5dc87953dc9"
 Year Built,,years,Timestamp,Completed Construction Status Date,,years,Timestamp,"Construction Status = ""Completed""
 Construction Status Date = [value]",,,"d1245c37-0bdc-42fe-9c9b-d2f4fe708cbd
