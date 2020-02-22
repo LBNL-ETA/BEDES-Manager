@@ -43,7 +43,7 @@ export async function appTermImportHandler(request: Request, response: Response)
         var upload_path: string = path.join(__dirname, '../uploads/files');
         
         // BEDES_all-terms_Version 2.3.csv, BEDES_all_list_options_Version 2.3.csv
-        var files: Array<string> = ['a931d3bbd795befba32300445c4041e8', 'e960b663105a371ca2f4f6b04f87b118'];
+        var files: Array<string> = ['9e25ad5a16551cc4335e8a847b1abc50', 'e0fc6dcd3fff946e3ae6710eb31f24de'];
 
         // let importer = new AppTermImporter(UPLOAD_PATH, request.file.filename);
         let importer = new AppTermImporter(upload_path, files);
@@ -52,13 +52,15 @@ export async function appTermImportHandler(request: Request, response: Response)
         // Add ids to all the terms.
         for (var i = 0; i < bedesTerms.length; i += 1) {
             bedesTerms[i].id = i;
-        } 
+        }
 
         db.tx('saveTerms', async (trans: any) => {
             const promises = new Array<Promise<any>>();
             
             for (let bedesTerm of bedesTerms) {
-                
+
+                console.log('bedesTerm: ', bedesTerm);
+
                 if (bedesTerm instanceof BedesConstrainedList) {
                     const bedesConstListInterface = bedesTerm.toInterface();
                     promises.push(bedesQuery.terms.newConstrainedList(bedesConstListInterface));
@@ -78,7 +80,7 @@ export async function appTermImportHandler(request: Request, response: Response)
             });
             // response.json(results.map(item => item.appTerm));
             response.json(results);
-        })
+        });
         
         // // const results = await bedesQuery.appTerm.newAppTerms(appId, appTerms.map(item => item.toInterface()));
         // db.tx('saveTerms', async (trans: any) => {

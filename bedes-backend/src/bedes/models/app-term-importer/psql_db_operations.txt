@@ -1,0 +1,34 @@
+TODO: Write script that automates this.
+
+For now, in psql, execute the following commands,
+
+Delete data,
+delete from app_field;
+delete from app_term;
+delete from app_term_additional_data;
+delete from app_term_list_option;
+delete from atomic_term_list_option_maps;
+delete from atomic_term_maps;
+delete from bedes_composite_term;
+delete from bedes_composite_term_details;
+delete from bedes_term_sector_link;
+delete from bedes_term;
+delete from bedes_term_list_option;
+delete from composite_term_maps;
+delete from mapping_application;
+delete from mapping_application_roles;
+
+Reset identity columns,
+alter sequence app_term_id_seq restart with 1;
+alter sequence app_term_additional_data_id_seq restart with 1;
+alter sequence app_term_list_option_id_seq restart with 1;
+alter sequence atomic_term_list_option_maps_id_seq restart with 1;
+alter sequence atomic_term_maps_id_seq restart with 1;
+alter sequence bedes_composite_term_id_seq restart with 1;
+alter sequence bedes_composite_term_details_id_seq restart with 1;
+alter sequence bedes_term_id_seq restart with 1;
+alter sequence bedes_term_list_option_id_seq restart with 1;
+alter sequence bedes_term_sector_link_id_seq restart with 1;
+alter sequence composite_term_maps_id_seq restart with 1;
+alter sequence mapping_application_id_seq restart with 1;
+alter sequence mapping_application_roles_id_seq restart with 1;

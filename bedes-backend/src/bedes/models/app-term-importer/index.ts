@@ -18,6 +18,14 @@ import { BedesConstrainedList } from '@bedes-common/models/bedes-term/bedes-cons
  * Parses an uploaded application term definition file, and builds
  * a set of objects that can be imported and loaded into the
  * BEDES Manager database.
+ * 
+ * STEPS
+ * 1. Delete all existing data from tables (check psql_db_operations.txt)
+ * 2. Reset the identity columns of all the tables in the database (check psql_db_operations.txt)
+ * 3. Import the two BEDES Terms and BEDES Constrained List Options csv files.
+ * 4. Go to app-term-import-handler.ts and modify the files array.
+ * 5. Run this script.
+ * 6. Upload db dump to AWS.
  */
 export class AppTermImporter {
     
@@ -372,6 +380,26 @@ export class AppTermImporter {
     }
 
     /**
+     * Add “Other, Unknown, None, Not applicable” to every BEDES Constrained List.
+     * @returns Array<IBedesTermOption> of the 4 constrained list options
+     */
+    private getListOfRequisiteConstrainedListOptions(unitId: number) {
+        var listOptions: Array<string> = ['Other', 'Unknown', 'None', 'Not applicable']
+        var result: Array<IBedesTermOption> = [];
+
+        for (let i = 0; i < listOptions.length; i += 1) {
+            let params: IBedesTermOption = {
+                _name: listOptions[i],
+                _description: '',
+                _unitId: unitId,
+            }
+            result.push(params)
+        }
+
+        return result;
+    }
+
+    /**
      * Builds a BedesTerm or BedesTermList object from a parsed line from the csv file.
      * @param csvTerm The Array element from the parser.ParseResult.data
      * @param fields 
@@ -380,7 +408,6 @@ export class AppTermImporter {
     private async processCsvTerm(parsedCsvTerm: any, fields: Array<string>): Promise<BedesTerm | BedesConstrainedList> {
 
         if (!this.isValidRow(parsedCsvTerm)) {
-            console.log('invalid parsedTerm: ', parsedCsvTerm);
             throw new Error('invalid row encountered');
         }
 
@@ -531,8 +558,14 @@ export class AppTermImporter {
                         }
                     }
                 }
-                // console.log(parsedCsvTerm['_name'], arrayBedesTermOptions);
             }
+
+            let naUnitId: number | null | undefined = await this.getUnitIdFromName('n/a');
+            if (naUnitId == null || naUnitId == undefined) {
+                throw new Error('n/a does not have a Unit ID');
+            }
+            var list: Array<IBedesTermOption> = this.getListOfRequisiteConstrainedListOptions(naUnitId);
+            arrayBedesTermOptions = arrayBedesTermOptions.concat(list)
 
             let bedesConstrainedListParams: IBedesConstrainedList = {
                 // _id?: number | null | undefined;
