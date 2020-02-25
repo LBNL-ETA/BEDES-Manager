@@ -354,7 +354,7 @@ export class BedesCompositeTermQuery {
     /**
      * Searches the database for a matching composite term signature.
      */
-    public getRecordBySignature(signature: string, transaction?: any): Promise<IBedesCompositeTerm | null> {
+    public getRecordBySignature(signature: string, transaction?: any): Promise<Array<IBedesCompositeTerm> | IBedesCompositeTerm | null> {
         try {
             if (!signature) {
                 logger.error(`${this.constructor.name}: Missing unitName in BedesUnit-getRecordByName`);
@@ -364,10 +364,16 @@ export class BedesCompositeTermQuery {
                 _signature: signature
             };
             if (transaction) {
-                return transaction.oneOrNone(this.sqlGetBySignature, params);
+                // return transaction.oneOrNone(this.sqlGetBySignature, params);
+
+                // PG: Signature is no longer a unique constraint
+                return transaction.manyOrNone(this.sqlGetBySignature, params);
             }
             else {
-                return db.oneOrNone(this.sqlGetBySignature, params);
+                // return db.oneOrNone(this.sqlGetBySignature, params);
+
+                // PG: Signature is no longer a unique constraint
+                return db.manyOrNone(this.sqlGetBySignature, params);
             }
         } catch (error) {
             logger.error(`${this.constructor.name}: Error in getRecordBySignature`);
