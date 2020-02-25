@@ -1,22 +1,22 @@
 import * as util from 'util';
-import { QueryFile, ColumnSet } from 'pg-promise';
-import * as path from 'path';
+import { Request } from 'express';
 import { db } from '@bedes-backend/db';
-import sql_loader from '@bedes-backend/db/sql_loader';
-import { createLogger }  from '@bedes-backend/logging';
-const logger = createLogger(module);
-import { IBedesTerm, BedesTerm, IBedesConstrainedList } from '@bedes-common/models/bedes-term';
 import { HttpStatusCodes } from '@bedes-common/enums/http-status-codes';
 import { BedesError } from '@bedes-common/bedes-error';
 import { IBedesSearchResult } from '@bedes-common/models/bedes-search-result/bedes-search-result.interface';
 import { ISearchOptions } from '@bedes-common/models/search-options/search-options.interface';
-import { ISearchOptionSection } from '@bedes-common/models/search-options/search-option-section.interface';
 import { SearchQueryBuilder } from '../../models/search-query-builder/search-query-builder';
 import { QueryBuilderOutput } from '../../models/search-query-builder/query-builder-output/query-builder.output';
 import { SearchOptions } from '../../../../../bedes-common/models/search-options/search-options';
+import { CurrentUser } from '@bedes-common/models/current-user';
+import { createLogger }  from '@bedes-backend/logging';
+import { getAuthenticatedUser } from '@bedes-backend/util/get-authenticated-user';
+const logger = createLogger(module);
+
 
 export class BedesTermSearchQuery {
     public async searchAllBedesTerms(
+        request: Request,
         searchStrings: Array<string>,
         searchOptions?: ISearchOptions,
         transaction?: any
@@ -58,9 +58,15 @@ export class BedesTermSearchQuery {
                 promises.push(this.searchListTermOption(searchStrings, builderOutput, transaction));
             }
             if (searchOptions.compositeTerm.isEnabled()) {
-                promises.push(this.searchCompositeTerms(searchStrings, builderOutput, transaction));
+                // Need userID if a user is logged in
+                let currentUser = undefined;
+                try {
+                    currentUser = getAuthenticatedUser(request);
+                } catch (error) {}
+                promises.push(this.searchCompositeTerms(searchStrings, builderOutput, transaction, currentUser));
             }
             let results = await Promise.all(promises);
+
             // transform the results from an array of array of IBedesSearchResult objects,
             // into just an array of IBedesSearchResult objects.
             // ie flatten the resulting array of arrays.
@@ -194,13 +200,13 @@ export class BedesTermSearchQuery {
         return [query, builderOutput.bedesTermListOption.buildSqlVariableObject()];
     }
     
-    public searchCompositeTerms(searchStrings: Array<string>, builderOutput: QueryBuilderOutput, transaction?: any): Promise<Array<IBedesSearchResult>> {
+    public searchCompositeTerms(searchStrings: Array<string>, builderOutput: QueryBuilderOutput, transaction?: any, currentUser?: CurrentUser): Promise<Array<IBedesSearchResult>> {
         try {
             if (!searchStrings || !(searchStrings instanceof Array) || !searchStrings.length) {
                 logger.error(`${this.constructor.name}: search strings`);
                 throw new Error('Missing required parameters.');
             }
-            const [query, params] = this.buildBedesCompositeTermQuery(searchStrings, builderOutput);
+            const [query, params] = this.buildBedesCompositeTermQuery(searchStrings, builderOutput, currentUser);
             if (transaction) {
                 return transaction.manyOrNone(query, params);
             }
@@ -218,8 +224,9 @@ export class BedesTermSearchQuery {
         }
     }
 
-    private buildBedesCompositeTermQuery(searchTerms: Array<string>, builderOutput: QueryBuilderOutput): [string, any] {
-       const query = `
+    private buildBedesCompositeTermQuery(searchTerms: Array<string>, builderOutput: QueryBuilderOutput, currentUser?: CurrentUser): [string, any] {
+
+        const base_query = `
             select
                 t.id as "_id",
                 t.name as "_name",
@@ -228,14 +235,35 @@ export class BedesTermSearchQuery {
                 t.uuid as "_uuid",
                 4 as "_resultObjectType",
                 au.first_name || ' ' || au.last_name as "_ownerName",
-                scope_id as "_scopeId"
+                t.scope_id as "_scopeId"
             from
                 public.bedes_composite_term t
             join
                 auth.user as au on au.id = t.user_id
-            where
-            ${builderOutput.compositeTerm.getSqlConditions()}
         `;
+
+        // Get all terms of current user (private, public & BEDES approved)
+        // and only (public, BEDES approved) of other users
+        if (currentUser) {
+            var query1 = `
+                where
+                    case when au.id = ${currentUser.id} then
+                        ${builderOutput.compositeTerm.getSqlConditions()}
+                    else
+                        t.scope_id > 1
+                    end
+            `;
+        }
+
+        // No user logged in -> get all public & BEDES approved terms
+        else {
+            var query1 = `
+                where
+                    t.scope_id > 1 and (${builderOutput.compositeTerm.getSqlConditions()})
+            `;
+        }
+
+        const query = base_query + query1;
         logger.debug(query);
         return [query, builderOutput.compositeTerm.buildSqlVariableObject()];
     }
