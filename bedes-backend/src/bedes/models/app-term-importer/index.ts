@@ -50,7 +50,7 @@ export class AppTermImporter {
     /** The database transaction context */
     private dbCtx: any;
     /** Current User */
-    private currentUser: Request;
+    private request: Request;
 
     /**
      * Build the object.
@@ -64,7 +64,7 @@ export class AppTermImporter {
         // set the upload file path
         this.filePath = filePath;
         // Express Request object
-        this.currentUser = request;
+        this.request = request;
         // set the upload file
         this.fileName = fileName;
         // Set the abosolute path
@@ -318,11 +318,11 @@ export class AppTermImporter {
 
                 else {
                     // Check if term is mapped to BEDES Composite Term
-                    let resultBedesCompositeTermMap: ICsvBedesCompositeTermMapping = await mappedToBedesCompositeTerm(parsedCsvTerm);
+                    let resultBedesCompositeTermMap: ICsvBedesCompositeTermMapping = await mappedToBedesCompositeTerm(parsedCsvTerm, this.request);
 
                     // Create new composite term
                     if (!resultBedesCompositeTermMap.BedesCompositeTermUUID) {
-                        let savedTerm = await createNewCompositeTerm(parsedCsvTerm, resultBedesCompositeTermMap, this.currentUser);
+                        let savedTerm = await createNewCompositeTerm(parsedCsvTerm, resultBedesCompositeTermMap, this.request);
                         resultBedesCompositeTermMap.BedesCompositeTermUUID = savedTerm.BedesCompositeTermUUID;                    
                     }
 
@@ -333,7 +333,7 @@ export class AppTermImporter {
                             _bedesName: parsedCsvTerm.BedesTerm!,
                             _compositeTermUUID: resultBedesCompositeTermMap.BedesCompositeTermUUID,
                             _ownerName: 'null',                         // TODO: PG: Change this.
-                            _scopeId: 1,                                // TODO: PG: "private, public, approved"
+                            _scopeId: 1,
                         }
                         let appTermParams: IAppTerm = {
                             _name: parsedCsvTerm.ApplicationTerm,
@@ -375,7 +375,7 @@ export class AppTermImporter {
                             _bedesName: parsedCsvTerm.BedesTerm!,
                             _compositeTermUUID: resultBedesCompositeTermMap.BedesCompositeTermUUID,
                             _ownerName: 'null',                         // TODO: PG: Change this.
-                            _scopeId: 1,                                // TODO: PG: "private, public, approved"
+                            _scopeId: 1,
                         }
                         let appTermListParams: IAppTermList = {
                             _name: parsedCsvTerm.ApplicationTerm,

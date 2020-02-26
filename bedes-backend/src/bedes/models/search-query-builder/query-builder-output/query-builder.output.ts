@@ -26,7 +26,7 @@ export class QueryBuilderOutput {
     }
 
     /**
-     * Build the object isntance.
+     * Build the object instance.
      */
     constructor() {
         this._bedesTerm = new QueryOutputSection(QuerySection.BedesTerm);
