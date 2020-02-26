@@ -19,7 +19,7 @@ export async function searchBedesTermHandler(request: Request, response: Respons
                 "Invalid parameters"
             );
         }
-        let results = await bedesQuery.bedesTermSearch.searchAllBedesTerms(searchTerms);
+        let results = await bedesQuery.bedesTermSearch.searchAllBedesTerms(request, searchTerms);
         response.json(results);
     }
     catch (error) {

@@ -9,6 +9,7 @@ import { IBedesUnit } from '../../../../../bedes-common/models/bedes-unit/bedes-
 import { IBedesTermOption } from '@bedes-common/models/bedes-term-option';
 import { ICompositeTermDetail, IBedesCompositeTerm, BedesCompositeTerm } from '@bedes-common/models/bedes-composite-term';
 import { getAuthenticatedUser } from '@bedes-backend/util/get-authenticated-user';
+import { CurrentUser } from '@bedes-common/models/current-user';
 
 const logger = createLogger(module);
 
@@ -283,7 +284,7 @@ export async function mappedToBedesAtomicTerm(item: IAppTermCsvRow): Promise<ICs
  * NOTE: item.BedesAtomicTermUUID is the UUID of the LIST OPTION (NOT the term).
  * @param item The IAppTermCsvRow object whose validity is being determined.
  */
-export async function mappedToBedesCompositeTerm(item: IAppTermCsvRow): Promise<ICsvBedesCompositeTermMapping> {
+export async function mappedToBedesCompositeTerm(item: IAppTermCsvRow, request: Request): Promise<ICsvBedesCompositeTermMapping> {
     try { 
         let result: ICsvBedesCompositeTermMapping = { BedesCompositeTermUUID: '' }
         let arrCompositeTermMappings: Array<string> = item.BedesAtomicTermMapping!.trim().split(delimiter);
@@ -312,9 +313,31 @@ export async function mappedToBedesCompositeTerm(item: IAppTermCsvRow): Promise<
             } else {
                 // Check if Composite Term exists in db - query by Composite Term name.
                 try {
-                    let temp: ICompositeTermDetail = await bedesQuery.compositeTermDetail.getRecordByName(item.BedesTerm!);                        
-                    let compositeTermExists: IBedesCompositeTerm = await bedesQuery.compositeTerm.getRecordById(temp._id!);
-                    result.BedesCompositeTermUUID = compositeTermExists._uuid!;                    
+                    var signature: string = await createCompositeTermSignature(item.BedesAtomicTermMapping!.trim().split(delimiter));
+                    let compositeTermExists: IBedesCompositeTerm | Array<IBedesCompositeTerm> | null = await bedesQuery.compositeTerm.getRecordBySignature(signature);
+
+                    // Get the current user that's logged in
+                    const currentUser = getAuthenticatedUser(request);
+
+                    // NOTE
+                    // 1. In BEDES database, duplicate composite private and public terms can exist.
+                    // 2. However, for an individual user, there can be no duplicate composite terms. 
+                    // Their app term is either mapped to a private, public or BEDES approved composite term.
+                    if (compositeTermExists) {
+                        if (compositeTermExists instanceof Array) {
+                            for (let i = 0; i < compositeTermExists.length; i += 1) {
+                                // If user account contains composite term or there exists a BEDES Approved composite term
+                                // then map to that term.
+                                if (compositeTermExists[i]._userId == currentUser.id || compositeTermExists[i]._scopeId == 3) {
+                                    result.BedesCompositeTermUUID = compositeTermExists[i]._uuid!;
+                                }
+                            }
+                        } else {
+                            if (compositeTermExists._userId == currentUser.id || compositeTermExists._scopeId == 3) {
+                                result.BedesCompositeTermUUID = compositeTermExists._uuid!;
+                            }
+                        }
+                    }
                 } catch (error) { }
             }
 
@@ -514,7 +537,7 @@ export async function createNewCompositeTerm(item: IAppTermCsvRow, result: ICsvB
             _description: item.BedesTermDescription,
             _unitId: bedesCompositeTermUnitId,
             _items: items,
-            _scopeId: 1,                               // TODO: PG: "private, public, approved"
+            _scopeId: 1,
             _ownerName: 'null'                         // TODO: PG: Change this.
         }
 
@@ -527,6 +550,7 @@ export async function createNewCompositeTerm(item: IAppTermCsvRow, result: ICsvB
 
         // save the term
         var savedTerm = await bedesQuery.compositeTerm.newCompositeTerm(currentUser, compositeTermParams);
+
         if (!savedTerm || !savedTerm._id) {
             throw new BedesError(`Error creating new composite term. Term=(${item.ApplicationTerm})`, 400);
         }
@@ -537,6 +561,56 @@ export async function createNewCompositeTerm(item: IAppTermCsvRow, result: ICsvB
             throw error;
         } else {
             throw new BedesError(error.message + `Term=(${item.ApplicationTerm})`, HttpStatusCodes.BadRequest_400);
+        }
+    }
+}
+
+/**
+ * Creates signature of composite term
+ * @param str array of BEDES Atomic Terms that make up the Composite Term.
+ * @returns str signature
+ */
+export async function createCompositeTermSignature(arrAtomicTerms: Array<String>) {
+    try {
+        var signature: string = '';
+        var items: Array<ICompositeTermDetail> = [];
+        var bedesTermOption: IBedesTermOption | null = null;
+
+        for (let i = 0; i < arrAtomicTerms.length; i += 1) {
+
+            let arr: Array<string> = arrAtomicTerms[i].split("=");
+            let bedesTerm: IBedesTerm = await bedesQuery.terms.getRecordByName(arr[0].trim());
+
+            if (arr[1].trim().replace(/['"]+/g, "") != '[value]'
+            && !arr[1].trim().replace(/['"]+/g, "").toLowerCase().includes('other')) {
+                bedesTermOption = await bedesQuery.termListOption.getRecordByName(bedesTerm._uuid!, arr[1].trim().replace(/['"]+/g, ""));
+                signature += bedesTerm._id! + ':' + bedesTermOption._id!;
+                signature += '-';
+            } else {
+                bedesTermOption = null;
+                signature += bedesTerm._id!;
+            }
+
+            let compositeTermDetailParams: ICompositeTermDetail = {
+                _term: bedesTerm,
+                _listOption: bedesTermOption,
+                _orderNumber: i + 1 // _orderNumber is 1-indexed
+            }
+            items.push(compositeTermDetailParams);
+        }
+
+        // Remove "-" appended at the end due to the "signature += '-'" statement above.
+        if (signature[signature.length - 1] == '-') {
+            signature = signature.slice(0, -1);
+        }
+
+        return signature;
+    } catch (error) {
+        logger.error(`error in createCompositeTermSignature`);
+        if (error instanceof BedesError) {
+            throw error;
+        } else {
+            throw new Error('error in creating composite term signature. ');
         }
     }
 }
