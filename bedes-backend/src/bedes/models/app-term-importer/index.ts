@@ -17,6 +17,7 @@ import { ITermMappingListOption } from '@bedes-common/models/term-mapping/term-m
 import { IAppTermListOption } from '@bedes-common/models/app-term';
 import { ITermMappingComposite } from '@bedes-common/models/term-mapping/term-mapping-composite.interface';
 import { BedesError } from '@bedes-common/bedes-error';
+import { error } from 'winston';
 
 const logger = createLogger(module);
 
@@ -185,32 +186,37 @@ export class AppTermImporter {
      * @returns iappterm csv row 
      */
     private makeIAppTermCsvRow(csvData: any, fieldNames: Array<string>): IAppTermCsvRow {
-
-        // Mappings of the headers in csv to the names used in code.
-        let csvCodeMapping = {
-            'Application Term': 'ApplicationTerm',
-            'Application Term Description': 'ApplicationTermDescription',
-            'Application Term Unit': 'ApplicationTermUnit',
-            'Application Term Data Type': 'AppTermTermDataType',
-            'BEDES Term': 'BedesTerm',
-            'BEDES Term Description': 'BedesTermDescription',
-            'BEDES Term Unit': 'BedesTermUnit',
-            'BEDES Term Data Type': 'BedesTermDataType',
-            'BEDES Atomic Term Mapping\n(list of {BEDES Atomic Term = Value})': 'BedesAtomicTermMapping',
-            'BEDES Constrained List Mapping\n(list of {Application Term Enumeration = BEDES Constrained List Option)': 'BedesConstrainedListMapping',
-            'BEDES Composite Term UUID': 'BedesCompositeTermUUID',
-            'BEDES Atomic Term UUID\n(list of {BEDES Atomic Term UUID})': 'BedesAtomicTermUUID',
-            'BEDES Constrained List Option UUID\n(list of {BEDES Constrained List Option UUID})': 'BedesConstrainedListOptionUUID'
+        try {
+            // Mappings of the headers in csv to the names used in code.
+            let csvCodeMapping = {
+                'Application Term': 'ApplicationTerm',
+                'Application Term Description': 'ApplicationTermDescription',
+                'Application Term Unit': 'ApplicationTermUnit',
+                'Application Term Data Type': 'AppTermTermDataType',
+                'BEDES Term': 'BedesTerm',
+                'BEDES Term Description': 'BedesTermDescription',
+                'BEDES Term Unit': 'BedesTermUnit',
+                'BEDES Term Data Type': 'BedesTermDataType',
+                'BEDES Atomic Term Mapping': 'BedesAtomicTermMapping',
+                'BEDES Constrained List Mapping': 'BedesConstrainedListMapping',
+                'BEDES Composite Term UUID': 'BedesCompositeTermUUID',
+                'BEDES Atomic Term UUID': 'BedesAtomicTermUUID',
+                'BEDES Constrained List Option UUID': 'BedesConstrainedListOptionUUID'
+            }
+            let result: any = {};
+            for (const fieldName of fieldNames) {
+                const newName = fieldName.trim();
+                if (!(newName in csvCodeMapping)) {
+                    throw error
+                }
+                // assign the new column name
+                result[(csvCodeMapping as any)[newName]] = csvData[fieldName];
+            }
+            return <IAppTermCsvRow>result;
+        } catch (error) {
+            logger.error('Invalid csv header.');
+            throw new BedesError('Invalid csv header.', 400);
         }
-        let result: any = {};
-
-        for (const fieldName of fieldNames) {
-            const newName = fieldName.trim();
-            // assign the new column name
-            result[(csvCodeMapping as any)[newName]] = csvData[fieldName];
-        }
-
-        return <IAppTermCsvRow>result;
     }
 
     /**
