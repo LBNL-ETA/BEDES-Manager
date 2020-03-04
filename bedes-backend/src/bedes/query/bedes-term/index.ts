@@ -269,14 +269,9 @@ export class BedesTermQuery {
                 return db.one(this.sqlGetByName, params);
             }
         } catch (error) {
-            if (error.name === 'QueryResultError') {
-                throw new BedesErrorTermNotFound(name);
-            }
-            else {
-                logger.error(`${this.constructor.name}: Error in newRecord`);
-                logger.error(util.inspect(error));
-                throw error;
-            }
+            logger.error(`${this.constructor.name}: Error in newRecord`);
+            logger.error(util.inspect(error));
+            throw error;
         }
     }
 

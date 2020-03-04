@@ -154,12 +154,8 @@ export async function getUnitIdFromName(unitName: string, trans?: any): Promise<
         }
     }
     catch (error) {
-        logger.error('getUnitIdFromName: Error finding matching unit. Te');
-        if (error instanceof BedesError) {
-            throw error;
-        } else {
-            throw new BedesError(error, HttpStatusCodes.BadRequest_400);
-        }
+        logger.error('getUnitIdFromName: Error finding matching unit.');
+        throw error;
     }
 }
 
@@ -211,7 +207,16 @@ export async function mappedToBedesAtomicTerm(item: IAppTermCsvRow): Promise<ICs
                 }
 
                 // Check that BEDES Term Name and BEDES Atomic Term UUID are correct
-                let bedesTerm: IBedesTerm = await bedesQuery.terms.getRecordByName(item.BedesTerm!);
+                let bedesTerm: IBedesTerm | undefined = undefined;
+                try {
+                    bedesTerm = await bedesQuery.terms.getRecordByName(item.BedesTerm!);
+                } catch (error) {
+                    throw new BedesError(
+                        `Unrecognized BEDES Term "${item.BedesTerm}" for application term "${item.ApplicationTerm}"`,
+                        HttpStatusCodes.BadRequest_400
+                    );
+                }
+
                 if (uuid && bedesTerm._uuid != uuid) {
                     throw new BedesError(`Incorrect BedesAtomicTermUUID. Term=(${item.ApplicationTerm})`, HttpStatusCodes.BadRequest_400);
                 }
@@ -236,7 +241,16 @@ export async function mappedToBedesAtomicTerm(item: IAppTermCsvRow): Promise<ICs
 
                         // 'Other' is a generic list option and doesn't have an 
                         if (!constListMapping[1].toLowerCase().includes('other')) {
-                            let termOptionRecord: IBedesTermOption = await bedesQuery.termListOption.getRecordByName(bedesTermUUID, constListMapping[1].trim());
+                            let termOptionRecord: IBedesTermOption | undefined = undefined;
+                            try {
+                                termOptionRecord = await bedesQuery.termListOption.getRecordByName(bedesTermUUID, constListMapping[1].trim());
+                            } catch (error) {
+                                throw new BedesError(
+                                    `Unrecognized list option "${constListMapping[1]}" of constrained list "${item.BedesTerm}" for application term "${item.ApplicationTerm}"`,
+                                    HttpStatusCodes.BadRequest_400
+                                );
+                            }
+
                             if (arrBedesConstrainedListUUIDs.length > 0 && termOptionRecord._uuid != arrBedesConstrainedListUUIDs[i]) {
                                 throw new BedesError(
                                     `Incorrect BedesConstrainedListMappingUUID. Term=(${item.ApplicationTerm})`, 
@@ -301,44 +315,37 @@ export async function mappedToBedesCompositeTerm(item: IAppTermCsvRow, request: 
                 if (arrBedesCompositeTermUUID.length != 1) {
                     throw new BedesError(`Cannot have more than 1 BEDESCompositeTermUUID. Term=(${item.ApplicationTerm})`, HttpStatusCodes.BadRequest_400);
                 }
-                let temp = await bedesQuery.compositeTerm.getRecordByUUID(item.BedesCompositeTermUUID.trim());
-                if (!temp) {
-                    logger.error('Incorrect BEDES Composite Term UUID.');
+
+                try {
+                    await bedesQuery.compositeTerm.getRecordByUUID(item.BedesCompositeTermUUID.trim());
+                } catch (error) {
                     throw new BedesError(
-                        `Incorrect BEDES Composite Term UUID. Term=(${item.ApplicationTerm})`, 
+                        `Unrecognized BEDES Composite Term UUID "${item.BedesCompositeTermUUID}" for application term "${item.ApplicationTerm}"`,
                         HttpStatusCodes.BadRequest_400
                     );
                 }
                 result.BedesCompositeTermUUID = item.BedesCompositeTermUUID.trim();
             } else {
                 // Check if Composite Term exists in db - query by Composite Term name.
-                try {
-                    var signature: string = await createCompositeTermSignature(item.BedesAtomicTermMapping!.trim().split(delimiter));
-                    let compositeTermExists: IBedesCompositeTerm | Array<IBedesCompositeTerm> | null = await bedesQuery.compositeTerm.getRecordBySignature(signature);
+                var signature: string = await createCompositeTermSignature(item.BedesAtomicTermMapping!.trim().split(delimiter), item.ApplicationTerm);
+                let compositeTermExists: Array<IBedesCompositeTerm> = await bedesQuery.compositeTerm.getRecordBySignature(signature);
 
-                    // Get the current user that's logged in
-                    const currentUser = getAuthenticatedUser(request);
+                // Get the current user that's logged in
+                const currentUser = getAuthenticatedUser(request);
 
-                    // NOTE
-                    // 1. In BEDES database, duplicate composite private and public terms can exist.
-                    // 2. However, for an individual user, there can be no duplicate composite terms. 
-                    // Their app term is either mapped to a private, public or BEDES approved composite term.
-                    if (compositeTermExists) {
-                        if (compositeTermExists instanceof Array) {
-                            for (let i = 0; i < compositeTermExists.length; i += 1) {
-                                // If user account contains composite term or there exists a BEDES Approved composite term
-                                // then map to that term.
-                                if (compositeTermExists[i]._userId == currentUser.id || compositeTermExists[i]._scopeId == 3) {
-                                    result.BedesCompositeTermUUID = compositeTermExists[i]._uuid!;
-                                }
-                            }
-                        } else {
-                            if (compositeTermExists._userId == currentUser.id || compositeTermExists._scopeId == 3) {
-                                result.BedesCompositeTermUUID = compositeTermExists._uuid!;
-                            }
+                // NOTE
+                // 1. In BEDES database, duplicate composite private and public terms can exist.
+                // 2. However, for an individual user, there can be no duplicate composite terms. 
+                // Their app term is either mapped to a private, public or BEDES approved composite term.
+                if (compositeTermExists.length > 0) {
+                    for (let i = 0; i < compositeTermExists.length; i += 1) {
+                        // If user account contains composite term or there exists a BEDES Approved composite term
+                        // then map to that term.
+                        if (compositeTermExists[i]._userId == currentUser.id || compositeTermExists[i]._scopeId == 3) {
+                            result.BedesCompositeTermUUID = compositeTermExists[i]._uuid!;
                         }
                     }
-                } catch (error) { }
+                }
             }
 
             if (item.BedesAtomicTermUUID) {
@@ -359,7 +366,16 @@ export async function mappedToBedesCompositeTerm(item: IAppTermCsvRow, request: 
                 // Get BedesAtomicTermUUID for constrained list mapping
                 // Check that BEDES Term Name and BEDES Atomic Term UUID are correct
                 let bedesTermName: string = arrCompositeTermMappings[arrCompositeTermMappings.length - 1].split('=')[0].trim();        
-                let bedesTerm: IBedesTerm = await bedesQuery.terms.getRecordByName(bedesTermName);
+
+                let bedesTerm: IBedesTerm | undefined = undefined;
+                try {
+                    bedesTerm = await bedesQuery.terms.getRecordByName(bedesTermName);
+                } catch (error) {
+                    throw new BedesError(
+                        `Unrecognized BEDES Term "${bedesTermName}" for application term "${item.ApplicationTerm}"`,
+                        HttpStatusCodes.BadRequest_400
+                    );
+                }
 
                 if (arrBedesAtomicTermUUIDs.length > 0 && bedesTerm._uuid != arrBedesAtomicTermUUIDs[arrBedesAtomicTermUUIDs.length - 1]) {
                     throw new BedesError(`Incorrect last BedesAtomicTermUUID. Term=(${item.ApplicationTerm})`, HttpStatusCodes.BadRequest_400);
@@ -381,7 +397,17 @@ export async function mappedToBedesCompositeTerm(item: IAppTermCsvRow, request: 
 
                     // 'Other' is a generic list option and doesn't have an 
                     if (!constListMapping[1].toLowerCase().includes('other')) {
-                        let termOptionRecord: IBedesTermOption = await bedesQuery.termListOption.getRecordByName(bedesTermUUID, constListMapping[1].trim());
+
+                        let termOptionRecord: IBedesTermOption | undefined = undefined;
+                        try {
+                            termOptionRecord = await bedesQuery.termListOption.getRecordByName(bedesTermUUID, constListMapping[1].trim());
+                        } catch (error) {
+                            throw new BedesError(
+                                `Unrecognized list option "${constListMapping[1]}" of constrained list "${item.BedesTerm}" for application term "${item.ApplicationTerm}"`,
+                                HttpStatusCodes.BadRequest_400
+                            );
+                        }
+
                         if (arrBedesConstrainedListUUIDs.length > 0 && termOptionRecord._uuid != arrBedesConstrainedListUUIDs[i]) {
                             throw new BedesError(
                                 `Incorrect BedesConstrainedListMappingUUID. Term=(${item.ApplicationTerm})`, 
@@ -407,7 +433,7 @@ export async function mappedToBedesCompositeTerm(item: IAppTermCsvRow, request: 
 
             await validateBedesCompositeTermName(item);
             logger.info('BEDES Composite Term Name Validated');
-            
+
             return result;
         } else {
             throw new BedesError(`The last mapping should be "x=[value]". Term=(${item.ApplicationTerm})`, HttpStatusCodes.BadRequest_400);
@@ -433,16 +459,30 @@ export async function validateBedesCompositeTermName(item: IAppTermCsvRow) {
 
         // Check that the Atomic Term Mappings are correct
         for (let i = 0; i < arrCompositeTermMappings.length; i += 1) {
+
             let termValue: Array<string> = arrCompositeTermMappings[i].split("=");
-            let bedesTerm: IBedesTerm = await bedesQuery.terms.getRecordByName(termValue[0].trim());
-            let bedesTermOption: IBedesTermOption | undefined = undefined;
+            let bedesTerm: IBedesTerm | undefined = undefined;
+            try {
+                bedesTerm = await bedesQuery.terms.getRecordByName(termValue[0].trim());
+            } catch (error) {
+                throw new BedesError(
+                    `Unrecognized BEDES Term "${termValue[0]}" for application term "${item.ApplicationTerm}"`,
+                    HttpStatusCodes.BadRequest_400
+                );
+            }
 
             // 'Other' is a generic list option value that can be used by any term and is not stored in db
+            let bedesTermOption: IBedesTermOption | undefined = undefined;
             if (termValue[1].trim().replace(/['"]+/g, "") != '[value]'
                 && !termValue[1].trim().replace(/['"]+/g, "").toLowerCase().includes('other')) {
-                bedesTermOption = await bedesQuery.termListOption.getRecordByName(
-                    bedesTerm._uuid!, termValue[1].trim().replace(/['"]+/g, "")
-                );
+                try {
+                    bedesTermOption = await bedesQuery.termListOption.getRecordByName(bedesTerm._uuid!, termValue[1].trim().replace(/['"]+/g, ""));
+                } catch (error) {
+                    throw new BedesError(
+                        `Unrecognized list option "${termValue[1]}" of constrained list "${bedesTerm._name}" for application term "${item.ApplicationTerm}"`,
+                        HttpStatusCodes.BadRequest_400
+                    );
+                }
             }
 
             if (item.BedesAtomicTermUUID) {
@@ -570,7 +610,7 @@ export async function createNewCompositeTerm(item: IAppTermCsvRow, result: ICsvB
  * @param str array of BEDES Atomic Terms that make up the Composite Term.
  * @returns str signature
  */
-export async function createCompositeTermSignature(arrAtomicTerms: Array<String>) {
+export async function createCompositeTermSignature(arrAtomicTerms: Array<String>, applicationTermName: string) {
     try {
         var signature: string = '';
         var items: Array<ICompositeTermDetail> = [];
@@ -579,11 +619,29 @@ export async function createCompositeTermSignature(arrAtomicTerms: Array<String>
         for (let i = 0; i < arrAtomicTerms.length; i += 1) {
 
             let arr: Array<string> = arrAtomicTerms[i].split("=");
-            let bedesTerm: IBedesTerm = await bedesQuery.terms.getRecordByName(arr[0].trim());
+
+            let bedesTerm: IBedesTerm | undefined = undefined;
+            try {
+                bedesTerm = await bedesQuery.terms.getRecordByName(arr[0].trim());
+            } catch (error) {
+                throw new BedesError(
+                    `Unrecognized BEDES Term "${arr[0]}" for application term "${applicationTermName}"`,
+                    HttpStatusCodes.BadRequest_400
+                );
+            }
 
             if (arr[1].trim().replace(/['"]+/g, "") != '[value]'
             && !arr[1].trim().replace(/['"]+/g, "").toLowerCase().includes('other')) {
-                bedesTermOption = await bedesQuery.termListOption.getRecordByName(bedesTerm._uuid!, arr[1].trim().replace(/['"]+/g, ""));
+                let bedesTermOption: IBedesTermOption | undefined = undefined;
+                try {
+                    bedesTermOption = await bedesQuery.termListOption.getRecordByName(bedesTerm._uuid!, arr[1].trim().replace(/['"]+/g, ""));
+                } catch (error) {
+                    throw new BedesError(
+                        `Unrecognized list option "${arr[1]}" of constrained list "${bedesTerm._name}" for application term "${applicationTermName}"`,
+                        HttpStatusCodes.BadRequest_400
+                    );
+                }
+
                 signature += bedesTerm._id! + ':' + bedesTermOption._id!;
                 signature += '-';
             } else {

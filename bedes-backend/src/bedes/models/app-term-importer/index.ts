@@ -17,7 +17,6 @@ import { ITermMappingListOption } from '@bedes-common/models/term-mapping/term-m
 import { IAppTermListOption } from '@bedes-common/models/app-term';
 import { ITermMappingComposite } from '@bedes-common/models/term-mapping/term-mapping-composite.interface';
 import { BedesError } from '@bedes-common/bedes-error';
-import { error } from 'winston';
 
 const logger = createLogger(module);
 
@@ -207,7 +206,7 @@ export class AppTermImporter {
             for (const fieldName of fieldNames) {
                 const newName = fieldName.trim();
                 if (!(newName in csvCodeMapping)) {
-                    throw error
+                    throw Error;
                 }
                 // assign the new column name
                 result[(csvCodeMapping as any)[newName]] = csvData[fieldName];
@@ -234,11 +233,21 @@ export class AppTermImporter {
             }
 
             // Get TermType ID and Unit ID
-            let appTermTypeId: number = getTermTypeFromCsvName(parsedCsvTerm);
-            let appTermUnitId: number | undefined = parsedCsvTerm.ApplicationTermUnit
-                                                    ? await getUnitIdFromName(parsedCsvTerm.ApplicationTermUnit)
-                                                    : undefined
-                                                    ;
+            var appTermTypeId: number = getTermTypeFromCsvName(parsedCsvTerm);
+
+            // Adding try catch because Application Term Unit doesn't necessarily need to be in the official list.
+            var appTermUnitId: number | undefined = undefined;
+            try {
+                appTermUnitId = parsedCsvTerm.ApplicationTermUnit
+                                ? await getUnitIdFromName(parsedCsvTerm.ApplicationTermUnit)
+                                : undefined
+                                ;
+            } catch (error) {
+                throw new BedesError(
+                    `Unrecognized unit "${parsedCsvTerm.ApplicationTermUnit}" for application term "${parsedCsvTerm.ApplicationTerm}"`,
+                    HttpStatusCodes.BadRequest_400
+                );
+            }
 
             // Application Term has no mapping
             if (termhasNoMapping(parsedCsvTerm)) {
