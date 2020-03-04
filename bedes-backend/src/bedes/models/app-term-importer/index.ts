@@ -185,32 +185,37 @@ export class AppTermImporter {
      * @returns iappterm csv row 
      */
     private makeIAppTermCsvRow(csvData: any, fieldNames: Array<string>): IAppTermCsvRow {
-
-        // Mappings of the headers in csv to the names used in code.
-        let csvCodeMapping = {
-            'Application Term': 'ApplicationTerm',
-            'Application Term Description': 'ApplicationTermDescription',
-            'Application Term Unit': 'ApplicationTermUnit',
-            'Application Term Data Type': 'AppTermTermDataType',
-            'BEDES Term': 'BedesTerm',
-            'BEDES Term Description': 'BedesTermDescription',
-            'BEDES Term Unit': 'BedesTermUnit',
-            'BEDES Term Data Type': 'BedesTermDataType',
-            'BEDES Atomic Term Mapping\n(list of {BEDES Atomic Term = Value})': 'BedesAtomicTermMapping',
-            'BEDES Constrained List Mapping\n(list of {Application Term Enumeration = BEDES Constrained List Option)': 'BedesConstrainedListMapping',
-            'BEDES Composite Term UUID': 'BedesCompositeTermUUID',
-            'BEDES Atomic Term UUID\n(list of {BEDES Atomic Term UUID})': 'BedesAtomicTermUUID',
-            'BEDES Constrained List Option UUID\n(list of {BEDES Constrained List Option UUID})': 'BedesConstrainedListOptionUUID'
+        try {
+            // Mappings of the headers in csv to the names used in code.
+            let csvCodeMapping = {
+                'Application Term': 'ApplicationTerm',
+                'Application Term Description': 'ApplicationTermDescription',
+                'Application Term Unit': 'ApplicationTermUnit',
+                'Application Term Data Type': 'AppTermTermDataType',
+                'BEDES Term': 'BedesTerm',
+                'BEDES Term Description': 'BedesTermDescription',
+                'BEDES Term Unit': 'BedesTermUnit',
+                'BEDES Term Data Type': 'BedesTermDataType',
+                'BEDES Atomic Term Mapping': 'BedesAtomicTermMapping',
+                'BEDES Constrained List Mapping': 'BedesConstrainedListMapping',
+                'BEDES Composite Term UUID': 'BedesCompositeTermUUID',
+                'BEDES Atomic Term UUID': 'BedesAtomicTermUUID',
+                'BEDES Constrained List Option UUID': 'BedesConstrainedListOptionUUID'
+            }
+            let result: any = {};
+            for (const fieldName of fieldNames) {
+                const newName = fieldName.trim();
+                if (!(newName in csvCodeMapping)) {
+                    throw Error;
+                }
+                // assign the new column name
+                result[(csvCodeMapping as any)[newName]] = csvData[fieldName];
+            }
+            return <IAppTermCsvRow>result;
+        } catch (error) {
+            logger.error('Invalid csv header.');
+            throw new BedesError('Invalid csv header.', 400);
         }
-        let result: any = {};
-
-        for (const fieldName of fieldNames) {
-            const newName = fieldName.trim();
-            // assign the new column name
-            result[(csvCodeMapping as any)[newName]] = csvData[fieldName];
-        }
-
-        return <IAppTermCsvRow>result;
     }
 
     /**
@@ -228,11 +233,21 @@ export class AppTermImporter {
             }
 
             // Get TermType ID and Unit ID
-            let appTermTypeId: number = getTermTypeFromCsvName(parsedCsvTerm);
-            let appTermUnitId: number | undefined = parsedCsvTerm.ApplicationTermUnit
-                                                    ? await getUnitIdFromName(parsedCsvTerm.ApplicationTermUnit)
-                                                    : undefined
-                                                    ;
+            var appTermTypeId: number = getTermTypeFromCsvName(parsedCsvTerm);
+
+            // Adding try catch because Application Term Unit doesn't necessarily need to be in the official list.
+            var appTermUnitId: number | undefined = undefined;
+            try {
+                appTermUnitId = parsedCsvTerm.ApplicationTermUnit
+                                ? await getUnitIdFromName(parsedCsvTerm.ApplicationTermUnit)
+                                : undefined
+                                ;
+            } catch (error) {
+                throw new BedesError(
+                    `Unrecognized unit "${parsedCsvTerm.ApplicationTermUnit}" for application term "${parsedCsvTerm.ApplicationTerm}"`,
+                    HttpStatusCodes.BadRequest_400
+                );
+            }
 
             // Application Term has no mapping
             if (termhasNoMapping(parsedCsvTerm)) {
