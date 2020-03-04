@@ -1,18 +1,12 @@
-import path from 'path';
 import { Request, Response } from 'express';
 import * as util from 'util';
 import { createLogger } from '@bedes-backend/logging';
 import { AppTermImporter } from '../models/app-term-importer/index';
 import { HttpStatusCodes } from '@bedes-common/enums/http-status-codes';
 import { UPLOAD_PATH } from '../uploads/index';
-import { IAppTermList } from '@bedes-common/models/app-term/app-term-list.interface';
-import { IAppTerm } from '@bedes-common/models/app-term/app-term.interface';
-import { AppTermList } from '@bedes-common/models/app-term/app-term-list';
-import { AppTerm } from '@bedes-common/models/app-term/app-term';
 import { bedesQuery } from '../query';
 import { BedesError } from '../../../../bedes-common/bedes-error/bedes-error';
 import { db } from '@bedes-backend/db';
-import { BedesTerm } from '@bedes-common/models/bedes-term';
 const logger = createLogger(module);
 
 /**

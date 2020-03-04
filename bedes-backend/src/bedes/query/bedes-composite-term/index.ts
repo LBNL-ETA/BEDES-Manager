@@ -354,7 +354,7 @@ export class BedesCompositeTermQuery {
     /**
      * Searches the database for a matching composite term signature.
      */
-    public getRecordBySignature(signature: string, transaction?: any): Promise<Array<IBedesCompositeTerm> | IBedesCompositeTerm | null> {
+    public getRecordBySignature(signature: string, transaction?: any): Promise<Array<IBedesCompositeTerm>> {
         try {
             if (!signature) {
                 logger.error(`${this.constructor.name}: Missing unitName in BedesUnit-getRecordByName`);
