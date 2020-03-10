@@ -1,11 +1,11 @@
 insert into public.app_term_list_option
-    (app_term_id, name, description, unit_id, uuid)
+    (app_term_id, name, description, unit, uuid)
 values
-    (${_appTermId}, ${_name}, ${_description}, ${_unitId}, ${_uuid})
+    (${_appTermId}, ${_name}, ${_description}, ${_unit}, ${_uuid})
 returning
     id as "_id",
     name as "_name",
     description as "_description",
-    unit_id as "_unitId",
+    unit as "_unit",
     uuid as "_uuid"
 ;

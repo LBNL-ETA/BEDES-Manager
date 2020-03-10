@@ -181,7 +181,7 @@ export class AppTermQuery {
                 _name: item._name.trim() || null,
                 _description: item._description || null,
                 _termTypeId: item._termTypeId,
-                _unitId: item._unitId || null,
+                _unit: item._unit || null,
                 _uuid: item._uuid || null
             }
             // set the database context
@@ -360,7 +360,7 @@ export class AppTermQuery {
                 _name: item._name.trim() || null,
                 _description: item._description || null,
                 _termTypeId: item._termTypeId,
-                _unitId: item._unitId || null
+                _unit: item._unit || null
             }
             // set the database context
             const ctx = transaction || db;

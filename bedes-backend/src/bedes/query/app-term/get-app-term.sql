@@ -8,7 +8,7 @@ with
                 json_build_object(
                     '_id', o.id,
                     '_name', o.name,
-                    '_unitId', o.unit_id
+                    '_unit', o.unit
                 )
             ) as items
         from
@@ -25,7 +25,7 @@ select
     t.field_code as "_fieldCode",
     t.term_type_id as "_termTypeId",
     t.uuid as "_uuid",
-    t.unid_id as "_unitId"
+    t.unit as "_unit"
     case
         when t.term_type_id = 2 then
             wo.items

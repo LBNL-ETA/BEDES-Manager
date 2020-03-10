@@ -24,7 +24,7 @@ export class AppTerm extends UUIDGenerator {
     protected _termTypeId: TermType;
     protected _additionalInfo: Array<AppTermAdditionalInfo>;
     protected _uuid: string | null | undefined;
-    protected _unitId: number | null | undefined;
+    protected _unit: string | null | undefined;
     protected _mapping: TermMappingAtomic | TermMappingComposite | null | undefined;
     /** Indicates if the Application information has changed */
     protected _hasChanged = false;
@@ -46,7 +46,7 @@ export class AppTerm extends UUIDGenerator {
         target.name = source.name;
         target.description = source.description;
         target.termTypeId = source.termTypeId;
-        target.unitId = source.unitId;
+        target.unit = source.unit;
     }
 
     constructor(data: IAppTerm) {
@@ -64,7 +64,7 @@ export class AppTerm extends UUIDGenerator {
         }
         // assign a uuid or generate a new one
         this._uuid = data._uuid || this.generateUUID();
-        this._unitId = data._unitId;
+        this._unit = data._unit;
         if (data._mapping) {
             if (isITermMappingAtomic(data._mapping)) {
                 this._mapping = new TermMappingAtomic(data._mapping);
@@ -128,14 +128,14 @@ export class AppTerm extends UUIDGenerator {
     get uuid(): string | null | undefined {
         return this._uuid;
     }
-    get unitId(): number | null | undefined {
-        return this._unitId;
+    get unit(): string | null | undefined {
+        return this._unit;
     }
-    set unitId(value: number | null | undefined) {
-        if (value != this._unitId) {
+    set unit(value: string | null | undefined) {
+        if (value != this._unit) {
             this._hasChanged = true;
         }
-        this._unitId = value;
+        this._unit = value;
     }
     get mapping(): TermMappingAtomic | TermMappingComposite | null | undefined {
         return this._mapping;
@@ -170,7 +170,7 @@ export class AppTerm extends UUIDGenerator {
             _description: this._description,
             _termTypeId: this._termTypeId,
             _uuid: this._uuid,
-            _unitId: this._unitId,
+            _unit: this._unit,
             _mapping: this._mapping ? this._mapping.toInterface() : undefined
         };
         return params;

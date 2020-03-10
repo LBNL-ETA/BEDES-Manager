@@ -232,22 +232,22 @@ export class AppTermImporter {
                 throw new BedesError(`Invalid parsed csv row encountered: Term=(${parsedCsvTerm.ApplicationTerm})`, 400);
             }
 
-            // Get TermType ID and Unit ID
+            // Get TermType ID
             var appTermTypeId: number = getTermTypeFromCsvName(parsedCsvTerm);
 
-            // Adding try catch because Application Term Unit doesn't necessarily need to be in the official list.
-            var appTermUnitId: number | undefined = undefined;
-            try {
-                appTermUnitId = parsedCsvTerm.ApplicationTermUnit
-                                ? await getUnitIdFromName(parsedCsvTerm.ApplicationTermUnit)
-                                : undefined
-                                ;
-            } catch (error) {
-                throw new BedesError(
-                    `Unrecognized unit "${parsedCsvTerm.ApplicationTermUnit}" for application term "${parsedCsvTerm.ApplicationTerm}"`,
-                    HttpStatusCodes.BadRequest_400
-                );
-            }
+            // // Adding try catch because Application Term Unit doesn't necessarily need to be in the official list.
+            // var appTermUnitId: number | undefined = undefined;
+            // try {
+            //     appTermUnitId = parsedCsvTerm.ApplicationTermUnit
+            //                     ? await getUnitIdFromName(parsedCsvTerm.ApplicationTermUnit)
+            //                     : undefined
+            //                     ;
+            // } catch (error) {
+            //     throw new BedesError(
+            //         `Unrecognized unit "${parsedCsvTerm.ApplicationTermUnit}" for application term "${parsedCsvTerm.ApplicationTerm}"`,
+            //         HttpStatusCodes.BadRequest_400
+            //     );
+            // }
 
             // Application Term has no mapping
             if (termhasNoMapping(parsedCsvTerm)) {
@@ -256,7 +256,7 @@ export class AppTermImporter {
                     _name: parsedCsvTerm.ApplicationTerm,
                     _termTypeId: appTermTypeId,
                     _description: parsedCsvTerm.ApplicationTermDescription,
-                    _unitId: appTermUnitId
+                    _unit: parsedCsvTerm.ApplicationTermUnit
                 }
                 return new AppTerm(appTermParams);
             }
@@ -282,7 +282,7 @@ export class AppTermImporter {
                             _name: parsedCsvTerm.ApplicationTerm,
                             _termTypeId: appTermTypeId,
                             _description: parsedCsvTerm.ApplicationTermDescription,
-                            _unitId: appTermUnitId,
+                            _unit: parsedCsvTerm.ApplicationTermUnit,
                             _mapping: termMappingAtomicParams
                         }
                         return new AppTerm(appTermParams);
@@ -323,7 +323,7 @@ export class AppTermImporter {
                             _name: parsedCsvTerm.ApplicationTerm,
                             _termTypeId: appTermTypeId,
                             _description: parsedCsvTerm.ApplicationTermDescription,
-                            _unitId: appTermUnitId,
+                            _unit: parsedCsvTerm.ApplicationTermUnit,
                             _listOptions: results,
                             _mapping: termMappingAtomicParams
                         }
@@ -354,7 +354,7 @@ export class AppTermImporter {
                             _name: parsedCsvTerm.ApplicationTerm,
                             _termTypeId: appTermTypeId,
                             _description: parsedCsvTerm.ApplicationTermDescription,
-                            _unitId: appTermUnitId,
+                            _unit: parsedCsvTerm.ApplicationTermUnit,
                             _mapping: termMappingCompositeParams
                         }
                         return new AppTerm(appTermParams);
@@ -396,7 +396,7 @@ export class AppTermImporter {
                             _name: parsedCsvTerm.ApplicationTerm,
                             _termTypeId: appTermTypeId,
                             _description: parsedCsvTerm.ApplicationTermDescription,
-                            _unitId: appTermUnitId,
+                            _unit: parsedCsvTerm.ApplicationTermUnit,
                             _listOptions: results,
                             _mapping: termMappingCompositeParams
                         }
