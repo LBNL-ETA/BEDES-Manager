@@ -28,18 +28,310 @@ create table public.data_type (
     name varchar(100) not null unique
 );
 alter table public.data_type owner to bedes_admin;
+insert into public.data_type (name) values
+    ('Constrained List'),
+    ('Decimal'),
+    ('Integer'),
+    ('String'),
+    ('Timestamp')
+;
 
 create table public.unit (
     id serial primary key,
     name varchar(30) not null unique
 );
 alter table public.unit owner to bedes_admin;
+insert into public.unit (name) values
+    ('$'),
+    ('$/(Btu/hr-F)'),
+    ('$/(ft3/min)'),
+    ('$/(kBtu/hr)'),
+    ('$/(kW-C)'),
+    ('$/(m3/s)'),
+    ('$/ft2'),
+    ('$/ft3'),
+    ('$/kBtu'),
+    ('$/kVAR'),
+    ('$/kW'),
+    ('$/kWh'),
+    ('$/m2'),
+    ('$/m3'),
+    ('$/unit'),
+    ('A'),
+    ('ACH'),
+    ('acres'),
+    ('Btu'),
+    ('Btu/(hr-F)'),
+    ('Btu/(hr-ft-F)'),
+    ('Btu/(hr-ft2-F)'),
+    ('Btu/(lb-F)'),
+    ('Btu/hr'),
+    ('Btu/s'),
+    ('Btu/Wh'),
+    ('C'),
+    ('cal/hr'),
+    ('ccf'),
+    ('cd/m2'),
+    ('cfh'),
+    ('cfm'),
+    ('cmh'),
+    ('cooling tons'),
+    ('cord'),
+    ('count'),
+    ('count/ft2'),
+    ('count/m2'),
+    ('cycles/kWh'),
+    ('days'),
+    ('DD'),
+    ('deg'),
+    ('F'),
+    ('fc'),
+    ('ft'),
+    ('ft-lbf/hr'),
+    ('ft-lbf/min'),
+    ('ft/s'),
+    ('ft2'),
+    ('ft3'),
+    ('ft3/(kBtu/cycle)'),
+    ('gal'),
+    ('gal/cycle'),
+    ('gal/cycle/ft3'),
+    ('gal/day'),
+    ('gal/ft2'),
+    ('gal/kBtu'),
+    ('gal/kWh'),
+    ('GHz'),
+    ('gpm'),
+    ('gram/hr'),
+    ('GW'),
+    ('GWh'),
+    ('hectares'),
+    ('hh'),
+    ('hh:mm'),
+    ('hh:mm:ss'),
+    ('hh:mm:ss.sss'),
+    ('hp'),
+    ('hr'),
+    ('hr-ft2-F/(Btu-in)'),
+    ('hr-ft2-F/Btu'),
+    ('hr/day'),
+    ('hr/week'),
+    ('hr/year'),
+    ('Hz'),
+    ('in'),
+    ('in2'),
+    ('in3'),
+    ('J/(kg-K)'),
+    ('kBtu'),
+    ('kBtu/(gal/day)'),
+    ('kBtu/ft2'),
+    ('kBtu/hr'),
+    ('kBtu/hr/ton'),
+    ('kcf'),
+    ('kcf/hr'),
+    ('kg'),
+    ('kg/hr'),
+    ('kg/kWh'),
+    ('kg/MMBtu'),
+    ('kg/unit'),
+    ('kgal'),
+    ('kgal/ft2'),
+    ('kgCO2e'),
+    ('kgCO2e/gpd'),
+    ('kgCO2e/MMBtu'),
+    ('kHz'),
+    ('klbs'),
+    ('klbs/hr'),
+    ('km'),
+    ('kPa'),
+    ('kph'),
+    ('kW'),
+    ('kW/ton'),
+    ('kWh'),
+    ('kWh/ft2'),
+    ('kWh/m2'),
+    ('L'),
+    ('L/cycle'),
+    ('L/cycle/m3'),
+    ('L/day'),
+    ('L/kBtu'),
+    ('L/kWh'),
+    ('L/m2'),
+    ('L/min'),
+    ('lbs'),
+    ('lbs/ft2'),
+    ('lbs/ft3'),
+    ('lbs/hr'),
+    ('lbs/kBtu'),
+    ('lbs/kWh'),
+    ('lbs/unit'),
+    ('lbsCO2e'),
+    ('linear ft'),
+    ('loads/week'),
+    ('lumens'),
+    ('lux'),
+    ('m'),
+    ('m/s'),
+    ('m2'),
+    ('m2-K/(W-cm)'),
+    ('m2-K/W'),
+    ('m3'),
+    ('m3/(kWh/cycle)'),
+    ('m3/day'),
+    ('m3/s'),
+    ('Mcf'),
+    ('Mcf/day'),
+    ('mg'),
+    ('mg/L'),
+    ('Mgal'),
+    ('Mgal/day'),
+    ('MHz'),
+    ('mi'),
+    ('micro Hz'),
+    ('micro V'),
+    ('military time'),
+    ('min'),
+    ('Mlbs'),
+    ('Mlbs/hr'),
+    ('MM'),
+    ('MM-DD'),
+    ('MMBtu'),
+    ('MMBtu/hr'),
+    ('months'),
+    ('mph'),
+    ('MtCO2e'),
+    ('mV'),
+    ('MW'),
+    ('MWh'),
+    ('n/a'),
+    ('Pa'),
+    ('percent'),
+    ('pixels'),
+    ('pixels/in2'),
+    ('ppi'),
+    ('psi'),
+    ('rpm'),
+    ('s'),
+    ('therms'),
+    ('therms/hr'),
+    ('ton'),
+    ('ton-hr'),
+    ('tonne'),
+    ('V'),
+    ('W'),
+    ('W/(m-K)'),
+    ('W/(m2-K)'),
+    ('W/ft2'),
+    ('W/K'),
+    ('W/m2'),
+    ('weeks'),
+    ('weeks/year'),
+    ('Wh'),
+    ('Wh/((m3/s)/day)'),
+    ('years'),
+    ('YYYY'),
+    ('YYYY-MM'),
+    ('YYYY-MM-DD'),
+    ('YYYY-MM-DD hh:mm'),
+    ('YYYY-MM-DD hh:mm:ss'),
+    ('YYYY-MM-DD hh:mm:ss.sss')
+;
 
 create table public.definition_source (
     id serial primary key,
     name text not null unique
 );
 alter table public.definition_source owner to bedes_admin;
+insert into public.definition_source (name) values
+    ('LBNL')
+    ('LBNL/IEP')
+    ('Solar Cells')
+    ('BEDES Beta')
+    ('EPA')
+    ('ENERGY STAR')
+    ('DOE')
+    ('NREL')
+    ('BuildingSync')
+    ('LBNL/BEDES-Beta')
+    ('ASHRAE')
+    ('IBPSA-USA')
+    ('LBNL/BEDES Beta')
+    ('RETS')
+    ('ESPM')
+    ('RESO')
+    ('BEDES-Beta/ESPM')
+    ('BEDES-Beta/ESPM/EIA/CMS')
+    ('ESPM/CENSUS/NAICS')
+    ('BEDES-Beta/ESPM/NAICS')
+    ('BEDES-Beta/NAICS')
+    ('BEDES-Beta/ESPM/CAST/NAICS')
+    ('BEDES-Beta/CAST')
+    ('ESPM/NAICS')
+    ('BEDES-Beta')
+    ('Food Service Survey')
+    ('BEDES-Beta/ESPM/CAST')
+    ('BEDES-Beta/CAST/NAICS')
+    ('NAICS')
+    ('OSHA')
+    ('CPUC')
+    ('US Census')
+    ('LBNL/AIA')
+    ('ASHRAE 105-2007\r Standard Methods of Determining, Expressing, and Comparing Building Energy Performance and Greenhouse Gas Emissions')
+    ('WELL Building Standard')
+    ('Home Innovation Research Labs')
+    ('PHIUS')
+    ('LEED v4 Guide')
+    ('LBNL/HPXML')
+    ('LBNL/ESPM')
+    ('LBNL/NREL')
+    ('LBNL/ASHRAE')
+    ('LBNL/EPLUS')
+    ('SEE Action')
+    ('FGDC')
+    ('USPS')
+    ('ePB')
+    ('Seattle')
+    ('CTS, ePB')
+    ('BEDES Beta, HPXML')
+    ('ICP')
+    ('CTS')
+    ('HPXML')
+    ('IPMVP')
+    ('LBNL/BEDES Beta 2.4')
+    ('BEDES Beta 2.4')
+    ('LBNL/CAST')
+    ('CAST')
+    ('LBNL/CEC')
+    ('LBNL/HPXML/CAST')
+    ('IBC/ASTM')
+    ('NFRC')
+    ('NFRC 200-2014')
+    ('LBNL/HES-SF')
+    ('http://energyoptionsexplained.com/sealed-combustion-boilerfurnace/')
+    ('http://www.furnacecompare.com/faq/definitions/power_burner.html')
+    ('http://www.furnacecompare.com/faq/definitions/iid.html')
+    ('http://www.sabien-tech.co.uk/products/m2g/what-are-modulating-burners')
+    ('ASHRAE Wiki')
+    ('ASHRAE Wiki, AUC?')
+    ('TPE/BCL')
+    ('CEC')
+    ('Wikipedia')
+    ('PG&E')
+    ('AUC')
+    ('ASHRAE Wiki, AUC')
+    ('Gasification Technologies Council')
+    ('ANSI/ASHRAE, CEC HERS, DOE-NREL')
+    ('USDOE')
+    ('ESPM\r Glossary')
+    ('CEC Proposition 39')
+    ('Open EI')
+    ('SmartGrid.gov')
+    ('Greenbutton')
+    ('OpenEI')
+    ('OpenEI/LBNL')
+    ('GRESB')
+    ('Green Button')
+;
 
 create table public.sector (
     id int primary key,
@@ -47,9 +339,10 @@ create table public.sector (
 );
 alter table public.sector owner to bedes_admin;
 insert into public.sector (id, name) values
-    (1, 'Multifamily'),
-    (2, 'Residential'),
-    (3, 'Commercial')
+    (1, 'n/a'),
+    (2, 'Multifamily'),
+    (3, 'Residential'),
+    (4, 'Commercial')
 ;
 
 create table public.bedes_term (
@@ -209,7 +502,7 @@ create table public.app_term (
     field_code varchar(200),
     uuid uuid not null unique,
     term_type_id int not null references public.term_type (id),
-    unit_id int references public.unit(id),
+    unit varchar(50),
     unique (app_id, name)
 );
 alter table public.app_term owner to bedes_admin;
@@ -220,20 +513,20 @@ create table public.app_term_list_option (
     app_term_id int references public.app_term (id) on delete cascade not null,
     name varchar(500) not null,
     description varchar(1000),
-    unit_id int references public.unit(id),
+    unit varchar(50),
     uuid uuid not null unique,
     unique (app_term_id, name)
 );
 alter table public.app_term_list_option owner to bedes_admin;
 
-create table public.app_term_additional_data (
-    id serial primary key,
-    app_term_id int references public.app_term (id) on delete cascade not null,
-    app_field_id int references app_field (id) not null,
-    value text,
-    unique(app_term_id, app_field_id)
-);
-alter table public.app_term_additional_data owner to bedes_admin;
+-- create table public.app_term_additional_data (
+--     id serial primary key,
+--     app_term_id int references public.app_term (id) on delete cascade not null,
+--     app_field_id int references app_field (id) not null,
+--     value text,
+--     unique(app_term_id, app_field_id)
+-- );
+-- alter table public.app_term_additional_data owner to bedes_admin;
 
 -- create table public.app_enumerated_values (
 --     id serial primary key,
