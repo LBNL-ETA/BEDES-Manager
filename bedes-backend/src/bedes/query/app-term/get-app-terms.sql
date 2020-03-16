@@ -8,7 +8,7 @@ with
                 json_build_object(
                     '_id', o.id,
                     '_name', o.name,
-                    '_unitId', o.unit_id,
+                    '_unit', o.unit,
                     '_uuid', o.uuid,
                     '_mapping', case when mp.id is not null then
                         json_build_object(
@@ -41,7 +41,7 @@ select
     t.field_code as "_fieldCode",
     t.term_type_id as "_termTypeId",
     t.uuid as "_uuid",
-    t.unit_id as "_unitId",
+    t.unit as "_unit",
     case
         when t.term_type_id = 2 then
             wo.items

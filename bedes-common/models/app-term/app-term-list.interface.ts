@@ -11,6 +11,6 @@ export interface IAppTermList extends IAppTerm {
     _description?: string | null | undefined;
     _additionalInfo?: Array<IAppTermAdditionalInfo>;
     _uuid?: string | null | undefined;
-    _unitId?: number | null | undefined;
+    _unit?: string | null | undefined;
     _listOptions?: Array<IAppTermListOption>;
 }

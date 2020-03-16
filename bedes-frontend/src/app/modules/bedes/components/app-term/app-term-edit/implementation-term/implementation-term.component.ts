@@ -55,7 +55,7 @@ enum ControlState {
 }
 interface IGridRow {
     implFieldName: string | null | undefined;
-    implUnitId: number | null | undefined;
+    implUnitId: number | null | undefined; // CHECK if this needs to be changed
     ref: AppTermListOption;
     showMappingButtons: boolean;
     hasMapping: boolean;
@@ -120,7 +120,7 @@ export class ImplementationTermComponent implements OnInit {
     public dataForm = this.formBuilder.group({
         name: ['', Validators.required],
         description: [''],
-        unitId: [''],
+        unit: [''],
         uuid: [{
             value: null,
             disabled: true
@@ -272,14 +272,14 @@ export class ImplementationTermComponent implements OnInit {
     private enableFormControls(): void {
         this.dataForm.controls.name.enable();
         this.dataForm.controls.description.enable();
-        this.dataForm.controls.unitId.enable();
+        this.dataForm.controls.unit.enable();
         this.dataForm.controls.termTypeId.enable();
     }
 
     private disableFormControls(): void {
         this.dataForm.controls.name.disable();
         this.dataForm.controls.description.disable();
-        this.dataForm.controls.unitId.disable();
+        this.dataForm.controls.unit.disable();
         this.dataForm.controls.termTypeId.disable();
     }
 
@@ -468,9 +468,9 @@ export class ImplementationTermComponent implements OnInit {
         this.dataForm.controls['description'].setValue(
             this.appTerm ? this.appTerm.description : ''
         );
-        // UnitId
-        this.dataForm.controls['unitId'].setValue(
-            this.appTerm ? this.appTerm.unitId : ''
+        // Unit
+        this.dataForm.controls['unit'].setValue(
+            this.appTerm ? this.appTerm.unit : ''
         );
         // uuid
         this.dataForm.controls['uuid'].setValue(
@@ -499,9 +499,9 @@ export class ImplementationTermComponent implements OnInit {
         .subscribe((newValue: string) => {
             this.appTerm.description = newValue;
         });
-        this.dataForm.controls['unitId'].valueChanges
+        this.dataForm.controls['unit'].valueChanges
         .subscribe((newValue: number) => {
-            this.appTerm.unitId = newValue;
+            this.appTerm.unit = newValue;
         });
         // term type changes
         this.dataForm.controls['termTypeId'].valueChanges
@@ -517,7 +517,7 @@ export class ImplementationTermComponent implements OnInit {
             _name: this.dataForm.value.name,
             _description: this.dataForm.value.description,
             _termTypeId: this.dataForm.value.termTypeId,
-            _unitId: this.dataForm.value.unitId,
+            _unit: this.dataForm.value.unit,
             _uuid: this.dataForm.value.uuid
 
         };
