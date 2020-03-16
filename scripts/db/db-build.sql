@@ -408,7 +408,7 @@ insert into public.scope (id, name) values
 -- Composite Term
 create table public.bedes_composite_term (
     id serial primary key,
-    signature text not null unique,
+    signature text not null,
     name text,
     description text,
     unit_id int references public.unit (id),
