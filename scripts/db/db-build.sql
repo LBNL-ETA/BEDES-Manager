@@ -243,93 +243,93 @@ create table public.definition_source (
 );
 alter table public.definition_source owner to bedes_admin;
 insert into public.definition_source (name) values
-    ('LBNL')
-    ('LBNL/IEP')
-    ('Solar Cells')
-    ('BEDES Beta')
-    ('EPA')
-    ('ENERGY STAR')
-    ('DOE')
-    ('NREL')
-    ('BuildingSync')
-    ('LBNL/BEDES-Beta')
-    ('ASHRAE')
-    ('IBPSA-USA')
-    ('LBNL/BEDES Beta')
-    ('RETS')
-    ('ESPM')
-    ('RESO')
-    ('BEDES-Beta/ESPM')
-    ('BEDES-Beta/ESPM/EIA/CMS')
-    ('ESPM/CENSUS/NAICS')
-    ('BEDES-Beta/ESPM/NAICS')
-    ('BEDES-Beta/NAICS')
-    ('BEDES-Beta/ESPM/CAST/NAICS')
-    ('BEDES-Beta/CAST')
-    ('ESPM/NAICS')
-    ('BEDES-Beta')
-    ('Food Service Survey')
-    ('BEDES-Beta/ESPM/CAST')
-    ('BEDES-Beta/CAST/NAICS')
-    ('NAICS')
-    ('OSHA')
-    ('CPUC')
-    ('US Census')
-    ('LBNL/AIA')
-    ('ASHRAE 105-2007\r Standard Methods of Determining, Expressing, and Comparing Building Energy Performance and Greenhouse Gas Emissions')
-    ('WELL Building Standard')
-    ('Home Innovation Research Labs')
-    ('PHIUS')
-    ('LEED v4 Guide')
-    ('LBNL/HPXML')
-    ('LBNL/ESPM')
-    ('LBNL/NREL')
-    ('LBNL/ASHRAE')
-    ('LBNL/EPLUS')
-    ('SEE Action')
-    ('FGDC')
-    ('USPS')
-    ('ePB')
-    ('Seattle')
-    ('CTS, ePB')
-    ('BEDES Beta, HPXML')
-    ('ICP')
-    ('CTS')
-    ('HPXML')
-    ('IPMVP')
-    ('LBNL/BEDES Beta 2.4')
-    ('BEDES Beta 2.4')
-    ('LBNL/CAST')
-    ('CAST')
-    ('LBNL/CEC')
-    ('LBNL/HPXML/CAST')
-    ('IBC/ASTM')
-    ('NFRC')
-    ('NFRC 200-2014')
-    ('LBNL/HES-SF')
-    ('http://energyoptionsexplained.com/sealed-combustion-boilerfurnace/')
-    ('http://www.furnacecompare.com/faq/definitions/power_burner.html')
-    ('http://www.furnacecompare.com/faq/definitions/iid.html')
-    ('http://www.sabien-tech.co.uk/products/m2g/what-are-modulating-burners')
-    ('ASHRAE Wiki')
-    ('ASHRAE Wiki, AUC?')
-    ('TPE/BCL')
-    ('CEC')
-    ('Wikipedia')
-    ('PG&E')
-    ('AUC')
-    ('ASHRAE Wiki, AUC')
-    ('Gasification Technologies Council')
-    ('ANSI/ASHRAE, CEC HERS, DOE-NREL')
-    ('USDOE')
-    ('ESPM\r Glossary')
-    ('CEC Proposition 39')
-    ('Open EI')
-    ('SmartGrid.gov')
-    ('Greenbutton')
-    ('OpenEI')
-    ('OpenEI/LBNL')
-    ('GRESB')
+    ('LBNL'),
+    ('LBNL/IEP'),
+    ('Solar Cells'),
+    ('BEDES Beta'),
+    ('EPA'),
+    ('ENERGY STAR'),
+    ('DOE'),
+    ('NREL'),
+    ('BuildingSync'),
+    ('LBNL/BEDES-Beta'),
+    ('ASHRAE'),
+    ('IBPSA-USA'),
+    ('LBNL/BEDES Beta'),
+    ('RETS'),
+    ('ESPM'),
+    ('RESO'),
+    ('BEDES-Beta/ESPM'),
+    ('BEDES-Beta/ESPM/EIA/CMS'),
+    ('ESPM/CENSUS/NAICS'),
+    ('BEDES-Beta/ESPM/NAICS'),
+    ('BEDES-Beta/NAICS'),
+    ('BEDES-Beta/ESPM/CAST/NAICS'),
+    ('BEDES-Beta/CAST'),
+    ('ESPM/NAICS'),
+    ('BEDES-Beta'),
+    ('Food Service Survey'),
+    ('BEDES-Beta/ESPM/CAST'),
+    ('BEDES-Beta/CAST/NAICS'),
+    ('NAICS'),
+    ('OSHA'),
+    ('CPUC'),
+    ('US Census'),
+    ('LBNL/AIA'),
+    ('ASHRAE 105-2007\r Standard Methods of Determining, Expressing, and Comparing Building Energy Performance and Greenhouse Gas Emissions'),
+    ('WELL Building Standard'),
+    ('Home Innovation Research Labs'),
+    ('PHIUS'),
+    ('LEED v4 Guide'),
+    ('LBNL/HPXML'),
+    ('LBNL/ESPM'),
+    ('LBNL/NREL'),
+    ('LBNL/ASHRAE'),
+    ('LBNL/EPLUS'),
+    ('SEE Action'),
+    ('FGDC'),
+    ('USPS'),
+    ('ePB'),
+    ('Seattle'),
+    ('CTS, ePB'),
+    ('BEDES Beta, HPXML'),
+    ('ICP'),
+    ('CTS'),
+    ('HPXML'),
+    ('IPMVP'),
+    ('LBNL/BEDES Beta 2.4'),
+    ('BEDES Beta 2.4'),
+    ('LBNL/CAST'),
+    ('CAST'),
+    ('LBNL/CEC'),
+    ('LBNL/HPXML/CAST'),
+    ('IBC/ASTM'),
+    ('NFRC'),
+    ('NFRC 200-2014'),
+    ('LBNL/HES-SF'),
+    ('http://energyoptionsexplained.com/sealed-combustion-boilerfurnace/'),
+    ('http://www.furnacecompare.com/faq/definitions/power_burner.html'),
+    ('http://www.furnacecompare.com/faq/definitions/iid.html'),
+    ('http://www.sabien-tech.co.uk/products/m2g/what-are-modulating-burners'),
+    ('ASHRAE Wiki'),
+    ('ASHRAE Wiki, AUC?'),
+    ('TPE/BCL'),
+    ('CEC'),
+    ('Wikipedia'),
+    ('PG&E'),
+    ('AUC'),
+    ('ASHRAE Wiki, AUC'),
+    ('Gasification Technologies Council'),
+    ('ANSI/ASHRAE, CEC HERS, DOE-NREL'),
+    ('USDOE'),
+    ('ESPM\r Glossary'),
+    ('CEC Proposition 39'),
+    ('Open EI'),
+    ('SmartGrid.gov'),
+    ('Greenbutton'),
+    ('OpenEI'),
+    ('OpenEI/LBNL'),
+    ('GRESB'),
     ('Green Button')
 ;
 
