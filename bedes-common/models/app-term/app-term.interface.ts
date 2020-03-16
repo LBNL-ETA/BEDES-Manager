@@ -11,6 +11,6 @@ export interface IAppTerm {
     _description?: string | null | undefined;
     _additionalInfo?: Array<IAppTermAdditionalInfo>;
     _uuid?: string | null | undefined;
-    _unitId?: number | null | undefined;
+    _unit?: string | null | undefined;
     _mapping?: ITermMappingAtomic | ITermMappingComposite | null | undefined;
 }

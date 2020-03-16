@@ -89,7 +89,7 @@ export class AppTermListOptionQuery {
                 _appTermId: appTermId,
                 _name: item._name,
                 _description: item._description || null,
-                _unitId: item._unitId || null,
+                _unit: item._unit || null,
                 _uuid: item._uuid
             };
             const ctx = transaction || db;
@@ -122,7 +122,7 @@ export class AppTermListOptionQuery {
             const params = {
                 _id: item._id,
                 _name: item._name.trim() || null,
-                _unitId: item._unitId || null
+                _unit: item._unit || null
             };
             if (transaction) {
                 return transaction.one(this.sqlUpdate, params);

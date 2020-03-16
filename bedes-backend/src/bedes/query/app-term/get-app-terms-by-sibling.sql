@@ -18,7 +18,7 @@ with
                 json_build_object(
                     '_id', o.id,
                     '_name', o.name,
-                    '_unitId', o.unit_id
+                    '_unit', o.unit
                 )
             ) as items
 		from
