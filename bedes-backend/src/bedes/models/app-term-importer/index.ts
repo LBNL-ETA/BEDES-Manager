@@ -1,4 +1,5 @@
 import * as fs from 'fs';
+import { v4 } from 'uuid';
 import * as parser from 'papaparse';
 import { bedesQuery } from '@bedes-backend/bedes/query/index';
 import { IBedesTerm } from "@bedes-common/models/bedes-term/bedes-term.interface"; 
@@ -392,6 +393,7 @@ export class AppTermImporter {
                 _name: listOptions[i],
                 _description: '',
                 _unitId: unitId,
+                _uuid: v4()
             }
             result.push(params)
         }
@@ -511,7 +513,7 @@ export class AppTermImporter {
                             _unitId: listOptionUnitId,
                             // _definitionSourceId?: number | null | undefined;
                             _url: '',
-                            _uuid: ''
+                            _uuid: v4()
                         }
                         arrayBedesTermOptions.push(bedesTermOptionParams);
                     }
@@ -552,7 +554,7 @@ export class AppTermImporter {
                                 _unitId: listOptionUnitId,
                                 // _definitionSourceId?: number | null | undefined;
                                 _url: x['_url'],
-                                // _uuid: x['_uuid']
+                                _uuid: v4()
                             }
                             arrayBedesTermOptions.push(bedesTermOptionParams);
                         }
