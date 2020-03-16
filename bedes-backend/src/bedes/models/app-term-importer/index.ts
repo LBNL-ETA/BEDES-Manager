@@ -17,7 +17,6 @@ import { ITermMappingListOption } from '@bedes-common/models/term-mapping/term-m
 import { IAppTermListOption } from '@bedes-common/models/app-term';
 import { ITermMappingComposite } from '@bedes-common/models/term-mapping/term-mapping-composite.interface';
 import { BedesError } from '@bedes-common/bedes-error';
-
 const logger = createLogger(module);
 
 /**
@@ -25,9 +24,8 @@ const logger = createLogger(module);
  * 1. Create functions for populating IAppTerm, IAppTermList...
  * 2. Check if description can contain newlines.
  * 3. Check what is the use of BEDES Term Data Type.
- * 4. Talk to Mike and figure out what IAppTermAdditionalInfo is used for.
- * 5. [Imp] Determine Application Term's type and set it accordingly on GUI.
- * 6. Later: Delete entire application even if multiple terms exists in it._
+ * 4. [Imp] Determine Application Term's type and set it accordingly on GUI.
+ * 5. Later: Delete entire application even if multiple terms exists in it._
  *
  * NOTE
  * 1. _termCategoryId not needed for import/export.
@@ -234,20 +232,6 @@ export class AppTermImporter {
 
             // Get TermType ID
             var appTermTypeId: number = getTermTypeFromCsvName(parsedCsvTerm);
-
-            // // Adding try catch because Application Term Unit doesn't necessarily need to be in the official list.
-            // var appTermUnitId: number | undefined = undefined;
-            // try {
-            //     appTermUnitId = parsedCsvTerm.ApplicationTermUnit
-            //                     ? await getUnitIdFromName(parsedCsvTerm.ApplicationTermUnit)
-            //                     : undefined
-            //                     ;
-            // } catch (error) {
-            //     throw new BedesError(
-            //         `Unrecognized unit "${parsedCsvTerm.ApplicationTermUnit}" for application term "${parsedCsvTerm.ApplicationTerm}"`,
-            //         HttpStatusCodes.BadRequest_400
-            //     );
-            // }
 
             // Application Term has no mapping
             if (termhasNoMapping(parsedCsvTerm)) {
