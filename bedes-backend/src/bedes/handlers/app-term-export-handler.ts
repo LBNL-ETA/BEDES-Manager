@@ -90,6 +90,7 @@ export async function appTermExportHandler(request: Request, response: Response)
 
 
             appTermName = results[i]._name;
+            appTermUnit = results[i]._unit || '';
 
             if (results[i]._description) {
                 appTermDescription = results[i]._description || '';
@@ -159,9 +160,7 @@ export async function appTermExportHandler(request: Request, response: Response)
             }
 
             for (let j = 0; j < bedesUnits.length; j += 1) {
-                if (results[i]._unitId == bedesUnits[j]._id) {
-                    appTermUnit = bedesUnits[j]._name;
-                } else if (bedesTermUnitId == bedesUnits[j]._id) {
+                if (bedesTermUnitId == bedesUnits[j]._id) {
                     bedesTermUnit = bedesUnits[j]._name;
                 }
             }
