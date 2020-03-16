@@ -12,8 +12,8 @@ export interface IAppTermListOption {
     _uuid?: string | null | undefined;
     /** The description of the list option. */
     _description?: string | null | undefined;
-    /** The unit_id of the list option. */
-    _unitId?: number | null | undefined;
+    /** The unit of the list option. */
+    _unit?: string | null | undefined;
     /** Defines the mapping between the list option and a BedesTermListOption */
     _mapping?: ITermMappingListOption | null | undefined;
 }

@@ -9,7 +9,7 @@ export class AppTermListOption extends UUIDGenerator {
     private _name: string;
     private _uuid: string;
     private _description: string | null | undefined;
-    private _unitId: number | null | undefined;
+    private _unit: string | null | undefined;
     private _mapping: TermMappingListOption | null | undefined;
 
     constructor(data: IAppTermListOption) {
@@ -18,7 +18,7 @@ export class AppTermListOption extends UUIDGenerator {
         this._name = data._name;
         this._description = data._description;
         this._uuid = data._uuid || this.generateUUID();
-        this._unitId = data._unitId;
+        this._unit = data._unit;
         if (data._mapping) {
             this._mapping = new TermMappingListOption(data._mapping);
         }
@@ -45,11 +45,11 @@ export class AppTermListOption extends UUIDGenerator {
     set description(value: string | null | undefined ) {
         this._description = value;
     }
-    get unitId(): number | null | undefined {
-        return this._unitId;
+    get unit(): string | null | undefined {
+        return this._unit;
     }
-    set unitId(value: number | null | undefined ) {
-        this._unitId = value;
+    set unit(value: string | null | undefined ) {
+        this._unit = value;
     }
     get mapping(): TermMappingListOption | null | undefined {
         return this._mapping;
@@ -79,7 +79,7 @@ export class AppTermListOption extends UUIDGenerator {
             _name: this._name,
             _uuid: this._uuid,
             _description: this._description,
-            _unitId: this._unitId,
+            _unit: this._unit,
             _mapping: this._mapping ? this._mapping.toInterface() : undefined
         };
     }
