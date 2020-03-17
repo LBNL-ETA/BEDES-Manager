@@ -85,10 +85,6 @@ export function isValidAppTermCsvRow(item: IAppTermCsvRow): boolean {
  */
 export function getTermTypeFromCsvName(item: IAppTermCsvRow): TermType {
 
-    function containsOther(element: string) {
-        return element.split("=")[1].trim().toLowerCase().includes('other');
-    }
-
     function containsEqualSignOnce(element: string) {
         return element.split("=").length == 2;
     }
@@ -99,7 +95,7 @@ export function getTermTypeFromCsvName(item: IAppTermCsvRow): TermType {
 
             if (!arrBedesConstrainedListMappings.some(containsEqualSignOnce)) {
                 throw new BedesError(
-                    `Each Bedes constrained list mapping needs to be separated by a single '='. Term=(${item.ApplicationTerm})`,
+                    `Each Bedes constrained list mapping needs to be separated by a single '='.`,
                     HttpStatusCodes.BadRequest_400
                 );
             }
@@ -107,15 +103,11 @@ export function getTermTypeFromCsvName(item: IAppTermCsvRow): TermType {
             if (item.BedesConstrainedListOptionUUID) {
                 let arrBedesConstrainedListOptionUUIDs: Array<string> =  item.BedesConstrainedListOptionUUID.trim().split(delimiter);
                 if (arrBedesConstrainedListMappings.length != arrBedesConstrainedListOptionUUIDs.length) {
-                    // "Other" is a generic list option that can be added to any constrained list, 
-                    // and so it does not have an assigned UUID.
-                    if (!arrBedesConstrainedListMappings.some(containsOther)) {
-                        logger.error(`BedesConstrainedListMapping & BedesConstrainedListOptionUUIDs have unequal lengths.`);
-                        throw new BedesError(
-                            `BedesConstrainedListMapping & BedesConstrainedListOptionUUIDs have unequal lengths.`, 
-                            HttpStatusCodes.BadRequest_400
-                        );
-                    }
+                    logger.error(`BedesConstrainedListMapping & BedesConstrainedListOptionUUIDs have unequal lengths.`);
+                    throw new BedesError(
+                        `BedesConstrainedListMapping & BedesConstrainedListOptionUUIDs have unequal lengths.`, 
+                        HttpStatusCodes.BadRequest_400
+                    );
                 }
                 // Add checking here to ensure that each numBedesConstrainedListMapping.split('=').length == 2
             }
@@ -128,7 +120,12 @@ export function getTermTypeFromCsvName(item: IAppTermCsvRow): TermType {
             return TermType.Atomic;
         }
     } catch (error) {
-        throw new BedesError(error, HttpStatusCodes.BadRequest_400);
+        logger.error(`Error in getTermTypeFromCsvName: Term=(${item.ApplicationTerm})`);
+        if (error instanceof BedesError) {
+            throw error;
+        } else {
+            throw new BedesError(error.message + `Term=(${item.ApplicationTerm})`, HttpStatusCodes.BadRequest_400);
+        }
     }
 }
 
@@ -152,10 +149,13 @@ export async function getUnitIdFromName(unitName: string, trans?: any): Promise<
         } else {
             throw new BedesError('Error retrieving Unit ID (either null or undefined)', HttpStatusCodes.BadRequest_400);
         }
-    }
-    catch (error) {
-        logger.error('getUnitIdFromName: Error finding matching unit.');
-        throw error;
+    } catch (error) {
+        logger.error(`Error in getUnitIdFromName.`);
+        if (error instanceof BedesError) {
+            throw error;
+        } else {
+            throw new BedesError(error.message, HttpStatusCodes.BadRequest_400);
+        }
     }
 }
 
@@ -238,36 +238,25 @@ export async function mappedToBedesAtomicTerm(item: IAppTermCsvRow): Promise<ICs
 
                     for (let i = 0; i < arrBedesConstrainedListMappings.length; i += 1) {
                         let constListMapping: Array<string> = arrBedesConstrainedListMappings[i].trim().split("=");
-
-                        // 'Other' is a generic list option and doesn't have an 
-                        if (!constListMapping[1].toLowerCase().includes('other')) {
-                            let termOptionRecord: IBedesTermOption | undefined = undefined;
-                            try {
-                                termOptionRecord = await bedesQuery.termListOption.getRecordByName(bedesTermUUID, constListMapping[1].trim());
-                            } catch (error) {
-                                throw new BedesError(
-                                    `Unrecognized list option "${constListMapping[1]}" of constrained list "${item.BedesTerm}" for application term "${item.ApplicationTerm}"`,
-                                    HttpStatusCodes.BadRequest_400
-                                );
-                            }
-
-                            if (arrBedesConstrainedListUUIDs.length > 0 && termOptionRecord._uuid != arrBedesConstrainedListUUIDs[i]) {
-                                throw new BedesError(
-                                    `Incorrect BedesConstrainedListMappingUUID. Term=(${item.ApplicationTerm})`, 
-                                    HttpStatusCodes.BadRequest_400
-                                );
-                            }
-                            arrResultBedesTermOptionID.push(termOptionRecord._id!);
-                            arrResultBedesTermOptionUUID.push(termOptionRecord._uuid!);
-                            arrResultBedesConstrainedListMapping.push(arrBedesConstrainedListMappings[i]);
-                        } else {
-                            // Need else statement because it keeps a continuity of 
-                            // ConstrainedListMapping, TermOptionID and TermOptionUUID.
-                            // Thus, it's easy to use a for loop to create array of ITermMappingListOptions in index.ts
-                            arrResultBedesConstrainedListMapping.push(arrBedesConstrainedListMappings[i]);
-                            arrResultBedesTermOptionID.push(null);
-                            arrResultBedesTermOptionUUID.push(null);
+                        let termOptionRecord: IBedesTermOption | undefined = undefined;
+                        try {
+                            termOptionRecord = await bedesQuery.termListOption.getRecordByName(bedesTermUUID, constListMapping[1].trim());
+                        } catch (error) {
+                            throw new BedesError(
+                                `Unrecognized list option "${constListMapping[1]}" of constrained list "${item.BedesTerm}" for application term "${item.ApplicationTerm}"`,
+                                HttpStatusCodes.BadRequest_400
+                            );
                         }
+
+                        if (arrBedesConstrainedListUUIDs.length > 0 && termOptionRecord._uuid != arrBedesConstrainedListUUIDs[i]) {
+                            throw new BedesError(
+                                `Incorrect BedesConstrainedListMappingUUID. Term=(${item.ApplicationTerm})`, 
+                                HttpStatusCodes.BadRequest_400
+                            );
+                        }
+                        arrResultBedesTermOptionID.push(termOptionRecord._id!);
+                        arrResultBedesTermOptionUUID.push(termOptionRecord._uuid!);
+                        arrResultBedesConstrainedListMapping.push(arrBedesConstrainedListMappings[i]);
                     }
                     result.BedesConstrainedListMapping = arrResultBedesConstrainedListMapping;
                     result.BedesConstrainedListID = arrResultBedesTermOptionID;
@@ -394,37 +383,25 @@ export async function mappedToBedesCompositeTerm(item: IAppTermCsvRow, request: 
 
                 for (let i = 0; i < arrBedesConstrainedListMappings.length; i += 1) {
                     let constListMapping: Array<string> = arrBedesConstrainedListMappings[i].trim().split("=");
-
-                    // 'Other' is a generic list option and doesn't have an 
-                    if (!constListMapping[1].toLowerCase().includes('other')) {
-
-                        let termOptionRecord: IBedesTermOption | undefined = undefined;
-                        try {
-                            termOptionRecord = await bedesQuery.termListOption.getRecordByName(bedesTermUUID, constListMapping[1].trim());
-                        } catch (error) {
-                            throw new BedesError(
-                                `Unrecognized list option "${constListMapping[1]}" of constrained list "${item.BedesTerm}" for application term "${item.ApplicationTerm}"`,
-                                HttpStatusCodes.BadRequest_400
-                            );
-                        }
-
-                        if (arrBedesConstrainedListUUIDs.length > 0 && termOptionRecord._uuid != arrBedesConstrainedListUUIDs[i]) {
-                            throw new BedesError(
-                                `Incorrect BedesConstrainedListMappingUUID. Term=(${item.ApplicationTerm})`, 
-                                HttpStatusCodes.BadRequest_400
-                            );
-                        }
-                        arrResultBedesTermOptionID.push(termOptionRecord._id!);
-                        arrResultBedesTermOptionUUID.push(termOptionRecord._uuid!);
-                        arrResultBedesConstrainedListMapping.push(arrBedesConstrainedListMappings[i]);
-                    } else {
-                        // Need else statement because it keeps a continuity of 
-                        // ConstrainedListMapping, TermOptionID and TermOptionUUID.
-                        // Thus, it's easy to use a for loop to create array of ITermMappingListOptions in index.ts
-                        arrResultBedesConstrainedListMapping.push(arrBedesConstrainedListMappings[i]);
-                        arrResultBedesTermOptionID.push(null);
-                        arrResultBedesTermOptionUUID.push(null);
+                    let termOptionRecord: IBedesTermOption | undefined = undefined;
+                    try {
+                        termOptionRecord = await bedesQuery.termListOption.getRecordByName(bedesTermUUID, constListMapping[1].trim());
+                    } catch (error) {
+                        throw new BedesError(
+                            `Unrecognized list option "${constListMapping[1]}" of constrained list "${item.BedesTerm}" for application term "${item.ApplicationTerm}"`,
+                            HttpStatusCodes.BadRequest_400
+                        );
                     }
+
+                    if (arrBedesConstrainedListUUIDs.length > 0 && termOptionRecord._uuid != arrBedesConstrainedListUUIDs[i]) {
+                        throw new BedesError(
+                            `Incorrect BedesConstrainedListMappingUUID. Term=(${item.ApplicationTerm})`, 
+                            HttpStatusCodes.BadRequest_400
+                        );
+                    }
+                    arrResultBedesTermOptionID.push(termOptionRecord._id!);
+                    arrResultBedesTermOptionUUID.push(termOptionRecord._uuid!);
+                    arrResultBedesConstrainedListMapping.push(arrBedesConstrainedListMappings[i]);
                 }
                 result.BedesConstrainedListMapping = arrResultBedesConstrainedListMapping;
                 result.BedesConstrainedListID = arrResultBedesTermOptionID;
@@ -471,10 +448,8 @@ export async function validateBedesCompositeTermName(item: IAppTermCsvRow) {
                 );
             }
 
-            // 'Other' is a generic list option value that can be used by any term and is not stored in db
             let bedesTermOption: IBedesTermOption | undefined = undefined;
-            if (termValue[1].trim().replace(/['"]+/g, "") != '[value]'
-                && !termValue[1].trim().replace(/['"]+/g, "").toLowerCase().includes('other')) {
+            if (termValue[1].trim().replace(/['"]+/g, "") != '[value]') {
                 try {
                     bedesTermOption = await bedesQuery.termListOption.getRecordByName(bedesTerm._uuid!, termValue[1].trim().replace(/['"]+/g, ""));
                 } catch (error) {
@@ -494,8 +469,7 @@ export async function validateBedesCompositeTermName(item: IAppTermCsvRow) {
                         );
                     }
                 } else {
-                    if (!termValue[1].trim().replace(/['"]+/g, "").toLowerCase().includes('other')
-                        && bedesTerm._uuid != item.BedesAtomicTermUUID.split(delimiter)[i]) {
+                    if (bedesTerm._uuid != item.BedesAtomicTermUUID.split(delimiter)[i]) {
                         throw new BedesError(
                             `Incorrect BedesAtomicTermUUID. Term=(${item.ApplicationTerm})`, 
                             HttpStatusCodes.BadRequest_400
@@ -546,8 +520,7 @@ export async function createNewCompositeTerm(item: IAppTermCsvRow, result: ICsvB
         for (let i = 0; i < arrAtomicTerms.length; i += 1) {
             let arr: Array<string> = arrAtomicTerms[i].split("=");
             let bedesTerm: IBedesTerm = await bedesQuery.terms.getRecordByName(arr[0].trim());
-            if (arr[1].trim().replace(/['"]+/g, "") != '[value]'
-            && !arr[1].trim().replace(/['"]+/g, "").toLowerCase().includes('other')) {
+            if (arr[1].trim().replace(/['"]+/g, "") != '[value]') {
                 bedesTermOption = await bedesQuery.termListOption.getRecordByName(bedesTerm._uuid!, arr[1].trim().replace(/['"]+/g, ""));
                 signature += bedesTerm._id! + ':' + bedesTermOption._id!;
                 signature += '-';
@@ -630,8 +603,7 @@ export async function createCompositeTermSignature(arrAtomicTerms: Array<String>
                 );
             }
 
-            if (arr[1].trim().replace(/['"]+/g, "") != '[value]'
-            && !arr[1].trim().replace(/['"]+/g, "").toLowerCase().includes('other')) {
+            if (arr[1].trim().replace(/['"]+/g, "") != '[value]') {
                 let bedesTermOption: IBedesTermOption | undefined = undefined;
                 try {
                     bedesTermOption = await bedesQuery.termListOption.getRecordByName(bedesTerm._uuid!, arr[1].trim().replace(/['"]+/g, ""));
