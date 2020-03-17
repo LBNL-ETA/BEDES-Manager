@@ -501,7 +501,7 @@ export class ImplementationTermComponent implements OnInit {
         });
         this.dataForm.controls['unit'].valueChanges
         .subscribe((newValue: number) => {
-            this.appTerm.unit = newValue;
+            this.appTerm.unit = newValue.toString(); // CHECK: Change unit_id --> free text.
         });
         // term type changes
         this.dataForm.controls['termTypeId'].valueChanges
