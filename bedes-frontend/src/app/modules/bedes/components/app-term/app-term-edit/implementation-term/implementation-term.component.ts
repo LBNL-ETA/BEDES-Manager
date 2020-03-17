@@ -4,9 +4,7 @@ import { FormBuilder, Validators } from '@angular/forms';
 import { Subject, BehaviorSubject, of, Observable, EMPTY } from 'rxjs';
 import { ApplicationService } from '../../../../services/application/application.service';
 import { MappingApplication } from '@bedes-common/models/mapping-application/mapping-application';
-import { IMappingApplication } from '@bedes-common/models/mapping-application';
 import { HttpStatusCodes } from '@bedes-common/enums/http-status-codes';
-import { ApplicationScope } from '@bedes-common/enums/application-scope.enum';
 import { AppTermService } from '../../../../services/app-term/app-term.service';
 import { AppTerm, AppTermList, AppTermListOption, IAppTerm, IAppTermList, IAppTermListOption } from '@bedes-common/models/app-term';
 import { appTermTypeList } from '@bedes-common/lookup-tables/app-term-type-list';
@@ -19,7 +17,7 @@ import { BedesUnit } from '@bedes-common/models/bedes-unit/bedes-unit';
 import { TableCellNavComponent } from '../../../../models/ag-grid/table-cell-nav/table-cell-nav.component';
 import { TableCellMessageType } from '../../../../models/ag-grid/enums/table-cell-message-type.enum';
 import { AppTermListOptionService } from '../../../../services/app-term-list-option/app-term-list-option.service';
-import { MatDialog, MatSnackBar } from '@angular/material';
+import { MatDialog } from '@angular/material';
 import { ConfirmDialogComponent } from '../../../dialogs/confirm-dialog/confirm-dialog.component';
 import { BedesTermSearchDialogComponent } from '../../../dialogs/bedes-term-search-dialog/bedes-term-search-dialog.component';
 import { ISearchDialogOptions } from '../../../dialogs/bedes-term-search-dialog/search-dialog-options.interface';
@@ -41,7 +39,6 @@ import { CurrentUser } from '@bedes-common/models/current-user/current-user';
 import { NewListOptionDialogComponent, INewListOption } from './new-list-option-dialog/new-list-option-dialog.component';
 import { TableCellDeleteComponent } from '../../../../models/ag-grid/table-cell-delete/table-cell-delete.component';
 
-
 enum RequestStatus {
     Idle=1,
     Pending=2,
@@ -55,7 +52,7 @@ enum ControlState {
 }
 interface IGridRow {
     implFieldName: string | null | undefined;
-    implUnitId: number | null | undefined; // CHECK if this needs to be changed
+    implUnitId: number | null | undefined;
     ref: AppTermListOption;
     showMappingButtons: boolean;
     hasMapping: boolean;
@@ -480,8 +477,6 @@ export class ImplementationTermComponent implements OnInit {
         this.dataForm.controls['termTypeId'].setValue(
             this.appTerm ? this.appTerm.termTypeId : ''
         );
-
-
     }
 
     /**
@@ -500,8 +495,8 @@ export class ImplementationTermComponent implements OnInit {
             this.appTerm.description = newValue;
         });
         this.dataForm.controls['unit'].valueChanges
-        .subscribe((newValue: number) => {
-            this.appTerm.unit = newValue.toString(); // CHECK: Change unit_id --> free text.
+        .subscribe((newValue: string) => {
+            this.appTerm.unit = newValue;
         });
         // term type changes
         this.dataForm.controls['termTypeId'].valueChanges
@@ -522,7 +517,6 @@ export class ImplementationTermComponent implements OnInit {
 
         };
         return newItem;
-
     }
 
     /**

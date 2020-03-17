@@ -89,11 +89,12 @@
                 <div style="display:flex; flex: 1;" *ngIf="unitList">
                     <mat-form-field style="flex:1; margin-bottom:5px;" appearance="outline">
                         <mat-label>Unit</mat-label>
-                        <mat-select #unitInput placeholder="Select a Unit" formControlName="unitId">
+                        <input matInput placeholder="Enter Unit" formControlName="unit">
+                        <!-- <mat-select #unitInput placeholder="Select a Unit" formControlName="unitId">
                             <mat-option *ngFor="let item of unitList" [value]="item.id">
                                 {{item.name}}
                             </mat-option>
-                        </mat-select>
+                        </mat-select> -->
                     </mat-form-field>
                 </div>
             </div>
