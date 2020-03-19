@@ -1,7 +1,7 @@
 ﻿Application Term,Application Term Description,Application Term Unit,Application Term Data Type,BEDES Term,BEDES Term Description,BEDES Term Unit,BEDES Term Data Type,BEDES Atomic Term Mapping,BEDES Constrained List Mapping,BEDES Composite Term UUID,BEDES Atomic Term UUID,BEDES Constrained List Option UUID
-Company,Company name,app unit can be anything,String,Company Name,Company name,,String,Company Name=[value],,,176033b2-10b3-475b-aee0-ae4393c77cfb,
+Company,Company name,,String,Company Name,Company name,,String,Company Name=[value],,,176033b2-10b3-475b-aee0-ae4393c77cfb,
 Contact,Contact name,,String,Contact Name,Contact name,,String,Contact Name=[value],,,028bb2ae-c261-4c5d-b247-3db21cff10ab,
-Advanced RTU Control Retrofits,Number of advanced RTU control retrofits,,Integer,Roof Air Handler Controlled Retrofit Quantity,Number of roof air handler control retrofits,,Integer,"Location=Roof
+Advanced RTU Control Retrofits,Number of advanced RTU control retrofits,count,Integer,Roof Air Handler Controlled Retrofit Quantity,Number of roof air handler control retrofits,count,Integer,"Location=Roof
 Heating Delivery Type=Air handler
 Control Strategy=Controlled
 Action Category=Retrofit
@@ -23,7 +23,7 @@ a3bfb209-c151-42da-afaf-b9528ece9853"
 Year Built,,YYYY,TimeStamp,Completed Construction Status Date,,YYYY,TimeStamp,"Construction Status=Completed
 Construction Status Date=[value]",,,"d1245c37-0bdc-42fe-9c9b-d2f4fe708cbd
 9b5394a5-48bf-46b0-af2e-6fb0fe6e8cdb",
-Shared by Contact - Account ID,,,,,,,,,,,,
+Shared by Contact - Account ID,Example of how an application term does not have to be mapped to a BEDES term.,,,,,,,,,,,
 Data Center - UPS System Redundancy,,,Constrained List,Data Center UPS Equipment Redundancy,Type of redundancy for the data center UPS,,Constrained List,"Occupancy Classification=Data center
 Uninterruptible Power Supplies=UPS
 Equipment Redundancy=[value]","N=N
@@ -40,7 +40,7 @@ d31ddbaf-486e-46c3-b303-653a4a5c7ac3
 c55f08ef-4c8f-403a-897c-ddfa6c104fe4
 16839b8d-50c7-40b1-a88b-ce2612c50af4"
 "Annual Savings (2013-2017)
-Total Primary Energy Savings",,Btu,Decimal,Total Annual Primary Energy Resource Savings,,Btu,Decimal,"Interval Measure=Total
+Total Primary Energy Savings",,"British Thermal units (NOTE: application unit can be anything, but BEDES unit must come from the official list)",Decimal,Total Annual Primary Energy Resource Savings,,Btu,Decimal,"Interval Measure=Total
 Interval Frequency=Annual
 Priority=Primary
 Resource=Energy
