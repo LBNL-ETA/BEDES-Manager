@@ -509,31 +509,31 @@ export class AppTermImporter {
 
             if (!arrayBedesTermOptions || !arrayBedesTermOptions.length) {
                 
-                // Handle 'Credential State' case
-                if (parsedCsvTerm['_name'] == 'Credential State') {
+                // // Handle 'Credential State' case
+                // if (parsedCsvTerm['_name'] == 'Credential State') {
                     
-                    let listOptionUnitId: number | null | undefined = await this.getUnitIdFromName('n/a');
-                    if (listOptionUnitId == null) {
-                        throw new Error('term has no unitId');
-                    }
+                //     let listOptionUnitId: number | null | undefined = await this.getUnitIdFromName('n/a');
+                //     if (listOptionUnitId == null) {
+                //         throw new Error('term has no unitId');
+                //     }
 
-                    for (var state of this.listOfStates) {
-                        let bedesTermOptionParams: IBedesTermOption = {
-                            // _id?: number | null | undefined;
-                            _name: state,
-                            _description: '',
-                            _unitId: listOptionUnitId,
-                            // _definitionSourceId?: number | null | undefined;
-                            _url: '',
-                            _uuid: v4()
-                        }
-                        arrayBedesTermOptions.push(bedesTermOptionParams);
-                    }
-                }
+                //     for (var state of this.listOfStates) {
+                //         let bedesTermOptionParams: IBedesTermOption = {
+                //             // _id?: number | null | undefined;
+                //             _name: state,
+                //             _description: '',
+                //             _unitId: listOptionUnitId,
+                //             // _definitionSourceId?: number | null | undefined;
+                //             _url: '',
+                //             _uuid: v4()
+                //         }
+                //         arrayBedesTermOptions.push(bedesTermOptionParams);
+                //     }
+                // }
 
                 let mapping = {
                     'Corner Of': 'Cardinal Orientation', // Comments say "Cardinal Direction"
-                    // 'Credential State': 'State', // This case is handled separately (check prev if statement)
+                    'Credential State': 'State',
                     'Street Name Post Directional': 'Cardinal Orientation', // Comment doesn't mention corresponding constrained list
                     'Street Name Pre Directional': 'Cardinal Orientation', // Comments say "Cardinal Direction"
                     'Utility Services': 'Resource',
