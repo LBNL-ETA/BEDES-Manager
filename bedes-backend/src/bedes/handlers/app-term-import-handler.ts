@@ -4,16 +4,10 @@ import * as util from 'util';
 import { createLogger } from '@bedes-backend/logging';
 import { AppTermImporter } from '../models/app-term-importer/index';
 import { HttpStatusCodes } from '@bedes-common/enums/http-status-codes';
-import { UPLOAD_PATH } from '../uploads/index';
-import { IAppTermList } from '@bedes-common/models/app-term/app-term-list.interface';
-import { IAppTerm } from '@bedes-common/models/app-term/app-term.interface';
-import { AppTermList } from '@bedes-common/models/app-term/app-term-list';
-import { AppTerm } from '@bedes-common/models/app-term/app-term';
 import { bedesQuery } from '../query';
 import { BedesError } from '../../../../bedes-common/bedes-error/bedes-error';
 import { db } from '@bedes-backend/db';
-import { IBedesTerm, BedesTerm, IBedesConstrainedList, BedesConstrainedList } from '@bedes-common/models/bedes-term';
-import { bedesTerm } from '.';
+import { BedesTerm, BedesConstrainedList } from '@bedes-common/models/bedes-term';
 const logger = createLogger(module);
 
 /**
@@ -43,7 +37,11 @@ export async function appTermImportHandler(request: Request, response: Response)
         var upload_path: string = path.join(__dirname, '../uploads/files');
         
         // BEDES_all-terms_Version 2.3.csv, BEDES_all_list_options_Version 2.3.csv
-        var files: Array<string> = ['9e25ad5a16551cc4335e8a847b1abc50', 'e0fc6dcd3fff946e3ae6710eb31f24de'];
+        var files: Array<string> = ['940712d8f4140327bb5f6e3c40a94df7', '2eaa036f6a5db70238b8bfcb2af7483d'];
+        // var files: Array<string> = [
+        //     '../../../../../../bedes-mappings/BEDES_all-terms_Version 2.3.csv',
+        //     '../../../../../../bedes-mappings/BEDES_all_list_options_Version 2.3.csv'
+        // ];
 
         // let importer = new AppTermImporter(UPLOAD_PATH, request.file.filename);
         let importer = new AppTermImporter(upload_path, files);
@@ -81,6 +79,9 @@ export async function appTermImportHandler(request: Request, response: Response)
             // response.json(results.map(item => item.appTerm));
             response.json(results);
         });
+        console.log('Added all BEDES terms.');
+
+        // Can't add units here because the db needs to have units in order for the server to start
         
         // // const results = await bedesQuery.appTerm.newAppTerms(appId, appTerms.map(item => item.toInterface()));
         // db.tx('saveTerms', async (trans: any) => {

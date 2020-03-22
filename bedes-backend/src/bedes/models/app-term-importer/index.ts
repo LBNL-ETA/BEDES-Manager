@@ -36,71 +36,6 @@ export class AppTermImporter {
     private bedesConstrainedListFileContents: string = '';
     private bedesListOptionArray: Array<any> = [];
 
-    private listOfStates: Array<string> = [ 
-        'AA',
-        'AE',
-        'AK',
-        'AL',
-        'AP',
-        'AR',
-        'AS',
-        'AZ',
-        'CA',
-        'CO',
-        'CT',
-        'DC',
-        'DE',
-        'FL',
-        'FM',
-        'GA',
-        'GU',
-        'HI',
-        'IA',
-        'ID',
-        'IL',
-        'IN',
-        'KS',
-        'KY',
-        'LA',
-        'MA',
-        'MD',
-        'ME',
-        'MH',
-        'MI',
-        'MN',
-        'MO',
-        'MP',
-        'MS',
-        'MT',
-        'NC',
-        'ND',
-        'NE',
-        'NH',
-        'NJ',
-        'NM',
-        'NV',
-        'NY',
-        'OH',
-        'OK',
-        'OR',
-        'PA',
-        'PR',
-        'PW',
-        'RI',
-        'SC',
-        'SD',
-        'TN',
-        'TX',
-        'UT',
-        'VA',
-        'VI',
-        'VT',
-        'WA',
-        'WI',
-        'WV',
-        'WY',
-    ];
-
     constructor(filePath: string, fileNames: Array<string>) {
         this.filePath = filePath;
         this.fileNames = fileNames;
@@ -110,7 +45,7 @@ export class AppTermImporter {
      * Runs the importer.
      */
     public async run(): Promise<Array<BedesTerm | BedesConstrainedList>> {
-        
+
         this.bedesFileContents = await this.getFileContents(this.filePath + '/' + this.fileNames[0]);
         this.bedesConstrainedListFileContents = await this.getFileContents(this.filePath + '/' + this.fileNames[1]);
 
@@ -120,6 +55,16 @@ export class AppTermImporter {
 
         this.bedesListOptionArray = this.processParseResults1(bedesConstrainedListFileContentsParsedResults);
         return this.processParseResults2(bedesFileContentsparseDResults);
+    }
+
+    public async getListOfUnits(): Promise<Array<string>> {
+        var result: Array<string> = [];
+        for (let i = 0; i < this.bedesListOptionArray.length; i += 1) {
+            if (this.bedesListOptionArray[i]._relatedTerm == 'Unit of Measure') {
+                result.push(this.bedesListOptionArray[i]._unit);
+            }
+        }
+        return result;
     }
 
     /**
@@ -173,8 +118,10 @@ export class AppTermImporter {
             const headerFields = this.transformHeaderFieldNames(parseResults.meta.fields);
 
             for (const csvData of parseResults.data) {
-                const bedesTermCsvRow = this.getRow2(csvData, parseResults.meta.fields);                
-                promises.push(this.processCsvTerm(bedesTermCsvRow, headerFields));
+                const bedesTermCsvRow = this.getRow2(csvData, parseResults.meta.fields);
+                if (this.isValidRow(bedesTermCsvRow)) {
+                    promises.push(this.processCsvTerm(bedesTermCsvRow, headerFields));
+                }
             }
             return await Promise.all(promises);
         }
@@ -508,28 +455,6 @@ export class AppTermImporter {
             }
 
             if (!arrayBedesTermOptions || !arrayBedesTermOptions.length) {
-                
-                // // Handle 'Credential State' case
-                // if (parsedCsvTerm['_name'] == 'Credential State') {
-                    
-                //     let listOptionUnitId: number | null | undefined = await this.getUnitIdFromName('n/a');
-                //     if (listOptionUnitId == null) {
-                //         throw new Error('term has no unitId');
-                //     }
-
-                //     for (var state of this.listOfStates) {
-                //         let bedesTermOptionParams: IBedesTermOption = {
-                //             // _id?: number | null | undefined;
-                //             _name: state,
-                //             _description: '',
-                //             _unitId: listOptionUnitId,
-                //             // _definitionSourceId?: number | null | undefined;
-                //             _url: '',
-                //             _uuid: v4()
-                //         }
-                //         arrayBedesTermOptions.push(bedesTermOptionParams);
-                //     }
-                // }
 
                 let mapping = {
                     'Corner Of': 'Cardinal Orientation', // Comments say "Cardinal Direction"
