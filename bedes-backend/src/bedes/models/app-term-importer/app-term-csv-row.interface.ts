@@ -135,7 +135,7 @@ export function getTermTypeFromCsvName(item: IAppTermCsvRow): TermType {
  * @param unitName The name of the unit name to query the database.
  * @returns A Promise which resolves to the id of the found unit.
  */
-export async function getUnitIdFromName(unitName: string, trans?: any): Promise<number | undefined> {
+export async function getUnitIdFromName(unitName: string, trans?: any): Promise<number | null | undefined> {
     try {
         if (typeof unitName !== 'string' || !unitName.trim()) {
             throw new BedesError(
@@ -144,17 +144,13 @@ export async function getUnitIdFromName(unitName: string, trans?: any): Promise<
             )
         }
         let unit: IBedesUnit = await bedesQuery.units.getRecordByName(unitName.trim(), trans);
-        if (unit._id) {
-            return unit._id;
-        } else {
-            throw new BedesError('Error retrieving Unit ID (either null or undefined)', HttpStatusCodes.BadRequest_400);
-        }
+        return unit._id;
     } catch (error) {
         logger.error(`Error in getUnitIdFromName.`);
         if (error instanceof BedesError) {
             throw error;
         } else {
-            throw new BedesError(error.message, HttpStatusCodes.BadRequest_400);
+            throw new BedesError('Error: Not an official BEDES unit.', HttpStatusCodes.BadRequest_400);
         }
     }
 }
@@ -215,6 +211,14 @@ export async function mappedToBedesAtomicTerm(item: IAppTermCsvRow): Promise<ICs
                         `Unrecognized BEDES Term "${item.BedesTerm}" for application term "${item.ApplicationTerm}"`,
                         HttpStatusCodes.BadRequest_400
                     );
+                }
+
+                // Check that the BEDES Term Unit is correct
+                if (item.BedesTermUnit) {
+                    let bedesTermUnitId: number | null | undefined = await getUnitIdFromName(item.BedesTermUnit);
+                    if (!bedesTermUnitId || bedesTermUnitId != bedesTerm._unitId) {
+                        throw new BedesError(`Incorrect BedesTermUnit. Term=(${item.ApplicationTerm})`, HttpStatusCodes.BadRequest_400);
+                    }
                 }
 
                 if (uuid && bedesTerm._uuid != uuid) {
@@ -540,7 +544,7 @@ export async function createNewCompositeTerm(item: IAppTermCsvRow, result: ICsvB
             signature = signature.slice(0, -1);
         }
 
-        var bedesCompositeTermUnitId: number | undefined = item.BedesTermUnit
+        var bedesCompositeTermUnitId: number | null | undefined = item.BedesTermUnit
                                                             ? await getUnitIdFromName(item.BedesTermUnit)
                                                             : undefined
 

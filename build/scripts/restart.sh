@@ -16,12 +16,12 @@ if [ $? != 0 ]; then
     echo "compose-down failed ($exit_status)..." 1>&2
     exit $exit_status
 fi
-sudo chown -R ubuntu.ubuntu . bedes-db/postgres_data/
-if [ $? != 0 ]; then
-    echo "chown failed ($exit_status)..." 1>&2
-    exit $exit_status
-fi
-make angular
+#sudo chown -R ubuntu.ubuntu . bedes-db/postgres_data/
+#if [ $? != 0 ]; then
+#    echo "chown failed ($exit_status)..." 1>&2
+#    exit $exit_status
+#fi
+make build_ng_image
 if [ $? != 0 ]; then
     echo "make angular failed ($exit_status)..." 1>&2
     exit $exit_status

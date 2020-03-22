@@ -33,7 +33,7 @@ insert into public.data_type (name) values
     ('Decimal'),
     ('Integer'),
     ('String'),
-    ('Timestamp')
+    ('TimeStamp')
 ;
 
 create table public.unit (
@@ -56,7 +56,6 @@ insert into public.unit (name) values
     ('$/kWh'),
     ('$/m2'),
     ('$/m3'),
-    ('$/unit'),
     ('A'),
     ('ACH'),
     ('acres'),
@@ -77,9 +76,6 @@ insert into public.unit (name) values
     ('cmh'),
     ('cooling tons'),
     ('cord'),
-    ('count'),
-    ('count/ft2'),
-    ('count/m2'),
     ('cycles/kWh'),
     ('days'),
     ('DD'),
@@ -137,7 +133,7 @@ insert into public.unit (name) values
     ('kgal'),
     ('kgal/ft2'),
     ('kgCO2e'),
-    ('kgCO2e/gpd'),
+    ('kgCO2e/(gal/day)'),
     ('kgCO2e/MMBtu'),
     ('kHz'),
     ('klbs'),
@@ -167,7 +163,6 @@ insert into public.unit (name) values
     ('lbs/unit'),
     ('lbsCO2e'),
     ('linear ft'),
-    ('loads/week'),
     ('lumens'),
     ('lux'),
     ('m'),
@@ -204,6 +199,9 @@ insert into public.unit (name) values
     ('MW'),
     ('MWh'),
     ('n/a'),
+    ("number of items"),
+    ("number of items per square foot"),
+    ("number of items per square meter"),
     ('Pa'),
     ('percent'),
     ('pixels'),
