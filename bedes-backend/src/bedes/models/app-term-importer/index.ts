@@ -349,8 +349,7 @@ export class AppTermImporter {
                         // Create array of constrained list mappings for AppTermList object
                         const results = new Array<IAppTermListOption>();
                         for (let i = 0; i < resultBedesCompositeTermMap.BedesConstrainedListID!.length; i += 1) {
-
-                            if (resultBedesCompositeTermMap.BedesCompositeTermUUID![i] && resultBedesCompositeTermMap.BedesConstrainedListID![i]) {
+                            if (resultBedesCompositeTermMap.BedesConstrainedListUUID![i] && resultBedesCompositeTermMap.BedesConstrainedListID![i]) {
                                 let termMappingListOptionParams: ITermMappingListOption = {
                                     _id: resultBedesCompositeTermMap.BedesConstrainedListID![i],
                                     _bedesTermOptionUUID: resultBedesCompositeTermMap.BedesConstrainedListUUID![i],
