@@ -19,7 +19,7 @@ c5de9d64-e3cc-4d1b-8265-42934ca210b3
 aa28ba03-dba1-486a-a2ca-f14c4fa99253",
 Construction Status,,,Constrained List,Construction Status,,,Constrained List,Construction Status=[value],"Design Project=Design Development
 Existing=Other",,82d70db7-2d3d-4d6f-bcba-b8e76789d383,"947e186d-1fde-4ee1-a96a-42b9b48d09dc
-a3bfb209-c151-42da-afaf-b9528ece9853"
+4f7dab88-9530-43d7-a4df-33f76e6844a5"
 Year Built,,YYYY,TimeStamp,Completed Construction Status Date,,YYYY,TimeStamp,"Construction Status=Completed
 Construction Status Date=[value]",,,"d1245c37-0bdc-42fe-9c9b-d2f4fe708cbd
 9b5394a5-48bf-46b0-af2e-6fb0fe6e8cdb",
@@ -38,9 +38,9 @@ c84c89ae-da08-4422-b107-ee8c7ad75596
 d31ddbaf-486e-46c3-b303-653a4a5c7ac3
 4ed29e3d-9612-4940-b0d8-08caf9a4edd8
 c55f08ef-4c8f-403a-897c-ddfa6c104fe4
-16839b8d-50c7-40b1-a88b-ce2612c50af4"
+a9de2b1f-a706-407e-9de4-055b67ecb3ad"
 "Annual Savings (2013-2017)
-Total Primary Energy Savings",,"British Thermal units (NOTE: application unit can be anything, but BEDES unit must come from the official list)",Decimal,Total Annual Primary Energy Resource Savings,,Btu,Decimal,"Interval Measure=Total
+Total Primary Energy Savings","NOTE: application unit can be anything, but BEDES unit must come from the official list",British Thermal units,Decimal,Total Annual Primary Energy Resource Savings,,Btu,Decimal,"Interval Measure=Total
 Interval Frequency=Annual
 Priority=Primary
 Resource=Energy
