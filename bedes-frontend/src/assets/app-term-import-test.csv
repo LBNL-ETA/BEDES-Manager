@@ -1,37 +1,37 @@
 ﻿Application Term,Application Term Description,Application Term Unit,Application Term Data Type,BEDES Term,BEDES Term Description,BEDES Term Unit,BEDES Term Data Type,BEDES Atomic Term Mapping,BEDES Constrained List Mapping,BEDES Composite Term UUID,BEDES Atomic Term UUID,BEDES Constrained List Option UUID
-Company,Company name,,String,Company Name,Company name,,String,Company Name=[value],,,176033b2-10b3-475b-aee0-ae4393c77cfb,
-Contact,Contact name,,String,Contact Name,Contact name,,String,Contact Name=[value],,,028bb2ae-c261-4c5d-b247-3db21cff10ab,
-Advanced RTU Control Retrofits,Number of advanced RTU control retrofits,count,Integer,Roof Air Handler Controlled Retrofit Quantity,Number of roof air handler control retrofits,count,Integer,"Location=Roof
-Heating Delivery Type=Air handler
-Control Strategy=Controlled
-Action Category=Retrofit
-Quantity=[value]",,,"2d577d84-1a1d-420e-b827-b7fb8b6d645a
+Company,Company name,,String,Company Name,Company name,,String,Company Name = [value] ,,,176033b2-10b3-475b-aee0-ae4393c77cfb,
+Contact,Contact name,,String,Contact Name,Contact name,,String,Contact Name = [value],,,028bb2ae-c261-4c5d-b247-3db21cff10ab,
+Advanced RTU Control Retrofits,Number of advanced RTU control retrofits,count,Integer,Roof Air Handler Controlled Retrofit Quantity,Number of roof air handler control retrofits,count,Integer,"Location = Roof
+Heating Delivery Type = Air handler
+Control Strategy = Controlled
+Action Category = Retrofit
+Quantity = [value]",,,"2d577d84-1a1d-420e-b827-b7fb8b6d645a
 4a089f5a-402d-42c9-ac17-b614ba8da60a
 74826697-c853-4912-a432-5d57569e9c79
 ac4c720b-7d1d-44e6-90fd-b15995b94f30
 aebf37a3-692f-4129-a659-ddd8ebaed422",
-Estimated Annual Savings (kWh),Estimated annual electricity savings,kWh,Decimal,Estimated Annual Electricity Resource Savings,,kWh,Decimal,"Derivation Method=Estimated
-Interval Frequency=Annual
-Resource=Electricity
-Resource Savings=[value]",,,"7ae8b40b-876c-4988-9cf2-328ef63206f6
+Estimated Annual Savings (kWh),Estimated annual electricity savings,kWh,Decimal,Estimated Annual Electricity Resource Savings,,kWh,Decimal,"Derivation Method = Estimated
+Interval Frequency = Annual
+Resource = Electricity
+Resource Savings = [value]",,,"7ae8b40b-876c-4988-9cf2-328ef63206f6
 c5de9d64-e3cc-4d1b-8265-42934ca210b3
 4ff6a8b1-b171-4711-b104-70019401d11d
 aa28ba03-dba1-486a-a2ca-f14c4fa99253",
-Construction Status,,,Constrained List,Construction Status,,,Constrained List,Construction Status=[value],"Design Project=Design Development
-Existing=Other",,82d70db7-2d3d-4d6f-bcba-b8e76789d383,"947e186d-1fde-4ee1-a96a-42b9b48d09dc
+Construction Status,,,Constrained List,Construction Status,,,Constrained List,Construction Status = [value],"Design Project = Design Development
+Existing = Other",,82d70db7-2d3d-4d6f-bcba-b8e76789d383,"947e186d-1fde-4ee1-a96a-42b9b48d09dc
 4f7dab88-9530-43d7-a4df-33f76e6844a5"
-Year Built,,YYYY,TimeStamp,Completed Construction Status Date,,YYYY,TimeStamp,"Construction Status=Completed
-Construction Status Date=[value]",,,"d1245c37-0bdc-42fe-9c9b-d2f4fe708cbd
+Year Built,,YYYY,TimeStamp,Completed Construction Status Date,,YYYY,TimeStamp,"Construction Status = Completed
+Construction Status Date = [value]",,,"d1245c37-0bdc-42fe-9c9b-d2f4fe708cbd
 9b5394a5-48bf-46b0-af2e-6fb0fe6e8cdb",
 Shared by Contact - Account ID,Example of how an application term does not have to be mapped to a BEDES term.,,,,,,,,,,,
-Data Center - UPS System Redundancy,,,Constrained List,Data Center UPS Equipment Redundancy,Type of redundancy for the data center UPS,,Constrained List,"Occupancy Classification=Data center
-Uninterruptible Power Supplies=UPS
-Equipment Redundancy=[value]","N=N
-N+1=Nplus1
-N+2=Nplus2
-2N=2N
-Greater than 2N=Greater than 2N
-None of the Above=Other",,"e9ca14fc-a528-44e7-a198-a73e181a25d7
+Data Center - UPS System Redundancy,,,Constrained List,Data Center UPS Equipment Redundancy,Type of redundancy for the data center UPS,,Constrained List,"Occupancy Classification = Data center
+Uninterruptible Power Supplies = UPS
+Equipment Redundancy = [value]","N = N
+N+1 = Nplus1
+N+2 = Nplus2
+2N = 2N
+Greater than 2N = Greater than 2N
+None of the Above = Other",,"e9ca14fc-a528-44e7-a198-a73e181a25d7
 b8149b88-f82a-44b5-841b-e683a1676f1d
 19b50003-e146-4828-83b2-f4947a2928ae","9e97d885-1229-437f-81b1-899f8b762c88
 c84c89ae-da08-4422-b107-ee8c7ad75596
@@ -40,11 +40,11 @@ d31ddbaf-486e-46c3-b303-653a4a5c7ac3
 c55f08ef-4c8f-403a-897c-ddfa6c104fe4
 a9de2b1f-a706-407e-9de4-055b67ecb3ad"
 "Annual Savings (2013-2017)
-Total Primary Energy Savings","NOTE: application unit can be anything, but BEDES unit must come from the official list",British Thermal units,Decimal,Total Annual Primary Energy Resource Savings,,Btu,Decimal,"Interval Measure=Total
-Interval Frequency=Annual
-Priority=Primary
-Resource=Energy
-Resource Savings=[value]",,,"552a462b-4bd7-465a-94fe-ab161973dc20
+Total Primary Energy Savings","NOTE: application unit can be anything, but BEDES unit must come from the official list",British Thermal units,Decimal,Total Annual Primary Energy Resource Savings,,Btu,Decimal,"Interval Measure = Total
+Interval Frequency = Annual
+Priority = Primary
+Resource = Energy
+Resource Savings = [value]",,,"552a462b-4bd7-465a-94fe-ab161973dc20
 c5de9d64-e3cc-4d1b-8265-42934ca210b3
 922e64d1-c1e9-4ed9-b765-d6ebcbd5f962
 fdb2f8c5-a4df-4f5f-8faf-75056db9b436
