@@ -517,6 +517,7 @@ export async function createNewCompositeTerm(item: IAppTermCsvRow, result: ICsvB
                                             request: Request): Promise<ICsvBedesCompositeTermMapping> {
     try {
         var signature: string = '';
+        var bedesCompositeTermUnitId: number;
         var items: Array<ICompositeTermDetail> = [];
         var bedesTermOption: IBedesTermOption | null = null;
         var arrAtomicTerms: Array<string> = item.BedesAtomicTermMapping!.trim().split(delimiter);
@@ -531,6 +532,7 @@ export async function createNewCompositeTerm(item: IAppTermCsvRow, result: ICsvB
             } else {
                 bedesTermOption = null;
                 signature += bedesTerm._id!;
+                bedesCompositeTermUnitId = bedesTerm._unitId!;
             }
 
             let compositeTermDetailParams: ICompositeTermDetail = {
@@ -544,15 +546,11 @@ export async function createNewCompositeTerm(item: IAppTermCsvRow, result: ICsvB
             signature = signature.slice(0, -1);
         }
 
-        var bedesCompositeTermUnitId: number | null | undefined = item.BedesTermUnit
-                                                            ? await getUnitIdFromName(item.BedesTermUnit)
-                                                            : undefined
-
         var compositeTermParams: IBedesCompositeTerm = {
             _signature: signature,
             _name: item.BedesTerm,
             _description: item.BedesTermDescription,
-            _unitId: bedesCompositeTermUnitId,
+            _unitId: bedesCompositeTermUnitId!,
             _items: items,
             _scopeId: 1,
             _ownerName: 'null'                         // TODO: PG: Change this.
