@@ -9,6 +9,7 @@ import * as util from 'util';
 
 export class BedesDataTypeQuery {
     private sqlGetByName!: QueryFile;
+    private sqlGetById!: QueryFile;
     private sqlInsert!: QueryFile;
     private sqlGetAllRecords!: QueryFile
 
@@ -24,6 +25,7 @@ export class BedesDataTypeQuery {
      */
     private initSql(): void {
         this.sqlGetByName = sql_loader(path.join(__dirname, 'get-by-name.sql'));
+        this.sqlGetById = sql_loader(path.join(__dirname, 'get-by-id.sql'));
         this.sqlInsert = sql_loader(path.join(__dirname, 'insert.sql'))
         this.sqlGetAllRecords = sql_loader(path.join(__dirname, 'get-all-records.sql'))
     }
@@ -52,7 +54,7 @@ export class BedesDataTypeQuery {
 
     /**
      * Gets BedesUnit record given a dataType name.
-     * @param dataTypeName 
+     * @param dataTypeName
      * @returns record by name 
      */
     public getRecordByName(name: string, transaction?: any): Promise<IBedesDataType> {
@@ -71,7 +73,34 @@ export class BedesDataTypeQuery {
                 return db.one(this.sqlGetByName, params);
             }
         } catch (error) {
-            logger.error(`${this.constructor.name}: Error in newRecord`);
+            logger.error(`${this.constructor.name}: Error in getRecordByName`);
+            logger.error(util.inspect(error));
+            throw error;
+        }
+    }
+
+    /**
+     * Gets BedesUnit record given a dataType ID.
+     * @param dataTypeId
+     * @returns record by ID
+     */
+    public getRecordById(id: string, transaction?: any): Promise<IBedesDataType> {
+        try {
+            if (!id) {
+                logger.error(`${this.constructor.name}: Missing ID`);
+                throw new Error('Missing required parameters.');
+            }
+            const params = {
+                _id: id
+            };
+            if (transaction) {
+                return transaction.one(this.sqlGetById, params);
+            }
+            else {
+                return db.one(this.sqlGetById, params);
+            }
+        } catch (error) {
+            logger.error(`${this.constructor.name}: Error in getRecordById`);
             logger.error(util.inspect(error));
             throw error;
         }
