@@ -11,6 +11,12 @@ import { IBedesUnit } from '@bedes-common/models/bedes-unit';
 import { TermType } from '@bedes-common/enums/term-type.enum';
 const logger = createLogger(module);
 
+/**
+ * NOTE
+ * Application Term Name and Description (App & BEDES) can have newlines in them.
+ *
+ */
+
 function isITermMappingAtomic(toBeDetermined: any): toBeDetermined is ITermMappingAtomic {
     return '_bedesTermUUID' in toBeDetermined;
 }
@@ -71,7 +77,11 @@ export async function appTermExportHandler(request: Request, response: Response)
             // Temp variables
             let bedesTerm: any = {};
 
-            appTermName = results[i]._name;
+            if (results[i]._name.includes('\n')) {
+                appTermName = "\"" + results[i]._name + "\"";
+            } else {
+                appTermName = results[i]._name;
+            }
             if (results[i]._description) {
                 if (results[i]._description!.includes('\n') || results[i]._description!.includes(',')) {
                     appTermDescription = "\"" + results[i]._description! + "\"";
