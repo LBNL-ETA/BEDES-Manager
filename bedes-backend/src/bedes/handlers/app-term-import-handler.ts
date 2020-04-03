@@ -57,10 +57,12 @@ export async function appTermImportHandler(request: Request, response: Response)
 
             const results = await Promise.all(promises)
             .catch((error: any) => {
-                response.status(HttpStatusCodes.BadRequest_400).send('Error creating terms');
-                return;
+                if (error instanceof BedesError) {
+                    response.status((<BedesError>error).responseStatusCode).send(error.message);
+                } else {
+                    response.status(HttpStatusCodes.BadRequest_400).send(error.message);
+                }
             });
-            // response.json(results.map(item => item.appTerm));
             response.json(results);
         });
     }
