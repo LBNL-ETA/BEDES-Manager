@@ -135,7 +135,7 @@ export function getTermTypeFromCsvName(item: IAppTermCsvRow): TermType {
  * @param unitName The name of the unit name to query the database.
  * @returns A Promise which resolves to the id of the found unit.
  */
-export async function getUnitIdFromName(unitName: string, trans?: any): Promise<number | null | undefined> {
+export async function getUnitIdFromName(unitName: string, appTermName: string, trans?: any): Promise<number | null | undefined> {
     try {
         if (typeof unitName !== 'string' || !unitName.trim()) {
             throw new BedesError(
@@ -150,7 +150,7 @@ export async function getUnitIdFromName(unitName: string, trans?: any): Promise<
         if (error instanceof BedesError) {
             throw error;
         } else {
-            throw new BedesError('Error: Not an official BEDES unit.', HttpStatusCodes.BadRequest_400);
+            throw new BedesError('Error: Not an official BEDES unit. Term = ' + appTermName, HttpStatusCodes.BadRequest_400);
         }
     }
 }
@@ -215,7 +215,7 @@ export async function mappedToBedesAtomicTerm(item: IAppTermCsvRow): Promise<ICs
 
                 // Check that the BEDES Term Unit is correct
                 if (item.BedesTermUnit) {
-                    let bedesTermUnitId: number | null | undefined = await getUnitIdFromName(item.BedesTermUnit);
+                    let bedesTermUnitId: number | null | undefined = await getUnitIdFromName(item.BedesTermUnit, item.ApplicationTerm);
                     if (!bedesTermUnitId || bedesTermUnitId != bedesTerm._unitId) {
                         throw new BedesError(`Incorrect BedesTermUnit. Term=(${item.ApplicationTerm})`, HttpStatusCodes.BadRequest_400);
                     }
@@ -517,6 +517,7 @@ export async function createNewCompositeTerm(item: IAppTermCsvRow, result: ICsvB
                                             request: Request): Promise<ICsvBedesCompositeTermMapping> {
     try {
         var signature: string = '';
+        var bedesCompositeTermUnitId: number;
         var items: Array<ICompositeTermDetail> = [];
         var bedesTermOption: IBedesTermOption | null = null;
         var arrAtomicTerms: Array<string> = item.BedesAtomicTermMapping!.trim().split(delimiter);
@@ -531,6 +532,7 @@ export async function createNewCompositeTerm(item: IAppTermCsvRow, result: ICsvB
             } else {
                 bedesTermOption = null;
                 signature += bedesTerm._id!;
+                bedesCompositeTermUnitId = bedesTerm._unitId!;
             }
 
             let compositeTermDetailParams: ICompositeTermDetail = {
@@ -544,15 +546,11 @@ export async function createNewCompositeTerm(item: IAppTermCsvRow, result: ICsvB
             signature = signature.slice(0, -1);
         }
 
-        var bedesCompositeTermUnitId: number | null | undefined = item.BedesTermUnit
-                                                            ? await getUnitIdFromName(item.BedesTermUnit)
-                                                            : undefined
-
         var compositeTermParams: IBedesCompositeTerm = {
             _signature: signature,
             _name: item.BedesTerm,
             _description: item.BedesTermDescription,
-            _unitId: bedesCompositeTermUnitId,
+            _unitId: bedesCompositeTermUnitId!,
             _items: items,
             _scopeId: 1,
             _ownerName: 'null'                         // TODO: PG: Change this.
