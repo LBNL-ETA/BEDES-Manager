@@ -173,6 +173,7 @@ export class AppTermQuery {
                     'Missing required parameters'
                 );
             }
+
             // write the app term record
             // build the query parameters
             const params = {
@@ -181,6 +182,7 @@ export class AppTermQuery {
                 _name: item._name.trim() || null,
                 _description: item._description || null,
                 _termTypeId: item._termTypeId,
+                _dataTypeId: item._dataTypeId,
                 _unit: item._unit || null,
                 _uuid: item._uuid || null
             }
@@ -360,6 +362,7 @@ export class AppTermQuery {
                 _name: item._name.trim() || null,
                 _description: item._description || null,
                 _termTypeId: item._termTypeId,
+                _dataTypeId: item._dataTypeId,
                 _unit: item._unit || null
             }
             // set the database context

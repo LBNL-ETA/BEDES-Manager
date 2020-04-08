@@ -8,6 +8,7 @@ import { HttpStatusCodes } from '@bedes-common/enums/http-status-codes';
 import { AppTermService } from '../../../../services/app-term/app-term.service';
 import { AppTerm, AppTermList, AppTermListOption, IAppTerm, IAppTermList, IAppTermListOption } from '@bedes-common/models/app-term';
 import { appTermTypeList } from '@bedes-common/lookup-tables/app-term-type-list';
+import { dataTypeList } from '@bedes-common/lookup-tables/data-type-list';
 import { takeUntil, switchMap, mergeMap, filter } from 'rxjs/operators';
 import { GridOptions, SelectionChangedEvent, ColDef } from 'ag-grid-community';
 import { TermType } from '@bedes-common/enums/term-type.enum';
@@ -101,6 +102,8 @@ export class ImplementationTermComponent implements OnInit {
     public errorMessage: string;
     // list of AppTermTypes (for dropdown list)
     public appTermTypeItems = appTermTypeList.items;
+    // list of data types (for dropdown list)
+    public dataTypeItems = dataTypeList.items;
     // grid properties
     // grid is ready boolean indicator
     private gridInitialized: boolean;
@@ -122,7 +125,8 @@ export class ImplementationTermComponent implements OnInit {
             value: null,
             disabled: true
         }],
-        termTypeId: [null, Validators.required]
+        termTypeId: [null, Validators.required],
+        dataTypeId: [null, Validators.required]
     });
 
     public stateChangeSubject: BehaviorSubject<OptionViewState>;
@@ -271,6 +275,7 @@ export class ImplementationTermComponent implements OnInit {
         this.dataForm.controls.description.enable();
         this.dataForm.controls.unit.enable();
         this.dataForm.controls.termTypeId.enable();
+        this.dataForm.controls.dataTypeId.enable();
     }
 
     private disableFormControls(): void {
@@ -278,6 +283,7 @@ export class ImplementationTermComponent implements OnInit {
         this.dataForm.controls.description.disable();
         this.dataForm.controls.unit.disable();
         this.dataForm.controls.termTypeId.disable();
+        this.dataForm.controls.dataTypeId.disable();
     }
 
     /**
@@ -477,6 +483,10 @@ export class ImplementationTermComponent implements OnInit {
         this.dataForm.controls['termTypeId'].setValue(
             this.appTerm ? this.appTerm.termTypeId : ''
         );
+        // Data Type
+        this.dataForm.controls['dataTypeId'].setValue(
+            this.appTerm ? this.appTerm.dataTypeId : ''
+        );
     }
 
     /**
@@ -505,6 +515,13 @@ export class ImplementationTermComponent implements OnInit {
             // switch the app terms object type
             this.transFormAppTerm();
         });
+        // Data Type changes
+        this.dataForm.controls['dataTypeId'].valueChanges
+        .subscribe((newValue: number) => {
+            this.appTerm.dataTypeId = newValue;
+            // switch the app terms object type
+            this.transFormAppTerm();
+        });
     }
 
     private getAppTermFromForm(): IAppTerm {
@@ -512,6 +529,7 @@ export class ImplementationTermComponent implements OnInit {
             _name: this.dataForm.value.name,
             _description: this.dataForm.value.description,
             _termTypeId: this.dataForm.value.termTypeId,
+            _dataTypeId: this.dataForm.value.dataTypeId,
             _unit: this.dataForm.value.unit,
             _uuid: this.dataForm.value.uuid
 
