@@ -7,6 +7,7 @@ select
     t.name as "_name",
     t.description as "_description",
     t.unit_id as "_unitId",
+    t.data_type_id as "_dataTypeId",
     t.uuid as "_uuid",
     t.user_id as "_userId",
     t.scope_id as "_scopeId",

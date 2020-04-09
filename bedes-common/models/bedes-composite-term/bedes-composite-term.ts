@@ -6,9 +6,8 @@ import { BedesConstrainedList } from '../bedes-term/bedes-constrained-list';
 import { IBedesTerm } from '../bedes-term/bedes-term.interface';
 import { buildCompositeTermSignature } from '../../util/build-composite-term-signature';
 import { IBedesConstrainedList } from '../bedes-term/bedes-constrained-list.interface';
-import { UUIDGenerator } from '../uuid-generator/uuid-generator';
-import { Scope } from '../../enums/scope.enum';
 import { BedesCompositeTermShort } from '../bedes-composite-term-short';
+
 
 export class BedesCompositeTerm extends BedesCompositeTermShort {
     // function to sort detail items by order number
@@ -233,6 +232,7 @@ export class BedesCompositeTerm extends BedesCompositeTermShort {
             _name: this.name,
             _description: this.description,
             _unitId: this.unitId,
+            _dataTypeId: this.dataTypeId,
             _uuid: this.uuid,
             _userId: this._userId,
             _scopeId: this._scopeId,

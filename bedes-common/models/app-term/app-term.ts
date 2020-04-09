@@ -22,6 +22,7 @@ export class AppTerm extends UUIDGenerator {
     protected _name: string;
     protected _description: string | null | undefined;
     protected _termTypeId: TermType;
+    protected _dataTypeId: number | null | undefined;
     protected _additionalInfo: Array<AppTermAdditionalInfo>;
     protected _uuid: string | null | undefined;
     protected _unit: string | null | undefined;
@@ -56,6 +57,7 @@ export class AppTerm extends UUIDGenerator {
         this._name = data._name;
         this._description = data._description;
         this._termTypeId = data._termTypeId;
+        this._dataTypeId = data._dataTypeId;
         this._additionalInfo = new Array<AppTermAdditionalInfo>();
         if (data._additionalInfo && data._additionalInfo.length) {
             data._additionalInfo.map(
@@ -119,6 +121,15 @@ export class AppTerm extends UUIDGenerator {
         }
         this._termTypeId = value;
     }
+    get dataTypeId(): number | null | undefined {
+        return this._dataTypeId;
+    }
+    set dataTypeId(value: number | null | undefined) {
+        if (value != this._dataTypeId) {
+            this._hasChanged = true;
+        }
+        this._dataTypeId = value;
+    }
     get additionalInfo(): Array<AppTermAdditionalInfo> {
         return this._additionalInfo;
     }
@@ -169,6 +180,7 @@ export class AppTerm extends UUIDGenerator {
             _name: this._name,
             _description: this._description,
             _termTypeId: this._termTypeId,
+            _dataTypeId: this._dataTypeId,
             _uuid: this._uuid,
             _unit: this._unit,
             _mapping: this._mapping ? this._mapping.toInterface() : undefined

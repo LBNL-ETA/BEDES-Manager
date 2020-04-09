@@ -17,15 +17,13 @@ import { ITermMappingListOption } from '@bedes-common/models/term-mapping/term-m
 import { IAppTermListOption } from '@bedes-common/models/app-term';
 import { ITermMappingComposite } from '@bedes-common/models/term-mapping/term-mapping-composite.interface';
 import { BedesError } from '@bedes-common/bedes-error';
+import { bedesQuery } from '@bedes-backend/bedes/query';
 const logger = createLogger(module);
 
 /**
  * TODO
  * 1. Create functions for populating IAppTerm, IAppTermList...
  * 2. Check if description can contain newlines.
- * 3. Check what is the use of BEDES Term Data Type.
- * 4. [Imp] Determine Application Term's type and set it accordingly on GUI.
- * 5. Later: Delete entire application even if multiple terms exists in it._
  *
  * NOTE
  * 1. _termCategoryId not needed for import/export.
@@ -189,7 +187,7 @@ export class AppTermImporter {
                 'Application Term': 'ApplicationTerm',
                 'Application Term Description': 'ApplicationTermDescription',
                 'Application Term Unit': 'ApplicationTermUnit',
-                'Application Term Data Type': 'AppTermTermDataType',
+                'Application Term Data Type': 'ApplicationTermDataType',
                 'BEDES Term': 'BedesTerm',
                 'BEDES Term Description': 'BedesTermDescription',
                 'BEDES Term Unit': 'BedesTermUnit',
@@ -233,12 +231,19 @@ export class AppTermImporter {
             // Get TermType ID
             var appTermTypeId: number = getTermTypeFromCsvName(parsedCsvTerm);
 
+            // Get Data Type ID
+            var appDataTypeId: number | null = null;
+            if (parsedCsvTerm.ApplicationTermDataType) {
+                appDataTypeId = (await bedesQuery.dataType.getRecordByName(parsedCsvTerm.ApplicationTermDataType!))._id!;
+            }
+
             // Application Term has no mapping
             if (termhasNoMapping(parsedCsvTerm)) {
                 logger.info(parsedCsvTerm.ApplicationTerm + ` is not mapped to any BEDES Term.`);
                 let appTermParams: IAppTerm = {
                     _name: parsedCsvTerm.ApplicationTerm,
                     _termTypeId: appTermTypeId,
+                    _dataTypeId: appDataTypeId,
                     _description: parsedCsvTerm.ApplicationTermDescription,
                     _unit: parsedCsvTerm.ApplicationTermUnit
                 }
@@ -265,6 +270,7 @@ export class AppTermImporter {
                         let appTermParams: IAppTerm = {
                             _name: parsedCsvTerm.ApplicationTerm,
                             _termTypeId: appTermTypeId,
+                            _dataTypeId: appDataTypeId,
                             _description: parsedCsvTerm.ApplicationTermDescription,
                             _unit: parsedCsvTerm.ApplicationTermUnit,
                             _mapping: termMappingAtomicParams
@@ -306,6 +312,7 @@ export class AppTermImporter {
                         let appTermListParams: IAppTermList = {
                             _name: parsedCsvTerm.ApplicationTerm,
                             _termTypeId: appTermTypeId,
+                            _dataTypeId: appDataTypeId,
                             _description: parsedCsvTerm.ApplicationTermDescription,
                             _unit: parsedCsvTerm.ApplicationTermUnit,
                             _listOptions: results,
@@ -337,6 +344,7 @@ export class AppTermImporter {
                         let appTermParams: IAppTerm = {
                             _name: parsedCsvTerm.ApplicationTerm,
                             _termTypeId: appTermTypeId,
+                            _dataTypeId: appDataTypeId,
                             _description: parsedCsvTerm.ApplicationTermDescription,
                             _unit: parsedCsvTerm.ApplicationTermUnit,
                             _mapping: termMappingCompositeParams
@@ -378,6 +386,7 @@ export class AppTermImporter {
                         let appTermListParams: IAppTermList = {
                             _name: parsedCsvTerm.ApplicationTerm,
                             _termTypeId: appTermTypeId,
+                            _dataTypeId: appDataTypeId,
                             _description: parsedCsvTerm.ApplicationTermDescription,
                             _unit: parsedCsvTerm.ApplicationTermUnit,
                             _listOptions: results,

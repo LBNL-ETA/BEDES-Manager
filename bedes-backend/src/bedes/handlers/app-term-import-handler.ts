@@ -10,12 +10,6 @@ import { db } from '@bedes-backend/db';
 const logger = createLogger(module);
 
 /**
- * TODO
- * 1. Change filename from app-term-import-handler to something like 'term-importer.ts'
- * 2. Do the same as above for app-term-export-handler as well.
- */
-
-/**
  * Handler for processing the AppTerm csv file uploads.
  * @param request The Express.Request object.
  * @param response 

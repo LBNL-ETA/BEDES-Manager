@@ -5,7 +5,7 @@ import sql_loader from '@bedes-backend/db/sql_loader';
 import { createLogger }  from '@bedes-backend/logging';
 const logger = createLogger(module);
 import * as util from 'util';
-import { IBedesCompositeTerm, ICompositeTermDetail, BedesCompositeTerm, CompositeTermDetail } from '@bedes-common/models/bedes-composite-term';
+import { IBedesCompositeTerm, ICompositeTermDetail, BedesCompositeTerm } from '@bedes-common/models/bedes-composite-term';
 import { bedesQuery } from '@bedes-backend/bedes/query';
 import { IBedesCompositeTermShort } from '@bedes-common/models/bedes-composite-term-short';
 import { ICompositeTermDetailRequestParam } from '@bedes-common/models/composite-term-detail-request-param';
@@ -13,8 +13,6 @@ import { ICompositeTermDetailRequestResult } from '@bedes-common/models/composit
 import { BedesError } from '@bedes-common/bedes-error/bedes-error';
 import { HttpStatusCodes } from '@bedes-common/enums/http-status-codes';
 import { CurrentUser } from '@bedes-common/models/current-user';
-import { buildCompositeTermSignature, getSignatureItem, buildSignatureFromCompositeTermDetail } from '@bedes-common/util/build-composite-term-signature';
-import { compositeTerm } from '@bedes-backend/bedes/handlers';
 
 export class BedesCompositeTermQuery {
     private sqlGetBySignature: QueryFile;
@@ -124,10 +122,12 @@ export class BedesCompositeTermQuery {
                 _name: item._name,
                 _description: item._description,
                 _unitId: item._unitId,
+                _dataTypeId: item._dataTypeId,
                 _uuid: item._uuid,
                 _userId: currentUser.id,
                 _scopeId: item._scopeId
             };
+
             // first create the composite term record
             const ctx = transaction || db;
             return await ctx.one(this.sqlInsert, params);
@@ -305,6 +305,7 @@ export class BedesCompositeTermQuery {
                 _name: item._name,
                 _description: item._description,
                 _unitId: item._unitId,
+                _dataTypeId: item._dataTypeId,
                 _userId: currentUser.id,
                 _scopeId: item._scopeId
             };
@@ -479,6 +480,7 @@ export class BedesCompositeTermQuery {
                 _id: id
             };
             const ctx = transaction || db;
+            // TODO: Check if last line in .sql file - "group by ct.data_type_id" is correct
             return ctx.oneOrNone(this.sqlGetCompositeTermComplete, params);
         } catch (error) {
             logger.error(`${this.constructor.name}: Error in getRecordComplete`);
@@ -500,6 +502,7 @@ export class BedesCompositeTermQuery {
                 _uuid: uuid
             };
             const ctx = transaction || db;
+            // TODO: Check if last line in .sql file - "group by ct.data_type_id" is correct
             return ctx.oneOrNone(this.sqlGetCompositeTermCompleteUUID, params);
         } catch (error) {
             logger.error(`${this.constructor.name}: Error in getRecordComplete`);
