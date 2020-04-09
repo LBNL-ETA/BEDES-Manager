@@ -6,6 +6,7 @@ export interface IBedesCompositeTermShort {
     _name: string | null | undefined;
     _description?: string | null | undefined;
     _unitId?: number | null | undefined;
+    _dataTypeId: number | null | undefined;
     _uuid?: string | null | undefined;
     _userId?: number | null | undefined;
     _scopeId?: Scope | null | undefined;

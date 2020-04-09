@@ -9,16 +9,11 @@ import { IBedesUnit } from '../../../../../bedes-common/models/bedes-unit/bedes-
 import { IBedesTermOption } from '@bedes-common/models/bedes-term-option';
 import { ICompositeTermDetail, IBedesCompositeTerm, BedesCompositeTerm } from '@bedes-common/models/bedes-composite-term';
 import { getAuthenticatedUser } from '@bedes-backend/util/get-authenticated-user';
-import { CurrentUser } from '@bedes-common/models/current-user';
-
 const logger = createLogger(module);
 
 /**
  * TODO
- * 1. mappedToBedesAtomicTerm(): check if delimiter != '\n' will work.
- * 2. The first error checking in mappedToBedesAtomicTerm & mappedToBedesCompositeTerm where
- * the last term should be equal to '=[value]' can be done in termHasNoMapping()
- * 3. Add logger.info() statements throughout.
+ * 1. Add logger.info() statements throughout.
  */
 
 export var delimiter: string = '\n';
@@ -547,12 +542,20 @@ export async function createNewCompositeTerm(item: IAppTermCsvRow, result: ICsvB
         var bedesCompositeTermUnitId: number | null | undefined = item.BedesTermUnit
                                                             ? await getUnitIdFromName(item.BedesTermUnit)
                                                             : undefined
+                                                            ;
+
+        // Get Data Type ID
+        var dataTypeId: number | null = null;
+        if (item.BedesTermDataType) {
+            dataTypeId = (await bedesQuery.dataType.getRecordByName(item.BedesTermDataType!))._id!;
+        }
 
         var compositeTermParams: IBedesCompositeTerm = {
             _signature: signature,
             _name: item.BedesTerm,
             _description: item.BedesTermDescription,
             _unitId: bedesCompositeTermUnitId,
+            _dataTypeId: dataTypeId,
             _items: items,
             _scopeId: 1,
             _ownerName: 'null'                         // TODO: PG: Change this.
@@ -577,7 +580,7 @@ export async function createNewCompositeTerm(item: IAppTermCsvRow, result: ICsvB
         if (error instanceof BedesError) {
             throw error;
         } else {
-            throw new BedesError(error.message + `Term=(${item.ApplicationTerm})`, HttpStatusCodes.BadRequest_400);
+            throw new BedesError(error.message + `. Term=(${item.ApplicationTerm})`, HttpStatusCodes.BadRequest_400);
         }
     }
 }

@@ -18,16 +18,12 @@ import { IAppTermListOption } from '@bedes-common/models/app-term';
 import { ITermMappingComposite } from '@bedes-common/models/term-mapping/term-mapping-composite.interface';
 import { BedesError } from '@bedes-common/bedes-error';
 import { bedesQuery } from '@bedes-backend/bedes/query';
-// import { IBedesDataType } from '@bedes-common/models/bedes-data-type';
 const logger = createLogger(module);
 
 /**
  * TODO
  * 1. Create functions for populating IAppTerm, IAppTermList...
  * 2. Check if description can contain newlines.
- * 3. Check what is the use of BEDES Term Data Type.
- * 4. [Imp] Determine Application Term's type and set it accordingly on GUI.
- * 5. Later: Delete entire application even if multiple terms exists in it._
  *
  * NOTE
  * 1. _termCategoryId not needed for import/export.
