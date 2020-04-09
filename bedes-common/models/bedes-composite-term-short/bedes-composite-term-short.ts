@@ -19,6 +19,7 @@ export class BedesCompositeTermShort extends UUIDGenerator {
             _description: term.description,
             _signature: term.signature,
             _unitId: term.unitId,
+            _dataTypeId: term.dataTypeId,
             _userId: term.scopeId,
             _scopeId: term.scopeId
         }
@@ -75,6 +76,17 @@ export class BedesCompositeTermShort extends UUIDGenerator {
         }
         this._unitId = value;
     }
+    /** data type id */
+    protected _dataTypeId: number | null | undefined;
+    get dataTypeId():  number | null | undefined {
+        return this._dataTypeId;
+    }
+    set dataTypeId(value:  number | null | undefined) {
+        if (value != this._dataTypeId) {
+            this._hasChanged = true;
+        }
+        this._dataTypeId = value;
+    }
     /** uuid */
     protected _uuid: string | null | undefined;
     get uuid():  string | null | undefined {
@@ -126,6 +138,7 @@ export class BedesCompositeTermShort extends UUIDGenerator {
             this._name = data._name;
             this._description = data._description;
             this._unitId = data._unitId;
+            this._dataTypeId = data._dataTypeId;
             this._uuid = data._uuid || this.generateUUID();
             this._userId = data._userId || undefined;
             this._scopeId = data._scopeId && data._scopeId in Scope

@@ -22,6 +22,7 @@ select
     ct.description as "_description",
     ct.unit_id as "_unitId",
     ct.uuid as "_uuid",
+    ct.data_type_id as "_dataTypeId",
     ct.user_id as "_userId",
     ct.scope_id as "_scopeId",
     wto.owner_name as "_ownerName",
@@ -67,5 +68,5 @@ cross join
 where
     ct.uuid = ${_uuid}
 group by
-    ct.id, ct.signature, ct.name, ct.description, ct.unit_id, wto.owner_name
+    ct.id, ct.signature, ct.name, ct.description, ct.unit_id, ct.data_type_id, wto.owner_name
 ;

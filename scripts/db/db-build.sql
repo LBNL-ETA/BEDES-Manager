@@ -410,6 +410,7 @@ create table public.bedes_composite_term (
     name text,
     description text,
     unit_id int references public.unit (id),
+    data_type_id int references public.data_type (id),
     uuid uuid not null unique,
     user_id int not null references auth.user (id),
     scope_id int not null references public.scope (id) default 1,
@@ -500,6 +501,7 @@ create table public.app_term (
     field_code varchar(200),
     uuid uuid not null unique,
     term_type_id int not null references public.term_type (id),
+    data_type_id int references public.data_type (id),
     unit varchar(50),
     unique (app_id, name)
 );

@@ -8,6 +8,7 @@ export interface IAppTerm {
     _fieldCode?: string | null | undefined;
     _name: string;
     _termTypeId: TermType;
+    _dataTypeId: number | null | undefined;
     _description?: string | null | undefined;
     _additionalInfo?: Array<IAppTermAdditionalInfo>;
     _uuid?: string | null | undefined;

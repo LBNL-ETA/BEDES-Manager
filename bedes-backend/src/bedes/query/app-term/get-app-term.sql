@@ -24,6 +24,7 @@ select
     t.description as "_description",
     t.field_code as "_fieldCode",
     t.term_type_id as "_termTypeId",
+    t.data_type_id as "_dataTypeId",
     t.uuid as "_uuid",
     t.unit as "_unit"
     case

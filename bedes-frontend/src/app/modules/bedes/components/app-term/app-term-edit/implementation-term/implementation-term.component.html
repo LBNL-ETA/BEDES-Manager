@@ -85,6 +85,17 @@
                         </mat-select>
                     </mat-form-field>
                 </div>
+                <!-- Data Type dropdown -->
+                <div style="display:flex; flex: 1;">
+                    <mat-form-field style="flex:1; margin-bottom:5px;" appearance="outline">
+                        <mat-label>Data Type</mat-label>
+                        <mat-select #typeOfTerm placeholder="Select a Data Type" formControlName="dataTypeId">
+                            <mat-option *ngFor="let item of dataTypeItems" [value]="item.id">
+                                {{item.name}}
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                </div>
                 <!-- Units -->
                 <div style="display:flex; flex: 1;" *ngIf="unitList">
                     <mat-form-field style="flex:1; margin-bottom:5px;" appearance="outline">
