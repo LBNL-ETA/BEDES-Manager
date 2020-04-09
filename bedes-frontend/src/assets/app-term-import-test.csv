@@ -39,8 +39,7 @@ d31ddbaf-486e-46c3-b303-653a4a5c7ac3
 4ed29e3d-9612-4940-b0d8-08caf9a4edd8
 c55f08ef-4c8f-403a-897c-ddfa6c104fe4
 a9de2b1f-a706-407e-9de4-055b67ecb3ad"
-"Annual Savings (2013-2017)
-Total Primary Energy Savings","NOTE: application unit can be anything, but BEDES unit must come from the official list",British Thermal units,Decimal,Total Annual Primary Energy Resource Savings,,Btu,Decimal,"Interval Measure = Total
+Annual Savings (2013-2017) Total Primary Energy Savings,"NOTE: application unit can be anything, but BEDES unit must come from the official list",British Thermal units,Decimal,Total Annual Primary Energy Resource Savings,,Btu,Decimal,"Interval Measure = Total
 Interval Frequency = Annual
 Priority = Primary
 Resource = Energy

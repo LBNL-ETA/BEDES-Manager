@@ -151,7 +151,11 @@ export class AppTermQuery {
             logger.error(`${this.constructor.name}: Error in newAppTerm`);
             logger.error(util.inspect(error));
             logger.error(util.inspect(item));
-            throw error;
+            if (error.code === "22001") {
+                throw new Error('App Term Name too long (max 100 characters). Term = ' + item._name);
+            } else {
+                throw new Error(error.message + '. Term = ' + item._name);
+            }
         }
     }
 

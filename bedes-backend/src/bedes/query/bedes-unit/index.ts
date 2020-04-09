@@ -10,6 +10,7 @@ import { IUsageCount } from '@bedes-common/interfaces/usage-count.interface';
 
 export class BedesUnitQuery {
     private sqlGetByName!: QueryFile;
+    private sqlGetById!: QueryFile;
     private sqlInsert!: QueryFile;
     private sqlGetAllRecords!: QueryFile;
     private sqlUsageCount!: QueryFile
@@ -20,6 +21,7 @@ export class BedesUnitQuery {
 
     private initSql(): void {
         this.sqlGetByName = sql_loader(path.join(__dirname, 'get-by-name.sql'));
+        this.sqlGetById = sql_loader(path.join(__dirname, 'get-by-id.sql'));
         this.sqlInsert = sql_loader(path.join(__dirname, 'insert.sql'))
         this.sqlGetAllRecords = sql_loader(path.join(__dirname, 'get-all-records.sql'))
         this.sqlUsageCount = sql_loader(path.join(__dirname, 'get-usage-count.sql'))
@@ -72,6 +74,33 @@ export class BedesUnitQuery {
             }
         } catch (error) {
             logger.error(`${this.constructor.name}: Error in getRecordByName`);
+            logger.error(util.inspect(error));
+            throw error;
+        }
+    }
+
+    /**
+     * Gets BedesUnit record given a unit ID.
+     * @param unitId
+     * @returns record by ID
+     */
+    public getRecordById(unitId: string, transaction?: any): Promise<IBedesUnit> {
+        try {
+            if (!unitId) {
+                logger.error(`${this.constructor.name}: Missing unitId in BedesUnit-getRecordById`);
+                throw new Error('Missing required parameters.');
+            }
+            const params = {
+                _id: unitId
+            };
+            if (transaction) {
+                return transaction.one(this.sqlGetById, params);
+            }
+            else {
+                return db.one(this.sqlGetById, params);
+            }
+        } catch (error) {
+            logger.error(`${this.constructor.name}: Error in getRecordById`);
             logger.error(util.inspect(error));
             throw error;
         }
