@@ -541,11 +541,6 @@ export async function createNewCompositeTerm(item: IAppTermCsvRow, result: ICsvB
             signature = signature.slice(0, -1);
         }
 
-        var bedesCompositeTermUnitId: number | null | undefined = item.BedesTermUnit
-                                                            ? await getUnitIdFromName(item.BedesTermUnit)
-                                                            : undefined
-                                                            ;
-
         // Get Data Type ID
         var dataTypeId: number | null = null;
         if (item.BedesTermDataType) {
@@ -556,7 +551,7 @@ export async function createNewCompositeTerm(item: IAppTermCsvRow, result: ICsvB
             _signature: signature,
             _name: item.BedesTerm,
             _description: item.BedesTermDescription,
-            _unitId: bedesCompositeTermUnitId,
+            _unitId: bedesCompositeTermUnitId!,
             _dataTypeId: dataTypeId,
             _items: items,
             _scopeId: 1,
