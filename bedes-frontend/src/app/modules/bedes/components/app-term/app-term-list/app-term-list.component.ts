@@ -142,7 +142,8 @@ export class AppTermListComponent extends MessageFromGrid<IAppRow> implements On
     public newTerm(): void {
         const params: IAppTerm = {
             _name: 'New App Term',
-            _termTypeId: TermType.Atomic
+            _termTypeId: TermType.Atomic,
+            _dataTypeId: null
         }
         const newTerm = new AppTerm(params);
     }
@@ -150,7 +151,8 @@ export class AppTermListComponent extends MessageFromGrid<IAppRow> implements On
     public newAtomicTerm(): void {
         const params: IAppTerm = {
             _name: 'New App Term',
-            _termTypeId: TermType.Atomic
+            _termTypeId: TermType.Atomic,
+            _dataTypeId: null
         }
         // create the new term
         const newTerm = new AppTerm(params);

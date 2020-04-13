@@ -27,7 +27,8 @@ export class AppTermService {
     public static createNewAppTerm(): AppTerm {
         return new AppTerm({
             _name: 'New Application Term',
-            _termTypeId: TermType.Atomic
+            _termTypeId: TermType.Atomic,
+            _dataTypeId: null
         })
     }
 
