@@ -59,6 +59,8 @@ export class AppTermListComponent extends MessageFromGrid<IAppRow> implements On
     public currentUser: CurrentUser;
     // String containing csv data
     private csvExportData: string = '';
+    // String containing application name
+    private appName: string = '';
 
     constructor(
         private authService: AuthService,
@@ -413,18 +415,18 @@ export class AppTermListComponent extends MessageFromGrid<IAppRow> implements On
         this.appTermService.downloadAppTerms(this.app.id)
             .subscribe( 
                 (data) => {
-                    this.csvExportData = data;
+                    this.appName = data['appName'];
+                    this.csvExportData = data['data'];
                 },
                 (error) => {
                     console.log('Error downloading csv.');
                 },
                 () => {
-                    // console.log("csvContent: ", this.csvExportData);
                     // Download .csv file
                     var encodedUri = encodeURI(this.csvExportData);
                     var link = document.createElement("a");
                     link.setAttribute("href", encodedUri);
-                    link.setAttribute("download", 'sample.csv');
+                    link.setAttribute("download", 'BEDES Application Export - ' + this.appName + '.csv');
                     document.body.appendChild(link);
                     link.click();
                 }
