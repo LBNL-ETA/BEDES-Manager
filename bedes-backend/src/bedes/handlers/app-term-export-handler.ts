@@ -9,6 +9,7 @@ import { IAppTermList } from '@bedes-common/models/app-term';
 import { IBedesDataType } from '@bedes-common/models/bedes-data-type';
 import { IBedesUnit } from '@bedes-common/models/bedes-unit';
 import { TermType } from '@bedes-common/enums/term-type.enum';
+import { getAuthenticatedUser } from '@bedes-backend/util/get-authenticated-user';
 const logger = createLogger(module);
 
 /**
@@ -19,6 +20,16 @@ const logger = createLogger(module);
 
 function isITermMappingAtomic(toBeDetermined: any): toBeDetermined is ITermMappingAtomic {
     return '_bedesTermUUID' in toBeDetermined;
+}
+
+/**
+ * Checks if string contains any special characters
+ * @param str string to test
+ * @returns bool true if it does
+ */
+function containsSpecialCharacters(str: string) {
+    var regex = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/g;
+    return regex.test(str);
 }
 
 /**
@@ -77,7 +88,7 @@ export async function appTermExportHandler(request: Request, response: Response)
             // Temp variables
             let bedesTerm: any = {};
 
-            if (results[i]._name.includes('\n')) {
+            if (results[i]._name.includes('\n') || containsSpecialCharacters(results[i]._name)) {
                 appTermName = "\"" + results[i]._name + "\"";
             } else {
                 appTermName = results[i]._name;
@@ -90,7 +101,11 @@ export async function appTermExportHandler(request: Request, response: Response)
                 }
             }
             appTermUnit = results[i]._unit || '';
-            appTermDataType = 'appTermDataType';
+
+            appTermDataType = '';
+            if (results[i]._dataTypeId) {
+                appTermDataType = (await bedesQuery.dataType.getRecordById(results[i]._dataTypeId!))._name;
+            }
 
             if (results[i]._termTypeId == TermType.ConstrainedList) {
                 // Sort list options by their ID
@@ -106,6 +121,7 @@ export async function appTermExportHandler(request: Request, response: Response)
 
                 bedesConstrainedListOptionUUID = "\"" + bedesConstrainedListOptionUUID;
                 bedesConstrainedListOptionUUID += "\"";
+                bedesConstrainedListOptionUUID = bedesConstrainedListOptionUUID.replace('/\n$/', '');
             }
 
             if (results[i]._mapping) {
@@ -153,7 +169,10 @@ export async function appTermExportHandler(request: Request, response: Response)
                             bedesTermUnit = '';
                         }
                     }
-                    bedesTermDataType = 'bedesTermDataType';
+                    bedesTermDataType = '';
+                    if (bedesTerm._dataTypeId) {
+                        bedesTermDataType = (await bedesQuery.dataType.getRecordById(bedesTerm._dataTypeId))._name;
+                    }
 
                     // Sort the items for correct BEDES Atomic Term Mapping & BEDES Atomic Term UUIDs.
                     bedesTerm._items.sort((a: any, b: any) => (a._orderNumber > b._orderNumber) ? 1 : -1);
@@ -165,8 +184,8 @@ export async function appTermExportHandler(request: Request, response: Response)
                             bedesAtomicTermMapping += ' = ' + bedesTerm._items[j]._listOption._name + delimiter;
                             bedesAtomicTermUUID += bedesTerm._items[j]._listOption._uuid + delimiter;
                         } else {
-                            bedesAtomicTermMapping += ' = [value]' + delimiter;
-                            bedesAtomicTermUUID += bedesTerm._items[j]._term._uuid + delimiter;
+                            bedesAtomicTermMapping += ' = [value]';
+                            bedesAtomicTermUUID += bedesTerm._items[j]._term._uuid;
                         }
                     }
                     bedesAtomicTermUUID = "\"" + bedesAtomicTermUUID;
@@ -189,7 +208,14 @@ export async function appTermExportHandler(request: Request, response: Response)
             csvContent += rowContent;
         }
 
-        return response.json(csvContent);
+        // get the current user that's logged in
+        const currentUser = getAuthenticatedUser(request);
+        var jsonData = {
+            'appName': (await bedesQuery.app.getRecordById(currentUser, appId))._name,
+            'data': csvContent
+        }
+
+        return response.json(jsonData);
     }
     catch (error) {
         logger.error('Error downloading appTerms');

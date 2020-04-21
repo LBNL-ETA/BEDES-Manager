@@ -84,7 +84,7 @@ export class BedesDataTypeQuery {
      * @param dataTypeId
      * @returns record by ID
      */
-    public getRecordById(id: string, transaction?: any): Promise<IBedesDataType> {
+    public getRecordById(id: number, transaction?: any): Promise<IBedesDataType> {
         try {
             if (!id) {
                 logger.error(`${this.constructor.name}: Missing ID`);
