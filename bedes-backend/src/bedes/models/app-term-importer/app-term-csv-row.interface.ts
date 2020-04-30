@@ -527,7 +527,15 @@ export async function createNewCompositeTerm(item: IAppTermCsvRow, result: ICsvB
             } else {
                 bedesTermOption = null;
                 signature += bedesTerm._id!;
-                bedesCompositeTermUnitId = bedesTerm._unitId!;
+
+                var unitName: string = (await bedesQuery.units.getRecordById(bedesTerm._unitId!))._name;
+
+                // Unit in import file shouldn't be overwritten with blank BEDES unit
+                if (unitName == 'n/a') {
+                    bedesCompositeTermUnitId = (await bedesQuery.units.getRecordByName(item.BedesTermUnit!))._id!;
+                } else {
+                    bedesCompositeTermUnitId = bedesTerm._unitId!;
+                }
             }
 
             let compositeTermDetailParams: ICompositeTermDetail = {

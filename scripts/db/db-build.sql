@@ -495,7 +495,7 @@ insert into public.term_type (id, name) values
 
 create table public.app_term (
     id serial primary key,
-    name varchar(100) not null,
+    name varchar(255) not null,
     description varchar(900),
     app_id int references public.mapping_application (id) on delete cascade not null,
     field_code varchar(200),

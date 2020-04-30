@@ -84,7 +84,7 @@ export class BedesUnitQuery {
      * @param unitId
      * @returns record by ID
      */
-    public getRecordById(unitId: string, transaction?: any): Promise<IBedesUnit> {
+    public getRecordById(unitId: number, transaction?: any): Promise<IBedesUnit> {
         try {
             if (!unitId) {
                 logger.error(`${this.constructor.name}: Missing unitId in BedesUnit-getRecordById`);
