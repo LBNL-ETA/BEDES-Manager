@@ -423,9 +423,13 @@ export class AppTermListComponent extends MessageFromGrid<IAppRow> implements On
                 },
                 () => {
                     // Download .csv file
-                    var encodedUri = encodeURI(this.csvExportData);
+
+                    // Check out this article
+                    // https://coderwall.com/p/y347ug/encodeuri-vs-encodeuricomponent
+                    var encodedUriComp = 'data:text/csv;charset=utf-8,' + encodeURIComponent(this.csvExportData);
+
                     var link = document.createElement("a");
-                    link.setAttribute("href", encodedUri);
+                    link.setAttribute("href", encodedUriComp);
                     link.setAttribute("download", 'BEDES Application Export - ' + this.appName + '.csv');
                     document.body.appendChild(link);
                     link.click();
