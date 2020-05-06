@@ -55,7 +55,7 @@ export async function appTermExportHandler(request: Request, response: Response)
         const delimiter = '\n';
 
         // CSV header columns
-        var csvContent: string = 'data:text/csv;charset=utf-8,';
+        var csvContent: string = '';
         csvContent += 'Application Term,Application Term Description,'
                     + 'Application Term Unit,Application Term Data Type,'
                     + 'BEDES Term,BEDES Term Description,'
@@ -205,6 +205,7 @@ export async function appTermExportHandler(request: Request, response: Response)
                     + bedesCompositeTermUUID + "," + bedesAtomicTermUUID + ","
                     + bedesConstrainedListOptionUUID
                     + "\n";
+
             csvContent += rowContent;
         }
 
