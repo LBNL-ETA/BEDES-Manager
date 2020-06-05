@@ -86,7 +86,7 @@ export class BedesUnitQuery {
      */
     public getRecordById(unitId: number, transaction?: any): Promise<IBedesUnit> {
         try {
-            if (!unitId) {
+            if (unitId == null) {
                 logger.error(`${this.constructor.name}: Missing unitId in BedesUnit-getRecordById`);
                 throw new Error('Missing required parameters.');
             }
