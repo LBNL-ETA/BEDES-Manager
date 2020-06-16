@@ -162,7 +162,7 @@ export async function appTermExportHandler(request: Request, response: Response)
                             bedesTermDescription = bedesTerm._description!
                         }
                     }
-                    if (bedesTerm._unitId) {
+                    if (bedesTerm._unitId != null) {
                         let bedesUnit: IBedesUnit = await bedesQuery.units.getRecordById(bedesTerm._unitId);
                         bedesTermUnit = bedesUnit._name;
                         if (bedesTermUnit == 'n/a') {
