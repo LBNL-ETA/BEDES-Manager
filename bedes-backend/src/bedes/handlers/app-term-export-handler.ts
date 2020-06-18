@@ -111,11 +111,17 @@ export async function appTermExportHandler(request: Request, response: Response)
                 // Sort list options by their ID
                 (<IAppTermList>results[i])._listOptions!.sort((a,b) => (a._id! > b._id!) ? 1 : -1);
 
-                (<IAppTermList>results[i])._listOptions!.forEach((listOption) => {
-                    bedesConstrainedListMapping += listOption._name + ' = ';
-                    bedesConstrainedListMapping += listOption._mapping!._bedesOptionName + delimiter;
-                    bedesConstrainedListOptionUUID += listOption._mapping!._bedesTermOptionUUID + delimiter;
-                });
+                for (let j = 0; j < (<IAppTermList>results[i])._listOptions!.length; j += 1) {
+                    if (j == (<IAppTermList>results[i])._listOptions!.length - 1) {
+                        bedesConstrainedListMapping += (<IAppTermList>results[i])._listOptions![j]._name + ' = ';
+                        bedesConstrainedListMapping += (<IAppTermList>results[i])._listOptions![j]._mapping!._bedesOptionName;
+                        bedesConstrainedListOptionUUID += (<IAppTermList>results[i])._listOptions![j]._mapping!._bedesTermOptionUUID ;
+                    } else {
+                        bedesConstrainedListMapping += (<IAppTermList>results[i])._listOptions![j]._name + ' = ';
+                        bedesConstrainedListMapping += (<IAppTermList>results[i])._listOptions![j]._mapping!._bedesOptionName + delimiter;
+                        bedesConstrainedListOptionUUID += (<IAppTermList>results[i])._listOptions![j]._mapping!._bedesTermOptionUUID + delimiter;
+                    }
+                }
                 bedesConstrainedListMapping = "\"" + bedesConstrainedListMapping;
                 bedesConstrainedListMapping += "\"";
 

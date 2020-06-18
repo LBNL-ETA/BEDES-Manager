@@ -512,7 +512,7 @@ export async function createNewCompositeTerm(item: IAppTermCsvRow, result: ICsvB
                                             request: Request): Promise<ICsvBedesCompositeTermMapping> {
     try {
         var signature: string = '';
-        var bedesCompositeTermUnitId: number;
+        var bedesCompositeTermUnitId: number | null;
         var items: Array<ICompositeTermDetail> = [];
         var bedesTermOption: IBedesTermOption | null = null;
         var arrAtomicTerms: Array<string> = item.BedesAtomicTermMapping!.trim().split(delimiter);
@@ -532,7 +532,11 @@ export async function createNewCompositeTerm(item: IAppTermCsvRow, result: ICsvB
 
                 // Unit in import file shouldn't be overwritten with blank BEDES unit
                 if (unitName == 'Unknown') {
-                    bedesCompositeTermUnitId = (await bedesQuery.units.getRecordByName(item.BedesTermUnit!))._id!;
+                    if (!item.BedesTermUnit!) {
+                        bedesCompositeTermUnitId = null;
+                    } else {
+                        bedesCompositeTermUnitId = (await bedesQuery.units.getRecordByName(item.BedesTermUnit!))._id!;
+                    }
                 } else {
                     bedesCompositeTermUnitId = bedesTerm._unitId!;
                 }
