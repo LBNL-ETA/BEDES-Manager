@@ -40,12 +40,25 @@
   },
   "devDependencies": {
     "@types/app-root-path": "^1.2.4",
+    "@types/bcrypt": "^2.0.0",
+    "@types/bluebird": "^3.5.24",
+    "@types/express": "^4.16.0",
+    "@types/express-session": "^1.15.11",
+    "@types/jasmine": "^2.8.8",
     "@types/module-alias": "^2.0.0",
-    "@types/node": "^10.17.15",
+    "@types/morgan": "^1.7.35",
+    "@types/multer": "^1.3.7",
+    "@types/nodemailer": "^4.6.5",
+    "@types/passport": "^0.4.7",
+    "@types/passport-local": "^1.0.33",
     "@types/pg-promise": "^5.4.3",
+    "@types/randomstring": "^1.1.6",
+    "@types/swagger-jsdoc": "0.0.2",
+    "@types/swagger-ui-express": "^3.0.0",
     "@types/uuid": "^3.4.7",
     "@types/winston": "^2.4.4",
-    "@types/xml2js": "^0.4.5"
+    "@types/xml2js": "^0.4.5",
+    "jasmine-console-reporter": "^3.1.0"
   },
   "_moduleAliases": {
     "@bedes-common": "../../bedes-common",
