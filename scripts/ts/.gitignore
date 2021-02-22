@@ -1,0 +1,3 @@
+# Ignored compiled JS.
+*.js
+*.js.map

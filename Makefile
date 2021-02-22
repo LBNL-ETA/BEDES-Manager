@@ -57,6 +57,10 @@ run_scripts_add_bedes_test_users:
 		${SCRIPT_IMAGE} \
 		add-bedes-test-users
 
+stop_and_remove_db:
+	docker stop ${DB_CONTAINER_NAME} || true
+	docker rm ${DB_CONTAINER_NAME} || true
+
 # create the database volume
 volume_create:
 	docker volume create ${POSTGRES_VOLUME_NAME}
@@ -71,6 +75,7 @@ load-dev-data:
 
 # Removes the docker database volume, then reloads the BEDES Terms and users.
 dev-clean-data:
+	make stop_and_remove_db
 	make volume_rm
 	make volume_create
 	(cd bedes-db && make run && sleep 10)
