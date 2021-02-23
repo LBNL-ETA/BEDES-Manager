@@ -31,7 +31,7 @@ export abstract class BedesMappingBase {
     // function to load the names of the worksheets to process.
     protected abstract loadSheetNames(): void;
     //
-    protected appId: number | null | undefined;;
+    protected appId: number | null | undefined;
 
     constructor(filePath: string, fileName: string, applicationName: string) {
         this.filePath = filePath;

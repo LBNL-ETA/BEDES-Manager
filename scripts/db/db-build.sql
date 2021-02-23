@@ -38,7 +38,7 @@ insert into public.data_type (name) values
 
 create table public.unit (
     id serial primary key,
-    name varchar(30) not null unique
+    name varchar(60) not null unique
 );
 alter table public.unit owner to bedes_admin;
 insert into public.unit (name) values
@@ -199,9 +199,9 @@ insert into public.unit (name) values
     ('MW'),
     ('MWh'),
     ('n/a'),
-    ("number of items"),
-    ("number of items per square foot"),
-    ("number of items per square meter"),
+    ('number of items'),
+    ('number of items per square foot'),
+    ('number of items per square meter'),
     ('Pa'),
     ('percent'),
     ('pixels'),

@@ -5,7 +5,7 @@ import { bedesQuery } from "@bedes-backend/bedes/query";
 import { BedesRow } from "./bedes-row";
 import { IBedesConstrainedList, IBedesTerm } from "@bedes-common/models/bedes-term";
 import { BedesMappingLabel } from '../base/bedes-mapping-label';
-import { BedesErrorTermNotFound } from '../lib/errors/bedes-term-not-found.error';
+import { BedesErrorTermNotFound } from '@bedes-common/errors/bedes-term-not-found.error';
 import { BedesTerm } from '../../../../../bedes-common/models/bedes-term/bedes-term';
 import { BedesDataType } from '@bedes-common/enums';
 import { BedesTermOption } from '../../../../../bedes-common/models/bedes-term-option/bedes-term-option';

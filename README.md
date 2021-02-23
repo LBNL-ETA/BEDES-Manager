@@ -89,11 +89,13 @@ Note: the various scripts in the package assume a Docker instance of PostgreSQL,
 
 ## Loading Test Data and Setting up User Accounts 
 
-To load the initial set of BEDES terms, the `bedes-admin` account, and the test user accounts:
+To load the initial set of BEDES terms, the `bedes-admin` account, and the test user accounts, run:
 
 ```
 $ make load-dev-data
 ```
+
+from the **top-level directory** of the project.
 
 This will run 3 separate scripts located in `scripts/ts`, that perform each of the three actions listed above.
 
