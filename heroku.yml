@@ -1,4 +1,4 @@
 build:
   docker:
+    web: Dockerfile-angular
     backend: Dockerfile-backend
-#    frontend: ./build/Dockerfiles/Dockerfile-frontend
