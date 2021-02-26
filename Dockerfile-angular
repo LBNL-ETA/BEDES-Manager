@@ -12,4 +12,4 @@ COPY --chown=node:node bedes-common /app/bedes-common
 RUN cd /app/bedes-common && npm install && cd /app/bedes-frontend && npm install
 WORKDIR /app/bedes-frontend
 RUN npm run build
-CMD ["node /app/bedes-frontend/server.js"]
+CMD ["node", "/app/bedes-frontend/server.js"]
