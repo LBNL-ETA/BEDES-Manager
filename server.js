@@ -3,19 +3,17 @@
  *
  * Entry point for Heroku. Do not use this file for local development.
  */
-import 'module-alias/register';
+const path = require('path');
+const express = require('express');
+const app = require('./bedes-backend/dist/bedes-backend/src/App');
 
-import * as path from 'path';
-import * as express from 'express';
-import app from '@bedes-backend/App';
-
-app.use(express.static(path.join(__dirname, '..', '..', 'Bedes-App')));
+app.use(express.static(path.join(__dirname, 'bedes-frontend', 'dist', 'Bedes-App')));
 app.get('/*', function (req, res) {
-    res.sendFile(path.join(__dirname, '..', '..', 'Bedes-App', 'index.html'));
+    res.sendFile(path.join(__dirname, 'bedes-frontend', 'dist', 'Bedes-App', 'index.html'));
 });
 // Start the app by listening on the default Heroku port (or 8080 if local).
 const port = process.env.PORT || 8080;
-app.listen(port, (err: Error) => {
+app.listen(port, (err) => {
     if (err) {
         return console.log(err);
     }

@@ -1,0 +1,14 @@
+{
+  "name": "bedes-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "run-heroku": "NODE_ENV=production node dist/out-tsc/bedes-frontend/server.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
+}
