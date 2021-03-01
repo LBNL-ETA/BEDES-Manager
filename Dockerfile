@@ -1,6 +1,6 @@
 # Dockerfile for Heroku
 # Backend
-FROM node:10.16.3-alpine
+FROM node:10.23.3-alpine
 
 USER root
 
