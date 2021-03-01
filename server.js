@@ -3,9 +3,10 @@
  *
  * Entry point for Heroku. Do not use this file for local development.
  */
+require('module-alias/register');
 const path = require('path');
 const express = require('express');
-const app = require('./bedes-backend/dist/bedes-backend/src/App');
+const app = require('./bedes-backend/dist/bedes-backend/src/App').default;
 
 app.use(express.static(path.join(__dirname, 'bedes-frontend', 'dist', 'Bedes-App')));
 app.get('/*', function (req, res) {

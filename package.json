@@ -4,11 +4,16 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "run-heroku": "NODE_ENV=production node dist/out-tsc/bedes-frontend/server.js"
+    "run-heroku": "NODE_ENV=production node server.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "express": "^4.17.1"
+    "express": "^4.17.1",
+    "module-alias": "^2.2.2"
+  },
+  "_moduleAliases": {
+    "@bedes-common": "./bedes-backend/dist/bedes-common",
+    "@bedes-backend": "./bedes-backend/dist/bedes-backend/src"
   }
 }
