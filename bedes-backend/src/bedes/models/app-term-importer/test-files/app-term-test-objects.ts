@@ -9,6 +9,8 @@ const paramsA: IAppTerm = {
     _name: 'Term A',
     _description: 'This is a description of a value term with type degrees',
     _termTypeId: TermType.Atomic,
+    // TODO: fix this
+    // @ts-ignore
     _unitId: 10
 }
 appTermTestObjects.push(new AppTerm(paramsA));
@@ -18,6 +20,8 @@ const paramsB: IAppTermList = {
     _name: 'Term B',
     _description: 'This is a description of a constrained list, with units XXX, and trailing list options',
     _termTypeId: TermType.ConstrainedList,
+    // TODO: fix this
+    // @ts-ignore
     _unitId:25 ,
     _listOptions: [
         <IAppTermListOption>{

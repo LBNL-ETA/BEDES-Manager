@@ -1,0 +1,44 @@
+# THIS FILE IS UNTESTED AS OF 1 MARCH 2021!
+version: '3.5'
+services:
+  web:
+    container_name: "${WEB_CONTAINER}"
+    build:
+      context: "."
+      dockerfile: "./Dockerfile"
+    env_file:
+      - .env
+    environment:
+      - "PORT=8086"
+      - "DATABASE_URL_VARIABLE=DATABASE_URL"
+      - "DATABASE_URL=postgres://${DB_USER:DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}"
+    ports:
+      - "8080:8086"
+    networks:
+      - bedes-web-net
+    depends_on:
+      - "backend"
+  db:
+    image: "${DB_IMAGE}"
+    container_name: "${DB_CONTAINER_NAME}"
+    env_file:
+      - .env
+    expose:
+      - 5432
+    # ports:
+    #   - "127.0.0.1:5461:5432"
+    networks:
+      - bedes-web-net
+    volumes:
+      - ./scripts/db:/create-epb-db
+      - ./bedes-db/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+      - db-volume:/var/lib/postgresql/data/pgdata
+
+volumes:
+  db-volume:
+    external:
+      name: "${POSTGRES_VOLUME_NAME}"
+
+networks:
+  bedes-web-net:
+    name: "${DOCKER_NET_NAME}"

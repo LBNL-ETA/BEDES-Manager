@@ -3,6 +3,7 @@ FROM node:10.16.3-alpine
 USER root
 
 ENV NPM_CONFIG_LOGLEVEL warn
+RUN npm config set unsafe-perm true
 RUN npm install -g nodemon@1.18.3 ts-node@7.0.1
 # RUN apt-get update -y && apt-get install -y postgresql-client
 RUN apk update && apk add postgresql-client && rm -rf /var/cache/apk/*

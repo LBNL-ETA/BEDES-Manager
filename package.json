@@ -1,0 +1,19 @@
+{
+  "name": "bedes-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "run-heroku": "NODE_ENV=production node server.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.1",
+    "module-alias": "^2.2.2"
+  },
+  "_moduleAliases": {
+    "@bedes-common": "./bedes-backend/dist/bedes-common",
+    "@bedes-backend": "./bedes-backend/dist/bedes-backend/src"
+  }
+}
