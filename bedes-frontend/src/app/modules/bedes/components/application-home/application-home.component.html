@@ -15,7 +15,6 @@
         Terms
     </a>
     <a mat-tab-link
-    *ngIf="areApplicationOptionsVisible()"
     [routerLink]="['./edit']"
     routerLinkActive #rlaEdit="routerLinkActive"
     [active]="rlaEdit.isActive">
