@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { takeUntil } from 'rxjs/operators';
 import { Subject } from 'rxjs';
@@ -32,7 +32,7 @@ interface IGridRow {
     templateUrl: './composite-term-list.component.html',
     styleUrls: ['./composite-term-list.component.scss']
 })
-export class CompositeTermListComponent extends MessageFromGrid<IGridRow> implements OnInit {
+export class CompositeTermListComponent extends MessageFromGrid<IGridRow> implements OnInit, OnDestroy {
     /* Array that holds the list of CompositeTerms */
     public termList: Array<BedesCompositeTermShort>;
     private ngUnsubscribe: Subject<void> = new Subject<void>();

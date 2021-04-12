@@ -34,7 +34,7 @@ import { SupportListService } from '../../../services/support-list/support-list.
   templateUrl: './app-term-list.component.html',
   styleUrls: ['./app-term-list.component.scss']
 })
-export class AppTermListComponent extends MessageFromGrid<IAppRow> implements OnInit {
+export class AppTermListComponent extends MessageFromGrid<IAppRow> implements OnInit, OnDestroy {
     private gridInitialized: boolean;
     // Boolean that indicates if the grid's data needs to be set.
     // When a new appTermList is received, this flag is set to true
