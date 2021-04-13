@@ -180,6 +180,7 @@ export class ApplicationEditComponent implements OnInit, OnDestroy {
                 this.theForm.form.markAsPristine();
                 if (scopeChange) {
                     this.compositeTermService.load();
+                    this.appTermService.termListNeedsRefresh = true;
                 }
             },
             (error: any) => {
