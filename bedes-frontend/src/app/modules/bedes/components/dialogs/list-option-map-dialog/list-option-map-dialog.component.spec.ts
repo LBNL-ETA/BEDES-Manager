@@ -1,6 +1,5 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-
-import { BedesTermSearchDialogComponent } from './list-option-map-dialog.component';
+import {BedesTermSearchDialogComponent} from '../bedes-term-search-dialog/bedes-term-search-dialog.component';
 
 describe('BedesTermSearchDialogComponent', () => {
   let component: BedesTermSearchDialogComponent;
