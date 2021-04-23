@@ -4,8 +4,9 @@
              cdkDropListOrientation="horizontal"
              (cdkDropListDropped)="drop($event)"
              [cdkDropListEnterPredicate]="isEditable"
-        class="term-list">
-            <div [class]="isEditable ? 'term-box' : 'term-box read-only'" *ngFor="let term of compositeTerm.items" cdkDrag [cdkDragDisabled]="!isEditable">
+             class="term-list">
+            <div [class]="isEditable ? 'term-box' : 'term-box read-only'" *ngFor="let term of compositeTerm.items"
+                 cdkDrag [cdkDragDisabled]="!isEditable">
                 <div style="flex: 1; text-align: center; display: flex; flex-direction: column">
                     <span style="font-weight: bold;">
                         {{term.listOption ? term.listOption.name : term.term.name}}
