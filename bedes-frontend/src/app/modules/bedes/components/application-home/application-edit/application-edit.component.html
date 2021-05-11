@@ -20,6 +20,23 @@
 
 </div>
 
+<!-- Application successfully updated -->
+<div class="alert-success"
+     style="margin: 10px 0 10px 0; text-align:left;"
+     *ngIf="currentRequestStatus === RequestStatus.Success">
+    <span style="font-weight:bold; padding-right:10px;">Status:</span>
+    <span>
+                <fa-icon [icon]="['fas', 'check']"></fa-icon>
+                Application successfully updated.
+            </span>
+</div>
+<div class="alert-danger" style="margin-top:10px;" *ngIf="hasError && errorMessage">
+    <h3 style="margin: 0; padding:0;">
+        <fa-icon [icon]="['fas', 'exclamation-triangle']"></fa-icon>
+        {{errorMessage}}
+    </h3>
+</div>
+
 <form #theForm="ngForm" [formGroup]="dataForm" style="display:flex; flex-direction: column; margin-top:10px">
     <mat-form-field style="flex:1; margin-bottom:5px;" appearance="outline" hintLabel="* Required">
         <mat-label>Application Name</mat-label>
@@ -37,7 +54,6 @@
                     {{item.name}}
                 </mat-option>
             </mat-select>
-            <mat-hint>* Contact BEDES Admistrators to make the applicatoin public.</mat-hint>
         </mat-form-field>
     </div>
 </form>

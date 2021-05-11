@@ -165,18 +165,22 @@ export class ApplicationEditComponent implements OnInit, OnDestroy {
             ? true : false;
         this.appService.updateApplication(newApp)
         .subscribe(
-            (newApp: MappingApplication) => {
+            (updatedApp: MappingApplication) => {
                 // application successfully created
                 // update the MappingApplication object with the new properties
                 this.appService.load();
-                this.app.name = newApp.name;
-                this.app.description = newApp.description;
+                this.app.name = updatedApp.name;
+                this.app.description = updatedApp.description;
+                this.app.scopeId = updatedApp.scopeId;
+                this.setDataControlStatus();
+                this.setScopeControlStatus();
                 this.app.clearChangeFlag();
                 this.currentControlState = ControlState.FormSuccess;
                 this.currentRequestStatus = RequestStatus.Success;
                 this.theForm.form.markAsPristine();
                 if (scopeChange) {
                     this.compositeTermService.load();
+                    this.appTermService.termListNeedsRefresh = true;
                 }
             },
             (error: any) => {

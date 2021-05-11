@@ -35,6 +35,10 @@
     border-radius: 5px;
 }
 
+.read-only {
+    cursor: not-allowed;
+}
+
   .cdk-drag-preview {
     box-sizing: border-box;
     border-radius: 4px;

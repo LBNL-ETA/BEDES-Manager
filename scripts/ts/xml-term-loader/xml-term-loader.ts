@@ -88,7 +88,7 @@ export class XmlTermLoader {
     public async openFile(): Promise<any> {
         return new Promise((resolve, reject) => {
             try {
-                fs.readFile(path.join(this.filePath, this.fileName), (err: NodeJS.ErrnoException, data: Buffer) => {
+                fs.readFile(path.join(this.filePath, this.fileName), (err: NodeJS.ErrnoException | null, data: Buffer) => {
                     const parser = new xml2js.Parser();
                     parser.parseString(data, (err: any, result: any) => {
                         logger.info(`done parsing xml`);

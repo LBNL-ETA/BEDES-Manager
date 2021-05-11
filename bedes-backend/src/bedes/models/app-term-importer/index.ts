@@ -81,7 +81,7 @@ export class AppTermImporter {
         // read the file into a string
         const fileContents: string = await this.getFileContents();
         // parse the string csv
-        const parseResults: parser.ParseResult = this.parseFileContents(fileContents);
+        const parseResults: parser.ParseResult<any> = this.parseFileContents(fileContents);
 
         return this.processParseResults(parseResults);
     }
@@ -119,7 +119,7 @@ export class AppTermImporter {
      * @param fileContents 
      * @returns file contents 
      */
-    private parseFileContents(fileContents: string): parser.ParseResult {
+    private parseFileContents(fileContents: string): parser.ParseResult<any> {
         return parser.parse(fileContents, {
             delimiter: ',',
             header: true
@@ -139,7 +139,7 @@ export class AppTermImporter {
      * @param parseResults papaparse result object
      * @returns array of AppTerm | AppTermList
      */
-    private async processParseResults(parseResults: parser.ParseResult): Promise<Array<AppTerm | AppTermList>> {
+    private async processParseResults(parseResults: parser.ParseResult<any>): Promise<Array<AppTerm | AppTermList>> {
         try {
             const promises = new Array<Promise<AppTerm | AppTermList>>();
             const headerFields = this.transformHeaderFieldNames(parseResults.meta.fields);
@@ -165,8 +165,11 @@ export class AppTermImporter {
      * @param headerFieldNames 
      * @returns header field names 
      */
-    private transformHeaderFieldNames(headerFieldNames: Array<string>): Array<string> {
+    private transformHeaderFieldNames(headerFieldNames: Array<string> | undefined): Array<string> {
         const results = new Array<string>();
+        if (typeof headerFieldNames === "undefined") {
+            return results;
+        }
         for (const headerField of headerFieldNames) {
             results.push(headerField.replace(/ /g, ''))
         }
@@ -180,8 +183,11 @@ export class AppTermImporter {
      * @param newFieldNames 
      * @returns iappterm csv row 
      */
-    private makeIAppTermCsvRow(csvData: any, fieldNames: Array<string>): IAppTermCsvRow {
+    private makeIAppTermCsvRow(csvData: any, fieldNames: Array<string> | undefined): IAppTermCsvRow {
         try {
+            if (typeof fieldNames === 'undefined') {
+                throw Error;
+            }
             // Mappings of the headers in csv to the names used in code.
             let csvCodeMapping = {
                 'Application Term': 'ApplicationTerm',

@@ -89,11 +89,13 @@ Note: the various scripts in the package assume a Docker instance of PostgreSQL,
 
 ## Loading Test Data and Setting up User Accounts 
 
-To load the initial set of BEDES terms, the `bedes-admin` account, and the test user accounts:
+To load the initial set of BEDES terms, the `bedes-admin` account, and the test user accounts, run:
 
 ```
 $ make load-dev-data
 ```
+
+from the **top-level directory** of the project.
 
 This will run 3 separate scripts located in `scripts/ts`, that perform each of the three actions listed above.
 
@@ -117,3 +119,12 @@ Start the Angular development server
 $ cd bedes-frontend
 $ npm start
 ```
+
+# Deploying to Heroku
+
+Get access to Heroku. Log in. Add remote to local repo.
+
+# Push a branch that isn't `master`
+`git push heroku BRANCHNAME:master`
+
+`npm install` in the root directory (which is where `server.js` lives, which Heroku uses).
