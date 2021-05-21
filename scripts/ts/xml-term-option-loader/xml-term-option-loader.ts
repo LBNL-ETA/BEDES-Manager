@@ -18,7 +18,7 @@ import { BedesDefinitionSource } from "@bedes-common/models/bedes-definition-sou
 import * as xml2js from 'xml2js';
 import { IXmlNodes } from './xml-nodes/xml-nodes.interface';
 import { validXmlNode } from './xml-nodes/valid-xml-node';
-import { xmlNodeToTermOption } from './xml-node-to-term';
+import { xmlNodeToTermOption } from './xml-node-to-term-option';
 import { IXmlTerm } from '../../../bedes-common/models/xml-term/xml-term.interface';
 import { bedesQuery } from '@bedes-backend/bedes/query';
 import { IBedesSector } from '@bedes-common/models/bedes-sector/bedes-sector.interface';
@@ -194,4 +194,26 @@ export class XmlTermOptionLoader {
 
     }
 
+    async collectTermOptions(): Promise<IXmlTermOption[]> {
+        const xml: IXmlNodes = await this.openFile();
+
+        let xmlTermOptions = [];
+        try {
+            logger.debug('collectTermOptions...');
+            for (let node of xml.nodes.node) {
+                // logger.debug(util.inspect(node));
+                if (!validXmlNode(node)) {
+                    throw new Error(`Invalid xml Node`);
+                }
+                xmlTermOptions.push(xmlNodeToTermOption(node));
+            }
+
+            return xmlTermOptions;
+        }
+        catch (error) {
+            logger.error(`${this.constructor.name}: error in loadXml`);
+            logger.error(util.inspect(error));
+            throw error;
+        }
+    }
 }

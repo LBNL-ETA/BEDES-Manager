@@ -154,7 +154,7 @@ export class TermLoader {
                     // Error state, should never reach here
                     logger.error(`${this.constructor.name}: Invaild state parsing BedesTerms`);
                     logger.error(util.inspect(currentTerm));
-                    logger.error(rowItem);
+                    logger.error(util.inspect(rowItem));
                     logger.error(`at row ${row}`);
                     logger.error(`sheet ${sheetName}`);
                     throw new Error(`${this.constructor.name}: Invalid state parsing BedesTerms`);

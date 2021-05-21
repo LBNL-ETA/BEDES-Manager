@@ -13,11 +13,11 @@
     "load-mappings-debug": "(set -a && . ../../.env && set +a && LOG_LEVEL_CONSOLE=debug ts-node mappings-loader)",
     "load-xml-terms": "(set -a && . ../../.env && set +a && LOG_LEVEL_CONSOLE=info ts-node xml-term-loader --color=true)",
     "load-xml-terms-compose": "LOG_LEVEL_CONSOLE=info ts-node xml-term-loader --color=true",
-    "load-xml-terms-debug": "(set -a && . ../../.env && set +a && LOG_LEVEL_CONSOLE=debug ts-node xml-term-loader --color=true)",
+    "load-xml-terms-debug": "(set -a && . ../../.env && set +a && LOG_LEVEL_CONSOLE=debug node --inspect -r ts-node/register xml-term-loader --color=true)",
     "load-xml-term-options": "(set -a && . ../../.env && set +a && LOG_LEVEL_CONSOLE=info ts-node xml-term-option-loader --color=true)",
     "load-xml-term-options-compose": "LOG_LEVEL_CONSOLE=info ts-node xml-term-option-loader --color=true",
     "load-xml-term-options-debug": "(set -a && . ../../.env && set +a && LOG_LEVEL_CONSOLE=debug ts-node xml-term-option-loader --color=true)",
-    "load-all": "npm run load-terms && npm run load-xml-terms && npm run load-xml-term-options",
+    "load-all": "npm run load-xml-terms && npm run load-xml-term-options",
     "load-all-compose": "npm run load-terms-compose && npm run load-xml-terms-compose && npm run load-xml-term-options-compose",
     "add-bedes-admin-user": "ts-node add-bedes-admin-user",
     "add-bedes-test-users": "ts-node add-bedes-test-users"
