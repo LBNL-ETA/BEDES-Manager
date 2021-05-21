@@ -115,7 +115,9 @@ export abstract class BedesMappingBase {
                 logger.debug(util.inspect(item));
             }
             catch {
-                item = await bedesQuery.app.newRecord(<IMappingApplication>{_name: this.applicationName}, this.transaction);
+                // @todo: Fix this. It needs a user, but we don't have a user in this context.
+                // item = await bedesQuery.app.newRecord(<IMappingApplication>{_name: this.applicationName}, this.transaction);
+                throw new Error("Can't set AppId; no user context.");
             }
             if (item) {
                 this.appId = item._id;
