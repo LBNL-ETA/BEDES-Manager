@@ -71,12 +71,7 @@ function getValue(node: IXmlNodeTerm | IXmlDefinition, key: string, required?: b
  * or passes the valid term name through.
  */
 function fixTermName(nameFromXml: string): string {
-    if (nameFromXml === 'Report Name') {
-        return 'Project Name'; 
-    }
-    else {
-        return nameFromXml;
-    }
+    return nameFromXml;
 }
 
 /**
