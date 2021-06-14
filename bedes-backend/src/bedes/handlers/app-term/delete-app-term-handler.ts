@@ -12,15 +12,15 @@ const logger = createLogger(module);
  */
 export async function deleteAppTermHandler(request: Request, response: Response): Promise<any> {
     try {
-        const id = request.params.appTermId;
-        logger.debug(`deleteAppTermHandler (${id})`);
-        if (!id) {
+        logger.debug(`deleteAppTermHandler (${request.params.appTermId})`);
+        if (!request.params.appTermId) {
             throw new BedesError(
                 'Invalid parameters',
                 HttpStatusCodes.BadRequest_400,
                 "Invalid parameters"
             );
         }
+        const id = +request.params.appTermId;
 
         try {
             let results = await bedesQuery.appTerm.deleteAppTermById(id);

@@ -299,7 +299,7 @@ class AuthQuery {
                 _registrationCode: registrationCode
             };
             // get the verification code record
-            const result: IGetVerificationCodeResult= await db.oneOrNone(this.sqlGetRegistrationCode, getParams);
+            const result: IGetVerificationCodeResult | null = await db.oneOrNone(this.sqlGetRegistrationCode, getParams);
             // make sure a valid object is returned
             if (!result || !result._id) {
                 // not a valid record returned

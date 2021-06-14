@@ -13,14 +13,14 @@ const logger = createLogger(module);
  */
 export async function deleteMappingApplicationHandler(request: Request, response: Response): Promise<any> {
     try {
-        const id = request.params.id;
-        if (!id) {
+        if (!request.params.id) {
             throw new BedesError(
                 'Invalid parameters',
                 HttpStatusCodes.BadRequest_400,
                 "Invalid parameters"
             );
         }
+        const id = +request.params.id;
         let results = await bedesQuery.app.deleteRecord(id);
         response.json(results)
     }

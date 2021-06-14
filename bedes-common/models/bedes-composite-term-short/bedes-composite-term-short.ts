@@ -130,7 +130,7 @@ export class BedesCompositeTermShort extends UUIDGenerator {
         this._hasChanged = false;
     }
 
-    constructor(data?: IBedesCompositeTermShort) {
+    constructor(data?: IBedesCompositeTermShort | null) {
         super();
         if (data) {
             this._id = data._id || undefined;

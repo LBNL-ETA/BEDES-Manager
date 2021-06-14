@@ -6,7 +6,7 @@ USER root
 
 ENV NPM_CONFIG_LOGLEVEL warn
 RUN npm config set unsafe-perm true
-RUN npm install -g @angular/cli@^7.0.4 npm@^7
+RUN npm install -g @angular/cli@^7.0.4 npm@^6
 # RUN apt-get update -y && apt-get install -y postgresql-client
 RUN apk update && apk add postgresql-client && rm -rf /var/cache/apk/*
 

@@ -24,14 +24,14 @@ export async function appTermImportHandler(request: Request, response: Response)
         }
 
         // Make sure the id was passed in
-        const appId = request.params.id;
-        if (!appId) {
+        if (!request.params.id) {
             throw new BedesError(
                 'Invalid parameters',
                 HttpStatusCodes.BadRequest_400,
                 'Invalid parameters'
             )
         }
+        const appId = +request.params.id;
 
         // const testPath = path.join(__dirname, '../models/app-term-importer/test-files');
         // const testFile = 'app-term-import-test.csv';

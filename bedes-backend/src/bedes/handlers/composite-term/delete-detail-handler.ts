@@ -19,13 +19,13 @@ export async function deleteCompositeTermDetailHandler(request: Request, respons
         // get the current user that's logged in
         const currentUser = getAuthenticatedUser(request);
         // id should be a url parameter
-        const id = request.params.id;
-        if (!id) {
+        if (!request.params.id) {
             throw new BedesError(
                 'Invalid parameters',
                 HttpStatusCodes.BadRequest_400
             );
         }
+        const id = +request.params.id;
         return db.tx('trans', async (transaction: any) => {
             let results = await bedesQuery.compositeTermDetail.deleteCompositeTermDetailById(
                 id, transaction

@@ -15,19 +15,20 @@ const logger = createLogger(module);
 export async function getBedesTermHandler(request: Request, response: Response): Promise<any> {
     try {
         logger.debug(util.inspect(request.params));
-        const termId = request.params.id;
-        if (!termId) {
+        if (!request.params.id) {
             throw new BedesError(
                 'Invalid parameters',
                 HttpStatusCodes.BadRequest_400,
                 "Invalid parameters"
             );
         }
+        const termIdAsNum = +request.params.id;
+        const termId = request.params.id;
         // retrieve the record by either numeric id, or uuid
         if (termId.match(/^\d+$/)) {
             // id
-            let results = await bedesQuery.terms.getTermOrListById(termId);
-            console.log(termId);
+            let results = await bedesQuery.terms.getTermOrListById(termIdAsNum);
+            console.log(termIdAsNum);
             console.log(results);
             response.json(results)
         }
