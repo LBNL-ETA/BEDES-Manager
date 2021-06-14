@@ -38,6 +38,8 @@ RUN rm -rf node_modules && npm i
 WORKDIR /app/bedes-frontend
 RUN rm -rf node_modules && npm i
 
+WORKDIR /app/scripts/ts
+RUN rm -rf node_modules && npm i
 
 WORKDIR /app/bedes-backend
 RUN rm -rf node_modules && npm i
