@@ -164,12 +164,9 @@ export class XmlTermLoader {
         if (!xmlTerm.name) {
             throw new Error('xmlTerm requires a valid name');
         }
-        if (!xmlTerm.uuid) {
-            throw new Error('xmlTerm requires a valid UUID');
-        }
         let bedesTerm: IBedesTerm | IBedesConstrainedList;
         try {
-            bedesTerm = await bedesQuery.terms.getRecordByUUID(xmlTerm.uuid);
+            bedesTerm = await bedesQuery.terms.getRecordByName(xmlTerm.name);
         }
             // Create the term if it does not exist.
         catch (error) {

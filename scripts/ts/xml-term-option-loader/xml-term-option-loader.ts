@@ -152,12 +152,7 @@ export class XmlTermOptionLoader {
         // get the list option object by name
         let termOption: IBedesTermOption;
         try {
-            if (!xmlTermOption.uuid) {
-                let message = `Missing UUID on term option ${xmlTermOption.listOption}`;
-                logger.error(message);
-                throw new Error(message);
-            }
-            termOption = await bedesQuery.termListOption.getRecordByUUID(xmlTermOption.uuid);
+            termOption = await bedesQuery.termListOption.getRecordByName(xmlTermOption.relatedTermUUID, xmlTermOption.listOption);
         }
         catch (error) {
             logger.error(`${this.constructor.name}: can't find list term option`);
