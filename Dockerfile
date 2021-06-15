@@ -11,7 +11,7 @@ RUN apk update && apk add postgresql-client && apk add bash && apk add curl && a
 
 # bcrypt depencencies
 # need this for node sass in alpine for bcrypt
-RUN apk --no-cache add build-base python
+RUN apk --no-cache add build-base python python3
 RUN npm config set python /usr/bin/python
 
 RUN mkdir -p /app
@@ -61,6 +61,7 @@ USER root
 # Ensure Heroku Exec compatibility.
 ADD ./build/.profile.d /app/.profile.d
 RUN rm /bin/sh && ln -s /bin/bash /bin/sh
+RUN ln -sf /usr/bin/python3 /usr/bin/python
 
 USER node
 WORKDIR /app
