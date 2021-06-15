@@ -60,4 +60,8 @@ RUN npm run build
 
 WORKDIR /app
 
+# Ensure Heroku Exec compatibility.
+ADD build/.profile.d /app/.profile.d
+RUN rm /bin/sh && ln -s /bin/bash /bin/sh
+
 CMD ["/entrypoint/heroku-entrypoint.sh"]
