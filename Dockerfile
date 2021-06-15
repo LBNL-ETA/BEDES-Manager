@@ -7,8 +7,7 @@ USER root
 ENV NPM_CONFIG_LOGLEVEL warn
 RUN npm config set unsafe-perm true
 RUN npm install -g @angular/cli@^7.0.4 npm@^6
-# RUN apt-get update -y && apt-get install -y postgresql-client
-RUN apk update && apk add postgresql-client && rm -rf /var/cache/apk/*
+RUN apk update && apk add postgresql-client && apk add bash && rm -rf /var/cache/apk/*
 
 # bcrypt depencencies
 # need this for node sass in alpine for bcrypt
@@ -58,10 +57,12 @@ RUN rm -rf node_modules && npm i
 # Build Angular.
 RUN npm run build
 
-WORKDIR /app
-
+USER root
 # Ensure Heroku Exec compatibility.
-ADD build/.profile.d /app/.profile.d
+ADD ./build/.profile.d /app/.profile.d
 RUN rm /bin/sh && ln -s /bin/bash /bin/sh
+
+USER node
+WORKDIR /app
 
 CMD ["/entrypoint/heroku-entrypoint.sh"]
