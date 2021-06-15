@@ -64,5 +64,7 @@ RUN rm /bin/sh && ln -s /bin/bash /bin/sh
 
 USER node
 WORKDIR /app
+RUN mkdir /app/bedes-mappings
+COPY bedes-mappings /app/bedes-mappings
 
 CMD ["/entrypoint/heroku-entrypoint.sh"]
