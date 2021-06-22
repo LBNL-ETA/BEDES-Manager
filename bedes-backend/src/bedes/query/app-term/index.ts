@@ -152,7 +152,7 @@ export class AppTermQuery {
             logger.error(util.inspect(error));
             logger.error(util.inspect(item));
             if (error.code === "22001") {
-                throw new Error('App Term Name too long (max 100 characters). Term = ' + item._name);
+                throw new Error('One of the fields exceeded the allowed length in the database. Term = ' + item._name);
             } else {
                 throw new Error(error.message + '. Term = ' + item._name);
             }
