@@ -386,7 +386,7 @@ export class BedesCompositeTermQuery {
     /**
      * Searches the database for a matching composite term id.
      */
-    public getRecordById(id: number, transaction?: any): Promise<IBedesCompositeTerm> {
+    public getRecordById(id: number, transaction?: any): Promise<IBedesCompositeTerm | null> {
         try {
             if (!id) {
                 logger.error(`${this.constructor.name}: Missing unitName in BedesUnit-getRecordByName`);
@@ -415,10 +415,10 @@ export class BedesCompositeTermQuery {
      * @param [transaction] Optional database transaction context.
      * @returns Promise that resolves to the IBedesCompositeTerm record.
      */
-    public getRecordByUUID(uuid: string, transaction?: any): Promise<IBedesCompositeTerm> {
+    public getRecordByUUID(uuid: string, transaction?: any): Promise<IBedesCompositeTerm | null> {
         try {
             if (!uuid) {
-                logger.error(`${this.constructor.name}: getRecordByUUID expecs a uuid`);
+                logger.error(`${this.constructor.name}: getRecordByUUID expects a uuid`);
                 throw new BedesError(
                     'Invalid parameters',
                     HttpStatusCodes.BadRequest_400,

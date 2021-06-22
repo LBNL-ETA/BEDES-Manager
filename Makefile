@@ -73,6 +73,13 @@ volume_rm:
 load-dev-data:
 	cd scripts/ts && npm run load-all && npm run add-bedes-admin-user && npm run add-bedes-test-users
 
+# Clears the DB without loading terms, for debugging purposes
+dev-clear-db:
+	make stop_and_remove_db
+	make volume_rm
+	make volume_create
+	(cd bedes-db && make run && sleep 10)
+
 # Removes the docker database volume, then reloads the BEDES Terms and users.
 dev-clean-data:
 	make stop_and_remove_db

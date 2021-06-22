@@ -25,66 +25,67 @@ export class AppTermProcessor {
         this.transaction = transaction;
     }
 
-    /**
-     * Given a collection of AppRow objects, builds a collection of AppTerm objects,
-     * which can then be stored in the database and linked to BedesTerm objects.
-     * In the HPXML Workbook, the the app terms are defined 1 per sheet row, so
-     * each element in appRows correponds to 1 AppTerm object.
-     * @param appId 
-     * @param appRows 
-     * @returns transform 
-     */
-    public transform(appId: number, appRows: Array<AppRow>): Array<IAppTerm> {
-        try {
-            return appRows.map((appRow) => {
-                // construct the main IAppTerm object.
-                const term = <IAppTerm>{
-                    _appId: appId,
-                    _fieldCode: appRow.appTermCode,
-                    _name: appRow.dataElement,
-                    _description: appRow.definition ? appRow.definition.trim() : null,
-                    _additionalInfo: new Array<IAppTermAdditionalInfo>()
-                };
-                // add the additional info if present.
-                if (appRow.appTermCode) {
-                    term._additionalInfo.push(<IAppTermAdditionalInfo>{
-                        _appFieldId: AppField.FieldCode,
-                        _value: appRow.appTermCode
-                    });
-                }
-                if (appRow.units) {
-                    term._additionalInfo.push(<IAppTermAdditionalInfo>{
-                        _appFieldId: AppField.Units,
-                        _value: appRow.units
-                    });
-                }
-                if (appRow.dataType) {
-                    term._additionalInfo.push(<IAppTermAdditionalInfo>{
-                        _appFieldId: AppField.DataType,
-                        _value: appRow.dataType
-                    });
-                }
-                if (appRow.enumeration) {
-                    term._additionalInfo.push(<IAppTermAdditionalInfo>{
-                        _appFieldId: AppField.EnumeratedValue,
-                        _value: appRow.enumeration
-                    });
-                }
-                if (appRow.notes) {
-                    term._additionalInfo.push(<IAppTermAdditionalInfo>{
-                        _appFieldId: AppField.Notes,
-                        _value: appRow.notes
-                    });
-                }
-
-                return term;
-            });
-        } catch (error) {
-            logger.error(`${this.constructor.name}: Error in buildAppTerms`);
-            logger.error(util.inspect(error));
-            throw error;
-        }
-    }
+    // @todo: Fix this function later if necessary. Types are messed up.
+    // /**
+    //  * Given a collection of AppRow objects, builds a collection of AppTerm objects,
+    //  * which can then be stored in the database and linked to BedesTerm objects.
+    //  * In the HPXML Workbook, the the app terms are defined 1 per sheet row, so
+    //  * each element in appRows correponds to 1 AppTerm object.
+    //  * @param appId
+    //  * @param appRows
+    //  * @returns transform
+    //  */
+    // public transform(appId: number, appRows: Array<AppRow>): Array<IAppTerm> {
+    //     try {
+    //         return appRows.map((appRow) => {
+    //             // construct the main IAppTerm object.
+    //             const term = <IAppTerm>{
+    //                 _appId: appId,
+    //                 _fieldCode: appRow.appTermCode,
+    //                 _name: appRow.dataElement,
+    //                 _description: appRow.definition ? appRow.definition.trim() : null,
+    //                 _additionalInfo: new Array<IAppTermAdditionalInfo>(),
+    //             };
+    //             // add the additional info if present.
+    //             if (appRow.appTermCode) {
+    //                 term._additionalInfo.push(<IAppTermAdditionalInfo>{
+    //                     _appFieldId: AppField.FieldCode,
+    //                     _value: appRow.appTermCode
+    //                 });
+    //             }
+    //             if (appRow.units) {
+    //                 term._additionalInfo.push(<IAppTermAdditionalInfo>{
+    //                     _appFieldId: AppField.Units,
+    //                     _value: appRow.units
+    //                 });
+    //             }
+    //             if (appRow.dataType) {
+    //                 term._additionalInfo.push(<IAppTermAdditionalInfo>{
+    //                     _appFieldId: AppField.DataType,
+    //                     _value: appRow.dataType
+    //                 });
+    //             }
+    //             if (appRow.enumeration) {
+    //                 term._additionalInfo.push(<IAppTermAdditionalInfo>{
+    //                     _appFieldId: AppField.EnumeratedValue,
+    //                     _value: appRow.enumeration
+    //                 });
+    //             }
+    //             if (appRow.notes) {
+    //                 term._additionalInfo.push(<IAppTermAdditionalInfo>{
+    //                     _appFieldId: AppField.Notes,
+    //                     _value: appRow.notes
+    //                 });
+    //             }
+    //
+    //             return term;
+    //         });
+    //     } catch (error) {
+    //         logger.error(`${this.constructor.name}: Error in buildAppTerms`);
+    //         logger.error(util.inspect(error));
+    //         throw error;
+    //     }
+    // }
 
     /**
      * Saves a collection of IAppTerm objects to the database.
@@ -95,7 +96,9 @@ export class AppTermProcessor {
     public async saveAppTerms(appTerms: Array<IAppTerm>): Promise<Array<IAppTerm>> {
         try {
             let promises = new Array<Promise<IAppTerm>>();
-            appTerms.map((appTerm) => promises.push(bedesQuery.appTerm.newAppTerm(appTerm, this.transaction)));
+            // @todo
+            throw new Error('This is currently broken.');
+            // appTerms.map((appTerm) => promises.push(bedesQuery.appTerm.newAppTerm(appTerm, this.transaction)));
             return Promise.all(promises);
         }
         catch (error) {

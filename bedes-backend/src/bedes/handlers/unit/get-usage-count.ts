@@ -10,12 +10,12 @@ const logger = createLogger(module);
 export async function getUnitUsageCount(request: Request, response: Response): Promise<any> {
     try {
         console.log('getUnitUsageCount');
-        const unitId = request.params.unitId;
-        if (!unitId) {
+        if (!request.params.unitId) {
             logger.error('missing unitId');
             response.status(HttpStatusCodes.BadRequest_400).send('Invalid parameters.');
             return;
         }
+        const unitId = +request.params.unitId;
         let results: IUsageCount = await bedesQuery.units.getUsageCount(unitId);
         logger.debug('received usage count');
         logger.debug(`type: ${typeof results}`)

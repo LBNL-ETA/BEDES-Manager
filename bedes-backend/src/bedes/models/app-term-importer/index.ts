@@ -1,5 +1,6 @@
 import path from 'path';
 import fs from 'fs';
+import util from 'util';
 import { Request } from 'express';
 import * as parser from 'papaparse';
 import { HttpStatusCodes } from '@bedes-common/enums/http-status-codes';
@@ -404,6 +405,7 @@ export class AppTermImporter {
             }
         } catch (error) {
             logger.error(`error in processCsvTerm: Term=(${parsedCsvTerm.ApplicationTerm})`);
+            logger.error(util.inspect(error));
             if (error instanceof BedesError) {
                 throw error;
             } else {

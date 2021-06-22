@@ -5,7 +5,7 @@ import { AppRow } from './app-row-hpxml';
 import { createLogger }  from "@script-common/logging";
 import { TermLinker } from './term-linker';
 import { ExcelRowExtractor } from './excel-row-extractor';
-import { BedesErrorTermNotFound } from '../lib/errors/bedes-term-not-found.error';
+import { BedesErrorTermNotFound } from '@bedes-common/errors/bedes-term-not-found.error';
 import { BedesError } from '@bedes-common/bedes-error';
 import { TermNotFound } from '../base/term-not-found';
 const logger = createLogger(module);
@@ -77,7 +77,9 @@ export class HpxmlLoader extends BedesMappingBase {
                     if (appRowCollector.length && bedesRowCollector.length) {
                         // link the app's term to the corresponding Bedes Terms
                         try {
-                            await this.termLinker.linkTerms(this.appId, appRowCollector, bedesRowCollector);
+                            // @todo
+                            throw new Error('Currently broken.');
+                            // await this.termLinker.linkTerms(this.appId, appRowCollector, bedesRowCollector);
                         }
                         catch (error) {
                             if (error instanceof BedesErrorTermNotFound) {
@@ -110,7 +112,9 @@ export class HpxmlLoader extends BedesMappingBase {
             // link the last term if exists
             if (bedesRowCollector.length && appRowCollector.length) {
                 try {
-                    await this.termLinker.linkTerms(this.appId, appRowCollector, bedesRowCollector);
+                    // @todo
+                    throw new Error('Currently broken.');
+                    // await this.termLinker.linkTerms(this.appId, appRowCollector, bedesRowCollector);
                 }
                 catch (error) {
                     if (error instanceof BedesErrorTermNotFound) {

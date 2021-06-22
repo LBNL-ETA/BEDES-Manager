@@ -29,7 +29,7 @@ export class BedesCompositeTerm extends BedesCompositeTermShort {
         return this._items;
     }
 
-    constructor(data?: IBedesCompositeTerm) {
+    constructor(data?: IBedesCompositeTerm | null) {
         super(data);
         this._items = new Array<CompositeTermDetail>();
         if (data) {

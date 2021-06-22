@@ -57,6 +57,7 @@ export class BedesTermListOptionQuery {
         } catch (error) {
             logger.error(`${this.constructor.name}: Error in newRecord`);
             logger.error(util.inspect(error));
+            logger.error(util.inspect(item));
             throw error;
         }
     }
@@ -139,8 +140,8 @@ export class BedesTermListOptionQuery {
             const params = {
                 _uuid: uuid
             };
-            console.log(params);
-            console.log(this.sqlGetByUUID);
+            logger.debug(params);
+            logger.debug(this.sqlGetByUUID);
             if (transaction) {
                 return transaction.one(this.sqlGetByUUID, params);
             }

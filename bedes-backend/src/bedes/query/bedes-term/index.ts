@@ -74,6 +74,11 @@ export class BedesTermQuery {
             if (!newTerm._id) {
                 throw new Error('New BedesTerm missing id');
             }
+            // The query aliases termCategoryId to termTypeId. Ensure they
+            // match.
+            if (!newTerm._termCategoryId && newTerm._termTypeId) {
+                newTerm._termCategoryId = newTerm._termTypeId;
+            }
             // save the sector info
             const sectors = await bedesQuery.bedesTermSectorLink.insertAll(newTerm._id, item._sectors, transaction);
             sectors.forEach((d) => newTerm._sectors.push(d));
@@ -119,6 +124,11 @@ export class BedesTermQuery {
                 logger.error(util.inspect(item));
                 logger.error(util.inspect(constrainedList));
                 throw new Error(`${this.constructor.name}: Missing _id on new BedesConstrainedList`);
+            }
+            // The query aliases termCategoryId to termTypeId. Ensure they
+            // match.
+            if (!constrainedList._termCategoryId && constrainedList._termTypeId) {
+                constrainedList._termCategoryId = constrainedList._termTypeId;
             }
             const termId: number = constrainedList._id;
 

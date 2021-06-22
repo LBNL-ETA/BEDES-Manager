@@ -3,7 +3,7 @@ import { TermLoader } from './term-loader';
 import * as util from 'util';
 
 const filePath = '../../bedes-mappings';
-const fileName = 'BEDES V2.2.xlsx';
+const fileName = 'BEDES V2.3.xlsx';
 
 const termLoader = new TermLoader(filePath, fileName);
 termLoader.run()
