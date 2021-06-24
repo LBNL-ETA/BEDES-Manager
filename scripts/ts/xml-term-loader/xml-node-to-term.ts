@@ -51,8 +51,35 @@ function getValue(node: IXmlNodeTerm | IXmlDefinition, key: string, required?: b
             return undefined;
         }
         else {
-            // @ts-ignore
-            return getValue(dataArray[0], 'p', true);
+            // Strip any HTML formatting from Drupal.
+            // @todo: Remove formatting in Drupal export instead, and then
+            //  remove this hack.
+            let stringValue = getValue(dataArray[0], 'p', true);
+            // If it's still not a string, then it must have an extra <span>.
+            // Work around this.
+            if (typeof stringValue !== 'string' && stringValue) {
+                logger.debug('stringValue with nested span');
+                logger.debug(util.inspect(stringValue));
+                // @ts-ignore
+                if (stringValue.span && typeof stringValue.span[0] === 'string') {
+                    // @ts-ignore
+                   stringValue = stringValue.span[0];
+                }
+                // @ts-ignore
+                else if (stringValue.span) {
+                    // @ts-ignore
+                    stringValue = stringValue.span[0]._;
+                }
+                // @ts-ignore
+                else if (stringValue.a) {
+                    // @ts-ignore
+                    stringValue = stringValue._ + stringValue.a[0].$.href;
+                }
+            }
+             if (!stringValue) {
+                 return undefined;
+             }
+            return stringValue;
         }
     }
     else if (dataArray.length) {
