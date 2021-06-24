@@ -1,3 +1,4 @@
+set +o posix
 if [ -z "$SSH_CLIENT" ]; then
   # ensure $HOME is set
   export HOME=/heroku
