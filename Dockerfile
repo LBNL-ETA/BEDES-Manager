@@ -60,6 +60,8 @@ RUN npm run build
 USER root
 # Ensure Heroku Exec compatibility.
 ADD ./build/.profile.d /app/.profile.d
+ADD ./build/.profile.d/heroku-exec.sh /etc/profile.d/heroku-exec.sh
+RUN chmod +x /app/.profile.d/heroku-exec.sh && chmod +x /etc/profile.d/heroku-exec.sh
 RUN rm /bin/sh && ln -s /bin/bash /bin/sh
 RUN ln -sf /usr/bin/python3 /usr/bin/python
 
