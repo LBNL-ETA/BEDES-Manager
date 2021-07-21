@@ -47,10 +47,10 @@ export async function appTermExportHandler(request: Request, response: Response)
         }
 
         // Make sure the id was passed in
-        const appId = request.params.id;
-        if (!appId) {
+        if (!request.params.id) {
             throw new BedesError('Invalid parameters', HttpStatusCodes.BadRequest_400);
         }
+        const appId = +request.params.id;
 
         const delimiter = '\n';
 

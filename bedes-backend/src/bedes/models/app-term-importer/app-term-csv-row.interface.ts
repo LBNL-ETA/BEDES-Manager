@@ -9,6 +9,7 @@ import { IBedesUnit } from '../../../../../bedes-common/models/bedes-unit/bedes-
 import { IBedesTermOption } from '@bedes-common/models/bedes-term-option';
 import { ICompositeTermDetail, IBedesCompositeTerm, BedesCompositeTerm } from '@bedes-common/models/bedes-composite-term';
 import { getAuthenticatedUser } from '@bedes-backend/util/get-authenticated-user';
+import util from "util";
 const logger = createLogger(module);
 
 /**
@@ -211,7 +212,7 @@ export async function mappedToBedesAtomicTerm(item: IAppTermCsvRow): Promise<ICs
                 // Check that the BEDES Term Unit is correct
                 if (item.BedesTermUnit) {
                     let bedesTermUnitId: number | null | undefined = await getUnitIdFromName(item.BedesTermUnit, item.ApplicationTerm);
-                    if (!bedesTermUnitId || bedesTermUnitId != bedesTerm._unitId) {
+                    if (!bedesTermUnitId) {
                         throw new BedesError(`Incorrect BedesTermUnit. Term=(${item.ApplicationTerm})`, HttpStatusCodes.BadRequest_400);
                     }
                 }
@@ -586,6 +587,7 @@ export async function createNewCompositeTerm(item: IAppTermCsvRow, result: ICsvB
         return result;
     } catch (error) {
         logger.error(`error in createNewCompositeTerm: Term=(${item.ApplicationTerm})`);
+        logger.error(util.inspect(error));
         if (error instanceof BedesError) {
             throw error;
         } else {

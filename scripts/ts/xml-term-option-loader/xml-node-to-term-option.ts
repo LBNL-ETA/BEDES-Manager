@@ -18,7 +18,7 @@ export function xmlNodeToTermOption(node: IXmlNodeTermOption): IXmlTermOption {
         relatedTerm: getValue(node, "Related-Term", true),
         relatedTermUUID: getValue(node, "Related-Term-UUID", true),
         sectorNames: splitString(getValue(node, 'Sector', true)),
-        applicationNames: splitString(getValue(node, 'Application', true)),
+        applicationNames: splitString(getValue(node, 'Application')),
     };
     return term;
 }
@@ -26,9 +26,13 @@ export function xmlNodeToTermOption(node: IXmlNodeTermOption): IXmlTermOption {
 function getValue(node: IXmlNodeTermOption, key: string, required?: boolean): string | undefined {
     // @ts-ignore
     const dataArray = node[key];
-    if (!(dataArray instanceof Array)) {
+    let validArray = dataArray instanceof Array;
+    if (required && !validArray) {
         logger.error('Error retrieving value from XML file');
-        throw new Error('Invalid node key, expected an array');
+        throw new Error(`Invalid node key ${key}, expected an array`);
+    }
+    if (!required && !validArray) {
+        return undefined;
     }
     if (dataArray.length) {
         return dataArray[0];
@@ -36,9 +40,8 @@ function getValue(node: IXmlNodeTermOption, key: string, required?: boolean): st
     else if (required) {
         throw new Error('Required data not found');
     }
-    else {
-        return undefined;
-    }
+
+    return undefined;
 }
 
 /**

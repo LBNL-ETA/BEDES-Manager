@@ -21,7 +21,7 @@ class App {
         this.express = express()
         // setup morgan to write to the winston logger
         // so the request information is logged along with any other info
-        const morganOptions: morgan.Options = { 
+        const morganOptions: morgan.Options<express.Request, express.Response> = {
             stream: {
                 write: (str: string) => {
                     // if (str.match(/HTTP\/1.1" 2/)) {

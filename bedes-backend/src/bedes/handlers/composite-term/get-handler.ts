@@ -13,14 +13,14 @@ const logger = createLogger(module);
 export async function compositeTermGetHandler(request: Request, response: Response): Promise<any> {
     try {
         logger.debug(util.inspect(request.params));
-        const id = request.params.id;
-        if (!id) {
+        if (!request.params.id) {
             throw new BedesError(
                 'Invalid parameters',
                 HttpStatusCodes.BadRequest_400,
                 "Invalid parameters"
             );
         }
+        const id = request.params.id;
         logger.debug(`get a composite term`);
         logger.debug(util.inspect(id));
         logger.debug(`isUUID = ${isUUID(id)}`)
@@ -32,7 +32,8 @@ export async function compositeTermGetHandler(request: Request, response: Respon
             return;
         }
         else {
-            let results = await bedesQuery.compositeTerm.getRecordById(id);
+            const idAsNum = +request.params.id;
+            let results = await bedesQuery.compositeTerm.getRecordById(idAsNum);
             logger.debug('compositeTermHandler resuts');
             logger.debug(util.inspect(results));
             response.json(results);

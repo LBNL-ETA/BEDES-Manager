@@ -17,14 +17,14 @@ export async function insertAppTermHandler(request: Request, response: Response)
     try {
         logger.debug('insert AppTerm...');
         logger.debug(util.inspect(request.body));
-        const appId = request.params.id;
-        if (!appId) {
+        if (!request.params.id) {
             throw new BedesError(
                 'Invalid parameters',
                 HttpStatusCodes.BadRequest_400,
                 "Invalid parameters"
             );
         }
+        const appId = +request.params.id;
         const newItem: IAppTerm | IAppTermList = request.body;
         if (!newItem) {
             throw new BedesError(
