@@ -118,6 +118,14 @@ export class BedesTermSearchQuery {
      * Build the search query for BedesTerm objects.
      */
     private buildBedesTermQuery(searchTerms: Array<string>, builderOutput: QueryBuilderOutput): [string, any] {
+        // Prepare the ORDER BY segment of the query.
+        let partialOrderBy = builderOutput.bedesTerm.sqlConditions.reduce((previousValue, currentValue): string => {
+            const newValue = ` ${previousValue} ${currentValue}`;
+            return currentValue === 'OR' ?  `${newValue} NULL,` : newValue;
+        });
+        // The reduce will be missing an OR NULL on the final condition. Add it.
+        const orderBy = partialOrderBy ? `${partialOrderBy} OR NULL` : '';
+
         const query = `
             select
                 t.id as "_id",
@@ -141,6 +149,7 @@ export class BedesTermSearchQuery {
                 public.bedes_term t
             where
                 ${builderOutput.bedesTerm.getSqlConditions()}
+            order by ${orderBy}
         `;
         logger.debug(query);
         return [query, builderOutput.bedesTerm.buildSqlVariableObject()];
