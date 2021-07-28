@@ -244,9 +244,12 @@ export class BedesTermSearchQuery {
                 t.uuid as "_uuid",
                 4 as "_resultObjectType",
                 au.first_name || ' ' || au.last_name as "_ownerName",
-                t.scope_id as "_scopeId"
+                t.scope_id as "_scopeId",
+                b.data_type_id as "_dataTypeId"
             from
                 public.bedes_composite_term t
+            left join 
+                public.bedes_term b on b.id = CAST(t.signature AS int)
             join
                 auth.user as au on au.id = t.user_id
         `;
