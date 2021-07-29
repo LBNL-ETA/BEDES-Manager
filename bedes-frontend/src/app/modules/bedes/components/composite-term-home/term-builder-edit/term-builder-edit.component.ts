@@ -126,8 +126,8 @@ export class TermBuilderEditComponent implements OnInit {
         .subscribe((compositeTerm: BedesCompositeTerm) => {
             this.compositeTerm = compositeTerm;
             this.updateFormStatus();
-            this.updateFormControls();
             this.setFormData();
+            this.updateFormControls();
             // set the list of scope values
             this.scopeList.compositeTerm = compositeTerm;
             this.scopeList.updateScopeList();
