@@ -225,7 +225,11 @@ export class BedesSearchResultsTableComponent implements OnInit, OnDestroy {
                     dataTypeName = 'Constrained List Option';
                 }
                 else if (searchResult.resultObjectType === SearchResultType.CompositeTerm) {
-                    dataTypeName = 'Composite Term';
+                    if (searchResult.dataTypeId) {
+                        dataTypeName = this.supportListService.transformIdToName(SupportListType.BedesDataType, searchResult.dataTypeId)    
+                    } else {
+                        dataTypeName = 'Composite Term';  
+                    }                    
                 }
                 else {
                     dataTypeName = this.supportListService.transformIdToName(SupportListType.BedesDataType, searchResult.dataTypeId)
