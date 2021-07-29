@@ -87,19 +87,24 @@ export async function appTermExportHandler(request: Request, response: Response)
 
             // Temp variables
             let bedesTerm: any = {};
+            appTermName = results[i]._name;
+            
+            // Replace the double quote with more quotes!
+            appTermName = appTermName.replace(/"/g, '""');
 
-            if (results[i]._name.includes('\n') || containsSpecialCharacters(results[i]._name)) {
-                appTermName = "\"" + results[i]._name + "\"";
-            } else {
-                appTermName = results[i]._name;
+            if (appTermName.includes('\n') || containsSpecialCharacters(appTermName)) {
+                appTermName = "\"" + appTermName + "\"";
             }
+
             if (results[i]._description) {
-                if (results[i]._description!.includes('\n') || results[i]._description!.includes(',')) {
-                    appTermDescription = "\"" + results[i]._description! + "\"";
-                } else {
-                    appTermDescription = results[i]._description!
+                appTermDescription = results[i]._description!
+                appTermDescription = appTermDescription.replace(/"/g, '""');
+
+                if (appTermDescription.includes('\n') || containsSpecialCharacters(appTermDescription)) {
+                    appTermDescription = "\"" + appTermDescription + "\"";
                 }
             }
+
             appTermUnit = results[i]._unit || '';
 
             appTermDataType = '';
