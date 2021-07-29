@@ -4,5 +4,6 @@
  */
 export enum ApplicationScope {
     Private=1,
-    Public=3
+    Public=3,
+    Approved=4,
 }

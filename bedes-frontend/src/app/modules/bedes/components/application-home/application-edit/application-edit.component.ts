@@ -161,7 +161,7 @@ export class ApplicationEditComponent implements OnInit, OnDestroy {
         const newApp: IMappingApplication = this.getAppFromForm();
         newApp._id = this.app.id;
         this.resetError();
-        const scopeChange = (this.app && this.app.scopeId === ApplicationScope.Private && newApp._scopeId === ApplicationScope.Public)
+        const scopeChange = (this.app && this.app.scopeId !== newApp._scopeId)
             ? true : false;
         this.appService.updateApplication(newApp)
         .subscribe(
