@@ -1,16 +1,17 @@
-import { QueryFile } from 'pg-promise';
+import {QueryFile} from 'pg-promise';
 import * as path from 'path';
-import { db } from '@bedes-backend/db';
+import {db} from '@bedes-backend/db';
 import sql_loader from '@bedes-backend/db/sql_loader';
-import { createLogger }  from '@bedes-backend/logging';
-const logger = createLogger(module);
-import { IMappingApplication } from '@bedes-common/models/mapping-application';
+import {createLogger} from '@bedes-backend/logging';
+import {IMappingApplication} from '@bedes-common/models/mapping-application';
 import * as util from 'util';
-import { BedesError } from '@bedes-common/bedes-error/bedes-error';
-import { HttpStatusCodes } from '@bedes-common/enums/http-status-codes';
-import { CurrentUser } from '@bedes-common/models/current-user/current-user';
-import { ApplicationScope } from '@bedes-common/enums/application-scope.enum';
-import { bedesQuery } from '..';
+import {BedesError} from '@bedes-common/bedes-error/bedes-error';
+import {HttpStatusCodes} from '@bedes-common/enums/http-status-codes';
+import {CurrentUser} from '@bedes-common/models/current-user/current-user';
+import {ApplicationScope} from '@bedes-common/enums/application-scope.enum';
+import {bedesQuery} from '..';
+
+const logger = createLogger(module);
 
 
 /**
@@ -180,6 +181,12 @@ export class AppQuery {
                 await bedesQuery.compositeTerm.setApplicationCompositeTermsToPublic(currentUser, item._id, transaction);
             }
 
+            const scopeToApproved = current._scopeId !== ApplicationScope.Approved && item._scopeId === ApplicationScope.Approved;
+            if (scopeToApproved) {
+                // Set all corresponding BEDES composite terms to approved
+                await bedesQuery.compositeTerm.setApplicationCompositeTermsToApproved(currentUser, item._id, transaction);
+            }
+
             // build the query parameters
             const params = {
                 _id: item._id,
@@ -189,6 +196,10 @@ export class AppQuery {
             };
             // determine the db transaction context for the query
             const ctx = transaction || db;
+            if (scopeToApproved) {
+                // Set ownership of the application to the administrative user approving it.
+                await this.setAppPermissions(currentUser, item, transaction);
+            }
             return ctx.one(this.sqlUpdateAdmin, params);
         } catch (error) {
             // Duplicate record

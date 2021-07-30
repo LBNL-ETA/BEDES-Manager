@@ -17,8 +17,8 @@ join
     -- join in current user info
 	auth.user as cu on cu.id = ${_userId}
 where (
-	-- select public applications
-	a.scope_id = 3
+	-- select public and approved applications
+	a.scope_id in (3, 4)
 )
 or (
 	-- select application owners

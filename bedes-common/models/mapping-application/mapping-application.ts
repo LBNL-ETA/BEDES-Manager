@@ -1,5 +1,5 @@
-import { IMappingApplication } from "./mapping-application.interface";
-import { ApplicationScope } from '../../enums/application-scope.enum';
+import {IMappingApplication} from "./mapping-application.interface";
+import {ApplicationScope} from '../../enums/application-scope.enum';
 
 export class MappingApplication {
     /** ID of the MappingApplication */
@@ -74,7 +74,7 @@ export class MappingApplication {
      * @returns true if public 
      */
     public isPublic(): boolean {
-        return this._scopeId === ApplicationScope.Public ? true : false;
+        return this._scopeId === ApplicationScope.Public;
     }
 
     /**
@@ -82,6 +82,14 @@ export class MappingApplication {
      * @returns true if private 
      */
     public isPrivate(): boolean {
-        return this._scopeId === ApplicationScope.Private ? true : false;
+        return this._scopeId === ApplicationScope.Private;
+    }
+
+    /**
+     * Determines if the application has the Approved scope.
+     * @returns true if approved
+     */
+    public isApproved(): boolean {
+        return this._scopeId === ApplicationScope.Approved;
     }
 }
