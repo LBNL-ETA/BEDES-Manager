@@ -16,6 +16,7 @@ import { applicationScopeList } from '@bedes-common/lookup-tables/application-sc
 import { authLoggedInFactory } from '../../../../bedes-auth/services/auth/auth-factory.service';
 import { ApplicationScope } from '../../../../../../../../bedes-common/enums/application-scope.enum';
 import { CompositeTermService } from '../../../services/composite-term/composite-term.service';
+import {FilteredApplicationScopeList} from './filtered-application-scope-list';
 
 enum RequestStatus {
     Idle=1,
@@ -39,7 +40,7 @@ export class ApplicationEditComponent implements OnInit, OnDestroy {
     public app: MappingApplication;
     // The active MappingApplication's AppTerms
     public termList: Array<AppTerm | AppTermList>;
-    public scopeList = applicationScopeList.items;
+    public scopeList = new FilteredApplicationScopeList(applicationScopeList);
     // contains the status of the current request status
     public currentRequestStatus = RequestStatus.Idle;
     public RequestStatus = RequestStatus;
@@ -96,6 +97,10 @@ export class ApplicationEditComponent implements OnInit, OnDestroy {
             this.setFormData();
             this.setScopeControlStatus();
             this.setDataControlStatus();
+
+            // set the list of scope values
+            this.scopeList.mappingApplication = app;
+            this.scopeList.updateScopeList();
         });
     }
 
@@ -111,6 +116,10 @@ export class ApplicationEditComponent implements OnInit, OnDestroy {
                 this.setFormData();
                 this.setScopeControlStatus();
                 this.setDataControlStatus();
+
+                // set the list of scope values
+                this.scopeList.currentUser = currentUser;
+                this.scopeList.updateScopeList();
             });
     }
 
@@ -161,7 +170,7 @@ export class ApplicationEditComponent implements OnInit, OnDestroy {
         const newApp: IMappingApplication = this.getAppFromForm();
         newApp._id = this.app.id;
         this.resetError();
-        const scopeChange = (this.app && this.app.scopeId === ApplicationScope.Private && newApp._scopeId === ApplicationScope.Public)
+        const scopeChange = (this.app && this.app.scopeId !== newApp._scopeId)
             ? true : false;
         this.appService.updateApplication(newApp)
         .subscribe(
@@ -171,6 +180,8 @@ export class ApplicationEditComponent implements OnInit, OnDestroy {
                 this.appService.load();
                 this.app.name = updatedApp.name;
                 this.app.description = updatedApp.description;
+                this.scopeList.mappingApplication = updatedApp;
+                this.scopeList.updateScopeList();
                 this.app.scopeId = updatedApp.scopeId;
                 this.setDataControlStatus();
                 this.setScopeControlStatus();

@@ -46,11 +46,11 @@
         <mat-label>Description</mat-label>
         <textarea matInput placeholder="Description" formControlName="description" rows="5"></textarea>
     </mat-form-field>
-    <div style="display:flex; flex-direction: row;" *ngIf="scopeList.length">
+    <div style="display:flex; flex-direction: row;" *ngIf="scopeList.items">
         <mat-form-field style="flex:1;" appearance="outline">
             <mat-label>Sharing</mat-label>
             <mat-select placeholder="Scope" formControlName="scopeId">
-                <mat-option *ngFor="let item of scopeList" [value]="item.id">
+                <mat-option *ngFor="let item of scopeList.items" [value]="item.id">
                     {{item.name}}
                 </mat-option>
             </mat-select>

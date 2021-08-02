@@ -26,6 +26,7 @@ export class BedesCompositeTermQuery {
     private sqlGetCompositeTermCompleteUUID: QueryFile;
     private sqlDelete: QueryFile;
     private sqlAppPrivateToPublic: QueryFile;
+    private sqlAppToApproved: QueryFile;
 
     constructor() { 
         this.sqlGetBySignature = sql_loader(path.join(__dirname, 'get.sql'));
@@ -38,7 +39,8 @@ export class BedesCompositeTermQuery {
         this.sqlInsert = sql_loader(path.join(__dirname, 'insert.sql'))
         this.sqlUpdate = sql_loader(path.join(__dirname, 'update.sql'))
         this.sqlDelete = sql_loader(path.join(__dirname, 'delete.sql'))
-        this.sqlAppPrivateToPublic = sql_loader(path.join(__dirname, 'app-private-to-public.sql'))
+        this.sqlAppPrivateToPublic = sql_loader(path.join(__dirname, 'app-private-to-public.sql'));
+        this.sqlAppToApproved = sql_loader(path.join(__dirname, 'app-to-approved.sql'));
     }
 
     /**
@@ -573,6 +575,40 @@ export class BedesCompositeTermQuery {
             return await ctx.none(this.sqlAppPrivateToPublic, params);
         } catch (error) {
             logger.error(`${this.constructor.name}: Error in setApplicationCompositeTermsToPublic`);
+            logger.error(util.inspect(error));
+            throw error;
+        }
+    }
+
+    /**
+     * Set all composite terms for a given application id to approved.
+     * @param currentUser
+     * @param appId
+     * @param [transaction]
+     * @returns application composite terms to approved
+     */
+    public async setApplicationCompositeTermsToApproved(
+        currentUser: CurrentUser,
+        appId: number,
+        transaction?: any
+    ): Promise<void> {
+        try {
+            if (!appId) {
+                logger.error(`${this.constructor.name}: missing appId in setApplicationCompositeTermsToApproved`);
+                throw new BedesError(
+                    'Missing required parameters.',
+                    HttpStatusCodes.BadRequest_400);
+            }
+            // build the query params
+            const params = {
+                _applicationId: appId,
+                _userId: currentUser.id,
+            };
+            // select the query context and run it
+            const ctx = transaction || db;
+            return await ctx.none(this.sqlAppToApproved, params);
+        } catch (error) {
+            logger.error(`${this.constructor.name}: Error in setApplicationCompositeTermsToApproved`);
             logger.error(util.inspect(error));
             throw error;
         }

@@ -13,6 +13,11 @@ params.push({
     _name: 'Public',
     _description: undefined
 });
+params.push({
+    _id: ApplicationScope.Approved,
+    _name: 'Approved',
+    _description: undefined,
+})
 
 /** * List of the possible Scope states for application visibility */
 export const applicationScopeList = new base.LookupTable(params);
