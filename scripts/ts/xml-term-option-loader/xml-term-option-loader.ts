@@ -1,30 +1,20 @@
 import * as fs from 'fs';
-import { createLogger }  from "@script-common/logging";
-const logger = createLogger(module);
+import {createLogger} from '@script-common/logging';
 import * as path from 'path';
 import * as util from 'util';
-import { BedesUnitManager } from "../term-loader/data-managers/unit-manager";
-import { BedesUnit, IBedesUnit } from "@bedes-common/models/bedes-unit";
-import { BedesTerm, BedesConstrainedList, IBedesConstrainedList, IBedesTerm } from '@bedes-common/models/bedes-term';
-import { BedesTermOption } from "@bedes-common/models/bedes-term-option/bedes-term-option";
-import { IBedesTermOption } from "@bedes-common/models/bedes-term-option/bedes-term-option.interface";
-import { BedesDataTypeManager } from "../term-loader/data-managers/data-type-manager";
-import { BedesDataType, IBedesDataType } from "@bedes-common/models/bedes-data-type";
-import { BedesTermManager } from "../term-loader/data-managers/bedes-term-manager";
-import { BedesDefinitionSourceManager } from "../term-loader/data-managers/definition-source-manager";
-import { BedesTermCategoryManager } from "../term-loader/data-managers/term-category-manager";
-import { BedesTermCategory, IBedesTermCategory } from "@bedes-common/models/bedes-term-category";
-import { BedesDefinitionSource } from "@bedes-common/models/bedes-definition-source";
+import {BedesUnitManager} from '../term-loader/data-managers/unit-manager';
+import {BedesUnit, IBedesUnit} from '@bedes-common/models/bedes-unit';
+import {IBedesTermOption} from '@bedes-common/models/bedes-term-option/bedes-term-option.interface';
+import {IBedesTermCategory} from '@bedes-common/models/bedes-term-category';
 import * as xml2js from 'xml2js';
-import { IXmlNodes } from './xml-nodes/xml-nodes.interface';
-import { validXmlNode } from './xml-nodes/valid-xml-node';
-import { xmlNodeToTermOption } from './xml-node-to-term-option';
-import { IXmlTerm } from '../../../bedes-common/models/xml-term/xml-term.interface';
-import { bedesQuery } from '@bedes-backend/bedes/query';
-import { IBedesSector } from '@bedes-common/models/bedes-sector/bedes-sector.interface';
-import { BedesSector } from '../../../bedes-common/models/bedes-sector/bedes-sector';
-import { IBedesTermSectorLink } from '../../../bedes-common/models/bedes-term-sector-link/bedes-term-sector-link.interface';
-import { IXmlTermOption } from '../../../bedes-common/models/xml-term/xml-term-option.interface';
+import {IXmlNodes} from './xml-nodes/xml-nodes.interface';
+import {validXmlNode} from './xml-nodes/valid-xml-node';
+import {xmlNodeToTermOption} from './xml-node-to-term-option';
+import {bedesQuery} from '@bedes-backend/bedes/query';
+import {IBedesSector} from '@bedes-common/models/bedes-sector/bedes-sector.interface';
+import {IXmlTermOption} from '../../../bedes-common/models/xml-term/xml-term-option.interface';
+
+const logger = createLogger(module);
 
 /**
  * Load's the BEDES term options from BEDES_all-list-options_V2-2.xml
@@ -35,6 +25,7 @@ export class XmlTermOptionLoader {
     private units: Array<IBedesUnit>;
     private categories: Array<IBedesTermCategory>;
     private sectors: Array<IBedesSector>;
+    private unitManager: BedesUnitManager;
 
     constructor(filePath: string, fileName: string) {
         this.filePath = filePath;
@@ -42,18 +33,18 @@ export class XmlTermOptionLoader {
         this.units = new Array<IBedesUnit>();
         this.categories = new Array<IBedesTermCategory>();
         this.sectors = new Array<IBedesSector>();
+        this.unitManager = new BedesUnitManager();
     }
 
     /**
      * Runs term loader.
      */
-    public async run(): Promise<any>{
+    public async run(): Promise<any> {
         try {
             const xml: IXmlNodes = await this.openFile();
             await this.loadLookupTables();
             return this.loadXml(xml);
-        }
-        catch (error) {
+        } catch (error) {
             logger.error(`${this.constructor.name}: unable to load the xml term file.`);
         }
     }
@@ -70,8 +61,7 @@ export class XmlTermOptionLoader {
             // wait for all promises to resolve
             [this.units, this.categories, this.sectors] = await Promise.all(promises);
             console.log(this.sectors);
-        }
-        catch (error) {
+        } catch (error) {
             logger.error(`${this.constructor.name}: error loading lookup tables`);
             console.log(error);
             throw error;
@@ -97,8 +87,7 @@ export class XmlTermOptionLoader {
                         resolve(result);
                     });
                 });
-            }
-            catch (error) {
+            } catch (error) {
                 logger.error(`${this.constructor.name}: error opening file "${this.fileName}" in folder "${this.filePath}"`);
                 reject(error);
             }
@@ -122,8 +111,7 @@ export class XmlTermOptionLoader {
                 // logger.debug(util.inspect(xmlTerm));
                 // break
             }
-        }
-        catch (error) {
+        } catch (error) {
             logger.error(`${this.constructor.name}: error in loadXml`);
             logger.error(util.inspect(error));
             throw error;
@@ -134,8 +122,7 @@ export class XmlTermOptionLoader {
         let dataChanged = false;
         if (!xmlTermOption.listOption) {
             throw new Error('xmlTerm requires a list option name');
-        }
-        else if (!xmlTermOption.relatedTermUUID) {
+        } else if (!xmlTermOption.relatedTermUUID) {
             logger.warn('Missing related-term-uuid');
             console.log(xmlTermOption);
             // throw new Error('Missing related-term-uuid');
@@ -153,8 +140,7 @@ export class XmlTermOptionLoader {
         let termOption: IBedesTermOption;
         try {
             termOption = await bedesQuery.termListOption.getRecordByName(xmlTermOption.relatedTermUUID, xmlTermOption.listOption);
-        }
-        catch (error) {
+        } catch (error) {
             logger.error(`${this.constructor.name}: can't find list term option`);
             console.log(xmlTermOption);
             // throw new Error('listOption ${} not found');
@@ -169,9 +155,8 @@ export class XmlTermOptionLoader {
                 logger.error(util.inspect(xmlTermOption));
                 logger.error(util.inspect(bedesTerm));
                 console.log(this.units);
-                throw new Error(`Invalid TermCategoryId (${bedesTerm._termCategoryId})`)
-            }
-            else if (termUnit._id !== termOption._unitId) {
+                throw new Error(`Invalid TermCategoryId (${bedesTerm._termCategoryId})`);
+            } else if (termUnit._id !== termOption._unitId) {
                 logger.error('termCategoryId does not match');
                 logger.error(util.inspect(termUnit));
                 logger.error(util.inspect(bedesTerm));
@@ -192,6 +177,22 @@ export class XmlTermOptionLoader {
             return bedesQuery.termListOption.updateRecord(termOption);
         }
 
+        if (xmlTermOption.relatedTerm === 'Unit Of Measure' && xmlTermOption.listOption) {
+            const listOptionLower = xmlTermOption.listOption.toLowerCase();
+            const listOptionAsUnit = this.units.find((d) => d._name.toLowerCase() === listOptionLower);
+
+            if (!listOptionAsUnit) {
+                const newUnit = this.unitManager.getOrCreateItem(xmlTermOption.listOption);
+                if (!newUnit) {
+                    logger.error(`Failed to create new unit ${xmlTermOption.listOption} from BEDES term Unit Of Measure.`);
+                    logger.error(util.inspect(xmlTermOption));
+                    throw new Error(`Failed to create new unit ${xmlTermOption.listOption} from BEDES term Unit Of Measure.`);
+                }
+
+                logger.debug(`Found and added new unit in BEDES term Unit Of Measure:`);
+                logger.debug(util.inspect(newUnit));
+            }
+        }
     }
 
     async collectTermOptions(): Promise<IXmlTermOption[]> {
@@ -209,9 +210,29 @@ export class XmlTermOptionLoader {
             }
 
             return xmlTermOptions;
-        }
-        catch (error) {
+        } catch (error) {
             logger.error(`${this.constructor.name}: error in loadXml`);
+            logger.error(util.inspect(error));
+            throw error;
+        }
+    }
+
+    /**
+     * Get the BedesUnit object for the given name.
+     * If the name doesn't exist it should be created.
+     * @param name
+     * @returns bedes unit
+     */
+    private async getBedesUnit(name: string): Promise<BedesUnit> {
+        try {
+            let item = await this.unitManager.getOrCreateItem(name);
+            if (item) {
+                return item;
+            } else {
+                throw new Error(`Unable to get the bedes unit ${name}`);
+            }
+        } catch (error) {
+            logger.error('Error retrieving BedesUnit record');
             logger.error(util.inspect(error));
             throw error;
         }
