@@ -11,7 +11,10 @@ select
     t.uuid as "_uuid",
     t.user_id as "_userId",
     t.scope_id as "_scopeId",
-    u.first_name || ' ' || u.last_name as "_ownerName"
+    CASE
+        WHEN t.scope_id = 3 THEN 'BEDES'
+        ELSE u.first_name || ' ' || u.last_name
+        END "_ownerName"
 from
     public.bedes_composite_term as t
 join

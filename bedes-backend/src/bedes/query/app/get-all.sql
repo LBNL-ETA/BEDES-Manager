@@ -3,7 +3,10 @@ select
     a.name as "_name",
     a.description as "_description",
     a.scope_id as "_scopeId",
-    u.first_name || ' ' || u.last_name as "_ownerName"
+    CASE
+        WHEN a.scope_id = 4 THEN 'BEDES'
+        ELSE u.first_name || ' ' || u.last_name
+        END "_ownerName"
 from
     public.mapping_application as a
 join

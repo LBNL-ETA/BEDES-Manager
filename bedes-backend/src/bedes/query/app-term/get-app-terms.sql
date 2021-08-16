@@ -69,10 +69,11 @@ select
 				'_appListOptionUUID', ctm.app_list_option_uuid,
                 '_scopeId', bct.scope_id,
                 '_ownerName', case
-                    when au.id is not null
-                    then au.first_name || ' ' || au.last_name
-                    else null::text
-                end
+                                  when bct.scope_id = 3 then 'BEDES'
+                                  when au.id is not null
+                                      then au.first_name || ' ' || au.last_name
+                                  else null::text
+                    end
 			)
 		else
 			null
