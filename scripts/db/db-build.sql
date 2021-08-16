@@ -400,7 +400,8 @@ alter table public.scope owner to bedes_admin;
 insert into public.scope (id, name) values
     (1, 'Private'),
     (2, 'Public'),
-    (3, 'Approved')
+    (3, 'Approved'),
+    (4, 'Approved (Application)')
 ;
 
 -- Composite Term
