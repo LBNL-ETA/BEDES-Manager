@@ -28,7 +28,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@types/xlsx": "0.0.36",
     "app-root-path": "^2.2.1",
     "dotenv": "^7.0.0",
     "module-alias": "^2.2.2",
@@ -38,7 +37,7 @@
     "typescript": "^3.7.5",
     "uuid": "^3.4.0",
     "winston": "^3.2.1",
-    "xlsx": "^0.14.5",
+    "xlsx": "^0.17.0",
     "xml2js": "^0.4.23"
   },
   "devDependencies": {
