@@ -172,7 +172,7 @@ export class CurrentUser {
      * @returns true if the user can edit the application defined by appId.
      */
     public canEditApplication(app: MappingApplication): boolean {
-        return (this.isApplicationOwner(app) && app.isPrivate()) || this.isAdmin()
+        return (this.isApplicationOwner(app) && !app.isApproved()) || this.isAdmin()
             ? true : false;
     }
 
