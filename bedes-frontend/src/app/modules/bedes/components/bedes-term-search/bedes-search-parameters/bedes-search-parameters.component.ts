@@ -14,6 +14,7 @@ export interface IBedesSearchResultOutput {
 })
 export class BedesSearchParametersComponent implements OnInit {
     public searchString: string;
+    public showPublicTerms: boolean;
     public waitingForResults = false;
     public searchError = false;
     public errorMessage: string;
@@ -31,15 +32,19 @@ export class BedesSearchParametersComponent implements OnInit {
     ngOnInit() {
     }
 
+    public showPublicTermsChange(event) {
+        this.showPublicTerms = event.checked;
+    }
+
     /**
      * Initiates the http request for the term search.
      */
-    public searchForTerms(): void {
+    public searchForTerms(event): void {
         if(!this.searchString) {
             throw new Error("Can't search for empty string.");
         }
         this.waitingForResults = true;
-        this.bedesTermSearchService.search([this.searchString])
+        this.bedesTermSearchService.search([this.searchString], this.showPublicTerms)
         .subscribe((results: Array<BedesSearchResult>) => {
             // set the number of rows found
             this.numResults = results.length;

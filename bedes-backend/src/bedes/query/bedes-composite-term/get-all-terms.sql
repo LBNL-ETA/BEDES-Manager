@@ -17,8 +17,7 @@ from
     public.bedes_composite_term as t
 join
     auth.user u on u.id = t.user_id
-where
-    t.scope_id != 1
+${_whereClause:raw}
 order by
     t.name
 ;

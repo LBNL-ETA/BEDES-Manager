@@ -11,12 +11,15 @@ import { SearchOptions } from '../../../../../bedes-common/models/search-options
 import { CurrentUser } from '@bedes-common/models/current-user';
 import { createLogger }  from '@bedes-backend/logging';
 import { getAuthenticatedUser } from '@bedes-backend/util/get-authenticated-user';
+import {BedesCompositeTermQueryParams} from '@bedes-common/models/bedes-composite-term/bedes-composite-term-query-params';
+import {Scope} from '@bedes-common/enums/scope.enum';
 const logger = createLogger(module);
 
 
 export class BedesTermSearchQuery {
     public async searchAllBedesTerms(
         request: Request,
+        includePublic: boolean,
         searchStrings: Array<string>,
         searchOptions?: ISearchOptions,
         transaction?: any
@@ -63,7 +66,7 @@ export class BedesTermSearchQuery {
                 try {
                     currentUser = getAuthenticatedUser(request);
                 } catch (error) {}
-                promises.push(this.searchCompositeTerms(searchStrings, builderOutput, transaction, currentUser));
+                promises.push(this.searchCompositeTerms(includePublic, searchStrings, builderOutput, transaction, currentUser));
             }
             let results = await Promise.all(promises);
 
@@ -209,13 +212,16 @@ export class BedesTermSearchQuery {
         return [query, builderOutput.bedesTermListOption.buildSqlVariableObject()];
     }
     
-    public searchCompositeTerms(searchStrings: Array<string>, builderOutput: QueryBuilderOutput, transaction?: any, currentUser?: CurrentUser): Promise<Array<IBedesSearchResult>> {
+    public searchCompositeTerms(includePublic: boolean, searchStrings: Array<string>, builderOutput: QueryBuilderOutput, transaction?: any, currentUser?: CurrentUser): Promise<Array<IBedesSearchResult>> {
         try {
             if (!searchStrings || !(searchStrings instanceof Array) || !searchStrings.length) {
                 logger.error(`${this.constructor.name}: search strings`);
                 throw new Error('Missing required parameters.');
             }
-            const [query, params] = this.buildBedesCompositeTermQuery(searchStrings, builderOutput, currentUser);
+            const queryParams = {
+                includePublic: includePublic,
+            };
+            const [query, params] = this.buildBedesCompositeTermQuery(searchStrings, builderOutput, currentUser, queryParams);
             if (transaction) {
                 return transaction.manyOrNone(query, params);
             }
@@ -233,7 +239,7 @@ export class BedesTermSearchQuery {
         }
     }
 
-    private buildBedesCompositeTermQuery(searchTerms: Array<string>, builderOutput: QueryBuilderOutput, currentUser?: CurrentUser): [string, any] {
+    private buildBedesCompositeTermQuery(searchTerms: Array<string>, builderOutput: QueryBuilderOutput, currentUser?: CurrentUser, queryParams?: BedesCompositeTermQueryParams): [string, any] {
 
         const base_query = `
             select
@@ -276,7 +282,14 @@ export class BedesTermSearchQuery {
             `;
         }
 
-        const query = base_query + query1;
+        let query2 = `
+                    and t.scope_id != ${Scope.Public}
+        `;
+        if (queryParams?.includePublic) {
+            query2 = ``;
+        }
+
+        const query = base_query + query1 + query2;
         logger.debug(query);
         return [query, builderOutput.compositeTerm.buildSqlVariableObject()];
     }

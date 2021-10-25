@@ -19,10 +19,12 @@ from
     public.bedes_composite_term as t
 join
     auth.user u on u.id = t.user_id
-where
-    scope_id != 1
-or
-    (scope_id = 1 and user_id = ${_userId})
+        ${_whereClause:raw}
+-- where (scope_id != 1
+--     or
+--        (scope_id = 1 and user_id = ${_userId})
+--     )
+--   and scope_id NOT IN (${_excludedScopes:csv})
 order by
     name
 ;

@@ -169,6 +169,10 @@ export class CompositeTermListComponent extends MessageFromGrid<IGridRow> implem
         }
     }
 
+    public showPublicChange(event: any): void {
+        this.compositeTermService.includePublicTerms = event.checked;
+    }
+
     /**
      * Setup the ag-grid for the list of projects.
      */

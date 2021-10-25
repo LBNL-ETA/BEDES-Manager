@@ -10,6 +10,7 @@ import {HttpStatusCodes} from '@bedes-common/enums/http-status-codes';
 import {CurrentUser} from '@bedes-common/models/current-user/current-user';
 import {ApplicationScope} from '@bedes-common/enums/application-scope.enum';
 import {bedesQuery} from '..';
+import {MappingApplicationQueryParams} from '@bedes-common/models/mapping-application/mapping-application-query-params';
 
 const logger = createLogger(module);
 
@@ -391,19 +392,22 @@ export class AppQuery {
      * Retrieves the list of available applications.
      * If ther are no applications available an empty array is returned.
      */
-    public getAllRecords(currentUser?: CurrentUser, transaction?: any): Promise<Array<IMappingApplication>> {
+    public getAllRecords(currentUser?: CurrentUser, transaction?: any, queryParams?: MappingApplicationQueryParams): Promise<Array<IMappingApplication>> {
         try {
-            // const ctx = transaction || db;
-            // return ctx.manyOrNone(this.sqlGetAll);
             const ctx = transaction || db;
+            const appScopes = queryParams?.includePublic ? [3, 4] : [4];
             if (currentUser) {
                 const params = {
-                    _userId: currentUser.id
+                    _userId: currentUser.id,
+                    _scopes: appScopes,
                 }
                 return ctx.manyOrNone(this.sqlGetAllFromUser, params);
             }
             else {
-                return ctx.manyOrNone(this.sqlGetAll);
+                const params = {
+                    _scopes: appScopes,
+                }
+                return ctx.manyOrNone(this.sqlGetAll, params);
             }
         } catch (error) {
             logger.error(`${this.constructor.name}: Error in getAllRecords`);

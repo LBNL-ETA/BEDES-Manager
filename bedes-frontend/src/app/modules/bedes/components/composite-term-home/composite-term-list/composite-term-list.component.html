@@ -8,10 +8,13 @@
         </a>
 
         <div style="flex: 1; display: flex; align-items: center; justify-content: center;">
-            <mat-form-field appearance="outline" style="flex:1; max-width: 700px;" >
+            <mat-form-field appearance="outline" style="flex: 2; max-width: 700px" >
                 <mat-label>Search</mat-label>
                 <input matInput type="text" (keyup)="quickFilterChange($event)">
             </mat-form-field>
+            <mat-checkbox (change)="showPublicChange($event)" style="flex: 1; max-width: 200px; padding-bottom: 1.3em; padding-left: 1em">Show public
+                terms
+            </mat-checkbox>
         </div>
     </div>
 

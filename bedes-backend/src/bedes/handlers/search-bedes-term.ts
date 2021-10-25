@@ -19,7 +19,8 @@ export async function searchBedesTermHandler(request: Request, response: Respons
                 "Invalid parameters"
             );
         }
-        let results = await bedesQuery.bedesTermSearch.searchAllBedesTerms(request, searchTerms);
+        const includePublic = request.query.includePublic ? !!+request.query.includePublic: false;
+        let results = await bedesQuery.bedesTermSearch.searchAllBedesTerms(request, includePublic, searchTerms);
         response.json(results);
     }
     catch (error) {

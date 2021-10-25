@@ -24,7 +24,11 @@ export async function compositeTermGetAllHandler(
             currentUser = getAuthenticatedUser(request)
         } catch (error) {
         }
-        let results = await bedesQuery.compositeTerm.getAllTerms(currentUser);
+        let includePublic = false;
+        if (request.query.includePublic) {
+            includePublic = !!+request.query.includePublic;
+        }
+        let results = await bedesQuery.compositeTerm.getAllTerms(currentUser, null, { includePublic: includePublic });
         logger.debug('compositeTermHandler resuts');
         logger.debug(util.inspect(results));
         response.json(results)
