@@ -19,7 +19,8 @@ import { scopeList } from '@bedes-common/lookup-tables/scope-list';
 })
 export class BedesTermSearchDialogComponent implements OnInit {
     public searchString: string;
-    public waitingForResults = false;;
+    public showPublicTerms = false;
+    public waitingForResults = false;
     public searchResults = new Array<BedesSearchResult>();
     public selectedItems: Array<ISearchResultRow>;
     public numResults = 0;
@@ -106,12 +107,16 @@ export class BedesTermSearchDialogComponent implements OnInit {
         this.dialogRef.close();
     }
 
+    public showPublicTermsChange(event) {
+        this.showPublicTerms = event.checked;
+    }
+
     /**
      * Call the backend api and run the search.
      */
     public searchForTerms(): void {
         this.waitingForResults = true;
-        this.bedesTermSearchService.searchAndNotify([this.searchString])
+        this.bedesTermSearchService.searchAndNotify([this.searchString], this.showPublicTerms)
             .subscribe((results: Array<BedesSearchResult>) => {
                 // set the number of rows found
                 this.numResults = results.length;

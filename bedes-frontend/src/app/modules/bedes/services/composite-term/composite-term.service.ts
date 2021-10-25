@@ -1,7 +1,7 @@
 import { Injectable, Inject } from '@angular/core';
 import { API_URL_TOKEN } from '../url/url.service';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, BehaviorSubject } from 'rxjs';
+import {Observable, BehaviorSubject, Subject} from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 import { BedesCompositeTerm, IBedesCompositeTerm } from '@bedes-common/models/bedes-composite-term';
 import { BedesCompositeTermShort, IBedesCompositeTermShort } from '@bedes-common/models/bedes-composite-term-short';
@@ -48,6 +48,13 @@ export class CompositeTermService {
     public get termListSubject(): BehaviorSubject<Array<BedesCompositeTermShort>> {
         return this._termListSubject;
     }
+    /* Whether the API request should include terms with Scope = Scope.Public */
+    private _includePublicTerms: boolean;
+    public set includePublicTerms(value) {
+        this._includePublicTerms = value;
+        this._includePublicTermsSubject.next(this._includePublicTerms);
+    }
+    private _includePublicTermsSubject = new Subject<boolean>();
 
     constructor(
         private http: HttpClient,
@@ -58,7 +65,9 @@ export class CompositeTermService {
         this.urlUpdate = `${this.apiUrl}${this.apiEndpointUpdate}`;
         this.urlDetailInfo = `${this.apiUrl}${this.apiEndpointDetailInfo}`;
         this.urlDetail = `${this.apiUrl}${this.apiEndpointDetail}`;
+        this._includePublicTerms = false;
         this.subscribeToCurrentUser();
+        this.subscribeToIncludePublicTerms();
     }
 
     /**
@@ -70,6 +79,16 @@ export class CompositeTermService {
         // update the composite term list as the authenticated user changes
         this.authService.currentUserSubject
         .subscribe((currentUser: CurrentUser) => {
+            this.load();
+        });
+    }
+
+    /**
+     * Subscribe to whether we are including public terms or not. This lets us trigger a new query when this
+     * changes.
+     */
+    private subscribeToIncludePublicTerms(): void {
+        this._includePublicTermsSubject.subscribe((includePublicTerms: boolean) => {
             this.load();
         });
     }
@@ -93,13 +112,18 @@ export class CompositeTermService {
      * Get all of the BEDES composite terms from the API.
      */
     public getAll(): Observable<Array<BedesCompositeTermShort>> {
-        return this.http.get<Array<IBedesCompositeTermShort>>(this.urlNew, { withCredentials: true })
+        const requestParams = new HttpParams().set('includePublic', this.getIncludePublicQueryParam());
+        return this.http.get<Array<IBedesCompositeTermShort>>(this.urlNew, { withCredentials: true , params: requestParams })
             .pipe(map((results: Array<IBedesCompositeTermShort>) => {
                 if (!Array.isArray(results)) {
                     throw new Error(`${this.constructor.name}: getAll expected to receive an array of composite terms`);
                 }
                 return results.map((item) => new BedesCompositeTermShort(item));
             }));
+    }
+
+    private getIncludePublicQueryParam(): string {
+        return this._includePublicTerms ? '1' : '0';
     }
 
     /**

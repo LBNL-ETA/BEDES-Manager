@@ -14,7 +14,7 @@ join
 join
     auth.user u on u.id = r.user_id
 where
-	a.scope_id IN (3, 4)
+	a.scope_id IN (${_scopes:csv})
 order by
     name
 ;

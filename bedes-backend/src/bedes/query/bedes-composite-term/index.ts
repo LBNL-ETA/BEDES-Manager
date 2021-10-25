@@ -1,6 +1,6 @@
 import { QueryFile } from 'pg-promise';
 import * as path from 'path';
-import { db } from '@bedes-backend/db';
+import {db, pgp} from '@bedes-backend/db';
 import sql_loader from '@bedes-backend/db/sql_loader';
 import { createLogger }  from '@bedes-backend/logging';
 const logger = createLogger(module);
@@ -13,6 +13,8 @@ import { ICompositeTermDetailRequestResult } from '@bedes-common/models/composit
 import { BedesError } from '@bedes-common/bedes-error/bedes-error';
 import { HttpStatusCodes } from '@bedes-common/enums/http-status-codes';
 import { CurrentUser } from '@bedes-common/models/current-user';
+import {Scope} from '@bedes-common/enums/scope.enum';
+import {BedesCompositeTermQueryParams} from '@bedes-common/models/bedes-composite-term/bedes-composite-term-query-params';
 
 export class BedesCompositeTermQuery {
     private sqlGetBySignature: QueryFile;
@@ -27,6 +29,10 @@ export class BedesCompositeTermQuery {
     private sqlDelete: QueryFile;
     private sqlAppPrivateToPublic: QueryFile;
     private sqlAppToApproved: QueryFile;
+    private sqlWhereUserAuthenticatedDefaultScopes: QueryFile;
+    private sqlWhereUserUnauthenticatedDefaultScopes: QueryFile;
+    private sqlWhereUserAuthenticatedAllScopes: QueryFile;
+    private sqlWhereUserUnauthenticatedAllScopes: QueryFile;
 
     constructor() { 
         this.sqlGetBySignature = sql_loader(path.join(__dirname, 'get.sql'));
@@ -41,6 +47,10 @@ export class BedesCompositeTermQuery {
         this.sqlDelete = sql_loader(path.join(__dirname, 'delete.sql'))
         this.sqlAppPrivateToPublic = sql_loader(path.join(__dirname, 'app-private-to-public.sql'));
         this.sqlAppToApproved = sql_loader(path.join(__dirname, 'app-to-approved.sql'));
+        this.sqlWhereUserAuthenticatedDefaultScopes = sql_loader(path.join(__dirname, 'where', 'user-authenticated-default-scopes.sql'));
+        this.sqlWhereUserUnauthenticatedDefaultScopes = sql_loader(path.join(__dirname, 'where', 'user-unauthenticated-default-scopes.sql'));
+        this.sqlWhereUserAuthenticatedAllScopes = sql_loader(path.join(__dirname, 'where', 'user-authenticated-all-scopes.sql'));
+        this.sqlWhereUserUnauthenticatedAllScopes = sql_loader(path.join(__dirname, 'where', 'user-unauthenticated-all-scopes.sql'));
     }
 
     /**
@@ -444,21 +454,33 @@ export class BedesCompositeTermQuery {
      * in addition to the terms belonging to the given user.
      * @param [currentUser] The an optional authenticated user (users private terms are returned in addition to public terms).
      * @param [transaction] An optional database transaction context.
+     * @param [queryParams] Arguments to pass to the query.
      * @returns Returns an array of composite terms.
      */
-    public getAllTerms(currentUser?: CurrentUser, transaction?: any): Promise<Array<IBedesCompositeTermShort>> {
+    public getAllTerms(currentUser?: CurrentUser, transaction?: any, queryParams?: BedesCompositeTermQueryParams): Promise<Array<IBedesCompositeTermShort>> {
         try {
             const ctx = transaction || db;
+            console.log(`queryParams: ${util.inspect(queryParams)}`);
+            const whereParams = {
+                _excludedScopes: queryParams?.includePublic ? [] : [Scope.Public],
+                _userId: currentUser ? currentUser.id : null,
+            }
             if (currentUser) {
-                // if a users was passed in, get the private terms for that user
+                // if a user was passed in, get the private terms for that user
                 const params = {
-                    _userId: currentUser.id
-                }
+                    _whereClause: pgp.as.format(whereParams._excludedScopes.length ? this.sqlWhereUserAuthenticatedDefaultScopes : this.sqlWhereUserAuthenticatedAllScopes, whereParams),
+                    _userId: currentUser.id,
+                };
                 return ctx.manyOrNone(this.sqlGetAllTermsAuth, params);
             }
             else {
-                // otherwise only get public terms
-                return ctx.manyOrNone(this.sqlGetAllTerms);
+                // otherwise only get approved terms
+                const params = {
+                    _whereClause: pgp.as.format(whereParams._excludedScopes.length ? this.sqlWhereUserUnauthenticatedDefaultScopes : this.sqlWhereUserUnauthenticatedAllScopes, whereParams),
+                }
+                logger.debug('no current user params');
+                logger.debug(util.inspect(params));
+                return ctx.manyOrNone(this.sqlGetAllTerms, params);
             }
         } catch (error) {
             logger.error(`${this.constructor.name}: Error in getAllTerms`);

@@ -38,19 +38,23 @@ export class BedesTermSearchService {
     /**
      * Searches the bedes terms that have matching searchStrings.
      * @param searchStrings
+     *   The strings to search for.
+     * @param showPublicTerms
+     *   Whether public terms should be returned.
      * @returns search
      */
-    public search(searchStrings: Array<string>): Observable<Array<BedesSearchResult>> {
+    public search(searchStrings: Array<string>, showPublicTerms: boolean): Observable<Array<BedesSearchResult>> {
         // build a params object to pass the search terms
-        let httpParams = new HttpParams({
+        const httpParams = new HttpParams({
             fromObject: {
-                search: searchStrings[0]
+                search: searchStrings[0],
+                includePublic: showPublicTerms ? '1' : '0',
             }
         });
         // update the current search status
         this.setRequestStatus(RequestStatus.PENDING);
         // build the http params for each search term
-        searchStrings.forEach(searchString => httpParams.append('search', String(searchString)))
+        searchStrings.forEach(searchString => httpParams.append('search', String(searchString)));
         // returm the http request observable
         return this.http.get<Array<IBedesSearchResult>>(this.url, { params: httpParams, withCredentials: true })
             .pipe(
@@ -75,10 +79,11 @@ export class BedesTermSearchService {
      * of returning the Observable from the request, it takes the results
      * from the search and calls next() on the searchResultSubject.
      * @param searchStrings
+     * @param showPublicTerms
      */
-    public searchAndNotify(searchStrings: Array<string>): Observable<Array<BedesSearchResult>> {
+    public searchAndNotify(searchStrings: Array<string>, showPublicTerms: boolean): Observable<Array<BedesSearchResult>> {
         try {
-            return this.search(searchStrings)
+            return this.search(searchStrings, showPublicTerms)
                 .pipe(
                     map((results: Array<BedesSearchResult>) => {
                         this._searchResultsSubject.next(results);

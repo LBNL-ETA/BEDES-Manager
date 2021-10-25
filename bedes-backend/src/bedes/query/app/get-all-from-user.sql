@@ -21,7 +21,7 @@ join
 	auth.user as cu on cu.id = ${_userId}
 where (
 	-- select public and approved applications
-	a.scope_id in (3, 4)
+	a.scope_id in (${_scopes:csv})
 )
 or (
 	-- select application owners

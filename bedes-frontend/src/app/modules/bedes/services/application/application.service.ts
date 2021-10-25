@@ -1,7 +1,7 @@
 import { Injectable, Inject } from '@angular/core';
 import { API_URL_TOKEN } from '../url/url.service';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, BehaviorSubject } from 'rxjs';
+import { Observable, BehaviorSubject, Subject } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 import { MappingApplication, IMappingApplication } from '@bedes-common/models/mapping-application';
 import { SupportListService } from '../support-list/support-list.service';
@@ -17,6 +17,13 @@ export class ApplicationService {
     private applicationList = new Array<MappingApplication>();
     // Behavior subject that contains the list of applications.
     private _appListSubject = new BehaviorSubject<Array<MappingApplication>>([]);
+    /* Whether the API request should include terms with Scope = Scope.Public */
+    private _includePublicTerms: boolean;
+    public set includePublicTerms(value) {
+        this._includePublicTerms = value;
+        this._includePublicTermsSubject.next(this._includePublicTerms);
+    }
+    private _includePublicTermsSubject = new Subject<boolean>();
     get appListSubject(): BehaviorSubject<Array<MappingApplication>> {
         return this._appListSubject;
     }
@@ -39,6 +46,17 @@ export class ApplicationService {
         @Inject(API_URL_TOKEN) private apiUrl
     ) {
         this.url = `${this.apiUrl}${this.apiEndpoint}`;
+        this.subscribeToIncludePublicTerms();
+    }
+
+    /**
+     * Subscribe to whether we are including public terms or not. This lets us trigger a new query when this
+     * changes.
+     */
+    private subscribeToIncludePublicTerms(): void {
+        this._includePublicTermsSubject.subscribe((includePublicTerms: boolean) => {
+            this.load();
+        });
     }
 
     /**
@@ -77,7 +95,14 @@ export class ApplicationService {
      * Get the list of all applications.
      */
     public getApplications(): Observable<Array<MappingApplication>> {
-        return this.http.get<Array<IMappingApplication>>(this.url, { withCredentials: true })
+        const params = new HttpParams(
+            {
+                fromObject: {
+                    includePublic: this._includePublicTerms ? '1' : '0',
+                }
+            }
+        );
+        return this.http.get<Array<IMappingApplication>>(this.url, { params: params, withCredentials: true })
             .pipe(map((results: Array<IMappingApplication>) => {
                 // convert IApp to App objects.
                 return results.map((d) => new MappingApplication(d));

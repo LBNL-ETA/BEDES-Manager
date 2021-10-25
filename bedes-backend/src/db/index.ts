@@ -12,9 +12,9 @@ const pgp: IMain = pgPromise({
     // Set bluebird as the primise library
     promiseLib: promise,
     // uncomment the 'query' function to display the queries as they're executed
-    // query: function(e) {
-    //     console.log(e);
-    // }
+    query: function(e) {
+        logger.debug(`executing query: ${e.query}`);
+    }
 });
 
 // Build the connection string from environment variables
@@ -39,5 +39,6 @@ const db: IDatabase<any> = pgp(tConfig);
 
 export {
     db,
-    sqlLoader
+    sqlLoader,
+    pgp
 }

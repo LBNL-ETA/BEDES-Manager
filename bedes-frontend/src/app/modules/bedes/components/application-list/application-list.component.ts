@@ -271,6 +271,9 @@ export class ApplicationListComponent extends MessageFromGrid<IAppRow> implement
         }
     }
 
+    public showPublicChange(event: any): void {
+        this.appService.includePublicTerms = event.checked;
+    }
 
 }
 

@@ -26,9 +26,10 @@ export class BedesSearchQueryBuilderComponent implements OnInit {
     /**
      * Initiates the http request for the term search.
      */
-    public searchForTerms(): void {
+    public searchForTerms(showPublicTerms: boolean = false): void {
         this.waitingForResults = true;
-        this.bedesTermSearchService.searchAndNotify([this.searchString])
+        // TODO: redo this to use our own checkbox
+        this.bedesTermSearchService.searchAndNotify([this.searchString], showPublicTerms)
             .subscribe((results: Array<BedesSearchResult>) => {
                 // set the number of rows found
                 this.numResults = results.length;

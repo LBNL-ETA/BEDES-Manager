@@ -116,7 +116,7 @@ export class BedesMapSearchComponent implements OnInit {
      */
     public searchForTerms(): void {
         this.waitingForResults = true;
-        this.bedesTermSearchService.searchAndNotify([this.searchString])
+        this.bedesTermSearchService.searchAndNotify([this.searchString], true)
             .subscribe((results: Array<BedesSearchResult>) => {
                 // set the number of rows found
                 this.numResults = results.length;
