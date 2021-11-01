@@ -1,16 +1,13 @@
 <div class="search-box">
     <form name="myForm">
         <div style="display:flex; flex-direction: row; align-items: center">
-            <mat-form-field style="flex:2;" focused="true" appearance="outline">
+            <mat-form-field style="flex:1;" focused="true" appearance="outline">
                 <input matInput #searchInput name="searchStringInput"
                 placeholder="Search..."
                 color="primary"
                 [disabled]="waitingForResults"
                 [(ngModel)]="searchString">
             </mat-form-field>
-            <mat-checkbox id="showPublicTerms" (change)="showPublicTermsChange($event)" style="flex: 1; padding-bottom: 1.3em; padding-left: 1em">
-                Show public terms
-            </mat-checkbox>
             <button mat-flat-button style="margin-left: 5px;"
             color="accent"
             [disabled]="waitingForResults || !searchString || !searchString?.trim().length"
