@@ -109,6 +109,7 @@ export class BedesTermSearchDialogComponent implements OnInit {
 
     public showPublicTermsChange(event) {
         this.showPublicTerms = event.checked;
+        this.searchForTerms();
     }
 
     /**

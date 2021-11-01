@@ -23,6 +23,10 @@ export class SearchStringParser {
      * These are used to build the various levels of SQL queries.
      */
     private tokenize(searchString: string): Array<string> {
+        // Blank search.
+        if (searchString === '') {
+            return [''];
+        }
         if (!searchString) {
             return [];
         }
