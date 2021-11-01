@@ -14,7 +14,7 @@ export interface IBedesSearchResultOutput {
 })
 export class BedesSearchParametersComponent implements OnInit {
     public searchString: string;
-    public showPublicTerms: boolean;
+    public showPublicTerms = false;
     public waitingForResults = false;
     public searchError = false;
     public errorMessage: string;
@@ -30,10 +30,6 @@ export class BedesSearchParametersComponent implements OnInit {
     ) { }
 
     ngOnInit() {
-    }
-
-    public showPublicTermsChange(event) {
-        this.showPublicTerms = event.checked;
     }
 
     /**
