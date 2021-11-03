@@ -16,7 +16,7 @@ export class ReplaceUnitComponent implements OnInit {
     @Output() replacementUnit = new EventEmitter<BedesUnit | undefined>();
     private ngUnsubscribe: Subject<void> = new Subject<void>();
     public unitList: Array<BedesUnit>;
-    @ViewChild('agGrid') agGrid: AgGridNg2;
+    @ViewChild('agGrid', { static: false }) agGrid: AgGridNg2;
     // grid options
     public gridOptions: GridOptions;
     public selectedUnit: BedesUnit | undefined;

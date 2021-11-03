@@ -22,7 +22,7 @@ import { takeUntil } from 'rxjs/operators';
 export class BedesTermDetailsListOptionsComponent implements OnInit {
     private ngUnsubscribe: Subject<void> = new Subject<void>();
 
-    @ViewChild('agGrid')
+    @ViewChild('agGrid', { static: false })
     agGrid: AgGridNg2;
     // grid options
     public gridOptions: GridOptions;

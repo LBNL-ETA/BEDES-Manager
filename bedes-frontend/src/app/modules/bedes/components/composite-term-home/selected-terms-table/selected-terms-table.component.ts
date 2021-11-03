@@ -4,7 +4,7 @@ import { AgGridNg2 } from 'ag-grid-angular';
 import { GridOptions, ColDef } from 'ag-grid-community';
 import { BedesConstrainedList, BedesTerm } from '@bedes-common/models/bedes-term';
 import { SupportListService } from '../../../services/support-list/support-list.service';
-import { MatDialog } from '@angular/material';
+import { MatDialog } from '@angular/material/dialog';
 import { ConfirmDialogComponent } from '../../dialogs/confirm-dialog/confirm-dialog.component';
 import { BedesCompositeTerm } from '@bedes-common/models/bedes-composite-term/bedes-composite-term';
 import { CompositeTermService } from '../../../services/composite-term/composite-term.service';
@@ -38,7 +38,7 @@ export class SelectedTermsTableComponent implements OnInit, OnDestroy {
     private ngUnsubscribe: Subject<void> = new Subject<void>();
     public compositeTerm: BedesCompositeTerm;
     public selectedTerms: Array<BedesTerm | BedesConstrainedList>;
-    @ViewChild('agGrid')
+    @ViewChild('agGrid', { static: false })
     agGrid: AgGridNg2;
     // grid options
     public gridOptions: GridOptions;

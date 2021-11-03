@@ -57,7 +57,7 @@ export class ApplicationEditComponent implements OnInit, OnDestroy {
     /** the current authenticated user */
     private ngUnsubscribe: Subject<void> = new Subject<void>();
     /** Reference to the component's form */
-    @ViewChild('theForm')
+    @ViewChild('theForm', { static: false })
     private theForm: NgForm;
 
     public dataForm = this.formBuilder.group({
