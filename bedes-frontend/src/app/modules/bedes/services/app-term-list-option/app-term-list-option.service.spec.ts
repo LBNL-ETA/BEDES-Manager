@@ -6,7 +6,7 @@ describe('AppTermListOptionService', () => {
   beforeEach(() => TestBed.configureTestingModule({}));
 
   it('should be created', () => {
-    const service: AppTermListOptionService = TestBed.get(AppTermListOptionService);
+    const service: AppTermListOptionService = TestBed.inject(AppTermListOptionService);
     expect(service).toBeTruthy();
   });
 });

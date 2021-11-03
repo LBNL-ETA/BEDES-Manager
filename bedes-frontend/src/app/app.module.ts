@@ -35,9 +35,6 @@ import { WaitingDialogComponent } from './components/waiting-dialog/waiting-dial
     providers: [
         { provide: API_URL_TOKEN, useValue: API_URL }
     ],
-    entryComponents: [
-        WaitingDialogComponent
-    ],
     bootstrap: [AppComponent]
 })
 export class AppModule {
