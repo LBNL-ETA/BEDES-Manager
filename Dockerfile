@@ -1,12 +1,12 @@
 # Dockerfile for Heroku
 # Backend
-FROM node:10.24.1-alpine
+FROM node:12.22.7-alpine
 
 USER root
 
 ENV NPM_CONFIG_LOGLEVEL warn
 RUN npm config set unsafe-perm true
-RUN npm install -g @angular/cli@^7.0.4 npm@^6
+RUN npm install -g @angular/cli@^8.3.29 npm@^6
 RUN apk update && apk --no-cache add postgresql-client bash curl openssh && rm -rf /var/cache/apk/*
 
 # bcrypt depencencies
