@@ -38,7 +38,7 @@ export class SelectedTermsTableComponent implements OnInit, OnDestroy {
     private ngUnsubscribe: Subject<void> = new Subject<void>();
     public compositeTerm: BedesCompositeTerm;
     public selectedTerms: Array<BedesTerm | BedesConstrainedList>;
-    @ViewChild('agGrid', { static: false })
+    @ViewChild('agGrid')
     agGrid: AgGridNg2;
     // grid options
     public gridOptions: GridOptions;

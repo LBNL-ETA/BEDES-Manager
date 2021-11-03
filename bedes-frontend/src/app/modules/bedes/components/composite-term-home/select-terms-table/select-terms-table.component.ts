@@ -32,7 +32,7 @@ export class SelectTermsTableComponent implements OnInit, OnDestroy {
     private ngUnsubscribe: Subject<void> = new Subject<void>();
     public hasSearched = false;
     private receivedInitialValues = false;
-    @ViewChild('agGrid', { static: false }) agGrid: AgGridNg2;
+    @ViewChild('agGrid') agGrid: AgGridNg2;
     // grid options
     public gridOptions: GridOptions;
     private gridInitialized = false;

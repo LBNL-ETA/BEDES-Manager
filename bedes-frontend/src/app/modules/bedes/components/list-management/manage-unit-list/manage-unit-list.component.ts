@@ -15,7 +15,7 @@ import { IUsageCount } from '../../../../../../../../bedes-common/interfaces/usa
 export class ManageUnitListComponent implements OnInit {
     private ngUnsubscribe: Subject<void> = new Subject<void>();
     public unitList: Array<BedesUnit>;
-    @ViewChild('agGrid', { static: false }) agGrid: AgGridNg2;
+    @ViewChild('agGrid') agGrid: AgGridNg2;
     // grid options
     public gridOptions: GridOptions;
     public selectedUnit: BedesUnit | undefined;
