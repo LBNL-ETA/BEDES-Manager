@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { Subject } from 'rxjs';
-import { AgGridNg2 } from 'ag-grid-angular';
+import { AgGridAngular } from 'ag-grid-angular';
 import { GridOptions, ColDef } from 'ag-grid-community';
 import { BedesConstrainedList, BedesTerm } from '@bedes-common/models/bedes-term';
 import { SupportListService } from '../../../services/support-list/support-list.service';
@@ -39,7 +39,7 @@ export class SelectedTermsTableComponent implements OnInit, OnDestroy {
     public compositeTerm: BedesCompositeTerm;
     public selectedTerms: Array<BedesTerm | BedesConstrainedList>;
     @ViewChild('agGrid')
-    agGrid: AgGridNg2;
+    agGrid: AgGridAngular;
     // grid options
     public gridOptions: GridOptions;
     public tableContext: any;

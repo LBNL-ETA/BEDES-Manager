@@ -6,7 +6,7 @@ import { Subject } from 'rxjs';
 import { RequestStatus } from '../../../enums';
 import { Router } from '@angular/router';
 import { BedesTermService } from '../../../services/bedes-term/bedes-term.service';
-import { AgGridNg2 } from 'ag-grid-angular';
+import { AgGridAngular } from 'ag-grid-angular';
 import { GridOptions, ColDef, SelectionChangedEvent } from 'ag-grid-community';
 import { SupportListService } from '../../../services/support-list/support-list.service';
 import { BedesUnit } from '@bedes-common/models/bedes-unit/bedes-unit';
@@ -32,7 +32,7 @@ export class SelectTermsTableComponent implements OnInit, OnDestroy {
     private ngUnsubscribe: Subject<void> = new Subject<void>();
     public hasSearched = false;
     private receivedInitialValues = false;
-    @ViewChild('agGrid') agGrid: AgGridNg2;
+    @ViewChild('agGrid') agGrid: AgGridAngular;
     // grid options
     public gridOptions: GridOptions;
     private gridInitialized = false;
