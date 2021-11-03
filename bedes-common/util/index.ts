@@ -1,5 +1,5 @@
-import { buildCompositeTerm } from './build-composite-term';
+import { buildCompositeTermFromInterface } from './build-composite-term';
 
 export {
-    buildCompositeTerm
+    buildCompositeTermFromInterface as buildCompositeTerm
 }
