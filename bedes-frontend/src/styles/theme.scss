@@ -1,4 +1,5 @@
 // @import '~@angular/material/theming';
+@use '~@angular/material' as mat;
 // @include mat-core();
 /* For use in src/lib/core/theming/_palette.scss */
 /* For use in src/lib/core/theming/_palette.scss */
@@ -169,15 +170,15 @@ $md-warning: (
     )
 );
 
-$custom-primary: mat-palette($md-primary);
-$custom-accent:  mat-palette($md-accent);
-$custom-warn: mat-palette($md-warning);
-$custom-danger: mat-palette($md-danger);
-$custom-success: mat-palette($md-success);
+$custom-primary: mat.define-palette($md-primary);
+$custom-accent:  mat.define-palette($md-accent);
+$custom-warn: mat.define-palette($md-warning);
+$custom-danger: mat.define-palette($md-danger);
+$custom-success: mat.define-palette($md-success);
 
-$default-anchor-color: mat-color($custom-accent,800);
+$default-anchor-color: mat.get-color-from-palette($custom-accent,800);
 
-$custom-theme: mat-light-theme($custom-primary, $custom-accent, $custom-danger);
+$custom-theme: mat.define-light-theme($custom-primary, $custom-accent, $custom-danger);
 // $custom-theme: mat-dark-theme($custom-primary, $custom-accent);
 
 

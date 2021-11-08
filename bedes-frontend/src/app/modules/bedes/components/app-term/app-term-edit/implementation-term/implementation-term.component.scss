@@ -1,4 +1,4 @@
-@import '~@angular/material/theming';
+@use '~@angular/material' as mat;
 @import "src/styles/theme";
 
 :host {
@@ -24,7 +24,7 @@ h2 {
         margin: 0 auto;
         padding: 10px;
         background-color: white;
-        color: mat-color($custom-accent);
+        color: mat.get-color-from-palette($custom-accent);
 
 
         position: relative;
@@ -34,7 +34,7 @@ h2 {
 }
 
 .span-value {
-    background-color: mat-color($custom-primary);
+    background-color: mat.get-color-from-palette($custom-primary);
     padding: 10px;
     color: white;
 }

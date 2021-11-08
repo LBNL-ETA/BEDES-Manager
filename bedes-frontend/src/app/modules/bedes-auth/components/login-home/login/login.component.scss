@@ -1,14 +1,14 @@
-@import '~@angular/material/theming';
+@use '~@angular/material' as mat;
 @import "src/styles/theme";
 
 .error-container {
-    color: mat-color($custom-danger);
+    color: mat.get-color-from-palette($custom-danger);
 }
 
 .bedes-card-title {
     background-color: white;
     padding: 10px;
-    color: mat-color($custom-primary);
+    color: mat.get-color-from-palette($custom-primary);
 }
 
 .mat-form-field .mat-form-field-wrapper {

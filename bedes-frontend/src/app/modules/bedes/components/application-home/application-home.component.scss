@@ -1,4 +1,4 @@
-@import '~@angular/material/theming';
+@use '~@angular/material' as mat;
 @import "src/styles/theme";
 
 :host {
@@ -12,7 +12,7 @@
 
 .heading-container {
     margin-top: 30px;
-    border-top: 1px mat-color($custom-primary) solid;
+    border-top: 1px mat.get-color-from-palette($custom-primary) solid;
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -22,7 +22,7 @@
         margin: 0 auto;
         padding: 10px;
         background-color: white;
-        color: mat-color($custom-accent);
+        color: mat.get-color-from-palette($custom-accent);
 
 
         position: relative;

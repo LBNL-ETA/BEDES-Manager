@@ -1,14 +1,14 @@
 /* You can add global styles to this file, and also import other style files */
+@use '~@angular/material' as mat;
 /**
 *   Global Style Sheet
 *   Do not import this file from components
 */
 
-@import '~@angular/material/theming';
-@include mat-core();
+@include mat.core();
 @import "./styles/theme";
 // @import '~@angular/material/prebuilt-themes/deeppurple-amber.css';
-@include angular-material-theme($custom-theme);
+@include mat.all-component-themes($custom-theme);
 @import "./styles/bedes-container";
 @import "./styles/bedes-header";
 
@@ -39,7 +39,7 @@ footer.bedes-footer {
     width: 100%;
     height: 60px;
     box-sizing: border-box;
-    background-color: mat-color($custom-accent);
+    background-color: mat.get-color-from-palette($custom-accent);
     color: white;
 }
 
@@ -70,100 +70,100 @@ footer.bedes-footer {
 
 // Color classes
 .color-primary {
-  background-color: mat-color($custom-primary);
+  background-color: mat.get-color-from-palette($custom-primary);
 //   color: white;
 }
 
 .color-accent {
-  background-color: mat-color($custom-accent);
+  background-color: mat.get-color-from-palette($custom-accent);
 //   color: white;
 }
 
 .color-warn {
-    background-color: mat-color($custom-warn);
+    background-color: mat.get-color-from-palette($custom-warn);
   //   color: white;
   }
 
 .color-success {
-  background-color: mat-color($custom-success);
+  background-color: mat.get-color-from-palette($custom-success);
 }
 
 .color-danger {
-  background-color: mat-color($custom-danger);
+  background-color: mat.get-color-from-palette($custom-danger);
 }
 
 .color-accent-200 {
-  background-color: mat-color($custom-accent, 200);
+  background-color: mat.get-color-from-palette($custom-accent, 200);
 //   color: white;
 }
 
 .font-color-primary{
-    color: mat-color($custom-primary);
+    color: mat.get-color-from-palette($custom-primary);
 }
 
 .font-color-accent {
-    color: mat-color($custom-accent);
+    color: mat.get-color-from-palette($custom-accent);
 }
 .border-color-accent {
-    color: mat-color($custom-accent);
-    border: 2px mat-color($custom-accent) solid;
+    color: mat.get-color-from-palette($custom-accent);
+    border: 2px mat.get-color-from-palette($custom-accent) solid;
 }
 
 .font-color-warn {
-  color: mat-color($custom-warn);
+  color: mat.get-color-from-palette($custom-warn);
 }
 .font-color-danger {
-  color: mat-color($custom-danger);
+  color: mat.get-color-from-palette($custom-danger);
 }
 
 .border-color-warn {
-    color: mat-color($custom-warn);
-    border: 2px mat-color($custom-warn) solid;
+    color: mat.get-color-from-palette($custom-warn);
+    border: 2px mat.get-color-from-palette($custom-warn) solid;
 }
 
 .font-color-success {
-  color: mat-color($custom-success);
+  color: mat.get-color-from-palette($custom-success);
 }
 .border-color-success {
-    color: mat-color($custom-success);
-    border: 2px mat-color($custom-success) solid;
+    color: mat.get-color-from-palette($custom-success);
+    border: 2px mat.get-color-from-palette($custom-success) solid;
 }
 
 // Alerts
 div.alert-success {
-    border: 2px mat-color($custom-success, 700) solid;
+    border: 2px mat.get-color-from-palette($custom-success, 700) solid;
     border-radius: 5px;
     padding: 7px;
     text-align: center;
     // background-color: mat-color($custom-success, lighter);
-    color: mat-color($custom-success, 700);
+    color: mat.get-color-from-palette($custom-success, 700);
 }
 
 div.alert-danger {
-    border: 2px mat-color($custom-danger, 700) solid;
+    border: 2px mat.get-color-from-palette($custom-danger, 700) solid;
     border-radius: 5px;
     padding: 7px;
     text-align: center;
     // background-color: mat-color($custom-danger, lighter);
-    color: mat-color($custom-danger, 700);
+    color: mat.get-color-from-palette($custom-danger, 700);
 }
 
 div.alert-warn {
-    border: 2px mat-color($custom-warn, 700) solid;
+    border: 2px mat.get-color-from-palette($custom-warn, 700) solid;
     border-radius: 5px;
     padding: 7px;
     text-align: center;
     // background-color: mat-color($custom-warn, lighter);
-    color: mat-color($custom-warn, 700);
+    color: mat.get-color-from-palette($custom-warn, 700);
 }
 
 div.alert-accent {
-    border: 2px mat-color($custom-accent, 700) solid;
+    border: 2px mat.get-color-from-palette($custom-accent, 700) solid;
     border-radius: 5px;
     padding: 7px;
     text-align: center;
     // background-color: mat-color($custom-accent, lighter);
-    color: mat-color($custom-accent, 700);
+    color: mat.get-color-from-palette($custom-accent, 700);
 }
 
 .mat-card:not([class*='mat-elevation-z']) {
@@ -184,7 +184,7 @@ div.alert-accent {
 // Custom Card formatting
 
 mat-card.bedes-card {
-    @include mat-elevation(5);
+    @include mat.elevation(5);
     margin:0;
     margin-bottom: 0;
     padding:0;
@@ -192,7 +192,7 @@ mat-card.bedes-card {
 }
 
 mat-card.bedes-content-card {
-    @include mat-elevation(0);
+    @include mat.elevation(0);
     margin:0;
     margin-bottom: 0;
     padding:0;
@@ -245,18 +245,18 @@ mat-card.bedes-content-card mat-card-header {
 
 
 mat-card.bedes-card mat-card-header.color-primary  {
-    background-color: mat-color($custom-primary);
-    color: mat-color($custom-primary, lighter-contrast);
+    background-color: mat.get-color-from-palette($custom-primary);
+    color: mat.get-color-from-palette($custom-primary, lighter-contrast);
 }
 
 mat-card.bedes-card mat-card-header.color-accent  {
-    background-color: mat-color($custom-accent);
-    color: mat-color($custom-accent, lighter-contrast);
+    background-color: mat.get-color-from-palette($custom-accent);
+    color: mat.get-color-from-palette($custom-accent, lighter-contrast);
 }
 
 mat-card.bedes-card mat-card-header.color-warn {
-    background-color: mat-color($custom-warn);
-    color: mat-color($custom-warn, lighter-contrast);
+    background-color: mat.get-color-from-palette($custom-warn);
+    color: mat.get-color-from-palette($custom-warn, lighter-contrast);
 }
 
 // mat-card.bedes-card mat-card-header.color-accent-2  {
@@ -310,12 +310,12 @@ mat-card.bedes-content-card>.mat-card-actions:last-child {
 }
 
 mat-card.bedes-content-card {
-    @include mat-elevation(0);
-    border: 1px mat-color($custom-primary) solid;
+    @include mat.elevation(0);
+    border: 1px mat.get-color-from-palette($custom-primary) solid;
 }
 
 
 // expansion panel
 mat-expansion-panel mat-expansion-panel-header {
-    background-color: mat-color($custom-accent, 200)
+    background-color: mat.get-color-from-palette($custom-accent, 200)
 }
