@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { BedesApplicationManagerComponent } from './bedes-application-manager.component';
 
@@ -6,7 +6,7 @@ describe('BedesApplicationManagerComponent', () => {
   let component: BedesApplicationManagerComponent;
   let fixture: ComponentFixture<BedesApplicationManagerComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ BedesApplicationManagerComponent ]
     })

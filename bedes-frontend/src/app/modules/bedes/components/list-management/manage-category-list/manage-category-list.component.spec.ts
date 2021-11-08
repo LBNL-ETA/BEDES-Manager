@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { ManageCategoryListComponent } from './manage-category-list.component';
 
@@ -6,7 +6,7 @@ describe('ManageCategoryListComponent', () => {
   let component: ManageCategoryListComponent;
   let fixture: ComponentFixture<ManageCategoryListComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ ManageCategoryListComponent ]
     })

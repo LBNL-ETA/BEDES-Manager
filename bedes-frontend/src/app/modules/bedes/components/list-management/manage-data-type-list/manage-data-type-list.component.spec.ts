@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { ManageDataTypeListComponent } from './manage-data-type-list.component';
 
@@ -6,7 +6,7 @@ describe('ManageDataTypeListComponent', () => {
   let component: ManageDataTypeListComponent;
   let fixture: ComponentFixture<ManageDataTypeListComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ ManageDataTypeListComponent ]
     })

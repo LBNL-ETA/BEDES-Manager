@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { ManageDefinitionSourceListComponent } from './manage-definition-source-list.component';
 
@@ -6,7 +6,7 @@ describe('ManageDefinitionSourceListComponent', () => {
   let component: ManageDefinitionSourceListComponent;
   let fixture: ComponentFixture<ManageDefinitionSourceListComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ ManageDefinitionSourceListComponent ]
     })
