@@ -33,6 +33,9 @@ interface IGridRow {
     styleUrls: ['./composite-term-list.component.scss']
 })
 export class CompositeTermListComponent extends MessageFromGrid<IGridRow> implements OnInit, OnDestroy {
+    public get compositeTermServiceRef() {
+        return this.compositeTermService;
+    }
     /* Array that holds the list of CompositeTerms */
     public termList: Array<BedesCompositeTermShort>;
     private ngUnsubscribe: Subject<void> = new Subject<void>();

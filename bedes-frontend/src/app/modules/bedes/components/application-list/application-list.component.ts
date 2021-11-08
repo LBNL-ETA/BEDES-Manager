@@ -32,6 +32,9 @@ interface IAppRow {
   styleUrls: ['./application-list.component.scss']
 })
 export class ApplicationListComponent extends MessageFromGrid<IAppRow> implements OnInit {
+    public get appServiceRef() {
+        return this.appService;
+    }
     public RequestStatus = RequestStatus;
     public currentRequestStatus: RequestStatus;
     private ngUnsubscribe: Subject<void> = new Subject<void>();

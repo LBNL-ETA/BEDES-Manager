@@ -50,6 +50,9 @@ export class CompositeTermService {
     }
     /* Whether the API request should include terms with Scope = Scope.Public */
     private _includePublicTerms: boolean;
+    public get includePublicTerms() {
+        return this._includePublicTerms;
+    }
     public set includePublicTerms(value) {
         this._includePublicTerms = value;
         this._includePublicTermsSubject.next(this._includePublicTerms);
