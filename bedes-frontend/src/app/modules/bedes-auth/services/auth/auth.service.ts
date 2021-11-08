@@ -175,7 +175,7 @@ export class AuthService {
         return new Promise<any>((resolve, reject) => {
             this.checkLoginStatus()
             .subscribe((results: CurrentUser) => {
-                resolve();
+                resolve(results);
             },
             (error) => {
                 this._currentUser = CurrentUser.makeDefaultUser();
