@@ -4,7 +4,7 @@ import { BedesTermSearchDialogComponent } from '../../dialogs/bedes-term-search-
 import { MatDialog } from '@angular/material/dialog';
 import { BedesCompositeTerm } from '@bedes-common/models/bedes-composite-term/bedes-composite-term';
 import { CompositeTermService } from '../../../services/composite-term/composite-term.service';
-import { FormBuilder } from '@angular/forms';
+import {FormBuilder, FormGroup} from '@angular/forms';
 import { SupportListService } from '../../../services/support-list/support-list.service';
 import { BedesUnit } from '@bedes-common/models/bedes-unit';
 import { SearchResultType } from '@bedes-common/models/bedes-search-result/search-result-type.enum';
@@ -37,24 +37,7 @@ export class TermBuilderEditComponent implements OnInit {
     /** List of possible term visibility options */
     public scopeList = new FilteredScopeList(scopeList);
 
-    public dataForm = this.formBuilder.group({
-        description: [{
-            value: '',
-            disabled: this.isEditable
-        }],
-        unitId: [{
-            value: '',
-            disabled: this.isEditable
-        }],
-        scopeId: [{
-            value: '',
-            disabled: this.isEditable
-        }],
-        uuid: [{
-            value: null,
-            disabled: true
-        }],
-    });
+    public dataForm: FormGroup;
 
     constructor(
         private formBuilder: FormBuilder,
@@ -64,7 +47,26 @@ export class TermBuilderEditComponent implements OnInit {
         private authService: AuthService,
         private router: Router,
         private activatedRoute: ActivatedRoute
-    ) { }
+    ) {
+        this.dataForm = this.formBuilder.group({
+            description: [{
+                value: '',
+                disabled: this.isEditable
+            }],
+            unitId: [{
+                value: '',
+                disabled: this.isEditable
+            }],
+            scopeId: [{
+                value: '',
+                disabled: this.isEditable
+            }],
+            uuid: [{
+                value: null,
+                disabled: true
+            }],
+        });
+    }
 
     ngOnInit() {
         this.subscribeToUserStatus();
