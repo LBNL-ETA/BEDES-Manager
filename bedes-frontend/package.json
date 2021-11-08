@@ -4,7 +4,7 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng build --configuration production=true --build-optimizer=true",
+    "build": "ng build --configuration production --build-optimizer=true",
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e"
@@ -29,7 +29,6 @@
     "@fortawesome/free-solid-svg-icons": "^5.12.1",
     "ag-grid-angular": "^26",
     "ag-grid-community": "^26",
-    "core-js": "^2.6.11",
     "rxjs": "~6.6.7",
     "semver": "^7.3.5",
     "tslib": "^2.0.0",
