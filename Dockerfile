@@ -7,12 +7,10 @@ USER root
 ENV NPM_CONFIG_LOGLEVEL warn
 RUN npm config set unsafe-perm true
 RUN npm install -g @angular/cli@^13.0.1 npm@^6
-RUN apk update && apk --no-cache add postgresql-client bash curl openssh && rm -rf /var/cache/apk/*
-
 # bcrypt depencencies
 # need this for node sass in alpine for bcrypt
-RUN apk --no-cache add build-base python python3
-RUN npm config set python /usr/bin/python
+RUN apk --no-cache add postgresql-client bash curl openssh build-base python3
+RUN npm config set python /usr/bin/python3
 
 RUN mkdir -p /app
 WORKDIR /app
