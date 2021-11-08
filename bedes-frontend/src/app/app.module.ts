@@ -26,8 +26,8 @@ import { WaitingDialogComponent } from './components/waiting-dialog/waiting-dial
     imports: [
         BrowserModule,
         BrowserAnimationsModule,
-        BedesModule,
         AppRoutingModule,
+        BedesModule,
         AppMaterialModule,
         FontAwesomeModule,
         BedesAuthModule
