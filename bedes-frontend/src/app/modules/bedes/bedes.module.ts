@@ -148,20 +148,6 @@ import { TableCellDeleteComponent } from './models/ag-grid/table-cell-delete/tab
         NewListOptionDialogComponent,
         TableCellDeleteComponent
     ],
-    entryComponents: [
-        BedesTermSearchDialogComponent,
-        ConfirmDialogComponent,
-        ListOptionMapDialogComponent,
-        TableCellBedesCategoryComponent,
-        TableCellTermNameComponent,
-        TableCellItemNameComponent,
-        TableCellNavComponent,
-        TableCellMapListOptionComponent,
-        TableCellAppTermStatusComponent,
-        CsvImportInfoDialogComponent,
-        NewListOptionDialogComponent,
-        TableCellDeleteComponent
-    ],
     providers: [
         BedesTermSearchService,
         SupportListService,

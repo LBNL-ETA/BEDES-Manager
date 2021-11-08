@@ -6,7 +6,7 @@ describe('BedesTermSelectorService', () => {
   beforeEach(() => TestBed.configureTestingModule({}));
 
   it('should be created', () => {
-    const service: BedesTermSelectorService = TestBed.get(BedesTermSelectorService);
+    const service: BedesTermSelectorService = TestBed.inject(BedesTermSelectorService);
     expect(service).toBeTruthy();
   });
 });

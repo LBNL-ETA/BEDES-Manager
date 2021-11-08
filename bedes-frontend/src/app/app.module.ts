@@ -12,11 +12,9 @@ import { HomeComponent } from './components/home/home.component';
 import { BedesModule } from './modules/bedes/bedes.module';
 import { BedesAuthModule } from './modules/bedes-auth/bedes-auth.module';
 
-import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import {FaIconLibrary, FontAwesomeModule} from '@fortawesome/angular-fontawesome';
 import { addIcons } from './add-icons';
 import { WaitingDialogComponent } from './components/waiting-dialog/waiting-dialog.component';
-// Add the Fontawesome icons the app is using.
-addIcons();
 
 @NgModule({
     declarations: [
@@ -28,8 +26,8 @@ addIcons();
     imports: [
         BrowserModule,
         BrowserAnimationsModule,
-        BedesModule,
         AppRoutingModule,
+        BedesModule,
         AppMaterialModule,
         FontAwesomeModule,
         BedesAuthModule
@@ -37,9 +35,11 @@ addIcons();
     providers: [
         { provide: API_URL_TOKEN, useValue: API_URL }
     ],
-    entryComponents: [
-        WaitingDialogComponent
-    ],
     bootstrap: [AppComponent]
 })
-export class AppModule { }
+export class AppModule {
+    constructor(library: FaIconLibrary) {
+        // Add the Fontawesome icons the app is using.
+        addIcons(library);
+    }
+}

@@ -22,7 +22,7 @@
                 <mat-label>Search</mat-label>
                 <input matInput type="text" (keyup)="quickFilterChange($event)">
             </mat-form-field>
-            <mat-checkbox (change)="showPublicChange($event)" style="flex: 1; max-width: 200px; padding-bottom: 1.3em; padding-left: 1em">
+            <mat-checkbox [checked]="appServiceRef.includePublicTerms" (change)="showPublicChange($event)" style="flex: 1; max-width: 200px; padding-bottom: 1.3em; padding-left: 1em">
                 Show public applications
             </mat-checkbox>
         </div>

@@ -1,15 +1,15 @@
-@import '~@angular/material/theming';
+@use '@angular/material' as mat;
 @import "src/styles/theme";
 
 .bedes-header-container {
     display: flex;
     justify-content: center;
     // position: absolute;
-    border-top: 1px mat-color($custom-primary) solid;
+    border-top: 1px mat.get-color-from-palette($custom-primary) solid;
     margin-top:25px;
 
     h1 {
-        color: mat-color($custom-accent);
+        color: mat.get-color-from-palette($custom-accent);
         position: relative;
         padding:7px;
         top: -22px;

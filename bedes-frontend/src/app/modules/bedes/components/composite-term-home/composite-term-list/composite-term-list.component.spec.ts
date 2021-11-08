@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { CompositeTermListComponent } from './composite-term-list.component';
 
@@ -6,7 +6,7 @@ describe('CompositeTermListComponent', () => {
   let component: CompositeTermListComponent;
   let fixture: ComponentFixture<CompositeTermListComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ CompositeTermListComponent ]
     })

@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { BedesSearchResultsComponent } from './bedes-search-results.component';
 
@@ -6,7 +6,7 @@ describe('BedesSearchResultsComponent', () => {
   let component: BedesSearchResultsComponent;
   let fixture: ComponentFixture<BedesSearchResultsComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ BedesSearchResultsComponent ]
     })

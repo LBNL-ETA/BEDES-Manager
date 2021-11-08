@@ -6,8 +6,7 @@
  * sizing: https://fontawesome.com/how-to-use/on-the-web/styling/sizing-icons
  */
 
-
-import { library } from '@fortawesome/fontawesome-svg-core';
+import { FaIconLibrary } from '@fortawesome/angular-fontawesome';
 
 import {
     faHome,
@@ -58,51 +57,47 @@ import {
  * Add the Fontawesome icons to the project.
  * This bypasses the need to load the icons in each component.
  */
-export function addIcons (): void {
-    // library.add(faArrowToLeft);
-    // library.add(faArrowToRight);
-    library.add(faHome);
-    library.add(faTasks);
-    // library.add(faLightbulbDollar);
-    // library.add(faCalculatorAlt);
-    library.add(faCaretDown);
-    library.add(faAngleDown);
-    library.add(faBars);
-    library.add(faAngleRight);
-    library.add(faPlusCircle);
-    library.add(faTrash);
-    library.add(faEllipsisV);
-    library.add(faFileCsv);
-    library.add(faFilePdf);
-    library.add(faFileExcel);
-    library.add(faCheck);
-    library.add(faExclamationTriangle);
-    library.add(faSearch);
-    library.add(faSpinner);
-    library.add(faPlayCircle);
-    library.add(faInfoCircle);
-    library.add(faSignInAlt);
-    library.add(faSignOutAlt);
-    library.add(faUserPlus);
-    library.add(faBan);
-    library.add(faShieldAlt);
-    library.add(faProjectDiagram);
-    library.add(faList);
-    library.add(faTimesCircle);
-    library.add(faEdit);
-    library.add(faTimes);
-    library.add(faSave);
-    library.add(faChevronCircleLeft);
-    library.add(faChevronCircleRight);
-    library.add(faChevronCircleUp);
-    library.add(faChevronCircleDown);
-    library.add(faCog);
-    library.add(faDownload);
-    library.add(faCloudDownloadAlt);
-    library.add(faMapMarkedAlt);
-    library.add(faFileImport);
-    library.add(faCheckCircle);
-    library.add(faKey);
-    library.add(faCopyright);
-    library.add(faPaperPlane);
+export function addIcons(library: FaIconLibrary): void {
+    library.addIcons(faHome);
+    library.addIcons(faTasks);
+    library.addIcons(faCaretDown);
+    library.addIcons(faAngleDown);
+    library.addIcons(faBars);
+    library.addIcons(faAngleRight);
+    library.addIcons(faPlusCircle);
+    library.addIcons(faTrash);
+    library.addIcons(faEllipsisV);
+    library.addIcons(faFileCsv);
+    library.addIcons(faFilePdf);
+    library.addIcons(faFileExcel);
+    library.addIcons(faCheck);
+    library.addIcons(faExclamationTriangle);
+    library.addIcons(faSearch);
+    library.addIcons(faSpinner);
+    library.addIcons(faPlayCircle);
+    library.addIcons(faInfoCircle);
+    library.addIcons(faSignInAlt);
+    library.addIcons(faSignOutAlt);
+    library.addIcons(faUserPlus);
+    library.addIcons(faBan);
+    library.addIcons(faShieldAlt);
+    library.addIcons(faProjectDiagram);
+    library.addIcons(faList);
+    library.addIcons(faTimesCircle);
+    library.addIcons(faEdit);
+    library.addIcons(faTimes);
+    library.addIcons(faSave);
+    library.addIcons(faChevronCircleLeft);
+    library.addIcons(faChevronCircleRight);
+    library.addIcons(faChevronCircleUp);
+    library.addIcons(faChevronCircleDown);
+    library.addIcons(faCog);
+    library.addIcons(faDownload);
+    library.addIcons(faCloudDownloadAlt);
+    library.addIcons(faMapMarkedAlt);
+    library.addIcons(faFileImport);
+    library.addIcons(faCheckCircle);
+    library.addIcons(faKey);
+    library.addIcons(faCopyright);
+    library.addIcons(faPaperPlane);
 }

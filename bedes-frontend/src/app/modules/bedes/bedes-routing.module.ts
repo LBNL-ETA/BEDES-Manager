@@ -18,7 +18,6 @@ import { ApplicationEditComponent } from './components/application-home/applicat
 import { ApplicationResolverService } from './services/application/application-resolver.service';
 import { ApplicationHomeComponent } from './components/application-home/application-home.component';
 import { AppTermListComponent } from './components/app-term/app-term-list/app-term-list.component';
-import { AppTermEditComponent } from './components/app-term/app-term-edit/app-term-edit.component';
 import { CompositeTermListComponent } from './components/composite-term-home/composite-term-list/composite-term-list.component';
 import { CompositeTermResolverService } from './services/composite-term/composite-term-resolver.service';
 import { AppTermListResolverService } from './services/app-term-list/app-term-list-resolver.service';
@@ -133,38 +132,6 @@ const appRoutes: Routes = [
             }
         ]
     },
-    // {
-    //     path: 'search',
-    //     component: SelectTermsComponent
-    // },
-    // {
-    //     path: 'edit',
-    //     component: CompositeTermEditComponent,
-    //     pathMatch: 'full'
-    // },
-    // {
-    //     path: 'edit/:id',
-    //     component: CompositeTermComponent
-    // }
-    // },
-    // {
-    //     path: 'app-term/:id',
-    //     component: AppTermHomeComponent,
-    //     resolve: {
-    //         appTerms: AppTermResolverService
-    //     },
-    //     children: [
-    //         {
-    //             path: '',
-    //             component: AppTermEditComponent
-    //         }
-    //     ]
-    // },
-    // {
-    //     path: 'app-term/new',
-    //     redirectTo: 'app-term',
-    //     pathMatch: 'full'
-    // },
     {
         path: 'list-management',
         component: ListManagementComponent,
@@ -181,14 +148,12 @@ const appRoutes: Routes = [
         }]
     },
     { path: '', redirectTo: 'home', pathMatch: 'full' },
-    // { path: '**', redirectTo: '/search' }
 ];
 
 @NgModule({
     imports: [
         RouterModule.forChild(appRoutes)
     ],
-    declarations: [],
     exports: [
         RouterModule
     ]

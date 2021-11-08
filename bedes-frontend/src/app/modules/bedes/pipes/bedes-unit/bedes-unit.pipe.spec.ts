@@ -15,7 +15,7 @@ describe('BedesUnitPipe', () => {
             }
         ).compileComponents();
 
-        const pipe = new BedesUnitPipe(TestBed.get(SupportListService));
+        const pipe = new BedesUnitPipe(TestBed.inject(SupportListService));
         expect(pipe).toBeTruthy();
     });
 });

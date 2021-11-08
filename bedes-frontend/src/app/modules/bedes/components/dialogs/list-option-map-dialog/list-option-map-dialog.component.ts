@@ -1,5 +1,5 @@
 import { Component, OnInit, Inject } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { GridOptions, SelectionChangedEvent, ColDef } from 'ag-grid-community';
 import { BedesConstrainedList, BedesTerm } from '@bedes-common/models/bedes-term';
 import { IListOptionMapDialogData } from './list-option-map-dialog-data.interface';

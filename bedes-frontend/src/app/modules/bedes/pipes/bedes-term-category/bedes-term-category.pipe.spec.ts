@@ -9,7 +9,7 @@ describe('BedesTermCategoryPipe', () => {
           imports: [HttpClient],
           providers: [SupportListService],
       }).compileComponents();
-    const pipe = new BedesTermCategoryPipe(TestBed.get(SupportListService));
+    const pipe = new BedesTermCategoryPipe(TestBed.inject(SupportListService));
     expect(pipe).toBeTruthy();
   });
 });

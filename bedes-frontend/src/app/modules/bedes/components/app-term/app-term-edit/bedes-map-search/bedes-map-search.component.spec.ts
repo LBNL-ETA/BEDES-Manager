@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { BedesMapSearchComponent } from './bedes-map-search.component';
 
@@ -6,7 +6,7 @@ describe('BedesMapSearchComponent', () => {
   let component: BedesMapSearchComponent;
   let fixture: ComponentFixture<BedesMapSearchComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ BedesMapSearchComponent ]
     })

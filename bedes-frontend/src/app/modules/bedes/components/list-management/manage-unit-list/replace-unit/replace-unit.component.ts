@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild, Output, EventEmitter } from '@angular/core';
-import { AgGridNg2 } from 'ag-grid-angular';
+import { AgGridAngular } from 'ag-grid-angular';
 import { GridOptions, ColDef, ValueGetterParams, SelectionChangedEvent } from 'ag-grid-community';
 import { SupportListService } from '../../../../services/support-list/support-list.service';
 import { BedesUnit } from '@bedes-common/models/bedes-unit/bedes-unit';
@@ -16,7 +16,7 @@ export class ReplaceUnitComponent implements OnInit {
     @Output() replacementUnit = new EventEmitter<BedesUnit | undefined>();
     private ngUnsubscribe: Subject<void> = new Subject<void>();
     public unitList: Array<BedesUnit>;
-    @ViewChild('agGrid') agGrid: AgGridNg2;
+    @ViewChild('agGrid') agGrid: AgGridAngular;
     // grid options
     public gridOptions: GridOptions;
     public selectedUnit: BedesUnit | undefined;

@@ -1,11 +1,11 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import {BedesTermSearchDialogComponent} from '../bedes-term-search-dialog/bedes-term-search-dialog.component';
 
 describe('BedesTermSearchDialogComponent', () => {
   let component: BedesTermSearchDialogComponent;
   let fixture: ComponentFixture<BedesTermSearchDialogComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ BedesTermSearchDialogComponent ]
     })

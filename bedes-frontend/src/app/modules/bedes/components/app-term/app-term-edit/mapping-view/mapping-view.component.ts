@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { takeUntil } from 'rxjs/operators';
-import { MatDialog } from '@angular/material';
+import { MatDialog } from '@angular/material/dialog';
 import { AppTerm } from '@bedes-common/models/app-term/app-term';
 import { AppTermService } from '../../../../services/app-term/app-term.service';
 import { Subject } from 'rxjs';

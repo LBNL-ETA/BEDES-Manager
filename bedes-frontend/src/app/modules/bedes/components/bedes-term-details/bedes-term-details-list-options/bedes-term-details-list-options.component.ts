@@ -5,7 +5,7 @@ import { BedesTermService } from '../../../services/bedes-term/bedes-term.servic
 import { SupportListService } from '../../../services/support-list/support-list.service';
 import { BedesUnit } from '@bedes-common/models/bedes-unit/bedes-unit';
 import { BedesDataType } from '@bedes-common/models/bedes-data-type';
-import { AgGridNg2 } from 'ag-grid-angular';
+import { AgGridAngular } from 'ag-grid-angular';
 import { GridOptions, ColDef, ValueGetterParams, SelectionChangedEvent } from 'ag-grid-community';
 import { Subject, BehaviorSubject } from 'rxjs';
 import { BedesTermOption } from '@bedes-common/models/bedes-term-option/bedes-term-option';
@@ -23,7 +23,7 @@ export class BedesTermDetailsListOptionsComponent implements OnInit {
     private ngUnsubscribe: Subject<void> = new Subject<void>();
 
     @ViewChild('agGrid')
-    agGrid: AgGridNg2;
+    agGrid: AgGridAngular;
     // grid options
     public gridOptions: GridOptions;
     private gridInitialized = false;

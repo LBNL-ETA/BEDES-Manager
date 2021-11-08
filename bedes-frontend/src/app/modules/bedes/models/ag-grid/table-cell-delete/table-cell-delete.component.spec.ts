@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { TableCellDeleteComponent } from './table-cell-delete.component';
 
@@ -6,7 +6,7 @@ describe('TableCellDeleteComponent', () => {
   let component: TableCellDeleteComponent;
   let fixture: ComponentFixture<TableCellDeleteComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ TableCellDeleteComponent ]
     })
