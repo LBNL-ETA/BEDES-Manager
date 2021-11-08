@@ -12,12 +12,12 @@
     "jasmine": "^3.2.0",
     "module-alias": "^2.1.0",
     "tslib": "^1.9.3",
-    "uuid": "^3.3.2"
+    "uuid": "^8"
   },
   "devDependencies": {
     "@types/jasmine": "^2.8.8",
     "@types/module-alias": "^2.0.0",
-    "@types/uuid": "^3.4.4"
+    "@types/uuid": "^8"
   },
   "_moduleAliases": {
     "@bedes-common": "./"
