@@ -33,7 +33,10 @@ if (process.env.UNDER_TEST) {
 const maxConnections = process.env.DATABASE_MAX_CONNECTIONS ? +process.env.DATABASE_MAX_CONNECTIONS : 5;
 const tConfig: pgPromise.TConfig = {
     connectionString: cn,
-    max: maxConnections || 5,
+    max: maxConnections || 5
+}
+if (process.env.DB_SSL) {
+    tConfig.ssl = { rejectUnauthorized: false };
 }
 const db: IDatabase<any> = pgp(tConfig);
 
