@@ -81,13 +81,15 @@
         },
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
-            "defaultConfiguration": "",
+            "defaultConfiguration": "development",
           "options": {
-            "browserTarget": "Bedes-App:build:development"
           },
           "configurations": {
             "production": {
               "browserTarget": "Bedes-App:build:production"
+            },
+            "development": {
+              "browserTarget": "Bedes-App:build:development"
             }
           }
         },
@@ -136,14 +138,17 @@
         "e2e": {
           "builder": "@angular-devkit/build-angular:protractor",
           "options": {
-            "protractorConfig": "e2e/protractor.conf.js",
-            "devServerTarget": "Bedes-App:serve"
+            "protractorConfig": "e2e/protractor.conf.js"
           },
           "configurations": {
             "production": {
               "devServerTarget": "Bedes-App:serve:production"
+            },
+            "development": {
+              "devServerTarget": "Bedes-App:serve:development"
             }
-          }
+          },
+          "defaultConfiguration": "development"
         },
         "lint": {
           "builder": "@angular-devkit/build-angular:tslint",
