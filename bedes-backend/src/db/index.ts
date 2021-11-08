@@ -26,9 +26,6 @@ if (process.env.UNDER_TEST) {
     // Support Heroku database URL.
     const databaseEnvVar = process.env.DATABASE_URL_VARIABLE;
     cn = (databaseEnvVar && process.env[databaseEnvVar]) || `postgres://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`;
-    if (process.env.DB_SSL) {
-        cn += `?ssl=${process.env.DB_SSL}`;
-    }
 }
 const maxConnections = process.env.DATABASE_MAX_CONNECTIONS ? +process.env.DATABASE_MAX_CONNECTIONS : 5;
 const tConfig: pgPromise.TConfig = {
