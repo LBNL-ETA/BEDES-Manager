@@ -57,15 +57,14 @@ export class ListOptionMapDialogComponent implements OnInit {
      */
     private gridSetup(): void {
         this.gridOptions = <GridOptions>{
+            defaultColDef: {
+                sortable: true,
+                resizable: true,
+                filter: true,
+            },
             enableRangeSelection: true,
-            enableColResize: true,
-            enableFilter: true,
-            enableSorting: true,
             rowSelection: 'single',
             columnDefs: this.buildColumnDefs(),
-            // getRowNodeId: (data: any) => {
-            //     return data.uuid;
-            // },
             onGridReady: () => {
                 this.gridInitialized = true;
                 if (this.gridDataNeedsRefresh) {

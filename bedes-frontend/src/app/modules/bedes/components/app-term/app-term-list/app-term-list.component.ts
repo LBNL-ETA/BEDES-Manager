@@ -170,11 +170,12 @@ export class AppTermListComponent extends MessageFromGrid<IAppRow> implements On
      */
     private gridSetup(): void {
         this.gridOptions = <GridOptions>{
+            defaultColDef: {
+                sortable: true,
+                resizable: true,
+                filter: true,
+            },
             enableRangeSelection: true,
-            enableColResize: true,
-            enableFilter: true,
-            enableSorting: true,
-            // rowSelection: 'multiple',
             columnDefs: this.buildColumnDefs(),
             onGridReady: () => {
                 this.gridInitialized = true;

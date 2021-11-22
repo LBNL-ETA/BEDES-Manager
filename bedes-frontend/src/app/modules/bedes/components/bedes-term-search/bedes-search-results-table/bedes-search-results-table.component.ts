@@ -143,19 +143,16 @@ export class BedesSearchResultsTableComponent implements OnInit, OnDestroy {
      */
     private gridSetup(): void {
         this.gridOptions = <GridOptions>{
+            defaultColDef: {
+                sortable: true,
+                resizable: true,
+                filter: true,
+            },
             enableRangeSelection: true,
-            enableColResize: true,
-            enableFilter: true,
-            enableSorting: true,
-            // rowSelection: 'multiple',
             columnDefs: this.buildColumnDefs(),
-            // getRowNodeId: (data: any) => {
-            //     return data.uuid;
-            // },
             onGridReady: () => {
                 this.gridInitialized = true;
                 if (this.gridOptions && this.gridOptions.api && this.searchResults && !this.initialized) {
-                    // this.gridOptions.api.setRowData(this.searchResults);
                     this.setGridData();
                 }
             },

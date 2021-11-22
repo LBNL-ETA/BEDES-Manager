@@ -181,11 +181,12 @@ export class CompositeTermListComponent extends MessageFromGrid<IGridRow> implem
      */
     private gridSetup(): void {
         this.gridOptions = <GridOptions>{
+            defaultColDef: {
+                sortable: true,
+                resizable: true,
+                filter: true,
+            },
             enableRangeSelection: true,
-            enableColResize: true,
-            enableFilter: true,
-            enableSorting: true,
-            // rowSelection: 'multiple',
             columnDefs: this.buildColumnDefs(),
             onGridReady: (event: GridReadyEvent) => {
                 this.gridApi = event.api;

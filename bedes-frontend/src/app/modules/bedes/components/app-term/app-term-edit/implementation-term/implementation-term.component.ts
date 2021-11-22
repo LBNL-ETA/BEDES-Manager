@@ -563,11 +563,12 @@ export class ImplementationTermComponent implements OnInit {
      */
     private gridSetup(): void {
         this.gridOptions = <GridOptions>{
+            defaultColDef: {
+                sortable: true,
+                resizable: true,
+                filter: true,
+            },
             enableRangeSelection: true,
-            enableColResize: true,
-            enableFilter: true,
-            enableSorting: true,
-            // rowSelection: 'multiple',
             columnDefs: this.buildColumnDefs(),
             onGridReady: () => {
                 this.gridInitialized = true;
@@ -580,7 +581,6 @@ export class ImplementationTermComponent implements OnInit {
             },
             onSelectionChanged: (event: SelectionChangedEvent) => {
                 const rows = event.api.getSelectedRows();
-                // this.selectedItem = rows && rows.length ? rows[0] : undefined;
             }
         };
     }

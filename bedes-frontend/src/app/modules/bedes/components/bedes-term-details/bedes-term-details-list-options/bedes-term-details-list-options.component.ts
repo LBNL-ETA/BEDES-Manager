@@ -92,17 +92,15 @@ export class BedesTermDetailsListOptionsComponent implements OnInit {
 
     private initializeGrid(): void {
         this.gridOptions = <GridOptions>{
+            defaultColDef: {
+                sortable: true,
+                resizable: true,
+                filter: true,
+            },
             enableRangeSelection: false,
-            enableColResize: true,
-            enableFilter: true,
-            enableSorting: true,
-            // rowSelection: 'none',
             rowDragManaged: true,
             animateRows: true,
             columnDefs: this.buildColumnDefs(),
-            // getRowNodeId: (data: any) => {
-            //     return data.id;
-            // },
             onGridReady: () => {
                 this.setGridData();
             },

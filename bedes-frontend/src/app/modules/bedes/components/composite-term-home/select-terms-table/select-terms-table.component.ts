@@ -91,17 +91,15 @@ export class SelectTermsTableComponent implements OnInit, OnDestroy {
      */
     private initializeGrid(): void {
         this.gridOptions = <GridOptions>{
+            defaultColDef: {
+                sortable: true,
+                resizable: true,
+                filter: true,
+            },
             enableRangeSelection: true,
-            enableColResize: true,
-            enableFilter: true,
-            enableSorting: true,
             rowSelection: 'multiple',
             suppressRowClickSelection: true,
-            // suppressCellSelection: true,
             columnDefs: this.buildColumnDefs(),
-            // getRowNodeId: (data: any) => {
-            //     return data.id;
-            // },
             onGridReady: () => {
                 this.gridInitialized = true;
             },
