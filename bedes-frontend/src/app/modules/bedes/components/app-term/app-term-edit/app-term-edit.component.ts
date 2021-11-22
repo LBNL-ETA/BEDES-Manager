@@ -224,7 +224,6 @@ export class AppTermEditComponent implements OnInit {
             enableRangeSelection: true,
             enableColResize: true,
             enableFilter: true,
-            enableSorting: true,
             // rowSelection: 'multiple',
             columnDefs: this.buildColumnDefs(),
             onGridReady: () => {

@@ -170,8 +170,7 @@ export class ApplicationEditComponent implements OnInit, OnDestroy {
         const newApp: IMappingApplication = this.getAppFromForm();
         newApp._id = this.app.id;
         this.resetError();
-        const scopeChange = (this.app && this.app.scopeId !== newApp._scopeId)
-            ? true : false;
+        const scopeChange = (this.app && this.app.scopeId !== newApp._scopeId);
         this.appService.updateApplication(newApp)
         .subscribe(
             (updatedApp: MappingApplication) => {
@@ -192,6 +191,9 @@ export class ApplicationEditComponent implements OnInit, OnDestroy {
                 if (scopeChange) {
                     this.compositeTermService.load();
                     this.appTermService.termListNeedsRefresh = true;
+                    // Ensure the term being edited also gets refreshed. Refreshing the list doesn't do this.
+                    this.compositeTermService.setActiveCompositeTerm(undefined);
+                    this.compositeTermService.setActiveCompositeTerm(this.compositeTermService.selectedTerm);
                 }
             },
             (error: any) => {
