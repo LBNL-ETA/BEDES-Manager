@@ -1,9 +1,9 @@
-import { UserStatus } from '../../enums/user-status.enum';
-import { ICurrentUser } from './current-user.interface';
-import { UserGroup } from '../../enums/user-group.enum';
-import { BedesCompositeTerm } from '../bedes-composite-term/bedes-composite-term';
-import { BedesCompositeTermShort } from '../bedes-composite-term-short';
-import { MappingApplication } from '../mapping-application';
+import {UserStatus} from '../../enums/user-status.enum';
+import {ICurrentUser} from './current-user.interface';
+import {UserGroup} from '../../enums/user-group.enum';
+import {BedesCompositeTerm} from '../bedes-composite-term/bedes-composite-term';
+import {BedesCompositeTermShort} from '../bedes-composite-term-short';
+import {MappingApplication} from '../mapping-application';
 
 /**
  * Object that represents the current authenticated user.
@@ -172,8 +172,7 @@ export class CurrentUser {
      * @returns true if the user can edit the application defined by appId.
      */
     public canEditApplication(app: MappingApplication): boolean {
-        return (this.isApplicationOwner(app) && !app.isApproved()) || this.isAdmin()
-            ? true : false;
+        return (this.isApplicationOwner(app) && !app.isApproved()) || this.isAdmin();
     }
 
     /**
@@ -182,8 +181,7 @@ export class CurrentUser {
      * @returns true if the CurrentUser is the owner
      */
     public isApplicationOwner(app: MappingApplication): boolean {
-        return app && app.id && this._appIds.includes(app.id)
-            ? true : false;
+        return !!(app && app.id && this._appIds.includes(app.id));
     }
 
     /**

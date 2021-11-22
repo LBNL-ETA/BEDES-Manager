@@ -261,6 +261,13 @@ export class BedesTermSearchQuery {
                 auth.user as au on au.id = t.user_id
         `;
 
+        let excludePublicCondition = `
+                    and t.scope_id != ${Scope.Public}
+        `;
+        if (queryParams?.includePublic) {
+            excludePublicCondition = ``;
+        }
+
         // Get all terms of current user (private, public & BEDES approved)
         // and only (public, BEDES approved) of other users
         if (currentUser) {
@@ -269,7 +276,7 @@ export class BedesTermSearchQuery {
                     case when au.id = ${currentUser.id} then
                         ${builderOutput.compositeTerm.getSqlConditions()}
                     else
-                        t.scope_id > 1
+                        t.scope_id > 1 and ${builderOutput.compositeTerm.getSqlConditions()}${excludePublicCondition}
                     end
             `;
         }
@@ -278,18 +285,11 @@ export class BedesTermSearchQuery {
         else {
             var query1 = `
                 where
-                    t.scope_id > 1 and (${builderOutput.compositeTerm.getSqlConditions()})
+                    (t.scope_id > 1 and (${builderOutput.compositeTerm.getSqlConditions()})${excludePublicCondition}
             `;
         }
 
-        let query2 = `
-                    and t.scope_id != ${Scope.Public}
-        `;
-        if (queryParams?.includePublic) {
-            query2 = ``;
-        }
-
-        const query = base_query + query1 + query2;
+        const query = base_query + query1;
         logger.debug(query);
         return [query, builderOutput.compositeTerm.buildSqlVariableObject()];
     }

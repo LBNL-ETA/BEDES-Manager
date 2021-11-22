@@ -223,10 +223,10 @@ export class BedesSearchResultsTableComponent implements OnInit, OnDestroy {
                 }
                 else if (searchResult.resultObjectType === SearchResultType.CompositeTerm) {
                     if (searchResult.dataTypeId) {
-                        dataTypeName = this.supportListService.transformIdToName(SupportListType.BedesDataType, searchResult.dataTypeId)    
+                        dataTypeName = this.supportListService.transformIdToName(SupportListType.BedesDataType, searchResult.dataTypeId)
                     } else {
-                        dataTypeName = 'Composite Term';  
-                    }                    
+                        dataTypeName = 'Composite Term';
+                    }
                 }
                 else {
                     dataTypeName = this.supportListService.transformIdToName(SupportListType.BedesDataType, searchResult.dataTypeId)

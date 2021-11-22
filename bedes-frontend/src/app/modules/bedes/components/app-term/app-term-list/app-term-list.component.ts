@@ -134,9 +134,7 @@ export class AppTermListComponent extends MessageFromGrid<IAppRow> implements On
     }
 
     public canEditApplication(): boolean {
-        return this.app && this.currentUser && this.currentUser.canEditApplication(this.app)
-            ? true
-            : false;
+        return this.app && this.currentUser && this.currentUser.canEditApplication(this.app);
     }
 
     /**
@@ -415,7 +413,7 @@ export class AppTermListComponent extends MessageFromGrid<IAppRow> implements On
      */
     public downloadCSV(): void {
         this.appTermService.downloadAppTerms(this.app.id)
-            .subscribe( 
+            .subscribe(
                 (data) => {
                     this.appName = data['appName'];
                     this.csvExportData = data['data'];

@@ -1,44 +1,44 @@
-import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router, UrlSegment } from '@angular/router';
-import { FormBuilder, Validators } from '@angular/forms';
-import { Subject, BehaviorSubject, of, Observable, EMPTY } from 'rxjs';
-import { ApplicationService } from '../../../../services/application/application.service';
-import { MappingApplication } from '@bedes-common/models/mapping-application/mapping-application';
-import { HttpStatusCodes } from '@bedes-common/enums/http-status-codes';
-import { AppTermService } from '../../../../services/app-term/app-term.service';
-import { AppTerm, AppTermList, AppTermListOption, IAppTerm, IAppTermList, IAppTermListOption } from '@bedes-common/models/app-term';
-import { appTermTypeList } from '@bedes-common/lookup-tables/app-term-type-list';
-import { dataTypeList } from '@bedes-common/lookup-tables/data-type-list';
-import { takeUntil, switchMap, mergeMap, filter } from 'rxjs/operators';
-import { GridOptions, SelectionChangedEvent, ColDef } from 'ag-grid-community';
-import { TermType } from '@bedes-common/enums/term-type.enum';
-import { OptionViewState } from 'src/app/modules/bedes/models/list-options/option-view-state.enum';
-import { SupportListService } from '../../../../services/support-list/support-list.service';
-import { BedesUnit } from '@bedes-common/models/bedes-unit/bedes-unit';
-import { TableCellNavComponent } from '../../../../models/ag-grid/table-cell-nav/table-cell-nav.component';
-import { TableCellMessageType } from '../../../../models/ag-grid/enums/table-cell-message-type.enum';
-import { AppTermListOptionService } from '../../../../services/app-term-list-option/app-term-list-option.service';
-import { MatDialog } from '@angular/material/dialog';
-import { ConfirmDialogComponent } from '../../../dialogs/confirm-dialog/confirm-dialog.component';
-import { BedesTermSearchDialogComponent } from '../../../dialogs/bedes-term-search-dialog/bedes-term-search-dialog.component';
-import { ISearchDialogOptions } from '../../../dialogs/bedes-term-search-dialog/search-dialog-options.interface';
-import { BedesSearchResult } from '@bedes-common/models/bedes-search-result/bedes-search-result';
-import { SearchResultType } from '@bedes-common/models/bedes-search-result/search-result-type.enum';
-import { BedesCompositeTerm } from '@bedes-common/models/bedes-composite-term/bedes-composite-term';
-import { BedesConstrainedList } from '@bedes-common/models/bedes-term/bedes-constrained-list';
-import { BedesTerm } from '@bedes-common/models/bedes-term/bedes-term';
-import { CompositeTermService } from '../../../../services/composite-term/composite-term.service';
-import { BedesTermService } from '../../../../services/bedes-term/bedes-term.service';
-import { TermMappingAtomic } from '@bedes-common/models/term-mapping/term-mapping-atomic';
-import { TableCellMapListOptionComponent } from '../table-cell-map-list-option/table-cell-map-list-option.component';
-import { MappingTableMessageType } from '../mapping-table-message-type.enum';
-import { ListOptionMapDialogComponent } from '../../../dialogs/list-option-map-dialog/list-option-map-dialog.component';
-import { BedesTermOption } from '@bedes-common/models/bedes-term-option/bedes-term-option';
-import { TermMappingComposite } from '@bedes-common/models/term-mapping/term-mapping-composite';
-import { AuthService } from '../../../../../bedes-auth/services/auth/auth.service';
-import { CurrentUser } from '@bedes-common/models/current-user/current-user';
-import { NewListOptionDialogComponent, INewListOption } from './new-list-option-dialog/new-list-option-dialog.component';
-import { TableCellDeleteComponent } from '../../../../models/ag-grid/table-cell-delete/table-cell-delete.component';
+import {Component, OnInit} from '@angular/core';
+import {ActivatedRoute, Router, UrlSegment} from '@angular/router';
+import {FormBuilder, Validators} from '@angular/forms';
+import {BehaviorSubject, Observable, of, Subject} from 'rxjs';
+import {ApplicationService} from '../../../../services/application/application.service';
+import {MappingApplication} from '@bedes-common/models/mapping-application/mapping-application';
+import {HttpStatusCodes} from '@bedes-common/enums/http-status-codes';
+import {AppTermService} from '../../../../services/app-term/app-term.service';
+import {AppTerm, AppTermList, AppTermListOption, IAppTerm, IAppTermList, IAppTermListOption} from '@bedes-common/models/app-term';
+import {appTermTypeList} from '@bedes-common/lookup-tables/app-term-type-list';
+import {dataTypeList} from '@bedes-common/lookup-tables/data-type-list';
+import {switchMap, takeUntil} from 'rxjs/operators';
+import {ColDef, GridOptions, SelectionChangedEvent} from 'ag-grid-community';
+import {TermType} from '@bedes-common/enums/term-type.enum';
+import {OptionViewState} from 'src/app/modules/bedes/models/list-options/option-view-state.enum';
+import {SupportListService} from '../../../../services/support-list/support-list.service';
+import {BedesUnit} from '@bedes-common/models/bedes-unit/bedes-unit';
+import {TableCellNavComponent} from '../../../../models/ag-grid/table-cell-nav/table-cell-nav.component';
+import {TableCellMessageType} from '../../../../models/ag-grid/enums/table-cell-message-type.enum';
+import {AppTermListOptionService} from '../../../../services/app-term-list-option/app-term-list-option.service';
+import {MatDialog} from '@angular/material/dialog';
+import {ConfirmDialogComponent} from '../../../dialogs/confirm-dialog/confirm-dialog.component';
+import {BedesTermSearchDialogComponent} from '../../../dialogs/bedes-term-search-dialog/bedes-term-search-dialog.component';
+import {ISearchDialogOptions} from '../../../dialogs/bedes-term-search-dialog/search-dialog-options.interface';
+import {BedesSearchResult} from '@bedes-common/models/bedes-search-result/bedes-search-result';
+import {SearchResultType} from '@bedes-common/models/bedes-search-result/search-result-type.enum';
+import {BedesCompositeTerm} from '@bedes-common/models/bedes-composite-term/bedes-composite-term';
+import {BedesConstrainedList} from '@bedes-common/models/bedes-term/bedes-constrained-list';
+import {BedesTerm} from '@bedes-common/models/bedes-term/bedes-term';
+import {CompositeTermService} from '../../../../services/composite-term/composite-term.service';
+import {BedesTermService} from '../../../../services/bedes-term/bedes-term.service';
+import {TermMappingAtomic} from '@bedes-common/models/term-mapping/term-mapping-atomic';
+import {TableCellMapListOptionComponent} from '../table-cell-map-list-option/table-cell-map-list-option.component';
+import {MappingTableMessageType} from '../mapping-table-message-type.enum';
+import {ListOptionMapDialogComponent} from '../../../dialogs/list-option-map-dialog/list-option-map-dialog.component';
+import {BedesTermOption} from '@bedes-common/models/bedes-term-option/bedes-term-option';
+import {TermMappingComposite} from '@bedes-common/models/term-mapping/term-mapping-composite';
+import {AuthService} from '../../../../../bedes-auth/services/auth/auth.service';
+import {CurrentUser} from '@bedes-common/models/current-user/current-user';
+import {INewListOption, NewListOptionDialogComponent} from './new-list-option-dialog/new-list-option-dialog.component';
+import {TableCellDeleteComponent} from '../../../../models/ag-grid/table-cell-delete/table-cell-delete.component';
 
 enum RequestStatus {
     Idle=1,
@@ -253,21 +253,18 @@ export class ImplementationTermComponent implements OnInit {
     private updateFormControlStatus(): void {
         if (this.canEditApplication()) {
             this.enableFormControls();
-        }
-        else {
+        } else {
             this.disableFormControls();
         }
     }
 
     /**
      * Determines if the current authenticated user can edit the application
+     *
      * @returns true if edit application
      */
     public canEditApplication(): boolean {
-        return this.app && this.app.isPrivate() && this.currentUser && this.currentUser.canEditApplication(this.app)
-            ? true
-            : false;
-
+        return this.app && !this.app.isApproved() && this.currentUser && this.currentUser.canEditApplication(this.app);
     }
 
     private enableFormControls(): void {
