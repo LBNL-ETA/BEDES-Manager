@@ -264,15 +264,15 @@ export class AppTermListComponent extends MessageFromGrid<IAppRow> implements On
                 cellRendererFramework: TableCellNavComponent
             },
             {
-                headerName: 'Mapped BEDES Term Name',
+                headerName: 'Mapped Term Name',
                 field: 'mappedName'
             },
             {
-                headerName: 'Owner',
+                headerName: 'Mapped Term Owner',
                 field: 'ownerName'
             },
             {
-                headerName: 'Sharing',
+                headerName: 'Mapped Term Sharing',
                 field: 'scopeName'
             },
             {
