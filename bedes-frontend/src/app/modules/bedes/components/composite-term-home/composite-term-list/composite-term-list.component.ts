@@ -1,20 +1,19 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
-import { Router, ActivatedRoute } from '@angular/router';
-import { takeUntil } from 'rxjs/operators';
-import { Subject } from 'rxjs';
-import { GridOptions, SelectionChangedEvent, ColDef, GridReadyEvent, GridApi } from 'ag-grid-community';
-import { CompositeTermService } from '../../../services/composite-term/composite-term.service';
-import { AuthService } from 'src/app/modules/bedes-auth/services/auth/auth.service';
-import { CurrentUser } from '@bedes-common/models/current-user/current-user';
-import { BedesCompositeTermShort } from '@bedes-common/models/bedes-composite-term-short/bedes-composite-term-short';
-import { MessageFromGrid } from '../../../models/ag-grid/message-from-grid';
-import { TableCellMessageType } from '../../../models/ag-grid/enums/table-cell-message-type.enum';
-import { TableCellNavComponent } from '../../../models/ag-grid/table-cell-nav/table-cell-nav.component';
-import { MatDialog } from '@angular/material/dialog';
-import { ConfirmDialogComponent } from '../../dialogs/confirm-dialog/confirm-dialog.component';
-import { Scope } from '@bedes-common/enums/scope.enum';
-import { scopeList } from '@bedes-common/lookup-tables/scope-list';
-import { TableCellDeleteComponent } from '../../../models/ag-grid/table-cell-delete/table-cell-delete.component';
+import {ActivatedRoute, Router} from '@angular/router';
+import {takeUntil} from 'rxjs/operators';
+import {Subject} from 'rxjs';
+import {ColDef, GridApi, GridOptions, GridReadyEvent, SelectionChangedEvent} from 'ag-grid-community';
+import {CompositeTermService} from '../../../services/composite-term/composite-term.service';
+import {AuthService} from 'src/app/modules/bedes-auth/services/auth/auth.service';
+import {CurrentUser} from '@bedes-common/models/current-user/current-user';
+import {BedesCompositeTermShort} from '@bedes-common/models/bedes-composite-term-short/bedes-composite-term-short';
+import {MessageFromGrid} from '../../../models/ag-grid/message-from-grid';
+import {TableCellMessageType} from '../../../models/ag-grid/enums/table-cell-message-type.enum';
+import {TableCellNavComponent} from '../../../models/ag-grid/table-cell-nav/table-cell-nav.component';
+import {MatDialog} from '@angular/material/dialog';
+import {ConfirmDialogComponent} from '../../dialogs/confirm-dialog/confirm-dialog.component';
+import {scopeList} from '@bedes-common/lookup-tables/scope-list';
+import {TableCellDeleteComponent} from '../../../models/ag-grid/table-cell-delete/table-cell-delete.component';
 
 /** css formatting applied to console log statements */
 const consoleFormatString = 'background-color:green; color: white; padding: 5px;';
@@ -41,7 +40,7 @@ export class CompositeTermListComponent extends MessageFromGrid<IGridRow> implem
     private ngUnsubscribe: Subject<void> = new Subject<void>();
     // ag-grid
     public gridOptions: GridOptions;
-    public rowData: Array<IGridRow>;
+    public rowData: IGridRow[];
     /** API object for the ag-grid component */
     private gridApi: GridApi | undefined;
     public tableContext: any;
@@ -82,27 +81,48 @@ export class CompositeTermListComponent extends MessageFromGrid<IGridRow> implem
         this.ngUnsubscribe.complete();
     }
 
+    public deleteMultiple(): void {
+        if (this.rowData && this.rowData.length) {
+            this.messageFromGrid(TableCellMessageType.removeAll, null);
+        }
+    }
+
     /**
      * Override the abstract class MessageFromGrid.
      *
      * Process the messages from the ag-grid AppTerm list.
      */
     public messageFromGrid(messageType: TableCellMessageType, selectedRow: IGridRow): void {
-        this.selectedItem = selectedRow;
+        this.selectedItem = selectedRow ? selectedRow : null;
         if (messageType === TableCellMessageType.View) {
+            if (!this.selectedItem) {
+                return;
+            }
             // view the composite term
-            this.viewSelectedItem(selectedRow.ref);
-        }
-        else if (messageType === TableCellMessageType.Remove) {
+            this.viewSelectedItem(this.selectedItem.ref);
+        } else if (messageType === TableCellMessageType.Remove) {
+            if (!this.selectedItem) {
+                return;
+            }
             // show the term removal confirmation dialog
-            this.confirmRemoveSelectedItem(selectedRow.ref);
+            this.confirmRemoveSelectedItem([this.selectedItem.ref]);
+        } else if (messageType === TableCellMessageType.removeAll) {
+            if (!this.rowData) {
+                return;
+            }
+            const selectedTerms: BedesCompositeTermShort[] = [];
+            for (const row of this.rowData) {
+                selectedTerms.push(row.ref);
+            }
+            // show the term removal confirmation dialog
+            this.confirmRemoveSelectedItem(selectedTerms);
         }
     }
 
     /**
      * Confirm the removal of an AppTerm before calling the backend API.
      */
-    private confirmRemoveSelectedItem(term: BedesCompositeTermShort): void {
+    private confirmRemoveSelectedItem(terms: BedesCompositeTermShort[]): void {
         const dialogRef = this.dialog.open(ConfirmDialogComponent, {
             panelClass: 'dialog-no-padding',
             width: '450px',
@@ -114,25 +134,26 @@ export class CompositeTermListComponent extends MessageFromGrid<IGridRow> implem
         });
         dialogRef.afterClosed().subscribe((results: boolean) => {
             if (results) {
-                this.removeSelectedItem(term);
+                this.removeSelectedItem(terms);
             }
         });
     }
 
     /**
-     * Remove the composite term that's currently selected in the table.
+     * Remove the composite terms that are currently selected in the table.
      */
-    private removeSelectedItem(term: BedesCompositeTermShort): void {
-        // get the reference to the selected AppTerm, if there is one
-        if (term) {
-            // remove the term
-            this.compositeTermService.deleteTerm(term)
-            .subscribe((results: number) => {
-            }, (error: any) => {
-            });
-        }
-        else {
-            throw new Error('removeSelectedItem expected a valid AppTerm and id');
+    private removeSelectedItem(terms: BedesCompositeTermShort[]): void {
+        for (const term of terms) {
+            // get the reference to the selected AppTerm, if there is one
+            if (term) {
+                // remove the terms
+                this.compositeTermService.deleteTerm(term)
+                    .subscribe((results: number) => {
+                    }, (error: any) => {
+                    });
+            } else {
+                throw new Error('removeSelectedItem expected a valid AppTerm and id');
+            }
         }
     }
 
@@ -188,6 +209,7 @@ export class CompositeTermListComponent extends MessageFromGrid<IGridRow> implem
             },
             enableRangeSelection: true,
             columnDefs: this.buildColumnDefs(),
+            rowSelection: 'multiple',
             onGridReady: (event: GridReadyEvent) => {
                 this.gridApi = event.api;
                 this.gridInitialized = true;
@@ -200,8 +222,10 @@ export class CompositeTermListComponent extends MessageFromGrid<IGridRow> implem
             },
             onSelectionChanged: (event: SelectionChangedEvent) => {
                 const rows = event.api.getSelectedRows();
-                this.selectedItem = rows && rows.length ? rows[0] : undefined;
-            }
+                this.selectedItem = rows && rows.length === 1 ? rows[0] : undefined;
+                this.rowData = rows;
+            },
+            isRowSelectable: (rowNode) => rowNode.data?.isEditable === true
         };
     }
 
@@ -213,9 +237,9 @@ export class CompositeTermListComponent extends MessageFromGrid<IGridRow> implem
             {
                 headerName: 'Name',
                 field: 'ref.name',
-                // checkboxSelection: true,
-                // minWidth: 250,
-                cellRendererFramework: TableCellNavComponent
+                checkboxSelection: true,
+                headerCheckboxSelection: true,
+                cellRendererFramework: TableCellNavComponent,
             },
             {
                 headerName: 'Owner',
