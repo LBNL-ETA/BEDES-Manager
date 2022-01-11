@@ -76,6 +76,7 @@ import { TableCellAppTermStatusComponent } from './components/app-term/app-term-
 import { CsvImportInfoDialogComponent } from './components/dialogs/csv-import-info-dialog/csv-import-info-dialog.component';
 import { NewListOptionDialogComponent } from './components/app-term/app-term-edit/implementation-term/new-list-option-dialog/new-list-option-dialog.component';
 import { TableCellDeleteComponent } from './models/ag-grid/table-cell-delete/table-cell-delete.component';
+import { GlobalAppTermListComponent } from './components/global-app-term-list/global-app-term-list.component';
 
 @NgModule({
     imports: [
@@ -146,7 +147,8 @@ import { TableCellDeleteComponent } from './models/ag-grid/table-cell-delete/tab
         TableCellAppTermStatusComponent,
         CsvImportInfoDialogComponent,
         NewListOptionDialogComponent,
-        TableCellDeleteComponent
+        TableCellDeleteComponent,
+        GlobalAppTermListComponent
     ],
     providers: [
         BedesTermSearchService,
