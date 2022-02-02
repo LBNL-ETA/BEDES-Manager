@@ -18,6 +18,7 @@ import { HttpStatusCodes } from '../../enums/http-status-codes';
 
 export class AppTerm extends UUIDGenerator {
     protected _id: number | null | undefined;
+    protected _appId: number | null | undefined;
     protected _fieldCode: string | null | undefined;
     protected _name: string;
     protected _description: string | null | undefined;
@@ -27,6 +28,9 @@ export class AppTerm extends UUIDGenerator {
     protected _uuid: string | null | undefined;
     protected _unit: string | null | undefined;
     protected _mapping: TermMappingAtomic | TermMappingComposite | null | undefined;
+    protected _applicationName: string | null | undefined;
+    protected _applicationOwner: string | null | undefined;
+    protected _applicationScopeId: number | null | undefined;
     /** Indicates if the Application information has changed */
     protected _hasChanged = false;
     public get hasChanged(): boolean {
@@ -53,6 +57,9 @@ export class AppTerm extends UUIDGenerator {
     constructor(data: IAppTerm) {
         super();
         this._id = data._id;
+        if (data._appId) {
+            this._appId = data._appId;
+        }
         this._fieldCode = data._fieldCode;
         this._name = data._name;
         this._description = data._description;
@@ -79,6 +86,15 @@ export class AppTerm extends UUIDGenerator {
             }
 
         }
+        if (data._applicationName) {
+            this._applicationName = data._applicationName;
+        }
+        if (data._applicationOwner) {
+            this._applicationOwner = data._applicationOwner;
+        }
+        if (data._applicationScopeId) {
+            this._applicationScopeId = data._applicationScopeId;
+        }
         this.validate();
     }
 
@@ -87,6 +103,9 @@ export class AppTerm extends UUIDGenerator {
     }
     set id(value: number | null | undefined) {
         this._id = value;
+    }
+    get appId() {
+        return this._appId;
     }
     get fieldCode(): string | null | undefined {
         return this._fieldCode;
@@ -155,6 +174,15 @@ export class AppTerm extends UUIDGenerator {
         this._hasChanged = true;
         this._mapping = value;
     }
+    get applicationName() {
+        return this._applicationName;
+    }
+    get applicationOwner() {
+        return this._applicationOwner;
+    }
+    get applicationScopeId() {
+        return this._applicationScopeId;
+    }
 
     private validate(): void {
         if (!this._name || typeof this.name !== 'string' || !this._name.trim()) {
@@ -176,6 +204,7 @@ export class AppTerm extends UUIDGenerator {
     public toInterface(): IAppTerm {
         const params: IAppTerm = {
             _id: this._id,
+            _appId: this._appId,
             _fieldCode: this._fieldCode,
             _name: this._name,
             _description: this._description,
@@ -183,7 +212,10 @@ export class AppTerm extends UUIDGenerator {
             _dataTypeId: this._dataTypeId,
             _uuid: this._uuid,
             _unit: this._unit,
-            _mapping: this._mapping ? this._mapping.toInterface() : undefined
+            _mapping: this._mapping ? this._mapping.toInterface() : undefined,
+            _applicationName: this._applicationName,
+            _applicationOwner: this._applicationOwner,
+            _applicationScopeId: this._applicationScopeId,
         };
         return params;
         // const newTerm = new AppTermList(params);

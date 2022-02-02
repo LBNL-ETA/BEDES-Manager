@@ -14,39 +14,32 @@
                 <mat-label>Search</mat-label>
                 <input matInput type="text" (keyup)="quickFilterChange($event)">
             </mat-form-field>
-            <mat-checkbox [checked]="compositeTermServiceRef.includePublicTerms" (change)="showPublicChange($event)" style="flex: 1; max-width: 200px; padding-bottom: 1.3em; padding-left: 1em">Show public
+            <mat-checkbox [checked]="globalAppTermServiceRef.includePublicTerms" (change)="showPublicChange($event)" style="flex: 1; max-width: 200px; padding-bottom: 1.3em; padding-left: 1em">Show public
                 terms
             </mat-checkbox>
         </div>
     </div>
 
-    <div class="alert-danger" style="margin-top:10px;" *ngIf="hasError && errorMessage">
-        <h3 style="margin: 0; padding:0;">
-            <fa-icon [icon]="['fas', 'exclamation-triangle']"></fa-icon>
-            An error occurred removing the application.
-        </h3>
-    </div>
-
     <!-- Guest and no applications -->
     <div class="alert-danger" style="margin-top:10px;"
-         *ngIf="!currentUser.isLoggedIn() && (!termList || !termList?.length)">
+         *ngIf="!currentUser.isLoggedIn() && (!appTermList || !appTermList?.length)">
         <h3 style="margin: 0; padding:0;">
             <fa-icon [icon]="['fas', 'exclamation-triangle']"></fa-icon>
-            There are no public composite terms available for view.
+            There are no {{ globalAppTermServiceRef.includePublicTerms ? "public or " : "" }}approved application terms available for view.
             You can <a [routerLink]="['/home/request-account']">click here to request an account</a>
             to begin mapping your own applications and terms.
         </h3>
     </div>
 
     <div class="alert-danger" style="margin-top:10px;"
-         *ngIf="currentUser.isLoggedIn() && (!termList || !termList?.length)">
+         *ngIf="currentUser.isLoggedIn() && (!appTermList || !appTermList?.length)">
         <h3 style="margin: 0; padding:0;">
             <fa-icon [icon]="['fas', 'exclamation-triangle']"></fa-icon>
-            There are no public/private composite terms available.
+            There are no {{ globalAppTermServiceRef.includePublicTerms ? "public, " : "" }}private or approved application terms available.
         </h3>
     </div>
 
-    <div style="flex: 1; display:flex;" *ngIf="termList && termList.length">
+    <div style="flex: 1; display:flex;" *ngIf="appTermList && appTermList.length">
         <div style="overflow: hidden; flex-grow: 1">
             <ag-grid-angular #agGrid
                              style="width: 100%; height: 100%;"
@@ -56,8 +49,5 @@
                              class="ag-theme-material">
             </ag-grid-angular>
         </div>
-    </div>
-    <div *ngIf="this.rowData?.length > 0">
-        <button mat-flat-button color="primary" (click)="deleteMultiple()"><fa-icon [icon]="['fas', 'times']"></fa-icon> Delete selected</button>
     </div>
 </div>
