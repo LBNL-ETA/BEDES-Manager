@@ -4,23 +4,27 @@ import { createLogger } from '@bedes-backend/logging';
 import { HttpStatusCodes } from '@bedes-common/enums/http-status-codes';
 import { BedesError } from '@bedes-common/bedes-error';
 import { bedesQuery } from '../../query';
+import {CurrentUser} from '@bedes-common/models/current-user';
+import {getAuthenticatedUser} from '@bedes-backend/util/get-authenticated-user';
 const logger = createLogger(module);
 
 /**
  * Handler for retrieving Array<AppTerm|AppTermList> for a given mapping application.
  */
-export async function getAppTermsHandler(request: Request, response: Response): Promise<any> {
+export async function getAllAppTermsHandler(request: Request, response: Response): Promise<any> {
     try {
-        logger.debug('get app terms');
-        const appId = Number(request.params.id);
-        if (!appId) {
-            throw new BedesError(
-                'Invalid parameters',
-                HttpStatusCodes.BadRequest_400,
-                "Invalid parameters"
-            );
+        logger.debug('get all app terms');
+        let currentUser: CurrentUser | undefined;
+        try {
+            currentUser = getAuthenticatedUser(request)
+        } catch (error) {
+            // Unauthenticated requests are still valid.
         }
-        let results = await bedesQuery.appTerm.getAppTermsByAppId(appId);
+        let includePublic = false;
+        if (request.query.includePublic) {
+            includePublic = !!+request.query.includePublic;
+        }
+        let results = await bedesQuery.appTerm.getAppTerms(currentUser, includePublic);
         response.json(results)
         return results;
     }

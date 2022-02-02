@@ -8,7 +8,7 @@ import { TermType } from '@bedes-common/enums/term-type.enum';
 import { throwError } from 'rxjs';
 
 /** Transforms IAppTerm and IAppTermList objects into AppTerm | AppTermList objects. */
-const appTermTransformer = (item: IAppTerm | IAppTermList): AppTerm | AppTermList =>{
+export const appTermTransformer = (item: IAppTerm | IAppTermList): AppTerm | AppTermList =>{
     if (item._termTypeId === TermType.Atomic) {
         return new AppTerm(item);
     }
@@ -29,7 +29,7 @@ export class AppTermService {
             _name: 'New Application Term',
             _termTypeId: TermType.Atomic,
             _dataTypeId: null
-        })
+        });
     }
 
     /** api endpoint for the AppTerm|AppTermList objects. */
@@ -373,7 +373,7 @@ export class AppTermService {
         );
     }
 
-    private handleError(error: HttpErrorResponse) {        
+    private handleError(error: HttpErrorResponse) {
         return throwError(error.error || "Server error");
     }
 

@@ -25,6 +25,7 @@ import { AppTermResolverService } from './services/app-term/app-term-resolver.se
 import { AuthGuardService } from '../bedes-auth/services/auth-guard/auth-guard.service';
 import { ApplicationListResolverService } from './services/application/application-list-resolver.service';
 import { ImplementationTermComponent } from './components/app-term/app-term-edit/implementation-term/implementation-term.component';
+import {GlobalAppTermListComponent} from './components/global-app-term-list/global-app-term-list.component';
 
 const appRoutes: Routes = [
     { path: 'search', component: BedesTermSearchComponent },
@@ -78,6 +79,10 @@ const appRoutes: Routes = [
                 }
             }
         ]
+    },
+    {
+        path: 'application-term',
+        component: GlobalAppTermListComponent
     },
     {
         path: 'applications',

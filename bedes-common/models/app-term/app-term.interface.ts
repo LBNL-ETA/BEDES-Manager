@@ -5,6 +5,7 @@ import { ITermMappingComposite } from '../term-mapping/term-mapping-composite.in
 
 export interface IAppTerm {
     _id?: number | null | undefined;
+    _appId?: number | null | undefined;
     _fieldCode?: string | null | undefined;
     _name: string;
     _termTypeId: TermType;
@@ -14,4 +15,7 @@ export interface IAppTerm {
     _uuid?: string | null | undefined;
     _unit?: string | null | undefined;
     _mapping?: ITermMappingAtomic | ITermMappingComposite | null | undefined;
+    _applicationName?: string | null | undefined;
+    _applicationOwner?: string | null | undefined;
+    _applicationScopeId?: number | null | undefined;
 }

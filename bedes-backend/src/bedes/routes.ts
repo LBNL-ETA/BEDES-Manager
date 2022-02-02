@@ -30,6 +30,7 @@ function mountRoutes(router: Router) {
     router.get('/mapping-application/:id/term', handlers.appTerm.getAppTermsHandler);
     router.get('/mapping-application/term/:id', handlers.appTerm.getAppTermHandler);
     router.get('/mapping-application/sibling/:id', handlers.appTerm.getAppTermsSiblingHandler);
+    router.get('/application-term', handlers.appTerm.getAllAppTermsHandler);
     // AppTerm Imports
     router.post('/mapping-application/:id/import', uploadMiddleware, handlers.appTermImportHandler);
     // AppTerm Exports

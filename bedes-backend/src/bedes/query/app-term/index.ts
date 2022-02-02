@@ -1,7 +1,7 @@
 import * as util from 'util';
 import { QueryFile } from 'pg-promise';
 import * as path from 'path';
-import { db } from '@bedes-backend/db';
+import { db, pgp } from '@bedes-backend/db';
 import sql_loader from '@bedes-backend/db/sql_loader';
 import { createLogger }  from '@bedes-backend/logging';
 const logger = createLogger(module);
@@ -16,6 +16,8 @@ import { bedesQuery } from '..';
 import { BedesError } from '@bedes-common/bedes-error/bedes-error';
 import { HttpStatusCodes } from '@bedes-common/enums/http-status-codes';
 import { isUUID } from '@bedes-common/util/is-uuid';
+import {CurrentUser} from '@bedes-common/models/current-user';
+import {ApplicationScope} from '@bedes-common/enums/application-scope.enum';
 
 export interface ISaveResults {
     appTerm: IAppTerm | IAppTermList | undefined;
@@ -33,6 +35,7 @@ export class AppTermQuery {
     private sqlGetAppTermById: QueryFile;
     private sqlGetAppTermBySibling: QueryFile;
     private sqlGetAppTermBySiblingUUID: QueryFile;
+    private sqlGetAppTerms: QueryFile;
     private sqlDeleteAppTermById: QueryFile;
     private sqlDeleteAppTermByUUID: QueryFile;
 
@@ -45,6 +48,7 @@ export class AppTermQuery {
         this.sqlGetAppTermById = sql_loader(path.join(__dirname, 'get-app-term.sql'))
         this.sqlGetAppTermBySibling = sql_loader(path.join(__dirname, 'get-app-terms-by-sibling.sql'))
         this.sqlGetAppTermBySiblingUUID = sql_loader(path.join(__dirname, 'get-app-terms-by-sibling-uuid.sql'))
+        this.sqlGetAppTerms = sql_loader(path.join(__dirname, 'get-all-app-terms.sql'));
         this.sqlDeleteAppTermById = sql_loader(path.join(__dirname, 'delete-app-term-by-id.sql'))
         this.sqlDeleteAppTermByUUID = sql_loader(path.join(__dirname, 'delete-app-term-by-uuid.sql'))
     }
@@ -476,6 +480,41 @@ export class AppTermQuery {
             // }
         } catch (error) {
             logger.error(`${this.constructor.name}: Error in getAlppTermsbyAppId`);
+            logger.error(util.inspect(error));
+            throw error;
+        }
+
+    }
+
+    /**
+     * Retrieves an array of all AppTerm objects.
+     * @param [currentUser] The current user.
+     * @param [includePublic] Whether to query for public terms or not.
+     * @param [transaction] Optional transaction context to run the query.
+     * @returns Array of AppTerm|AppTermList objects.
+     */
+    public async getAppTerms(currentUser?: CurrentUser, includePublic?: boolean, transaction?: any): Promise<Array<IAppTerm | IAppTermList>> {
+        try {
+            const excludedScopes = includePublic ? [] : [ApplicationScope.Public];
+            let whereClause = 'WHERE (ma.scope_id != 1';
+            let userId;
+            if (excludedScopes.length) {
+                whereClause += ' AND ma.scope_id NOT IN (${_excludedScopes:csv})';
+            }
+            whereClause += ')';
+            if (currentUser) {
+                whereClause += ' or EXISTS (SELECT mar2.user_id from mapping_application_roles as mar2 where mar2.app_id = ma.id and mar2.user_id = ${_userId})'
+                userId = currentUser.id;
+            }
+            const params = {
+                _whereClause: pgp.as.format(whereClause, {_excludedScopes: excludedScopes, _userId: userId}),
+            };
+            // set the db context for the query
+            const ctx = transaction || db;
+            // run the query
+            return ctx.manyOrNone(this.sqlGetAppTerms, params);
+        } catch (error) {
+            logger.error(`${this.constructor.name}: Error in getAllTerms`);
             logger.error(util.inspect(error));
             throw error;
         }
