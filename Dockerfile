@@ -6,7 +6,7 @@ USER root
 
 ENV NPM_CONFIG_LOGLEVEL warn
 RUN npm config set unsafe-perm true
-RUN npm install -g @angular/cli@^13.2.0 npm@^8
+RUN npm install -g @angular/cli@^13.2.0 npm@~8.3.0
 # bcrypt depencencies
 # need this for node sass in alpine for bcrypt
 RUN apk --no-cache add postgresql-client bash curl openssh build-base python3
