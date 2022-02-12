@@ -246,7 +246,8 @@ export class AppTerm extends UUIDGenerator {
                 _bedesName: bedesTerm.name,
                 _compositeTermUUID: bedesTerm.uuid,
                 _scopeId: bedesTerm.scopeId,
-                _ownerName: bedesTerm.ownerName
+                _ownerName: bedesTerm.ownerName,
+                _unitId: bedesTerm.unitId,
             });
             // if (bedesTerm.uuid && bedesTerm.name) {
             //     this._mapping.compositeTermUUID = bedesTerm.uuid;

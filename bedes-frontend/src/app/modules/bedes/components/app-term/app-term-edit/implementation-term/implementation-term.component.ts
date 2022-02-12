@@ -39,6 +39,7 @@ import {AuthService} from '../../../../../bedes-auth/services/auth/auth.service'
 import {CurrentUser} from '@bedes-common/models/current-user/current-user';
 import {INewListOption, NewListOptionDialogComponent} from './new-list-option-dialog/new-list-option-dialog.component';
 import {TableCellDeleteComponent} from '../../../../models/ag-grid/table-cell-delete/table-cell-delete.component';
+import {scopeList} from '@bedes-common/lookup-tables/scope-list';
 
 enum RequestStatus {
     Idle=1,
@@ -149,7 +150,7 @@ export class ImplementationTermComponent implements OnInit {
         private supportListService: SupportListService,
         private dialog: MatDialog,
         private authService: AuthService,
-    ) { }
+    ) {}
 
     ngOnInit() {
         // set some grid initialization variables
@@ -678,6 +679,29 @@ export class ImplementationTermComponent implements OnInit {
         else {
             return false;
         }
+    }
+
+    public isMappedToCompositeTerm(appTerm: AppTerm | AppTermList) {
+        return appTerm && appTerm.mapping && appTerm.mapping instanceof TermMappingComposite && appTerm.mapping.compositeTermUUID;
+    }
+
+    public getUnitName(unitId: number) {
+        const bedesUnit = this.unitList.find(value => value.id === unitId);
+
+        if (!bedesUnit) {
+            return '';
+        }
+
+        return bedesUnit.name;
+    }
+
+    public getScopeName(scopeId: number) {
+        if (!scopeId) {
+            return '';
+        }
+
+        const scopeName = scopeList.getItemById(scopeId).name;
+        return scopeName ?? '';
     }
 
     /**

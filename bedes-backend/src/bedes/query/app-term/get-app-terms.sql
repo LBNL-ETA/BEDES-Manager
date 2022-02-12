@@ -73,7 +73,8 @@ select
                                   when au.id is not null
                                       then au.first_name || ' ' || au.last_name
                                   else null::text
-                    end
+                    end,
+			    '_unitId', bct.unit_id
 			)
 		else
 			null
