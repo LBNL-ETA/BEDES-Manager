@@ -55,6 +55,14 @@ export class TermMappingComposite {
     set scopeId(value: number | null | undefined) {
         this._scopeId = value;
     }
+    /** Unit of the composite term */
+    private _unitId: number | null | undefined;
+    get unitId(): number | null | undefined {
+        return this._unitId;
+    }
+    set unitId(value: number | null | undefined) {
+        this._unitId = value;
+    }
     
     /**
      * Build the Object instance.
@@ -67,6 +75,7 @@ export class TermMappingComposite {
         this._bedesName = data._bedesName;
         this._ownerName = data._ownerName;
         this._scopeId = data._scopeId;
+        this._unitId = data._unitId;
     }
 
     /**
@@ -80,7 +89,8 @@ export class TermMappingComposite {
             _compositeTermUUID: this._compositeTermUUID,
             _bedesName: this._bedesName,
             _ownerName: this._ownerName,
-            _scopeId: this._scopeId
+            _scopeId: this._scopeId,
+            _unitId: this._unitId,
         }
     }
 }

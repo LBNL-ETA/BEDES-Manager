@@ -112,24 +112,53 @@
         </h2>
         <div style="padding:7px; text-align: center;" *ngIf="!appTerm?.mapping">
             <button mat-raised-button color="primary"
-            [disabled]="!canEditApplication()"
-            (click)="openTermSearchDialog()">
+                    [disabled]="!canEditApplication()"
+                    (click)="openTermSearchDialog()">
                 <fa-icon [icon]="['fas', 'map-marked-alt']" size="lg"></fa-icon>
                 Map To Existing BEDES Term
             </button>
         </div>
 
-            <div style="margin-top:10px; margin-bottom:10px; flex:1; text-align: center;"
-            *ngIf="appTerm && appTerm.mapping">
+        <div style="margin-top:10px; margin-bottom:10px; flex:1; text-align: center;"
+             *ngIf="appTerm && appTerm.mapping">
                 <span class="span-value">
-                    {{appTerm.mapping.bedesName }}
+                    <a [routerLink]="['/composite-term/edit/' + appTerm.mapping.compositeTermUUID]"><fa-icon [icon]="['fas', 'edit']" style="color: white;"></fa-icon></a>
+                    {{ appTerm.mapping.bedesName }}
                     <button mat-icon-button (click)="clearMappedTerm()" color="accent">
                         <fa-icon [icon]="['fas', 'times']" style="color: white;"></fa-icon>
                     </button>
                 </span>
-            </div>
-
         </div>
+
+        <!-- Show additional details for composite terms only. -->
+        <div *ngIf="isMappedToCompositeTerm(appTerm)" style="display: flex; flex: 1">
+            <!-- Description -->
+            <mat-form-field style="flex:1; margin-bottom:5px;" appearance="outline">
+                <mat-label>Description</mat-label>
+                <textarea matInput placeholder="Enter a Description" rows="5" disabled="true">
+                </textarea>
+            </mat-form-field>
+        </div>
+        <div *ngIf="isMappedToCompositeTerm(appTerm)" style="display: flex; flex: 1">
+            <mat-form-field style="flex:1; margin-bottom:5px;" appearance="outline">
+                <mat-label>UUID</mat-label>
+                <input matInput disabled="true" [value]="appTerm.mapping.compositeTermUUID">
+            </mat-form-field>
+        </div>
+        <div *ngIf="isMappedToCompositeTerm(appTerm)" style="display: flex; flex: 1">
+            <mat-form-field style="flex:1; margin-bottom:5px;" appearance="outline">
+                <mat-label>Unit</mat-label>
+                <input matInput disabled="true" [value]="getUnitName(appTerm.mapping.unitId)">
+            </mat-form-field>
+        </div>
+        <div *ngIf="isMappedToCompositeTerm(appTerm)" style="display: flex; flex: 1">
+            <mat-form-field style="flex:1; margin-bottom:5px;" appearance="outline">
+                <mat-label>Sharing</mat-label>
+                <input matInput disabled="true" [value]="getScopeName(appTerm.mapping.scopeId)">
+            </mat-form-field>
+        </div>
+
+    </div>
 </div>
 
 <!-- List options -->
