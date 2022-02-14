@@ -74,7 +74,9 @@ select
                                       then au.first_name || ' ' || au.last_name
                                   else null::text
                     end,
-			    '_unitId', bct.unit_id
+			    '_dataTypeId', bct.data_type_id,
+			    '_unitId', bct.unit_id,
+			    '_description', bct.description
 			)
 		else
 			null

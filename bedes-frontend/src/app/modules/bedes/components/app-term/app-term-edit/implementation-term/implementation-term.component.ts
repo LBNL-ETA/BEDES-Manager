@@ -685,6 +685,16 @@ export class ImplementationTermComponent implements OnInit {
         return appTerm && appTerm.mapping && appTerm.mapping instanceof TermMappingComposite && appTerm.mapping.compositeTermUUID;
     }
 
+    public getDataTypeName(dataTypeId: number) {
+        const bedesDataType = this.dataTypeItems.find(value => value.id === dataTypeId);
+
+        if (!bedesDataType) {
+            return '';
+        }
+
+        return bedesDataType.name;
+    }
+
     public getUnitName(unitId: number) {
         const bedesUnit = this.unitList.find(value => value.id === unitId);
 

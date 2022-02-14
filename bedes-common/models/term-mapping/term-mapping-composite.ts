@@ -55,6 +55,22 @@ export class TermMappingComposite {
     set scopeId(value: number | null | undefined) {
         this._scopeId = value;
     }
+    /** Description of the composite term */
+    private _description: string | null | undefined;
+    get description() {
+        return this._description;
+    }
+    set description(value: string | null | undefined) {
+        this._description = value;
+    }
+    /** Data type of the composite term */
+    private _dataTypeId: number | null | undefined;
+    get dataTypeId(): number | null | undefined {
+        return this._dataTypeId;
+    }
+    set dataTypeId(value: number | null | undefined) {
+        this._dataTypeId = value;
+    }
     /** Unit of the composite term */
     private _unitId: number | null | undefined;
     get unitId(): number | null | undefined {
@@ -75,7 +91,9 @@ export class TermMappingComposite {
         this._bedesName = data._bedesName;
         this._ownerName = data._ownerName;
         this._scopeId = data._scopeId;
+        this._description = data._description;
         this._unitId = data._unitId;
+        this._dataTypeId = data._dataTypeId;
     }
 
     /**
@@ -90,7 +108,9 @@ export class TermMappingComposite {
             _bedesName: this._bedesName,
             _ownerName: this._ownerName,
             _scopeId: this._scopeId,
+            _description: this._description,
             _unitId: this._unitId,
+            _dataTypeId: this._dataTypeId,
         }
     }
 }
