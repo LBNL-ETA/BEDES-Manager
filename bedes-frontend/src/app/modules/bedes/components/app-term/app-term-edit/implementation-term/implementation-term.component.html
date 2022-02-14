@@ -167,11 +167,19 @@
                 <input matInput disabled="true" [value]="appTerm.mapping.compositeTermUUID">
             </mat-form-field>
         </div>
-        <div *ngIf="isMappedToCompositeTerm(appTerm)" style="display: flex; flex: 1">
-            <mat-form-field style="flex:1; margin-bottom:5px;" appearance="outline">
-                <mat-label>Sharing</mat-label>
-                <input matInput disabled="true" [value]="getScopeName(appTerm.mapping.scopeId)">
-            </mat-form-field>
+        <div *ngIf="isMappedToCompositeTerm(appTerm)" style="flex: 1; display:flex;">
+            <div style="display: flex; flex: 1">
+                <mat-form-field style="flex:1; margin-bottom:5px;" appearance="outline">
+                    <mat-label>Sharing</mat-label>
+                    <input matInput disabled="true" [value]="getScopeName(appTerm.mapping.scopeId)">
+                </mat-form-field>
+            </div>
+            <div style="display: flex; flex: 1">
+                <mat-form-field style="flex:1; margin-bottom:5px;" appearance="outline">
+                    <mat-label>Owner</mat-label>
+                    <input matInput disabled="true" [value]="appTerm.mapping.ownerName">
+                </mat-form-field>
+            </div>
         </div>
 
     </div>
