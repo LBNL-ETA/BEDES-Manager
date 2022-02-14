@@ -8,5 +8,7 @@ export interface ITermMappingComposite {
     _compositeTermUUID: string;
     _ownerName: string;
     _scopeId: number;
+    _description?: string;
+    _dataTypeId?: number;
     _unitId?: number;
 }

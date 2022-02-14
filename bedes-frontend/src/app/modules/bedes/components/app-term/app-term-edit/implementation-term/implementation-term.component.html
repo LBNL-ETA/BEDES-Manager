@@ -119,7 +119,7 @@
             </button>
         </div>
 
-        <div style="margin-top:10px; margin-bottom:10px; flex:1; text-align: center;"
+        <div style="margin-top:35px; margin-bottom:34px; flex:1; text-align: center;"
              *ngIf="appTerm && appTerm.mapping">
                 <span class="span-value">
                     <a [routerLink]="['/composite-term/edit/' + appTerm.mapping.compositeTermUUID]"><fa-icon [icon]="['fas', 'edit']" style="color: white;"></fa-icon></a>
@@ -135,9 +135,31 @@
             <!-- Description -->
             <mat-form-field style="flex:1; margin-bottom:5px;" appearance="outline">
                 <mat-label>Description</mat-label>
-                <textarea matInput placeholder="Enter a Description" rows="5" disabled="true">
-                </textarea>
+                <textarea matInput placeholder="Enter a Description" rows="5" disabled="true">{{ appTerm.mapping.description }}</textarea>
             </mat-form-field>
+        </div>
+        <div *ngIf="isMappedToCompositeTerm(appTerm)" style="flex: 1; display:flex;">
+            <!-- Type of Term dropdown -->
+            <div style="display:flex; flex: 1;">
+                <mat-form-field style="flex:1; margin-bottom:5px;" appearance="outline">
+                    <mat-label>Type of Term</mat-label>
+                    <input matInput disabled value="Composite Term">
+                </mat-form-field>
+            </div>
+            <!-- Data Type dropdown -->
+            <div style="display:flex; flex: 1;">
+                <mat-form-field style="flex:1; margin-bottom:5px;" appearance="outline">
+                    <mat-label>Data Type</mat-label>
+                    <input matInput disabled [value]="getDataTypeName(appTerm.mapping.dataTypeId)">
+                </mat-form-field>
+            </div>
+            <!-- Units -->
+            <div style="display: flex; flex: 1" *ngIf="unitList">
+                <mat-form-field style="flex:1; margin-bottom:5px;" appearance="outline">
+                    <mat-label>Unit</mat-label>
+                    <input matInput disabled="true" [value]="getUnitName(appTerm.mapping.unitId)">
+                </mat-form-field>
+            </div>
         </div>
         <div *ngIf="isMappedToCompositeTerm(appTerm)" style="display: flex; flex: 1">
             <mat-form-field style="flex:1; margin-bottom:5px;" appearance="outline">
@@ -145,17 +167,19 @@
                 <input matInput disabled="true" [value]="appTerm.mapping.compositeTermUUID">
             </mat-form-field>
         </div>
-        <div *ngIf="isMappedToCompositeTerm(appTerm)" style="display: flex; flex: 1">
-            <mat-form-field style="flex:1; margin-bottom:5px;" appearance="outline">
-                <mat-label>Unit</mat-label>
-                <input matInput disabled="true" [value]="getUnitName(appTerm.mapping.unitId)">
-            </mat-form-field>
-        </div>
-        <div *ngIf="isMappedToCompositeTerm(appTerm)" style="display: flex; flex: 1">
-            <mat-form-field style="flex:1; margin-bottom:5px;" appearance="outline">
-                <mat-label>Sharing</mat-label>
-                <input matInput disabled="true" [value]="getScopeName(appTerm.mapping.scopeId)">
-            </mat-form-field>
+        <div *ngIf="isMappedToCompositeTerm(appTerm)" style="flex: 1; display:flex;">
+            <div style="display: flex; flex: 1">
+                <mat-form-field style="flex:1; margin-bottom:5px;" appearance="outline">
+                    <mat-label>Sharing</mat-label>
+                    <input matInput disabled="true" [value]="getScopeName(appTerm.mapping.scopeId)">
+                </mat-form-field>
+            </div>
+            <div style="display: flex; flex: 1">
+                <mat-form-field style="flex:1; margin-bottom:5px;" appearance="outline">
+                    <mat-label>Owner</mat-label>
+                    <input matInput disabled="true" [value]="appTerm.mapping.ownerName">
+                </mat-form-field>
+            </div>
         </div>
 
     </div>
