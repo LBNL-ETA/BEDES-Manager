@@ -309,7 +309,7 @@ export class TermBuilderEditComponent implements OnInit {
                 position: {top: '20px'},
                 data: {
                     dialogTitle: 'Duplicate Composite Term',
-                    dialogHtml: `This composite term already exists: <a href="${termLink}">${maybeDuplicateTerm.name}</a>.
+                    dialogHtml: `This composite term already exists: <a href="${termLink}" target="_blank">${maybeDuplicateTerm.name}</a>.
                 Are you sure you want to create another copy?`,
                 }
             });
