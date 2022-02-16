@@ -64,17 +64,6 @@
             </mat-form-field>
 
             <div style="flex: 1; display:flex;">
-                <!-- Type of Term dropdown -->
-                <div style="display:flex; flex: 1;">
-                    <mat-form-field style="flex:1; margin-bottom:5px;" appearance="outline">
-                        <mat-label>Type of Term</mat-label>
-                        <mat-select #typeOfTerm placeholder="Select a Term Type" formControlName="termTypeId">
-                            <mat-option *ngFor="let item of appTermTypeItems" [value]="item.id">
-                                {{item.name}}
-                            </mat-option>
-                        </mat-select>
-                    </mat-form-field>
-                </div>
                 <!-- Data Type dropdown -->
                 <div style="display:flex; flex: 1;">
                     <mat-form-field style="flex:1; margin-bottom:5px;" appearance="outline">
@@ -139,13 +128,6 @@
             </mat-form-field>
         </div>
         <div *ngIf="isMappedToCompositeTerm(appTerm)" style="flex: 1; display:flex;">
-            <!-- Type of Term dropdown -->
-            <div style="display:flex; flex: 1;">
-                <mat-form-field style="flex:1; margin-bottom:5px;" appearance="outline">
-                    <mat-label>Type of Term</mat-label>
-                    <input matInput disabled value="Composite Term">
-                </mat-form-field>
-            </div>
             <!-- Data Type dropdown -->
             <div style="display:flex; flex: 1;">
                 <mat-form-field style="flex:1; margin-bottom:5px;" appearance="outline">
