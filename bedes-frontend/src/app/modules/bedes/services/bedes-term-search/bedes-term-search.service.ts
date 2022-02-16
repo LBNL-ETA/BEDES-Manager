@@ -41,14 +41,17 @@ export class BedesTermSearchService {
      *   The strings to search for.
      * @param showPublicTerms
      *   Whether public terms should be returned.
+     * @param showCompositeTerms
+     *   Whether composite terms should be included in the results.
      * @returns search
      */
-    public search(searchStrings: Array<string>, showPublicTerms: boolean): Observable<Array<BedesSearchResult>> {
+    public search(searchStrings: Array<string>, showPublicTerms: boolean, showCompositeTerms?: boolean): Observable<Array<BedesSearchResult>> {
         // build a params object to pass the search terms
         const httpParams = new HttpParams({
             fromObject: {
                 search: searchStrings[0],
                 includePublic: showPublicTerms ? '1' : '0',
+                includeComposite: showCompositeTerms ? '1' : '0',
             }
         });
         // update the current search status
@@ -80,10 +83,11 @@ export class BedesTermSearchService {
      * from the search and calls next() on the searchResultSubject.
      * @param searchStrings
      * @param showPublicTerms
+     * @param showCompositeTerms
      */
-    public searchAndNotify(searchStrings: Array<string>, showPublicTerms: boolean): Observable<Array<BedesSearchResult>> {
+    public searchAndNotify(searchStrings: Array<string>, showPublicTerms: boolean, showCompositeTerms?: boolean): Observable<Array<BedesSearchResult>> {
         try {
-            return this.search(searchStrings, showPublicTerms)
+            return this.search(searchStrings, showPublicTerms, showCompositeTerms)
                 .pipe(
                     map((results: Array<BedesSearchResult>) => {
                         this._searchResultsSubject.next(results);

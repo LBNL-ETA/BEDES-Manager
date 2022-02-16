@@ -20,8 +20,8 @@ export class BedesTermSearchQuery {
     public async searchAllBedesTerms(
         request: Request,
         includePublic: boolean,
+        includeComposite: boolean,
         searchStrings: Array<string>,
-        searchOptions?: ISearchOptions,
         transaction?: any
     ): Promise<Array<IBedesSearchResult>> {
         try {
@@ -42,7 +42,7 @@ export class BedesTermSearchQuery {
                     _descriptionDisabled: true
                 },
                 _compositeTerm: {
-                    _disabled: false,
+                    _disabled: !includeComposite,
                     _nameDisabled: false,
                     _descriptionDisabled: true 
                 }
@@ -285,7 +285,7 @@ export class BedesTermSearchQuery {
         else {
             var query1 = `
                 where
-                    (t.scope_id > 1 and (${builderOutput.compositeTerm.getSqlConditions()})${excludePublicCondition}
+                    (t.scope_id > 1 and (${builderOutput.compositeTerm.getSqlConditions()})${excludePublicCondition})
             `;
         }
 

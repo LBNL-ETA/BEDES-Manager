@@ -13,17 +13,20 @@ export interface IBedesSearchResultOutput {
     styleUrls: ['./bedes-search-parameters.component.scss']
 })
 export class BedesSearchParametersComponent implements OnInit {
+    @Output()
+    searchResultOutput = new EventEmitter<IBedesSearchResultOutput>();
+    @Input()
+    public showCompositeTerms = true;
+    // get a reference to the search input control
+    @Input()
+    private searchInput: ElementRef;
+
     public searchString: string;
     public showPublicTerms = false;
     public waitingForResults = false;
     public searchError = false;
     public errorMessage: string;
     public numResults = 0;
-    // get a reference to the search input control
-    @Input('searchInput')
-    private searchInput: ElementRef;
-    @Output()
-    searchResultOutput = new EventEmitter<IBedesSearchResultOutput>();
 
     constructor(
         private bedesTermSearchService: BedesTermSearchService,
@@ -40,7 +43,7 @@ export class BedesSearchParametersComponent implements OnInit {
             throw new Error("Can't search for empty string.");
         }
         this.waitingForResults = true;
-        this.bedesTermSearchService.search([this.searchString], this.showPublicTerms)
+        this.bedesTermSearchService.search([this.searchString], this.showPublicTerms, this.showCompositeTerms)
         .subscribe((results: Array<BedesSearchResult>) => {
             // set the number of rows found
             this.numResults = results.length;
