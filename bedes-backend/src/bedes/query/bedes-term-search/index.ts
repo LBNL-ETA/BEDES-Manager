@@ -256,7 +256,7 @@ export class BedesTermSearchQuery {
                 public.bedes_composite_term t
             left join 
                 --- This will greedily remove everything up to the last separating hyphen, thus giving us the rightmost term.
-                public.bedes_term b on b.id = CAST(regexp_replace(t.signature, '^.*-', '') AS int)
+                public.bedes_term b on b.id = CAST(regexp_replace(t.signature, '^.*-([^:]+):?.*', '\\1') AS int)
             join
                 auth.user as au on au.id = t.user_id
         `;
