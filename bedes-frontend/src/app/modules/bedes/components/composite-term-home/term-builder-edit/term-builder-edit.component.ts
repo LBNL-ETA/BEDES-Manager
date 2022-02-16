@@ -18,6 +18,8 @@ import { takeUntil } from 'rxjs/operators';
 import { Router, ActivatedRoute } from '@angular/router';
 import { scopeList } from '@bedes-common/lookup-tables/scope-list';
 import { FilteredScopeList } from './filtered-scope-list';
+import {ConfirmDialogComponent} from '../../dialogs/confirm-dialog/confirm-dialog.component';
+import {BedesCompositeTermShort} from '@bedes-common/models/bedes-composite-term-short';
 
 
 @Component({
@@ -26,7 +28,6 @@ import { FilteredScopeList } from './filtered-scope-list';
     styleUrls: ['./term-builder-edit.component.scss']
 })
 export class TermBuilderEditComponent implements OnInit {
-    private ngUnsubscribe: Subject<void> = new Subject<void>();
     public compositeTerm: BedesCompositeTerm;
     public unitList: Array<BedesUnit>;
     public isEditable: boolean;
@@ -36,8 +37,11 @@ export class TermBuilderEditComponent implements OnInit {
     public hasError = false;
     /** List of possible term visibility options */
     public scopeList = new FilteredScopeList(scopeList);
+    public termList: BedesCompositeTermShort[];
 
     public dataForm: FormGroup;
+
+    private ngUnsubscribe: Subject<void> = new Subject<void>();
 
     constructor(
         private formBuilder: FormBuilder,
@@ -73,6 +77,7 @@ export class TermBuilderEditComponent implements OnInit {
         this.subscribeToActiveTerm();
         this.subscribeToFormChanges();
         this.initializeSupportList();
+        this.subscribeToTermList();
     }
 
     ngOnDestroy() {
@@ -148,6 +153,13 @@ export class TermBuilderEditComponent implements OnInit {
         });
     }
 
+    private subscribeToTermList(): void {
+        this.compositeTermService.termListSubject
+            .pipe(takeUntil(this.ngUnsubscribe))
+            .subscribe((termList: BedesCompositeTermShort[]) => {
+                this.termList = termList;
+            });
+    }
 
     public openTermSearchDialog(): void {
         const dialogRef = this.dialog.open(BedesTermSearchDialogComponent, {
@@ -281,29 +293,60 @@ export class TermBuilderEditComponent implements OnInit {
      * Save the composite term to the database.
      */
     public updateCompositeTerm(): void {
+        if (!this.compositeTerm.isNewTerm()) {
+            this.completeUpdateCompositeTerm();
+            return;
+        }
+
+        // Ensure signature is set.
+        this.compositeTerm.refresh();
+        const maybeDuplicateTerm = this.termList.find(listTerm => listTerm.id && listTerm.signature === this.compositeTerm.signature);
+        if (maybeDuplicateTerm) {
+            const termLink = `/composite-term/edit/${maybeDuplicateTerm.uuid}`;
+            const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+                panelClass: 'dialog-no-padding',
+                width: '450px',
+                position: {top: '20px'},
+                data: {
+                    dialogTitle: 'Duplicate Composite Term',
+                    dialogHtml: `This composite term already exists: <a href="${termLink}">${maybeDuplicateTerm.name}</a>.
+                Are you sure you want to create another copy?`,
+                }
+            });
+            dialogRef.afterClosed().subscribe((shouldContinue: boolean) => {
+                if (shouldContinue) {
+                    this.completeUpdateCompositeTerm();
+                }
+            });
+            return;
+        }
+
+        this.completeUpdateCompositeTerm();
+    }
+
+    private completeUpdateCompositeTerm() {
         this.isWaiting = true;
         if (this.compositeTerm.id) {
             // an existing term
             this.compositeTermService.updateTerm(this.compositeTerm)
-            .subscribe((results: BedesCompositeTerm) => {
-                this.isWaiting = false;
-                this.compositeTermService.setActiveCompositeTerm(results);
-            }, (error: any) => {
-                this.isWaiting = false;
-                this.hasError = true;
-            });
-        }
-        else {
+                .subscribe((results: BedesCompositeTerm) => {
+                    this.isWaiting = false;
+                    this.compositeTermService.setActiveCompositeTerm(results);
+                }, (error: any) => {
+                    this.isWaiting = false;
+                    this.hasError = true;
+                });
+        } else {
             // new term, save it to the database.
             this.compositeTermService.saveNewTerm(this.compositeTerm)
-            .subscribe((results: BedesCompositeTerm) => {
-                this.isWaiting = false;
-                this.compositeTermService.setActiveCompositeTerm(results);
-                this.router.navigate([results.uuid], {relativeTo: this.activatedRoute})
-            }, (error: any) => {
-                this.isWaiting = false;
-                this.hasError = true;
-            });
+                .subscribe((results: BedesCompositeTerm) => {
+                    this.isWaiting = false;
+                    this.compositeTermService.setActiveCompositeTerm(results);
+                    this.router.navigate([results.uuid], {relativeTo: this.activatedRoute});
+                }, (error: any) => {
+                    this.isWaiting = false;
+                    this.hasError = true;
+                });
         }
     }
 

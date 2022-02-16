@@ -9,6 +9,7 @@ import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dial
 export class ConfirmDialogComponent implements OnInit {
     public dialogTitle: string;
     public dialogContent: string;
+    public dialogHtml: string;
     public headerClass: string;
 
     constructor(
@@ -17,6 +18,7 @@ export class ConfirmDialogComponent implements OnInit {
     ) {
         this.dialogTitle = dialogData.dialogTitle || 'Dialog Title';
         this.dialogContent = dialogData.dialogContent || 'Dialog content....';
+        this.dialogHtml = dialogData.dialogHtml ?? null;
     }
 
     ngOnInit() {
