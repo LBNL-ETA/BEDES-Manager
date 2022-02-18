@@ -43,15 +43,21 @@ export class BedesTermSearchService {
      *   Whether public terms should be returned.
      * @param showCompositeTerms
      *   Whether composite terms should be included in the results.
+     * @param showListOptions
+     *   Whether constrained list options should be included in the results.
      * @returns search
      */
-    public search(searchStrings: Array<string>, showPublicTerms: boolean, showCompositeTerms?: boolean): Observable<Array<BedesSearchResult>> {
+    public search(searchStrings: Array<string>,
+                  showPublicTerms: boolean,
+                  showCompositeTerms = true,
+                  showListOptions = true): Observable<Array<BedesSearchResult>> {
         // build a params object to pass the search terms
         const httpParams = new HttpParams({
             fromObject: {
                 search: searchStrings[0],
                 includePublic: showPublicTerms ? '1' : '0',
                 includeComposite: showCompositeTerms ? '1' : '0',
+                includeListOptions: showListOptions ? '1' : '0',
             }
         });
         // update the current search status
@@ -81,13 +87,15 @@ export class BedesTermSearchService {
      * Searches for BedesTerms with matching searchString, but instead
      * of returning the Observable from the request, it takes the results
      * from the search and calls next() on the searchResultSubject.
+     *
      * @param searchStrings
      * @param showPublicTerms
      * @param showCompositeTerms
+     * @param showListOptions
      */
-    public searchAndNotify(searchStrings: Array<string>, showPublicTerms: boolean, showCompositeTerms?: boolean): Observable<Array<BedesSearchResult>> {
+    public searchAndNotify(searchStrings: Array<string>, showPublicTerms: boolean, showCompositeTerms = true, showListOptions = true): Observable<Array<BedesSearchResult>> {
         try {
-            return this.search(searchStrings, showPublicTerms, showCompositeTerms)
+            return this.search(searchStrings, showPublicTerms, showCompositeTerms, showListOptions)
                 .pipe(
                     map((results: Array<BedesSearchResult>) => {
                         this._searchResultsSubject.next(results);

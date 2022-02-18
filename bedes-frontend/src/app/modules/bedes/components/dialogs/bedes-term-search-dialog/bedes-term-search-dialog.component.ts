@@ -21,6 +21,7 @@ export class BedesTermSearchDialogComponent implements OnInit {
     public searchString: string;
     public showPublicTerms = false;
     public showCompositeTerms = true;
+    public showListOptions = true;
     public waitingForResults = false;
     public searchResults = new Array<BedesSearchResult>();
     public selectedItems: Array<ISearchResultRow>;
@@ -66,6 +67,7 @@ export class BedesTermSearchDialogComponent implements OnInit {
         this.setExculdeResultType();
         this.setExcludeUUID();
         this.setShowOnlyUUID();
+        this.setShowListOptions();
     }
 
     /**
@@ -101,6 +103,12 @@ export class BedesTermSearchDialogComponent implements OnInit {
         }
     }
 
+    private setShowListOptions(): void {
+        if (this.dialogOptions && typeof this.dialogOptions.showListOptions !== 'undefined') {
+            this.showListOptions = this.dialogOptions.showListOptions;
+        }
+    }
+
     /**
      * Closes the dialog.
      */
@@ -118,7 +126,7 @@ export class BedesTermSearchDialogComponent implements OnInit {
      */
     public searchForTerms(): void {
         this.waitingForResults = true;
-        this.bedesTermSearchService.searchAndNotify([this.searchString], this.showPublicTerms, this.showCompositeTerms)
+        this.bedesTermSearchService.searchAndNotify([this.searchString], this.showPublicTerms, this.showCompositeTerms, this.showListOptions)
             .subscribe((results: Array<BedesSearchResult>) => {
                 // set the number of rows found
                 this.numResults = results.length;

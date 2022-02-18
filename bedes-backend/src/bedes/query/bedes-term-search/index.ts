@@ -21,6 +21,7 @@ export class BedesTermSearchQuery {
         request: Request,
         includePublic: boolean,
         includeComposite: boolean,
+        includeListOptions: boolean,
         searchStrings: Array<string>,
         transaction?: any
     ): Promise<Array<IBedesSearchResult>> {
@@ -29,7 +30,6 @@ export class BedesTermSearchQuery {
                 logger.error(`${this.constructor.name}: search strings`);
                 throw new Error('Missing required parameters.');
             }
-            // TODO: ignore params?
             let searchOptions = new SearchOptions(<ISearchOptions>{
                 _bedesTerm: {
                     _disabled: false,
@@ -37,7 +37,7 @@ export class BedesTermSearchQuery {
                     _descriptionDisabled: true
                 },
                 _bedesTermListOption: {
-                    _disabled: false,
+                    _disabled: !includeListOptions,
                     _nameDisabled: false,
                     _descriptionDisabled: true
                 },

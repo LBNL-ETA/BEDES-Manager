@@ -9,5 +9,7 @@ export interface ISearchDialogOptions {
     // Array that contains uuid strings to exclude from the result set
     excludeUUID?: Array<string>;
     // Indicates if the table should only display items with uuids
-    showOnlyUUID?: boolean
+    showOnlyUUID?: boolean;
+    // Indicates if the table should ask the API for list options.
+    showListOptions?: boolean;
 }
