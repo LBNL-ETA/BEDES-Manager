@@ -979,7 +979,8 @@ export class ImplementationTermComponent implements OnInit {
             width: '95%',
             height: '95%',
             data: <ISearchDialogOptions>{
-                showOnlyUUID: true
+                showOnlyUUID: true,
+                showListOptions: false,
             }
         });
         // After the dialog is close...

@@ -20,8 +20,9 @@ export async function searchBedesTermHandler(request: Request, response: Respons
             );
         }
         const includePublic = request.query.includePublic ? !!+request.query.includePublic : false;
-        const includeComposite = request.query.includeComposite ? !!+request.query.includeComposite : false;
-        let results = await bedesQuery.bedesTermSearch.searchAllBedesTerms(request, includePublic, includeComposite, searchTerms);
+        const includeComposite = request.query.includeComposite ? !!+request.query.includeComposite : true;
+        const includeListOptions = request.query.includeListOptions ? !!+request.query.includeListOptions : true;
+        let results = await bedesQuery.bedesTermSearch.searchAllBedesTerms(request, includePublic, includeComposite, includeListOptions, searchTerms);
         response.json(results);
     }
     catch (error) {
