@@ -182,7 +182,7 @@ export class XmlTermLoader {
                         if (this.resetTermOptions) {
                             // Save the term or constrained list.
                             const filePath = '../../bedes-mappings';
-                            const fileName = 'BEDES_all_list_options_V2-4.xml';
+                            const fileName = 'BEDES_all_list_options_V2-5.xml';
 
                             console.log(`load file ${filePath}/${fileName}`)
                             const termLoader = new XmlTermOptionLoader(filePath, fileName);
