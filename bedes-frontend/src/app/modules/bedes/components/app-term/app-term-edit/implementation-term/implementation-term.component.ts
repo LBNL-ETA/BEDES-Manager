@@ -517,6 +517,10 @@ export class ImplementationTermComponent implements OnInit {
         this.dataForm.controls['dataTypeId'].valueChanges
         .subscribe((newValue: number) => {
             this.appTerm.dataTypeId = newValue;
+            const dataTypeName = this.getDataTypeName(newValue);
+            if (dataTypeName === 'Constrained List') {
+                this.appTerm.termTypeId = TermType.ConstrainedList;
+            }
             // switch the app terms object type
             this.transFormAppTerm();
         });
