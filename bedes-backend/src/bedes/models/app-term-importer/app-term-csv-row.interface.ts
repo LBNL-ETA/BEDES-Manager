@@ -240,7 +240,10 @@ export async function mappedToBedesAtomicTerm(item: IAppTermCsvRow): Promise<ICs
                         let constListMapping: Array<string> = arrBedesConstrainedListMappings[i].trim().split("=");
                         let termOptionRecord: IBedesTermOption | undefined = undefined;
                         try {
-                            termOptionRecord = await bedesQuery.termListOption.getRecordByName(bedesTermUUID, constListMapping[1].trim());
+                            const optionName = constListMapping[1]?.trim() ?? undefined;
+                            if (optionName) {
+                                termOptionRecord = await bedesQuery.termListOption.getRecordByName(bedesTermUUID, optionName);
+                            }
                         } catch (error) {
                             throw new BedesError(
                                 `Unrecognized list option "${constListMapping[1]}" of constrained list "${item.BedesTerm}" for application term "${item.ApplicationTerm}"`,
@@ -248,14 +251,14 @@ export async function mappedToBedesAtomicTerm(item: IAppTermCsvRow): Promise<ICs
                             );
                         }
 
-                        if (arrBedesConstrainedListUUIDs.length > 0 && termOptionRecord._uuid != arrBedesConstrainedListUUIDs[i]) {
+                        if (arrBedesConstrainedListUUIDs.length > 0 && termOptionRecord && termOptionRecord._uuid != arrBedesConstrainedListUUIDs[i]) {
                             throw new BedesError(
                                 `Incorrect BedesConstrainedListMappingUUID. Term=(${item.ApplicationTerm})`, 
                                 HttpStatusCodes.BadRequest_400
                             );
                         }
-                        arrResultBedesTermOptionID.push(termOptionRecord._id!);
-                        arrResultBedesTermOptionUUID.push(termOptionRecord._uuid!);
+                        arrResultBedesTermOptionID.push(termOptionRecord?._id || null);
+                        arrResultBedesTermOptionUUID.push(termOptionRecord?._uuid! || null);
                         arrResultBedesConstrainedListMapping.push(arrBedesConstrainedListMappings[i]);
                     }
                     result.BedesConstrainedListMapping = arrResultBedesConstrainedListMapping;
@@ -385,22 +388,25 @@ export async function mappedToBedesCompositeTerm(item: IAppTermCsvRow, request: 
                     let constListMapping: Array<string> = arrBedesConstrainedListMappings[i].trim().split("=");
                     let termOptionRecord: IBedesTermOption | undefined = undefined;
                     try {
-                        termOptionRecord = await bedesQuery.termListOption.getRecordByName(bedesTermUUID, constListMapping[1].trim());
+                        const optionName = constListMapping[1]?.trim() ?? undefined;
+                        if (optionName) {
+                            termOptionRecord = await bedesQuery.termListOption.getRecordByName(bedesTermUUID, optionName);
+                        }
                     } catch (error) {
                         throw new BedesError(
-                            `Unrecognized list option "${constListMapping[1]}" of constrained list "${item.BedesTerm}" for application term "${item.ApplicationTerm}"`,
+                            `Unrecognized list option "${constListMapping[1]}" (mapped to "${constListMapping[0]}" of constrained list "${item.BedesTerm}" for application term "${item.ApplicationTerm}"`,
                             HttpStatusCodes.BadRequest_400
                         );
                     }
 
-                    if (arrBedesConstrainedListUUIDs.length > 0 && termOptionRecord._uuid != arrBedesConstrainedListUUIDs[i]) {
+                    if (arrBedesConstrainedListUUIDs.length > 0 && termOptionRecord && termOptionRecord._uuid != arrBedesConstrainedListUUIDs[i]) {
                         throw new BedesError(
                             `Incorrect BedesConstrainedListMappingUUID. Term=(${item.ApplicationTerm})`, 
                             HttpStatusCodes.BadRequest_400
                         );
                     }
-                    arrResultBedesTermOptionID.push(termOptionRecord._id!);
-                    arrResultBedesTermOptionUUID.push(termOptionRecord._uuid!);
+                    arrResultBedesTermOptionID.push(termOptionRecord?._id ?? null);
+                    arrResultBedesTermOptionUUID.push(termOptionRecord?._uuid ?? null);
                     arrResultBedesConstrainedListMapping.push(arrBedesConstrainedListMappings[i]);
                 }
                 result.BedesConstrainedListMapping = arrResultBedesConstrainedListMapping;

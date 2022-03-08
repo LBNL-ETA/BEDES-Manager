@@ -291,12 +291,12 @@ export class AppTermImporter {
 
                         // Create array of constrained list mappings for AppTermList object
                         const results = new Array<IAppTermListOption>();
-                        for (let i = 0; i < resultBedesAtomicTermMap.BedesConstrainedListID!.length; i += 1) {
+                        for (let i = 0; i < resultBedesAtomicTermMap.BedesConstrainedListID!.length ?? 0; i += 1) {
                             if (resultBedesAtomicTermMap.BedesConstrainedListUUID![i] && resultBedesAtomicTermMap.BedesConstrainedListID![i]) {
                                 let termMappingListOptionParams: ITermMappingListOption = {
                                     _id: resultBedesAtomicTermMap.BedesConstrainedListID![i],
                                     _bedesTermOptionUUID: resultBedesAtomicTermMap.BedesConstrainedListUUID![i],
-                                    _bedesOptionName: resultBedesAtomicTermMap.BedesConstrainedListMapping![i].split('=')[1].trim()
+                                    _bedesOptionName: resultBedesAtomicTermMap.BedesConstrainedListMapping![i].split('=')[1]?.trim() ?? undefined,
                                 }
                                 let appTermListOptionParams: IAppTermListOption = {
                                     _name: resultBedesAtomicTermMap.BedesConstrainedListMapping![i].split('=')[0].trim(),
@@ -368,7 +368,7 @@ export class AppTermImporter {
                                 let termMappingListOptionParams: ITermMappingListOption = {
                                     _id: resultBedesCompositeTermMap.BedesConstrainedListID![i],
                                     _bedesTermOptionUUID: resultBedesCompositeTermMap.BedesConstrainedListUUID![i],
-                                    _bedesOptionName: resultBedesCompositeTermMap.BedesConstrainedListMapping![i].split('=')[1].trim()
+                                    _bedesOptionName: resultBedesCompositeTermMap.BedesConstrainedListMapping![i].split('=')[1]?.trim() ?? undefined,
                                 }
                                 let appTermListOptionParams: IAppTermListOption = {
                                     _name: resultBedesCompositeTermMap.BedesConstrainedListMapping![i].split('=')[0].trim(),
