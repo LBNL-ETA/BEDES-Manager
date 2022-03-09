@@ -212,7 +212,8 @@ export async function mappedToBedesAtomicTerm(item: IAppTermCsvRow): Promise<ICs
                 // Check that the BEDES Term Unit is correct
                 if (item.BedesTermUnit) {
                     let bedesTermUnitId: number | null | undefined = await getUnitIdFromName(item.BedesTermUnit, item.ApplicationTerm);
-                    if (!bedesTermUnitId) {
+                    // Don't fail if the unit ID is 0, as it may be.
+                    if (typeof bedesTermUnitId != 'number') {
                         throw new BedesError(`Incorrect BedesTermUnit. Term=(${item.ApplicationTerm})`, HttpStatusCodes.BadRequest_400);
                     }
                 }
