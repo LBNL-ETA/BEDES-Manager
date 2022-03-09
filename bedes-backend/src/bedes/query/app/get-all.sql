@@ -1,5 +1,6 @@
 select
-    a.id as "_id",
+    -- HACK: Solve the actual issue causing the cross-multiply.
+    distinct a.id as "_id",
     a.name as "_name",
     a.description as "_description",
     a.scope_id as "_scopeId",
@@ -16,5 +17,5 @@ join
 where
 	a.scope_id IN (${_scopes:csv})
 order by
-    name
+    _name
 ;

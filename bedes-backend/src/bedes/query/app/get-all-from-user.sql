@@ -1,6 +1,6 @@
 -- get all public mapping applications (non-authenticated call)
 select
-    a.id as "_id",
+    DISTINCT a.id as "_id",
     a.name as "_name",
     a.description as "_description",
     a.scope_id as "_scopeId",
@@ -32,5 +32,5 @@ or (
 	cu.user_group_id = 2
 )
 order by
-    name
+    _name
 ;
