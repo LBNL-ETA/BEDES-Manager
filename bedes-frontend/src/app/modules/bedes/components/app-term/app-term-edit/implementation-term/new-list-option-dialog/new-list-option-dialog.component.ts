@@ -16,7 +16,7 @@ export interface INewListOption {
 export class NewListOptionDialogComponent implements OnInit {
     public listOption: AppTermListOption
     public dataForm = this.formBuilder.group({
-        name: ['', Validators.required],
+        name: [''],
         description: [''],
         uuid: [{
             value: null,

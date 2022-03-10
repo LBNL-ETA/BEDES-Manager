@@ -4,7 +4,7 @@ import { createLogger } from '@bedes-backend/logging';
 import { HttpStatusCodes } from '@bedes-common/enums/http-status-codes';
 import { BedesError } from '@bedes-common/bedes-error';
 import { bedesQuery } from '../../query';
-import { IBedesTermOption } from '@bedes-common/models/bedes-term-option/bedes-term-option.interface';
+import {IAppTermListOption} from '@bedes-common/models/app-term';
 const logger = createLogger(module);
 
 /**
@@ -14,7 +14,7 @@ export async function updateListOptionHandler(request: Request, response: Respon
     try {
         logger.debug('updateListOptionHandler...');
         logger.debug(util.inspect(request.body));
-        const listOption: IBedesTermOption = request.body;
+        const listOption: IAppTermListOption = request.body;
         if (!listOption) {
             throw new BedesError(
                 'Invalid parameters',
@@ -22,10 +22,10 @@ export async function updateListOptionHandler(request: Request, response: Respon
                 "Invalid parameters"
             );
         }
-        logger.debug(`create a new list option`);
+        logger.debug(`update an app term list option`);
         logger.debug(util.inspect(listOption));
-        let results = await bedesQuery.termListOption.updateRecord(listOption);
-        logger.debug('compositeTermHandler resuts');
+        let results = await bedesQuery.appTermListOption.updateRecord(listOption);
+        logger.debug('updateListOptionHandler results');
         logger.debug(util.inspect(results));
         response.json(results)
     }

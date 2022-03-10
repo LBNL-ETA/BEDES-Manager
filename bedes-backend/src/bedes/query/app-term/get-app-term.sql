@@ -8,7 +8,8 @@ with
                 json_build_object(
                     '_id', o.id,
                     '_name', o.name,
-                    '_unit', o.unit
+                    '_unit', o.unit,
+                    '_description', o.description,
                 )
             ) as items
         from

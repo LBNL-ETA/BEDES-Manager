@@ -55,7 +55,7 @@ export class EditListOptionComponent implements OnInit {
     public unitList: Array<BedesUnit>;
 
     public dataForm = this.formBuilder.group({
-        name: ['', Validators.required],
+        name: [''],
         description: [''],
         uuid: [{
             value: null,

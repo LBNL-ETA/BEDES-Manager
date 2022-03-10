@@ -10,6 +10,7 @@ with
                     '_name', o.name,
                     '_unit', o.unit,
                     '_uuid', o.uuid,
+                    '_description', o.description,
                     '_mapping', case when mp.id is not null then
                         json_build_object(
                             '_id', mp.id,
