@@ -7,9 +7,11 @@ import { HttpStatusCodes } from '@bedes-common/enums/http-status-codes';
 import { AppTermList } from '@bedes-common/models/app-term/app-term-list';
 import { AppTerm } from '@bedes-common/models/app-term/app-term';
 import { TermType } from '@bedes-common/enums/term-type.enum';
-import { IAppTermCsvRow, isValidAppTermCsvRow, getTermTypeFromCsvName, getUnitIdFromName, 
-        termhasNoMapping, mappedToBedesAtomicTerm, mappedToBedesCompositeTerm, createNewCompositeTerm,
-        ICsvBedesAtomicTermMapping, ICsvBedesCompositeTermMapping } from './app-term-csv-row.interface';
+import {
+    IAppTermCsvRow, isValidAppTermCsvRow, getTermTypeFromCsvName, getUnitIdFromName,
+    termhasNoMapping, mappedToBedesAtomicTerm, mappedToBedesCompositeTerm, createNewCompositeTerm,
+    ICsvBedesAtomicTermMapping, ICsvBedesCompositeTermMapping, delimiter
+} from './app-term-csv-row.interface';
 import { createLogger } from '@bedes-backend/logging';
 import { IAppTerm } from "@bedes-common/models/app-term";
 import { IAppTermList } from '@bedes-common/models/app-term/app-term-list.interface';
@@ -232,7 +234,7 @@ export class AppTermImporter {
             // Check if row is valid
             if (!isValidAppTermCsvRow(parsedCsvTerm)) {
                 logger.error(`Invalid parsed csv row encountered: Term=(${parsedCsvTerm})`);
-                throw new BedesError(`Invalid parsed csv row encountered: Term=(${parsedCsvTerm.ApplicationTerm})`, 400);
+                return Promise.reject(new BedesError(`Invalid parsed csv row encountered: Term=(${parsedCsvTerm.ApplicationTerm})`, 400));
             }
 
             // Get TermType ID
@@ -254,7 +256,33 @@ export class AppTermImporter {
                     _description: parsedCsvTerm.ApplicationTermDescription,
                     _unit: parsedCsvTerm.ApplicationTermUnit
                 }
-                return new AppTerm(appTermParams);
+                if (appTermTypeId !== TermType.ConstrainedList) {
+                    return new AppTerm(appTermParams);
+                }
+
+                // If they've mapped any application list options, ensure those get created.
+                const results = new Array<IAppTermListOption>();
+                const arrBedesConstrainedListMappings: Array<string> = parsedCsvTerm.BedesConstrainedListMapping!.trim().split(delimiter);
+                for (let i = 0; i < arrBedesConstrainedListMappings.length ?? 0; i += 1) {
+                    let appTermListOptionParams: IAppTermListOption = {
+                        _name: arrBedesConstrainedListMappings[i].split('=')[0].trim()
+                    };
+                    // Throw an error if they have tried to map any of them, though.
+                    if (arrBedesConstrainedListMappings[i].split('=')[1].trim() != '') {
+                        return Promise.reject(new BedesError(`List options in unmapped application terms cannot be mapped. (List option: ${appTermListOptionParams._name})`, HttpStatusCodes.BadRequest_400));
+                    }
+                    results.push(appTermListOptionParams);
+                }
+                // Create AppTermList object
+                let appTermListParams: IAppTermList = {
+                    _name: parsedCsvTerm.ApplicationTerm,
+                    _termTypeId: appTermTypeId,
+                    _dataTypeId: appDataTypeId,
+                    _description: parsedCsvTerm.ApplicationTermDescription,
+                    _unit: parsedCsvTerm.ApplicationTermUnit,
+                    _listOptions: results,
+                }
+                return new AppTermList(appTermListParams);
             }
 
             // Application Term has mapping
