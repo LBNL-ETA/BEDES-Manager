@@ -81,7 +81,7 @@ export class AppTermListOptionQuery {
      */
     public async newRecord(appTermId: number, item: IAppTermListOption, transaction?: any): Promise<IAppTermListOption> {
         try {
-            if (!item._name) {
+            if (!item._name && item._name !== '') {
                 logger.error(`${this.constructor.name}: Missing name`);
                 throw new Error('Missing required parameters.');
             }
@@ -111,7 +111,7 @@ export class AppTermListOptionQuery {
      */
     public updateRecord(item: IAppTermListOption, transaction?: any): Promise<IAppTermListOption> {
         try {
-            if (!item._id || !item._name) {
+            if (!item._id || (!item._name && item._name !== '')) {
                 logger.error(`${this.constructor.name}: updateRecord expects an id and name`);
                 throw new BedesError(
                     'Missing required parameters.',
@@ -121,8 +121,9 @@ export class AppTermListOptionQuery {
             }
             const params = {
                 _id: item._id,
-                _name: item._name.trim() || null,
-                _unit: item._unit || null
+                _name: item._name.trim() ?? null,
+                _unit: item._unit || null,
+                _description: item._description || null,
             };
             if (transaction) {
                 return transaction.one(this.sqlUpdate, params);

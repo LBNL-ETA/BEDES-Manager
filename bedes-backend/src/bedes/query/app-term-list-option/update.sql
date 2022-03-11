@@ -1,6 +1,7 @@
 update public.app_term_list_option set
     name = ${_name},
-    unit = ${_unit}
+    unit = ${_unit},
+    description = ${_description}
 where
     id = ${_id}
 returning
