@@ -29,6 +29,7 @@
   "license": "ISC",
   "dependencies": {
     "app-root-path": "^2.2.1",
+    "colors": "^1.4.0",
     "dotenv": "^7.0.0",
     "module-alias": "^2.2.2",
     "path": "^0.12.7",
