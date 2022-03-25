@@ -39,6 +39,7 @@ select
     t.id as "_id",
     t.name as "_name",
     t.description as "_description",
+    t.app_id as "_appId",
     t.field_code as "_fieldCode",
     t.term_type_id as "_termTypeId",
     t.data_type_id as "_dataTypeId",

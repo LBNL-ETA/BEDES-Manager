@@ -1,31 +1,42 @@
-import { NgModule } from '@angular/core';
-import { RouterModule, Routes } from '@angular/router';
-import { BedesTermSearchComponent } from './components/bedes-term-search/bedes-term-search.component';
-import { BedesTermDetailsComponent } from './components/bedes-term-details/bedes-term-details.component';
-import { BedesTermResolverService } from './services/bedes-term-resolver/bedes-term-resolver.service';
-import { TermBuilderHomeComponent } from './components/composite-term-home/term-builder-home.component';
-import { TermBuilderEditComponent } from './components/composite-term-home/term-builder-edit/term-builder-edit.component';
-import { ListManagementComponent } from './components/list-management/list-management.component';
-import { ManageUnitListComponent } from './components/list-management/manage-unit-list/manage-unit-list.component';
-import { ManageDataTypeListComponent } from './components/list-management/manage-data-type-list/manage-data-type-list.component';
-import { ManageDefinitionSourceListComponent } from './components/list-management/manage-definition-source-list/manage-definition-source-list.component';
-import { BedesTermDetailsListOptionsComponent } from './components/bedes-term-details/bedes-term-details-list-options/bedes-term-details-list-options.component';
-import { EditTermListOptionComponent } from './components/bedes-term-details/bedes-term-details-list-options/edit-term-list-option/edit-term-list-option.component';
-import { NewTermListOptionComponent } from './components/bedes-term-details/bedes-term-details-list-options/new-term-list-option/new-term-list-option.component';
-import { ApplicationListComponent } from './components/application-list/application-list.component';
-import { ApplicationNewComponent } from './components/application-home/application-new/application-new.component';
-import { ApplicationEditComponent } from './components/application-home/application-edit/application-edit.component';
-import { ApplicationResolverService } from './services/application/application-resolver.service';
-import { ApplicationHomeComponent } from './components/application-home/application-home.component';
-import { AppTermListComponent } from './components/app-term/app-term-list/app-term-list.component';
-import { CompositeTermListComponent } from './components/composite-term-home/composite-term-list/composite-term-list.component';
-import { CompositeTermResolverService } from './services/composite-term/composite-term-resolver.service';
-import { AppTermListResolverService } from './services/app-term-list/app-term-list-resolver.service';
-import { AppTermResolverService } from './services/app-term/app-term-resolver.service';
-import { AuthGuardService } from '../bedes-auth/services/auth-guard/auth-guard.service';
-import { ApplicationListResolverService } from './services/application/application-list-resolver.service';
-import { ImplementationTermComponent } from './components/app-term/app-term-edit/implementation-term/implementation-term.component';
+import {NgModule} from '@angular/core';
+import {RouterModule, Routes} from '@angular/router';
+import {BedesTermSearchComponent} from './components/bedes-term-search/bedes-term-search.component';
+import {BedesTermDetailsComponent} from './components/bedes-term-details/bedes-term-details.component';
+import {BedesTermResolverService} from './services/bedes-term-resolver/bedes-term-resolver.service';
+import {TermBuilderHomeComponent} from './components/composite-term-home/term-builder-home.component';
+import {ListManagementComponent} from './components/list-management/list-management.component';
+import {ManageUnitListComponent} from './components/list-management/manage-unit-list/manage-unit-list.component';
+import {ManageDataTypeListComponent} from './components/list-management/manage-data-type-list/manage-data-type-list.component';
+import {
+    ManageDefinitionSourceListComponent
+} from './components/list-management/manage-definition-source-list/manage-definition-source-list.component';
+import {
+    BedesTermDetailsListOptionsComponent
+} from './components/bedes-term-details/bedes-term-details-list-options/bedes-term-details-list-options.component';
+import {
+    EditTermListOptionComponent
+} from './components/bedes-term-details/bedes-term-details-list-options/edit-term-list-option/edit-term-list-option.component';
+import {
+    NewTermListOptionComponent
+} from './components/bedes-term-details/bedes-term-details-list-options/new-term-list-option/new-term-list-option.component';
+import {ApplicationListComponent} from './components/application-list/application-list.component';
+import {ApplicationNewComponent} from './components/application-home/application-new/application-new.component';
+import {ApplicationEditComponent} from './components/application-home/application-edit/application-edit.component';
+import {ApplicationResolverService} from './services/application/application-resolver.service';
+import {ApplicationHomeComponent} from './components/application-home/application-home.component';
+import {AppTermListComponent} from './components/app-term/app-term-list/app-term-list.component';
+import {CompositeTermListComponent} from './components/composite-term-home/composite-term-list/composite-term-list.component';
+import {CompositeTermResolverService} from './services/composite-term/composite-term-resolver.service';
+import {AppTermListResolverService} from './services/app-term-list/app-term-list-resolver.service';
+import {AppTermResolverService} from './services/app-term/app-term-resolver.service';
+import {AuthGuardService} from '../bedes-auth/services/auth-guard/auth-guard.service';
+import {ApplicationListResolverService} from './services/application/application-list-resolver.service';
+import {ImplementationTermComponent} from './components/app-term/app-term-edit/implementation-term/implementation-term.component';
 import {GlobalAppTermListComponent} from './components/global-app-term-list/global-app-term-list.component';
+import {CompositeTermEditPageComponent} from './components/composite-term-home/composite-term-edit-page/composite-term-edit-page.component';
+import {
+    CompositeTermForAppTermPageComponent
+} from './components/app-term/app-term-edit/implementation-term/composite-term-for-app-term-page/composite-term-for-app-term-page.component';
 
 const appRoutes: Routes = [
     { path: 'search', component: BedesTermSearchComponent },
@@ -66,14 +77,14 @@ const appRoutes: Routes = [
             },
             {
                 path: 'edit',
-                component: TermBuilderEditComponent,
+                component: CompositeTermEditPageComponent,
                 resolve: {
                     term: CompositeTermResolverService
                 }
             },
             {
                 path: 'edit/:id',
-                component: TermBuilderEditComponent,
+                component: CompositeTermEditPageComponent,
                 resolve: {
                     term: CompositeTermResolverService
                 }
@@ -134,7 +145,23 @@ const appRoutes: Routes = [
                 resolve: {
                     appTerm: AppTermResolverService
                 }
-            }
+            },
+            {
+                path: 'terms/:termId/map-composite-term',
+                component: CompositeTermForAppTermPageComponent,
+                resolve: {
+                    appTerm: AppTermResolverService,
+                    term: CompositeTermResolverService
+                }
+            },
+            {
+                path: 'terms/:termId/map-composite-term/:id',
+                component: CompositeTermForAppTermPageComponent,
+                resolve: {
+                    appTerm: AppTermResolverService,
+                    term: CompositeTermResolverService
+                }
+            },
         ]
     },
     {
