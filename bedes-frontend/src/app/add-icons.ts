@@ -52,6 +52,7 @@ import {
     faCopyright,
     faPaperPlane,
     faAlignLeft,
+    faExternalLinkAlt,
 } from '@fortawesome/free-solid-svg-icons';
 
 /**
@@ -102,4 +103,5 @@ export function addIcons(library: FaIconLibrary): void {
     library.addIcons(faCopyright);
     library.addIcons(faPaperPlane);
     library.addIcons(faAlignLeft);
+    library.addIcons(faExternalLinkAlt);
 }

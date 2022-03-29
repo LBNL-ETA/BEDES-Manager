@@ -114,6 +114,15 @@
                 Map To New BEDES Composite Term
             </button>
         </div>
+        <div style="padding:7px; text-align: center;" *ngIf="!appTerm?.mapping">
+            <a routerLink="/application-term" target="_blank">
+                <button mat-raised-button color="primary">
+                    <fa-icon [icon]="['fas', 'search']" size="lg"></fa-icon>
+                    Search Application Terms
+                    <fa-icon style="margin-left: 2px" [icon]="['fas', 'external-link-alt']" size="sm"></fa-icon>
+                </button>
+            </a>
+        </div>
 
         <div style="margin-top:35px; margin-bottom:34px; flex:1; text-align: center;"
              *ngIf="appTerm && appTerm.mapping">
