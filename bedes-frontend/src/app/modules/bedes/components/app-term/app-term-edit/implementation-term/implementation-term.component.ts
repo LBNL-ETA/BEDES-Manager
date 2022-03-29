@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {ActivatedRoute, Router, UrlSegment} from '@angular/router';
 import {FormBuilder, Validators} from '@angular/forms';
 import {BehaviorSubject, Observable, of, Subject} from 'rxjs';
@@ -71,7 +71,7 @@ interface IGridRow {
   templateUrl: './implementation-term.component.html',
   styleUrls: ['./implementation-term.component.scss']
 })
-export class ImplementationTermComponent implements OnInit {
+export class ImplementationTermComponent implements OnInit, OnDestroy {
     /** Indicates if the current term is new term */
     public isNewTerm = false;
     // The active MappingApplication object.
@@ -134,6 +134,8 @@ export class ImplementationTermComponent implements OnInit {
     public currentViewState: OptionViewState;
 
     private currentUser: CurrentUser | undefined;
+    // Flag to redirect to the composite term creation dialog after saving the app term (due to async flow).
+    private newCompositeTermAfterSave: boolean;
 
     /**
      * Create the object instance.
@@ -158,7 +160,7 @@ export class ImplementationTermComponent implements OnInit {
         this.gridInitialized = false;
         // set the current list option view
         this.currentViewState = OptionViewState.ListOptionsView;
-        this.setRouteData()
+        this.setRouteData();
         this.setIsNewTerm();
         this.subscribeToUserStatus();
         this.initializeSupportLists();
@@ -179,6 +181,11 @@ export class ImplementationTermComponent implements OnInit {
         // unsubscribe from the subjects
         this.ngUnsubscribe.next();
         this.ngUnsubscribe.complete();
+    }
+
+    public saveAppTerm(): void {
+        this.newCompositeTermAfterSave = false;
+        this.saveOrUpdateAppTerm();
     }
 
     private setRouteData(): void {
@@ -223,12 +230,12 @@ export class ImplementationTermComponent implements OnInit {
                 this.appTerm = activeTerm;
                 // if the appTerm is undefined create a new one
                 if (!this.appTerm) {
-                    this.router.navigate(['..'], {relativeTo: this.route})
+                    this.router.navigate(['..'], {relativeTo: this.route});
                     // this.setNewAppTerm();
                 }
                 else {
                     if (this.appTerm.mapping) {
-                        this.setMappedTerm()
+                        this.setMappedTerm();
                     }
                     // set the form data
                     this.setFormData();
@@ -396,7 +403,7 @@ export class ImplementationTermComponent implements OnInit {
     /**
      * Calls the api to save/update the AppTerm record.
      */
-    public saveAppTerm(): void {
+    private saveOrUpdateAppTerm(): void {
         if (this.appTerm.id) {
             // update the AppTerm if there's an id
             this.updateAppTerm();
@@ -434,11 +441,7 @@ export class ImplementationTermComponent implements OnInit {
         this.appTerm.clearChangeFlag();
         this.appTermService.addAppTermToList(this.appTerm);
         this.appTermService.setActiveTerm(this.appTerm);
-        this.authService.checkLoginStatus()
-        .subscribe((currentUser: CurrentUser) => {
-            this.router.navigate(['..', this.appTerm.uuid], {relativeTo: this.route})
-        })
-
+        this.redirectIfRequired(true);
     }
 
     /**
@@ -452,9 +455,29 @@ export class ImplementationTermComponent implements OnInit {
         this.appTermService.updateAppTerm(this.app.id, this.appTerm)
         .subscribe((updatedTerm: AppTerm) => {
             this.appTerm.clearChangeFlag();
+            this.redirectIfRequired();
         }, (error: any) => {
             this.setErrorMessage(error);
+            this.newCompositeTermAfterSave = false;
         });
+    }
+
+    private redirectIfRequired(isNewTerm: boolean = false): void {
+        if (isNewTerm && !this.newCompositeTermAfterSave) {
+            this.authService.checkLoginStatus()
+                .subscribe((currentUser: CurrentUser) => {
+                    this.router.navigate(['..', this.appTerm.uuid], {relativeTo: this.route});
+                });
+            return;
+        }
+
+        if (this.newCompositeTermAfterSave) {
+            this.authService.checkLoginStatus()
+                .subscribe(() => {
+                    this.router.navigate(['..', this.appTerm.uuid, 'map-composite-term'], {relativeTo: this.route});
+                    this.newCompositeTermAfterSave = false;
+                });
+        }
     }
 
     /**
@@ -520,6 +543,8 @@ export class ImplementationTermComponent implements OnInit {
             const dataTypeName = this.getDataTypeName(newValue);
             if (dataTypeName === 'Constrained List') {
                 this.appTerm.termTypeId = TermType.ConstrainedList;
+            } else {
+                this.appTerm.termTypeId = TermType.Atomic;
             }
             // switch the app terms object type
             this.transFormAppTerm();
@@ -617,7 +642,7 @@ export class ImplementationTermComponent implements OnInit {
      * Populates the grid with the data from the appTermList
      */
     private setGridData() {
-        if (this.gridInitialized && this.gridDataNeedsSet) {
+        if (this.gridInitialized && this.gridDataNeedsSet && this.gridOptions.api) {
             // const gridData = this.applicationList;
             const gridData = new Array<IGridRow>();
             const canEditApp = this.currentUser.canEditApplication(this.app);
@@ -630,8 +655,8 @@ export class ImplementationTermComponent implements OnInit {
                         hasMapping: item.mapping && item.mapping.bedesTermOptionUUID ? true : false,
                         mappedName: item.mapping && item.mapping.bedesOptionName? item.mapping.bedesOptionName : '',
                         isEditable: canEditApp
-                    })
-                })
+                    });
+                });
             }
             this.gridOptions.api.setRowData(gridData);
             this.gridDataNeedsSet = false;
@@ -996,6 +1021,11 @@ export class ImplementationTermComponent implements OnInit {
         });
     }
 
+    public newCompositeTermForAppTerm(): void {
+        this.newCompositeTermAfterSave = true;
+        this.saveOrUpdateAppTerm();
+    }
+
     /**
      * Set's the BEDES term from a BedesSearchResult object.
      */
@@ -1031,7 +1061,7 @@ export class ImplementationTermComponent implements OnInit {
             this.appTermService.activeTermSubject.next(this.appTerm);
             this.gridDataNeedsSet = true;
             this.setGridData();
-        })
+        });
 
     }
 

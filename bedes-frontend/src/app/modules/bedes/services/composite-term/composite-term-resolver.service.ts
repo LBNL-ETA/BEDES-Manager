@@ -34,23 +34,18 @@ export class CompositeTermResolverService {
         const selectedItem = this.compositeTermService.selectedTerm;
         if (selectedItem && routeId && selectedItem.uuid === routeId) {
             return of(selectedItem);
-        }
-        else if (routeId) {
-            // a uuid was passed in the url and not the currently active composite term
-            // load the term details from the api
+        } else if (routeId) {
+            // A UUID was passed in the url and not the currently active composite term
+            // Load the term details from the api
             this.compositeTermService.getTerm(routeId)
-            .subscribe((compositeTerm: BedesCompositeTerm) => {
-                // set the active composite term
-                this.compositeTermService.setActiveCompositeTerm(compositeTerm);
-                return of(compositeTerm);
-            });
-        }
-        else if (state.url.match(/\/composite-term\/edit\/?$/)) {
-            // create a new CompositeTerm
+                .subscribe((compositeTerm: BedesCompositeTerm) => {
+                    this.compositeTermService.setActiveCompositeTerm(compositeTerm);
+                    return of(compositeTerm);
+                });
+        } else if (state.url.match(/\/composite-term\/edit\/?$/) || state.url.match(/\/map-composite-term\/?$/)) {
             const newTerm = this.compositeTermService.activateNewCompositeTerm();
             return of(newTerm);
-        }
-        else {
+        } else {
             this.compositeTermService.setActiveCompositeTerm(undefined);
             return of(undefined);
         }

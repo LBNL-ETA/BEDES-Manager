@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
+import {Component, OnInit, OnDestroy, Input} from '@angular/core';
 import { Subject } from 'rxjs';
 import { BedesTermSearchDialogComponent } from '../../dialogs/bedes-term-search-dialog/bedes-term-search-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
@@ -20,6 +20,8 @@ import { scopeList } from '@bedes-common/lookup-tables/scope-list';
 import { FilteredScopeList } from './filtered-scope-list';
 import {ConfirmDialogComponent} from '../../dialogs/confirm-dialog/confirm-dialog.component';
 import {BedesCompositeTermShort} from '@bedes-common/models/bedes-composite-term-short';
+import {AppTerm, AppTermList} from '@bedes-common/models/app-term';
+import {AppTermService} from '../../../services/app-term/app-term.service';
 
 
 @Component({
@@ -27,7 +29,10 @@ import {BedesCompositeTermShort} from '@bedes-common/models/bedes-composite-term
     templateUrl: './term-builder-edit.component.html',
     styleUrls: ['./term-builder-edit.component.scss']
 })
-export class TermBuilderEditComponent implements OnInit {
+export class TermBuilderEditComponent implements OnInit, OnDestroy {
+    @Input()
+    public appTerm: AppTerm | AppTermList | undefined;
+
     public compositeTerm: BedesCompositeTerm;
     public unitList: Array<BedesUnit>;
     public isEditable: boolean;
@@ -42,6 +47,7 @@ export class TermBuilderEditComponent implements OnInit {
     public dataForm: FormGroup;
 
     private ngUnsubscribe: Subject<void> = new Subject<void>();
+    private mapToAppTerm: boolean;
 
     constructor(
         private formBuilder: FormBuilder,
@@ -50,7 +56,8 @@ export class TermBuilderEditComponent implements OnInit {
         private supportListService: SupportListService,
         private authService: AuthService,
         private router: Router,
-        private activatedRoute: ActivatedRoute
+        private activatedRoute: ActivatedRoute,
+        private appTermService: AppTermService,
     ) {
         this.dataForm = this.formBuilder.group({
             description: [{
@@ -84,6 +91,29 @@ export class TermBuilderEditComponent implements OnInit {
         // unsubscribe from the subjects
         this.ngUnsubscribe.next();
         this.ngUnsubscribe.complete();
+    }
+
+    /**
+     * Dynamically build the destination for the back button depending on context.
+     */
+    public getBackDestination(): string {
+        if (this.appTerm && this.compositeTerm?.id) {
+            return '../..';
+        } else if (this.appTerm && this.compositeTerm?.isNewTerm()) {
+            return '..';
+        }
+
+        return '/composite-term';
+    }
+
+    public saveCompositeTerm(): void {
+        this.mapToAppTerm = false;
+        this.updateCompositeTerm();
+    }
+
+    public saveAndMapCompositeTerm(): void {
+        this.mapToAppTerm = !!(this.appTerm && true);
+        this.updateCompositeTerm();
     }
 
     /**
@@ -292,7 +322,7 @@ export class TermBuilderEditComponent implements OnInit {
     /**
      * Save the composite term to the database.
      */
-    public updateCompositeTerm(): void {
+    private updateCompositeTerm(): void {
         if (!this.compositeTerm.isNewTerm()) {
             this.completeUpdateCompositeTerm();
             return;
@@ -332,9 +362,11 @@ export class TermBuilderEditComponent implements OnInit {
                 .subscribe((results: BedesCompositeTerm) => {
                     this.isWaiting = false;
                     this.compositeTermService.setActiveCompositeTerm(results);
+                    this.postSaveHandler();
                 }, (error: any) => {
                     this.isWaiting = false;
                     this.hasError = true;
+                    this.mapToAppTerm = false;
                 });
         } else {
             // new term, save it to the database.
@@ -342,12 +374,40 @@ export class TermBuilderEditComponent implements OnInit {
                 .subscribe((results: BedesCompositeTerm) => {
                     this.isWaiting = false;
                     this.compositeTermService.setActiveCompositeTerm(results);
-                    this.router.navigate([results.uuid], {relativeTo: this.activatedRoute});
+                    this.postSaveHandler(true, results);
                 }, (error: any) => {
                     this.isWaiting = false;
                     this.hasError = true;
+                    this.mapToAppTerm = false;
                 });
         }
+    }
+
+    private postSaveHandler(isNewTerm: boolean = false, newTerm: BedesCompositeTerm = undefined) {
+        if (!this.mapToAppTerm && isNewTerm) {
+            this.router.navigate([newTerm.uuid], {relativeTo: this.activatedRoute});
+            return;
+        }
+
+        if (!this.mapToAppTerm) {
+            return;
+        }
+
+        // We're mapping to the app term now.
+        this.mapToAppTerm = false;
+        const compositeTerm = isNewTerm ? newTerm : this.compositeTerm;
+        this.appTerm.map(compositeTerm);
+        this.appTermService.updateAppTerm(this.appTerm.appId, this.appTerm)
+            .subscribe((updatedTerm: AppTerm) => {
+                const destination = ['..'];
+                // If we're mapping an already-saved composite term, we have to navigate up two steps.
+                if (!isNewTerm) {
+                    destination[0] += '/..';
+                }
+                this.router.navigate(destination, {relativeTo: this.activatedRoute});
+            }, (error: any) => {
+                console.log('Something went wrong saving the app term and redirecting!');
+            });
     }
 
     /**

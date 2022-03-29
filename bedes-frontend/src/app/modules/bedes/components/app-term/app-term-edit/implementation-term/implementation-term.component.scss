@@ -1,5 +1,6 @@
 @use '@angular/material' as mat;
 @import "src/styles/theme";
+@import "src/styles/heading-container";
 
 :host {
     flex: 1;
@@ -10,27 +11,6 @@
 }
 h2 {
     text-align: center;
-}
-
-.heading-container {
-    margin-top: 30px;
-    // border-top: 1px mat-color($custom-primary) solid;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-
-    h1 {
-        display: inline-block;
-        margin: 0 auto;
-        padding: 10px;
-        background-color: white;
-        color: mat.get-color-from-palette($custom-accent);
-
-
-        position: relative;
-        top: -25px;
-        margin-bottom: -25px;
-    }
 }
 
 .span-value {
