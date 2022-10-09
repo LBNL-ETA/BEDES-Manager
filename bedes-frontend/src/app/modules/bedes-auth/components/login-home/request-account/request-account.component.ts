@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, Validators } from '@angular/forms';
+import { UntypedFormBuilder, Validators } from '@angular/forms';
 import { NewAccount } from '../../../models/auth/new-account';
 import { AuthService } from '../../../services/auth/auth.service';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -28,7 +28,7 @@ export class RequestAccountComponent implements OnInit {
     public waitingForResponse = false;
 
     constructor(
-        private formBuilder: FormBuilder,
+        private formBuilder: UntypedFormBuilder,
         private authService: AuthService
     ) {
     }

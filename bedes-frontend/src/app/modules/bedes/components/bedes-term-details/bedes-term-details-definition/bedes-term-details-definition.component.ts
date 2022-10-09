@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router, ParamMap } from '@angular/router';
 import { BedesTerm, BedesConstrainedList } from '@bedes-common/models/bedes-term';
 import { BedesTermService } from '../../../services/bedes-term/bedes-term.service';
-import { FormBuilder, Validators } from '@angular/forms';
+import { UntypedFormBuilder, Validators } from '@angular/forms';
 import { SupportListService } from '../../../services/support-list/support-list.service';
 import { BedesUnit } from '@bedes-common/models/bedes-unit/bedes-unit';
 import { BedesDataType } from '@bedes-common/models/bedes-data-type';
@@ -51,7 +51,7 @@ export class BedesTermDetailsDefinitionComponent implements OnInit {
       });
 
     constructor(
-        private formBuilder: FormBuilder,
+        private formBuilder: UntypedFormBuilder,
         private termService: BedesTermService,
         private authService: AuthService,
         private supportListService: SupportListService

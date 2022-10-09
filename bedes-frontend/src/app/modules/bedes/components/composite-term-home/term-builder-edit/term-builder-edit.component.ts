@@ -4,7 +4,7 @@ import { BedesTermSearchDialogComponent } from '../../dialogs/bedes-term-search-
 import { MatDialog } from '@angular/material/dialog';
 import { BedesCompositeTerm } from '@bedes-common/models/bedes-composite-term/bedes-composite-term';
 import { CompositeTermService } from '../../../services/composite-term/composite-term.service';
-import {FormBuilder, FormGroup} from '@angular/forms';
+import {UntypedFormBuilder, UntypedFormGroup} from '@angular/forms';
 import { SupportListService } from '../../../services/support-list/support-list.service';
 import { BedesUnit } from '@bedes-common/models/bedes-unit';
 import { SearchResultType } from '@bedes-common/models/bedes-search-result/search-result-type.enum';
@@ -44,13 +44,13 @@ export class TermBuilderEditComponent implements OnInit, OnDestroy {
     public scopeList = new FilteredScopeList(scopeList);
     public termList: BedesCompositeTermShort[];
 
-    public dataForm: FormGroup;
+    public dataForm: UntypedFormGroup;
 
     private ngUnsubscribe: Subject<void> = new Subject<void>();
     private mapToAppTerm: boolean;
 
     constructor(
-        private formBuilder: FormBuilder,
+        private formBuilder: UntypedFormBuilder,
         private dialog: MatDialog,
         private compositeTermService: CompositeTermService,
         private supportListService: SupportListService,

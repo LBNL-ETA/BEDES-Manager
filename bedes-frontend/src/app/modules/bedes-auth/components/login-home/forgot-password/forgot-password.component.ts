@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, Validators } from '@angular/forms';
+import { UntypedFormBuilder, Validators } from '@angular/forms';
 import { Subject } from 'rxjs';
 import { AuthService } from '../../../services/auth/auth.service';
 import { CurrentUser } from '@bedes-common/models/current-user/current-user';
@@ -31,7 +31,7 @@ export class ForgotPasswordComponent implements OnInit {
     public waitingForResponse = false;
 
     constructor(
-        private formBuilder: FormBuilder,
+        private formBuilder: UntypedFormBuilder,
         private authService: AuthService,
     ) {
 

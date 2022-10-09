@@ -1,6 +1,6 @@
 import { Component, OnInit, Inject } from '@angular/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { Validators, FormBuilder } from '@angular/forms';
+import { Validators, UntypedFormBuilder } from '@angular/forms';
 import { AppTermListOption } from '@bedes-common/models/app-term/app-term-list-option';
 
 export interface INewListOption {
@@ -25,7 +25,7 @@ export class NewListOptionDialogComponent implements OnInit {
       });
 
     constructor(
-        private formBuilder: FormBuilder,
+        private formBuilder: UntypedFormBuilder,
         public dialogRef: MatDialogRef<NewListOptionDialogComponent>,
         @Inject(MAT_DIALOG_DATA) public dialogData
     ) {

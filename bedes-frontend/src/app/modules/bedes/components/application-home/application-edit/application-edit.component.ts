@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
-import { FormBuilder, Validators, NgForm } from '@angular/forms';
+import { UntypedFormBuilder, Validators, NgForm } from '@angular/forms';
 import { Subject } from 'rxjs';
 import { ApplicationService } from '../../../services/application/application.service';
 import { MappingApplication } from '@bedes-common/models/mapping-application/mapping-application';
@@ -68,7 +68,7 @@ export class ApplicationEditComponent implements OnInit, OnDestroy {
 
     constructor(
         private authService: AuthService,
-        private formBuilder: FormBuilder,
+        private formBuilder: UntypedFormBuilder,
         private appService: ApplicationService,
         private appTermService: AppTermService,
         private compositeTermService: CompositeTermService

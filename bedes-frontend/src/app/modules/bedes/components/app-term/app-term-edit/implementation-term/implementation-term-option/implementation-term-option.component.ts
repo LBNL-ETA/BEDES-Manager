@@ -1,5 +1,5 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { FormBuilder, Validators } from '@angular/forms';
+import { UntypedFormBuilder, Validators } from '@angular/forms';
 import { SupportListService } from '../../../../../services/support-list/support-list.service';
 import { Subject, BehaviorSubject } from 'rxjs';
 import { BedesUnit } from '@bedes-common/models/bedes-unit/bedes-unit';
@@ -52,7 +52,7 @@ export class ImplementationTermOptionComponent implements OnInit {
       });
 
     constructor(
-        private formBuilder: FormBuilder,
+        private formBuilder: UntypedFormBuilder,
         private supportListService: SupportListService,
         private termService: BedesTermService,
         private listOptionService: BedesTermListOptionService,

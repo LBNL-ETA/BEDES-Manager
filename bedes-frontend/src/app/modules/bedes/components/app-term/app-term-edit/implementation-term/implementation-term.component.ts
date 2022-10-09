@@ -1,6 +1,6 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {ActivatedRoute, Router, UrlSegment} from '@angular/router';
-import {FormBuilder, Validators} from '@angular/forms';
+import {UntypedFormBuilder, Validators} from '@angular/forms';
 import {BehaviorSubject, Observable, of, Subject} from 'rxjs';
 import {ApplicationService} from '../../../../services/application/application.service';
 import {MappingApplication} from '@bedes-common/models/mapping-application/mapping-application';
@@ -143,7 +143,7 @@ export class ImplementationTermComponent implements OnInit, OnDestroy {
     constructor(
         private router: Router,
         private route: ActivatedRoute,
-        private formBuilder: FormBuilder,
+        private formBuilder: UntypedFormBuilder,
         private appService: ApplicationService,
         private appTermService: AppTermService,
         private listOptionService: AppTermListOptionService,

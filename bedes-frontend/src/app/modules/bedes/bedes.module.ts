@@ -91,7 +91,7 @@ import { CompositeTermForAppTermPageComponent } from './components/app-term/app-
         AppMaterialModule,
         FontAwesomeModule,
         BedesRoutingModule,
-        AgGridModule.withComponents([])
+        AgGridModule,
     ],
     declarations: [
         BedesTermSearchComponent,

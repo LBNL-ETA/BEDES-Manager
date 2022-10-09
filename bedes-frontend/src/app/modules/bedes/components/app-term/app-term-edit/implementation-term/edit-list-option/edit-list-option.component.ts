@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
-import { FormBuilder, Validators } from '@angular/forms';
+import { UntypedFormBuilder, Validators } from '@angular/forms';
 import { SupportListService } from '../../../../../services/support-list/support-list.service';
 import { Subject, BehaviorSubject } from 'rxjs';
 import { BedesUnit } from '@bedes-common/models/bedes-unit/bedes-unit';
@@ -64,7 +64,7 @@ export class EditListOptionComponent implements OnInit {
       });
 
     constructor(
-        private formBuilder: FormBuilder,
+        private formBuilder: UntypedFormBuilder,
         private supportListService: SupportListService,
         private appService: ApplicationService,
         private termService: AppTermService,

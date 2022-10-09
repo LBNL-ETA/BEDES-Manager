@@ -1,11 +1,11 @@
 # Dockerfile for Heroku
-FROM node:12.22.11-alpine
+FROM node:14.20.1-alpine
 
 USER root
 
 ENV NPM_CONFIG_LOGLEVEL warn
 RUN npm config set unsafe-perm true
-RUN npm install -g @angular/cli@^13.2.0 npm@^6
+RUN npm install -g @angular/cli@^14 npm@^6
 # bcrypt depencencies
 # need this for node sass in alpine for bcrypt
 RUN apk --no-cache add postgresql-client bash curl openssh build-base python3

@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { FormBuilder, Validators } from '@angular/forms';
+import { UntypedFormBuilder, Validators } from '@angular/forms';
 import { PasswordUpdate } from '@bedes-common/interfaces/password-update/password-update';
 import { AuthService } from '../../../services/auth/auth.service';
 
@@ -34,7 +34,7 @@ export class ForgotPasswordResetComponent implements OnInit {
     public waitingForResponse = false;
 
     constructor(
-        private formBuilder: FormBuilder,
+        private formBuilder: UntypedFormBuilder,
         private authService: AuthService,
         private route: ActivatedRoute
     ) { }
