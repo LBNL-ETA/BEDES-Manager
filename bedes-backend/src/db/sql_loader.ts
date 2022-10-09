@@ -1,4 +1,4 @@
-import {QueryFile, TQueryFileOptions} from 'pg-promise';
+import {QueryFile, IQueryFileOptions} from 'pg-promise';
 
 const path = require('path');
 
@@ -19,7 +19,7 @@ function fixPath(fullPath: string): string {
 }
 
 function sqlLoader(fullPath: string): QueryFile {
-    const options: TQueryFileOptions = {
+    const options: IQueryFileOptions = {
 
         // minifying the SQL is always advised;
         // see also option 'compress' in the API;

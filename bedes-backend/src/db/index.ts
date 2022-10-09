@@ -5,6 +5,8 @@ import * as promise from 'bluebird';
 // const logger = createLogger(module);
 import sqlLoader from './sql_loader';
 import {createLogger} from '@bedes-backend/logging';
+import pg from 'pg-promise/typescript/pg-subset';
+import {IInitOptions} from 'pg-promise';
 
 const logger = createLogger(module);
 
@@ -28,7 +30,10 @@ if (process.env.UNDER_TEST) {
     cn = (databaseEnvVar && process.env[databaseEnvVar]) || `postgres://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`;
 }
 const maxConnections = process.env.DATABASE_MAX_CONNECTIONS ? +process.env.DATABASE_MAX_CONNECTIONS : 5;
-const tConfig: pgPromise.TConfig = {
+const initOptions: IInitOptions = {
+
+}
+const tConfig: pg.IConnectionParameters = {
     connectionString: cn,
     max: maxConnections || 5
 }
