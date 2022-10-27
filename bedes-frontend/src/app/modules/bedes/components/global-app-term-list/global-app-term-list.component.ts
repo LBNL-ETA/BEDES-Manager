@@ -155,6 +155,10 @@ export class GlobalAppTermListComponent extends MessageFromGrid<IGridRow> implem
                 sortable: true,
                 resizable: true,
                 filter: true,
+                cellStyle: {
+                    height: '100%',
+                    top: '34%',
+                }
             },
             enableRangeSelection: true,
             columnDefs: this.buildColumnDefs(),
@@ -187,6 +191,9 @@ export class GlobalAppTermListComponent extends MessageFromGrid<IGridRow> implem
                 headerName: 'Application Term Name',
                 field: 'ref.name',
                 cellRendererFramework: TableCellNavComponent,
+                cellStyle: {
+                    top: '9%',
+                }
             },
             {
                 headerName: 'Mapped BEDES Term Name',

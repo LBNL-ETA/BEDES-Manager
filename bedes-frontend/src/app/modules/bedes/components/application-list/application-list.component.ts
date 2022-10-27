@@ -151,6 +151,10 @@ export class ApplicationListComponent extends MessageFromGrid<IAppRow> implement
                 sortable: true,
                 resizable: true,
                 filter: true,
+                cellStyle: {
+                    height: '100%',
+                    top: '34%',
+                }
             },
             enableRangeSelection: true,
             columnDefs: this.buildColumnDefs(),
@@ -227,7 +231,10 @@ export class ApplicationListComponent extends MessageFromGrid<IAppRow> implement
                 field: 'ref.name',
                 // checkboxSelection: true
                 // minWidth: 250,
-                cellRendererFramework: TableCellNavComponent
+                cellRendererFramework: TableCellNavComponent,
+                cellStyle: {
+                    top: '9%',
+                },
             },
             {
                 headerName: 'Owner',
@@ -240,7 +247,10 @@ export class ApplicationListComponent extends MessageFromGrid<IAppRow> implement
             {
                 headerName: '',
                 width: 50,
-                cellRendererFramework: TableCellDeleteComponent
+                cellRendererFramework: TableCellDeleteComponent,
+                cellStyle: {
+                    top: '9%',
+                },
             },
         ];
     }

@@ -96,6 +96,10 @@ export class BedesTermDetailsListOptionsComponent implements OnInit {
                 sortable: true,
                 resizable: true,
                 filter: true,
+                cellStyle: {
+                    height: '100%',
+                    top: '34%',
+                }
             },
             enableRangeSelection: false,
             rowDragManaged: true,

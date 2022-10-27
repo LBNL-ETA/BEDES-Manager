@@ -172,6 +172,10 @@ export class AppTermListComponent extends MessageFromGrid<IAppRow> implements On
                 sortable: true,
                 resizable: true,
                 filter: true,
+                cellStyle: {
+                    height: '100%',
+                    top: '34%',
+                }
             },
             enableRangeSelection: true,
             columnDefs: this.buildColumnDefs(),
@@ -261,7 +265,10 @@ export class AppTermListComponent extends MessageFromGrid<IAppRow> implements On
             {
                 headerName: 'Application Term Name',
                 field: 'ref.name',
-                cellRendererFramework: TableCellNavComponent
+                cellRendererFramework: TableCellNavComponent,
+                cellStyle: {
+                    top: '9%',
+                }
             },
             {
                 headerName: 'Mapped Term Name',
@@ -278,7 +285,10 @@ export class AppTermListComponent extends MessageFromGrid<IAppRow> implements On
             {
                 headerName: '',
                 width: 50,
-                cellRendererFramework: TableCellDeleteComponent
+                cellRendererFramework: TableCellDeleteComponent,
+                cellStyle: {
+                    top: '9%',
+                }
             },
         ];
     }

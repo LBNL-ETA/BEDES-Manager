@@ -159,6 +159,10 @@ export class BedesTermSearchDialogComponent implements OnInit {
                 sortable: true,
                 resizable: true,
                 filter: true,
+                cellStyle: {
+                    height: '100%',
+                    top: '34%',
+                }
             },
             enableRangeSelection: true,
             rowSelection: 'multiple',
@@ -201,8 +205,11 @@ export class BedesTermSearchDialogComponent implements OnInit {
                 headerName: 'Name',
                 field: 'name',
                 minWidth: 250,
-                checkboxSelection: true
+                checkboxSelection: true,
                 // cellRendererFramework: TableCellTermNameComponent
+                cellStyle: {
+                    top: '30%',
+                }
             },
             {
                 headerName: 'Term Type',

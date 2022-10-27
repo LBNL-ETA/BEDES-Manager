@@ -206,6 +206,10 @@ export class CompositeTermListComponent extends MessageFromGrid<IGridRow> implem
                 sortable: true,
                 resizable: true,
                 filter: true,
+                cellStyle: {
+                    height: '100%',
+                    top: '34%',
+                }
             },
             enableRangeSelection: true,
             columnDefs: this.buildColumnDefs(),
@@ -240,6 +244,9 @@ export class CompositeTermListComponent extends MessageFromGrid<IGridRow> implem
                 checkboxSelection: true,
                 headerCheckboxSelection: true,
                 cellRendererFramework: TableCellNavComponent,
+                cellStyle: {
+                    top: '9%',
+                }
             },
             {
                 headerName: 'Owner',
@@ -252,7 +259,10 @@ export class CompositeTermListComponent extends MessageFromGrid<IGridRow> implem
             {
                 headerName: '',
                 width: 50,
-                cellRendererFramework: TableCellDeleteComponent
+                cellRendererFramework: TableCellDeleteComponent,
+                cellStyle: {
+                    top: '9%',
+                }
             },
         ];
     }

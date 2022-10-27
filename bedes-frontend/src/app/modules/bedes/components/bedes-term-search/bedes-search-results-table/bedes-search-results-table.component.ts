@@ -147,6 +147,10 @@ export class BedesSearchResultsTableComponent implements OnInit, OnDestroy {
                 sortable: true,
                 resizable: true,
                 filter: true,
+                cellStyle: {
+                    height: '100%',
+                    top: '34%',
+                }
             },
             enableRangeSelection: true,
             columnDefs: this.buildColumnDefs(),
@@ -183,11 +187,14 @@ export class BedesSearchResultsTableComponent implements OnInit, OnDestroy {
                 headerName: 'Name',
                 field: 'name',
                 minWidth: 250,
-                cellRendererFramework: TableCellTermNameComponent
+                cellRendererFramework: TableCellTermNameComponent,
+                cellStyle: {
+                    top: '9%',
+                }
             },
             {
                 headerName: 'Term Type',
-                field: 'searchResultTypeName'
+                field: 'searchResultTypeName',
             },
             {
                 headerName: 'Data Type',

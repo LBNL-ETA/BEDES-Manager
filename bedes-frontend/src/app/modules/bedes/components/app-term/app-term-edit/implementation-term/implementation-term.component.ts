@@ -594,6 +594,10 @@ export class ImplementationTermComponent implements OnInit, OnDestroy {
                 sortable: true,
                 resizable: true,
                 filter: true,
+                cellStyle: {
+                    height: '100%',
+                    top: '21%',
+                }
             },
             enableRangeSelection: true,
             columnDefs: this.buildColumnDefs(),
@@ -624,6 +628,9 @@ export class ImplementationTermComponent implements OnInit, OnDestroy {
                 cellRendererFramework: TableCellNavComponent,
                 // minWidth: 250,
                 // cellRendererFramework: TableCellNameNavComponent
+                cellStyle: {
+                    top: '0%',
+                }
             },
             {
                 headerName: 'BEDES Option Mapping',
@@ -633,7 +640,10 @@ export class ImplementationTermComponent implements OnInit, OnDestroy {
             {
                 headerName: '',
                 width: 50,
-                cellRendererFramework: TableCellDeleteComponent
+                cellRendererFramework: TableCellDeleteComponent,
+                cellStyle: {
+                    top: '0%',
+                }
             },
         ];
     }
