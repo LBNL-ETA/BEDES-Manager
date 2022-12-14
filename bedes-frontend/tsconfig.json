@@ -1,26 +1,27 @@
 {
     "compileOnSave": false,
     "compilerOptions": {
-        "baseUrl": "./",
-        "paths": {
-            "@bedes-common/*": [
-                "../bedes-common/*"
-            ]
-        },
-        "outDir": "./dist/out-tsc",
-        "sourceMap": true,
-        "declaration": false,
-        "module": "es2020",
-        "moduleResolution": "node",
-        "experimentalDecorators": true,
-        "importHelpers": true,
-        "target": "es2020",
-        "typeRoots": [
-            "node_modules/@types"
-        ],
-        "lib": [
-            "es2018",
-            "dom"
+      "baseUrl": "./",
+      "paths": {
+        "@bedes-common/*": [
+          "../bedes-common/*"
         ]
+      },
+      "outDir": "./dist/out-tsc",
+      "sourceMap": true,
+      "declaration": false,
+      "module": "es2020",
+      "moduleResolution": "node",
+      "experimentalDecorators": true,
+      "importHelpers": true,
+      "target": "ES2022",
+      "typeRoots": [
+        "node_modules/@types"
+      ],
+      "lib": [
+        "es2018",
+        "dom"
+      ],
+      "useDefineForClassFields": false
     }
 }

@@ -12,7 +12,7 @@ import { TableCellNavComponent } from '../../models/ag-grid/table-cell-nav/table
 import { MessageFromGrid } from '../../models/ag-grid/message-from-grid';
 import { TableCellMessageType } from '../../models/ag-grid/enums/table-cell-message-type.enum';
 import { ConfirmDialogComponent } from '../dialogs/confirm-dialog/confirm-dialog.component';
-import { MatDialog } from '@angular/material/dialog';
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
 import { AuthService } from 'src/app/modules/bedes-auth/services/auth/auth.service';
 import { applicationScopeList } from '../../../../../../../bedes-common/lookup-tables/application-scope-list';
 import { TableCellDeleteComponent } from '../../models/ag-grid/table-cell-delete/table-cell-delete.component';

@@ -18,7 +18,7 @@ import {BedesUnit} from '@bedes-common/models/bedes-unit/bedes-unit';
 import {TableCellNavComponent} from '../../../../models/ag-grid/table-cell-nav/table-cell-nav.component';
 import {TableCellMessageType} from '../../../../models/ag-grid/enums/table-cell-message-type.enum';
 import {AppTermListOptionService} from '../../../../services/app-term-list-option/app-term-list-option.service';
-import {MatDialog} from '@angular/material/dialog';
+import {MatLegacyDialog as MatDialog} from '@angular/material/legacy-dialog';
 import {ConfirmDialogComponent} from '../../../dialogs/confirm-dialog/confirm-dialog.component';
 import {BedesTermSearchDialogComponent} from '../../../dialogs/bedes-term-search-dialog/bedes-term-search-dialog.component';
 import {ISearchDialogOptions} from '../../../dialogs/bedes-term-search-dialog/search-dialog-options.interface';

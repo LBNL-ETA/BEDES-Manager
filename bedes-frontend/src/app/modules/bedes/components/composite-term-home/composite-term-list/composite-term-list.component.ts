@@ -10,7 +10,7 @@ import {BedesCompositeTermShort} from '@bedes-common/models/bedes-composite-term
 import {MessageFromGrid} from '../../../models/ag-grid/message-from-grid';
 import {TableCellMessageType} from '../../../models/ag-grid/enums/table-cell-message-type.enum';
 import {TableCellNavComponent} from '../../../models/ag-grid/table-cell-nav/table-cell-nav.component';
-import {MatDialog} from '@angular/material/dialog';
+import {MatLegacyDialog as MatDialog} from '@angular/material/legacy-dialog';
 import {ConfirmDialogComponent} from '../../dialogs/confirm-dialog/confirm-dialog.component';
 import {scopeList} from '@bedes-common/lookup-tables/scope-list';
 import {TableCellDeleteComponent} from '../../../models/ag-grid/table-cell-delete/table-cell-delete.component';

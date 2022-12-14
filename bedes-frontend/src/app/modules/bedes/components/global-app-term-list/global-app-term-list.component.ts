@@ -1,5 +1,5 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
-import {MatCheckboxChange} from '@angular/material/checkbox';
+import {MatLegacyCheckboxChange as MatCheckboxChange} from '@angular/material/legacy-checkbox';
 import {GlobalAppTermService} from '../../services/global-app-term/global-app-term.service';
 import {AppTerm, AppTermList} from '@bedes-common/models/app-term';
 import {takeUntil} from 'rxjs/operators';
