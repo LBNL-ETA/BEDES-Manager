@@ -25,6 +25,7 @@ export async function newRegistrationCode(req: Request, res: Response): Promise<
             return;
         }
         // const newStatus = await authQuery.validateRegistrationCode(req.user.id, registrationCode);
+        // @ts-ignore
         const verificationCodeResults = await sendVerificationCode(req.user);
         logger.debug(`send new registration code = ${verificationCodeResults}`);
         res.status(HttpStatusCodes.Created_201).json();

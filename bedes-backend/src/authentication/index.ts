@@ -20,6 +20,7 @@ interface ISerializedUserInfo {
  */
 export function authenticationConfig(express: express.Application): void {
     const LocalStrategy = passportLocal.Strategy;
+    // @ts-ignore
     serializeUser((user: CurrentUser, next) => {
         const userInfo: ISerializedUserInfo = {
             id: user.id
