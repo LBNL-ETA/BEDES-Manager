@@ -39,7 +39,7 @@
     "uuid": "^3.4.0",
     "winston": "^3.6.0",
     "xlsx": "^0.17.5",
-    "xml2js": "^0.4.23"
+    "xml2js": "^0.5.0"
   },
   "devDependencies": {
     "@types/app-root-path": "^1.2.4",
