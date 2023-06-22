@@ -33,7 +33,7 @@
     "dotenv": "^7.0.0",
     "module-alias": "^2.2.2",
     "path": "^0.12.7",
-    "pg-promise": "^8.7.5",
+    "pg-promise": "^11.5.0",
     "ts-node": "^7.0.1",
     "typescript": "^3.9.10",
     "uuid": "^3.4.0",
