@@ -4,7 +4,7 @@ import { IXmlNodeTermOption } from './xml-node-term-option.interface';
  * Examines an object and determines if it implements the IXmlNode interface correctly.
  */
 export function validXmlNode(data: IXmlNodeTermOption): boolean {
-    if (data instanceof Object) {
+    if (typeof data === 'object' && data !== null) {
         for (let key of Object.keys(dummyNode)) {
             // @ts-ignore
             const dataList = data[key];
