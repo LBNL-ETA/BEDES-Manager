@@ -149,7 +149,6 @@ export class BedesSearchResultsTableComponent implements OnInit, OnDestroy {
                 filter: true,
                 cellStyle: {
                     height: '100%',
-                    top: '34%',
                 }
             },
             enableRangeSelection: true,
@@ -189,7 +188,6 @@ export class BedesSearchResultsTableComponent implements OnInit, OnDestroy {
                 minWidth: 250,
                 cellRendererFramework: TableCellTermNameComponent,
                 cellStyle: {
-                    top: '9%',
                 }
             },
             {

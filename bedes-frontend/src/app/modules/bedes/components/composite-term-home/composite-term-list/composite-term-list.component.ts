@@ -208,7 +208,6 @@ export class CompositeTermListComponent extends MessageFromGrid<IGridRow> implem
                 filter: true,
                 cellStyle: {
                     height: '100%',
-                    top: '34%',
                 }
             },
             enableRangeSelection: true,

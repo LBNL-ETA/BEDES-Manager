@@ -157,7 +157,6 @@ export class GlobalAppTermListComponent extends MessageFromGrid<IGridRow> implem
                 filter: true,
                 cellStyle: {
                     height: '100%',
-                    top: '34%',
                 }
             },
             enableRangeSelection: true,
@@ -192,7 +191,6 @@ export class GlobalAppTermListComponent extends MessageFromGrid<IGridRow> implem
                 field: 'ref.name',
                 cellRendererFramework: TableCellNavComponent,
                 cellStyle: {
-                    top: '9%',
                 }
             },
             {

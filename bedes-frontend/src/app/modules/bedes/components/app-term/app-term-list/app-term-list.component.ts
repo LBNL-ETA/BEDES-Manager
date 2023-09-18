@@ -174,7 +174,6 @@ export class AppTermListComponent extends MessageFromGrid<IAppRow> implements On
                 filter: true,
                 cellStyle: {
                     height: '100%',
-                    top: '34%',
                 }
             },
             enableRangeSelection: true,

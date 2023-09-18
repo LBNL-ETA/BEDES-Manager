@@ -98,7 +98,6 @@ export class BedesTermDetailsListOptionsComponent implements OnInit {
                 filter: true,
                 cellStyle: {
                     height: '100%',
-                    top: '34%',
                 }
             },
             enableRangeSelection: false,
