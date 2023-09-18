@@ -232,7 +232,6 @@ export class ApplicationListComponent extends MessageFromGrid<IAppRow> implement
                 // minWidth: 250,
                 cellRendererFramework: TableCellNavComponent,
                 cellStyle: {
-                    top: '9%',
                 },
             },
             {

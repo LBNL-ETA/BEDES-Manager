@@ -266,7 +266,6 @@ export class AppTermListComponent extends MessageFromGrid<IAppRow> implements On
                 field: 'ref.name',
                 cellRendererFramework: TableCellNavComponent,
                 cellStyle: {
-                    top: '9%',
                 }
             },
             {

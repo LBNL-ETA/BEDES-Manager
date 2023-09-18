@@ -244,7 +244,6 @@ export class CompositeTermListComponent extends MessageFromGrid<IGridRow> implem
                 headerCheckboxSelection: true,
                 cellRendererFramework: TableCellNavComponent,
                 cellStyle: {
-                    top: '9%',
                 }
             },
             {
