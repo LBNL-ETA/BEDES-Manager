@@ -9,8 +9,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "express": "^4.17.3",
-    "module-alias": "^2.2.2"
+    "express": "^4.18.2",
+    "module-alias": "^2.2.3"
   },
   "_moduleAliases": {
     "@bedes-common": "./bedes-backend/dist/bedes-common",
