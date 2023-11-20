@@ -2,7 +2,14 @@ import * as winston from "winston";
 import path from 'path';
 import { cyan } from 'colors';
 
-const myFormat = winston.format.printf(info => {
+interface TransformableInfo {
+    timestamp?: string;
+    label?: string;
+    level: string;
+    message: string;
+}
+
+const myFormat = winston.format.printf((info: TransformableInfo) => {
     return `${info.timestamp} [${info.label}] ${info.level}: ${info.message}`;
 });
 
