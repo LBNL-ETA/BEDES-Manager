@@ -12,7 +12,7 @@ if (smtpCredentials.isValid()) {
     transporter = nodemailer.createTransport({
         host: smtpCredentials.host,
         port: smtpCredentials.getPortNumber(),
-        secure: false,
+        secure: true,
         auth: {
             user: smtpCredentials.user,
             pass: smtpCredentials.pass,
