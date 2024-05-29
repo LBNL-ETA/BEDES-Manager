@@ -4,8 +4,8 @@ import * as fs from 'fs';
 const envPath = path.resolve(__dirname, '../../../.env');
 if (fs.existsSync(envPath)) {
     require('dotenv').config({
-        path: envPath
-    })
+        path: envPath,
+    });
 }
 import { db } from '@bedes-backend/db';
 import { UserProfileNew } from '@bedes-backend/authentication/models/user-profile-new';
@@ -20,15 +20,12 @@ import { v4 } from 'uuid';
             await createUserAccount(user, UserStatus.IsLoggedIn, UserGroup.Standard);
             process.exit(0);
         }
-    }
-    catch (error) {
+    } catch (error) {
         console.log(error);
-        console.log('Error creating test users')
+        console.log('Error creating test users');
         process.exit(1);
     }
 })();
-
-
 
 function getEnvUser(userNum: number): UserProfileNew {
     const firstName = process.env[`USER_${userNum}_FIRST`];
@@ -37,41 +34,25 @@ function getEnvUser(userNum: number): UserProfileNew {
     const org = process.env[`USER_${userNum}_ORG`];
     const password = process.env[`USER_${userNum}_PASSWORD`];
 
-    if (!firstName
-        || !lastName
-        || !email
-        || !org
-        || !password
-    ) {
-        throw new Error(`env user '${userNum} not defined`)
+    if (!firstName || !lastName || !email || !org || !password) {
+        throw new Error(`env user '${userNum} not defined`);
     }
 
-    return new UserProfileNew(
-        firstName,
-        lastName,
-        email,
-        org,
-        password,
-        password
-    )
+    return new UserProfileNew(firstName, lastName, email, org, password, password);
 }
-
-
 
 async function createUserAccount(user: UserProfileNew, status: UserStatus, group: UserGroup): Promise<void> {
     // check if the account exists
-    const exists = await accountExists(user)
+    const exists = await accountExists(user);
     // create the account if it doesn't exist
     if (exists) {
         console.log(`account ${user.email} already exists.`);
-    }
-    else {
+    } else {
         console.log(`creating account ${user.email}...`);
-        const result = await createUserAccountRecord(user, status, group)
+        const result = await createUserAccountRecord(user, status, group);
         if (result) {
-            console.log(`done`)
-        }
-        else {
+            console.log(`done`);
+        } else {
             throw new Error('Account not created');
         }
     }
@@ -84,8 +65,8 @@ async function createUserAccount(user: UserProfileNew, status: UserStatus, group
  *
  * @returns Promise that resolves to true if the account exists
  *  false otherwise.
- * 
- * Queries the database for emails equal to bedes-manager@lbl.gov,
+ *
+ * Queries the database for emails equal to bedes-manager@mail.eta.lbl.gov,
  * if the number of rows = 1 then true, else false.
  */
 export async function accountExists(user: UserProfileNew): Promise<boolean> {
@@ -96,18 +77,22 @@ export async function accountExists(user: UserProfileNew): Promise<boolean> {
         where email = \${email}
     `;
     const params = {
-        email: user.email
-    }
+        email: user.email,
+    };
     const results = await db.oneOrNone(query, params);
     return results.count == 1 ? true : false;
 }
 
 /**
  * Create's the admin account.
- * 
+ *
  * Creates a new UserProfileNew object, and calls the backend authQuery.addUser() method.
  */
-export async function createUserAccountRecord(user: UserProfileNew, status: UserStatus, group: UserGroup): Promise<boolean> {
+export async function createUserAccountRecord(
+    user: UserProfileNew,
+    status: UserStatus,
+    group: UserGroup
+): Promise<boolean> {
     // create the password hash
     const hashedPasseword = await user.hashPassword();
     const params = {
@@ -118,8 +103,8 @@ export async function createUserAccountRecord(user: UserProfileNew, status: User
         _status: status,
         _userGroupId: group,
         _password: hashedPasseword,
-        _uuid: v4()
-    }
+        _uuid: v4(),
+    };
     const query = `
         insert into auth.user (
             first_name, last_name, email, organization, status, user_group_id, password, uuid
@@ -139,5 +124,4 @@ export async function createUserAccountRecord(user: UserProfileNew, status: User
     `;
     const result = await db.one(query, params);
     return result.id > 0 ? true : false;
-
 }
