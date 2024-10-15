@@ -10,7 +10,7 @@ import {AppTerm, AppTermList, AppTermListOption, IAppTerm, IAppTermList, IAppTer
 import {appTermTypeList} from '@bedes-common/lookup-tables/app-term-type-list';
 import {dataTypeList} from '@bedes-common/lookup-tables/data-type-list';
 import {switchMap, takeUntil} from 'rxjs/operators';
-import {ColDef, GridOptions, SelectionChangedEvent} from 'ag-grid-community';
+import {ColDef, GridApi, GridOptions, SelectionChangedEvent} from 'ag-grid-community';
 import {TermType} from '@bedes-common/enums/term-type.enum';
 import {OptionViewState} from 'src/app/modules/bedes/models/list-options/option-view-state.enum';
 import {SupportListService} from '../../../../services/support-list/support-list.service';
@@ -111,6 +111,7 @@ export class ImplementationTermComponent implements OnInit, OnDestroy {
     // Boolean that indicates if the grid's data needs to be set.
     private gridDataNeedsSet: boolean
     public gridOptions: GridOptions;
+    private gridApi: GridApi | null = null;
     public gridData: Array<IGridRow>;
     public tableContext: any;
     // Enum for the status of the current outgoing http request
@@ -334,7 +335,7 @@ export class ImplementationTermComponent implements OnInit, OnDestroy {
                 .subscribe((bedesTerm: BedesTerm | BedesConstrainedList) => {
                     this.mappedTerm = bedesTerm;
                     this.gridDataNeedsSet = true;
-                    this.setGridData();
+                    this.setGridData(this.gridApi);
                 });
             }
             else if (this.appTerm.mapping instanceof TermMappingComposite) {
@@ -343,7 +344,7 @@ export class ImplementationTermComponent implements OnInit, OnDestroy {
                 .subscribe((compositeTerm: BedesCompositeTerm) => {
                     this.mappedTerm = compositeTerm;
                     this.gridDataNeedsSet = true;
-                    this.setGridData();
+                    this.setGridData(this.gridApi);
                 })
             }
         }
@@ -601,10 +602,12 @@ export class ImplementationTermComponent implements OnInit, OnDestroy {
             },
             enableRangeSelection: true,
             columnDefs: this.buildColumnDefs(),
-            onGridReady: () => {
+            onGridReady: (params) => {
                 this.gridInitialized = true;
-                if (this.gridOptions && this.gridOptions.api && this.gridDataNeedsSet) {
-                    this.setGridData();
+                this.gridApi = params.api;
+
+                if (params.api && this.gridOptions && this.gridOptions.api && this.gridDataNeedsSet) {
+                    this.setGridData(this.gridApi);
                 }
             },
             onFirstDataRendered(params) {
@@ -625,7 +628,7 @@ export class ImplementationTermComponent implements OnInit, OnDestroy {
                 headerName: 'Name',
                 field: 'ref.name',
                 // checkboxSelection: true,
-                cellRendererFramework: TableCellNavComponent,
+                cellRenderer: TableCellNavComponent,
                 // minWidth: 250,
                 // cellRendererFramework: TableCellNameNavComponent
                 cellStyle: {
@@ -635,12 +638,12 @@ export class ImplementationTermComponent implements OnInit, OnDestroy {
             {
                 headerName: 'BEDES Option Mapping',
                 field: 'mappedName',
-                cellRendererFramework: TableCellMapListOptionComponent
+                cellRenderer: TableCellMapListOptionComponent
             },
             {
                 headerName: '',
                 width: 50,
-                cellRendererFramework: TableCellDeleteComponent,
+                cellRenderer: TableCellDeleteComponent,
                 cellStyle: {
                     top: '0%',
                 }
@@ -651,7 +654,7 @@ export class ImplementationTermComponent implements OnInit, OnDestroy {
     /**
      * Populates the grid with the data from the appTermList
      */
-    private setGridData() {
+    private setGridData(api: GridApi) {
         if (this.gridInitialized && this.gridDataNeedsSet && this.gridOptions.api) {
             // const gridData = this.applicationList;
             const gridData = new Array<IGridRow>();
@@ -668,7 +671,7 @@ export class ImplementationTermComponent implements OnInit, OnDestroy {
                     });
                 });
             }
-            this.gridOptions.api.setRowData(gridData);
+            api.updateGridOptions({rowData: gridData});
             this.gridDataNeedsSet = false;
         }
     }
@@ -819,7 +822,7 @@ export class ImplementationTermComponent implements OnInit, OnDestroy {
             if (newListOption) {
                 (<AppTermList>this.appTerm).addListOption(newListOption);
                 this.gridDataNeedsSet = true;
-                this.setGridData();
+                this.setGridData(this.gridApi);
             }
         });
     }
@@ -930,7 +933,7 @@ export class ImplementationTermComponent implements OnInit, OnDestroy {
         }
         this.appTermService.activeTermSubject.next(this.appTerm);
         this.gridDataNeedsSet = true;
-        this.setGridData();
+        this.setGridData(this.gridApi);
     }
 
     /**
@@ -1070,7 +1073,7 @@ export class ImplementationTermComponent implements OnInit, OnDestroy {
             }
             this.appTermService.activeTermSubject.next(this.appTerm);
             this.gridDataNeedsSet = true;
-            this.setGridData();
+            this.setGridData(this.gridApi);
         });
 
     }
@@ -1115,7 +1118,7 @@ export class ImplementationTermComponent implements OnInit, OnDestroy {
             // notify subscribers
             this.appTermService.activeTermSubject.next(this.appTerm);
             this.gridDataNeedsSet = true;
-            this.setGridData();
+            this.setGridData(this.gridApi);
         }, (error: any) => {
         });
     }
@@ -1129,7 +1132,7 @@ export class ImplementationTermComponent implements OnInit, OnDestroy {
         this.appTerm.hasChanged = true;
         this.appTermService.activeTermSubject.next(this.appTerm);
         this.gridDataNeedsSet = true;
-        this.setGridData();
+        this.setGridData(this.gridApi);
     }
 
 }
