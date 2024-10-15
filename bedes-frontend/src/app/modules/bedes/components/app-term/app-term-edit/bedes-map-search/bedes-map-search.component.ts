@@ -1,6 +1,6 @@
 import { Component, OnInit, Inject, Output, EventEmitter } from '@angular/core';
 import { MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA, MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog';
-import { GridOptions, SelectionChangedEvent, ColDef } from 'ag-grid-community';
+import { GridApi, GridOptions, SelectionChangedEvent, ColDef } from 'ag-grid-community';
 import { BedesTermSearchService } from '../../../../services/bedes-term-search/bedes-term-search.service';
 import { BedesSearchResult } from '@bedes-common/models/bedes-search-result/bedes-search-result';
 import { BedesConstrainedList, BedesTerm } from '@bedes-common/models/bedes-term';
@@ -47,6 +47,7 @@ export class BedesMapSearchComponent implements OnInit {
     private gridInitialized = false;
     private gridDataNeedsRefresh = false;
     public gridOptions: GridOptions;
+    private gridApi: GridApi | null = null;
     public rowData: Array<BedesTerm | BedesConstrainedList>;
     public tableContext: any;
     private ngUnsubscribe: Subject<void> = new Subject<void>();
@@ -122,7 +123,7 @@ export class BedesMapSearchComponent implements OnInit {
                 this.numResults = results.length;
                 this.searchResults = results;
                 this.gridDataNeedsRefresh = true;
-                this.setGridData();
+                this.setGridData(this.gridApi);
             }, (error: any) => {
                 this.numResults = 0;
             }, () => {
@@ -183,10 +184,12 @@ export class BedesMapSearchComponent implements OnInit {
             enableRangeSelection: true,
             rowSelection: 'single',
             columnDefs: this.buildColumnDefs(),
-            onGridReady: () => {
+            onGridReady: (params) => {
                 this.gridInitialized = true;
-                if (this.gridDataNeedsRefresh) {
-                    this.setGridData();
+                this.gridApi = params.api;
+
+                if (params.api && this.gridDataNeedsRefresh) {
+                    this.setGridData(this.gridApi); // Passing api to setGridData
                 }
             },
             onFirstDataRendered(params) {
@@ -249,7 +252,7 @@ export class BedesMapSearchComponent implements OnInit {
         ];
     }
 
-    private setGridData() {
+    private setGridData(api: GridApi) {
         if (this.gridInitialized && this.gridDataNeedsRefresh) {
             const gridData = new Array<ISearchResultRow>();
             const validResultType = (resultObjectType: SearchResultType) => {
@@ -283,7 +286,8 @@ export class BedesMapSearchComponent implements OnInit {
                     });
                 }
             });
-            this.gridOptions.api.setRowData(gridData);
+            // this.gridOptions.api.setRowData(gridData); // Alok: this is deprecated
+            api.updateGridOptions({rowData: gridData});
             this.gridDataNeedsRefresh = true;
         }
     }
