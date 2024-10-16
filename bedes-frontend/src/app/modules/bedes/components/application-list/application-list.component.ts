@@ -230,7 +230,7 @@ export class ApplicationListComponent extends MessageFromGrid<IAppRow> implement
                 field: 'ref.name',
                 // checkboxSelection: true
                 // minWidth: 250,
-                cellRendererFramework: TableCellNavComponent,
+                cellRenderer: TableCellNavComponent,
                 cellStyle: {
                 },
             },
@@ -245,7 +245,7 @@ export class ApplicationListComponent extends MessageFromGrid<IAppRow> implement
             {
                 headerName: '',
                 width: 50,
-                cellRendererFramework: TableCellDeleteComponent,
+                cellRenderer: TableCellDeleteComponent,
                 cellStyle: {
                     top: '9%',
                 },

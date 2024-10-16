@@ -6,7 +6,7 @@ import { Subject } from 'rxjs';
 import { RequestStatus } from '../../../enums';
 import { Router } from '@angular/router';
 import { BedesTermService } from '../../../services/bedes-term/bedes-term.service';
-import { GridOptions, SelectionChangedEvent, ColDef } from 'ag-grid-community';
+import { GridApi, GridReadyEvent, GridOptions, SelectionChangedEvent, ColDef } from 'ag-grid-community';
 import { SupportListService } from '../../../services/support-list/support-list.service';
 import { BedesUnit } from '@bedes-common/models/bedes-unit/bedes-unit';
 import { BedesDataType } from '@bedes-common/models/bedes-data-type/bedes-data-type';
@@ -38,6 +38,7 @@ export class BedesSearchResultsComponent implements OnInit {
     private categoryList: Array<BedesTermCategory>;
     // ag-grid
     public gridOptions: GridOptions;
+    private gridApi: GridApi | null = null;
     public rowData: Array<BedesTerm | BedesConstrainedList>;
     public tableContext: any;
 
@@ -135,9 +136,11 @@ export class BedesSearchResultsComponent implements OnInit {
             enableRangeSelection: true,
             rowSelection: 'multiple',
             columnDefs: this.buildColumnDefs(),
-            onGridReady: () => {
+            onGridReady: (event: GridReadyEvent) => {
                 this.gridInitialized = true;
-                if (this.gridOptions && this.gridOptions.api && this.searchResults && !this.initialized) {
+                this.gridApi = event.api;
+
+                if (this.gridApi &&  this.gridOptions && this.gridOptions.api && this.searchResults && !this.initialized) {
                     this.setGridData();
                 }
             },
@@ -206,7 +209,9 @@ export class BedesSearchResultsComponent implements OnInit {
                     searchResultTypeName: getResultTypeName(searchResult.resultObjectType)
                 }
             });
-            this.gridOptions.api.setRowData(gridData);
+
+            // this.gridOptions.api.setRowData(gridData);
+            this.gridApi.updateGridOptions({rowData: gridData});
             this.initialized = true;
         }
     }

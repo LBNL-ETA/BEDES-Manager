@@ -10,7 +10,7 @@ import { AppTermService } from '../../../../services/app-term/app-term.service';
 import { AppTerm, AppTermList, AppTermListOption } from '@bedes-common/models/app-term';
 import { appTermTypeList } from '@bedes-common/lookup-tables/app-term-type-list';
 import { takeUntil } from 'rxjs/operators';
-import { GridOptions, SelectionChangedEvent, ColDef } from 'ag-grid-community';
+import { GridApi, GridOptions, SelectionChangedEvent, ColDef } from 'ag-grid-community';
 import { Scope } from '@bedes-common/enums/scope.enum';
 
 
@@ -57,6 +57,7 @@ export class TermMappingComponent implements OnInit {
     // Boolean that indicates if the grid's data needs to be set.
     private gridDataNeedsSet: boolean
     public gridOptions: GridOptions;
+    private gridApi: GridApi | null = null;
     public gridData: Array<IGridRow>;
     public tableContext: any;
 
@@ -203,10 +204,12 @@ export class TermMappingComponent implements OnInit {
             },
             enableRangeSelection: true,
             columnDefs: this.buildColumnDefs(),
-            onGridReady: () => {
+            onGridReady: (params) => {
                 this.gridInitialized = true;
-                if (this.gridOptions && this.gridOptions.api && this.gridDataNeedsSet) {
-                    this.setGridData();
+                this.gridApi = params.api;
+
+                if (params.api && this.gridOptions && this.gridOptions.api && this.gridDataNeedsSet) {
+                    this.setGridData(this.gridApi);
                 }
             },
             onFirstDataRendered(params) {
@@ -248,7 +251,7 @@ export class TermMappingComponent implements OnInit {
     /**
      * Populates the grid with the data from the appTermList
      */
-    private setGridData() {
+    private setGridData(api: GridApi) {
         if (this.gridInitialized && this.gridDataNeedsSet) {
             // const gridData = this.applicationList;
             const gridData = new Array<IGridRow>();
@@ -265,10 +268,9 @@ export class TermMappingComponent implements OnInit {
                     })
                 })
             }
-            this.gridOptions.api.setRowData(gridData);
+            api.updateGridOptions({rowData: gridData});
             this.gridDataNeedsSet = false;
         }
     }
 
 }
-
