@@ -165,7 +165,7 @@ export class GlobalAppTermListComponent extends MessageFromGrid<IGridRow> implem
             onGridReady: (event: GridReadyEvent) => {
                 this.gridApi = event.api;
                 this.gridInitialized = true;
-                if (this.gridOptions && this.gridOptions.api) {
+                if (this.gridOptions && this.gridApi) {
                     this.setGridData();
                 }
             },
@@ -189,7 +189,7 @@ export class GlobalAppTermListComponent extends MessageFromGrid<IGridRow> implem
             {
                 headerName: 'Application Term Name',
                 field: 'ref.name',
-                cellRendererFramework: TableCellNavComponent,
+                cellRenderer: TableCellNavComponent,
                 cellStyle: {
                 }
             },
@@ -216,7 +216,7 @@ export class GlobalAppTermListComponent extends MessageFromGrid<IGridRow> implem
      * Populates the grid with the data from the applicationList.
      */
     private setGridData() {
-        if (this.gridInitialized && this.gridDataNeedsSet && this.gridOptions.api) {
+        if (this.gridInitialized && this.gridDataNeedsSet && this.gridApi) {
             const gridData = new Array<IGridRow>();
             if (Array.isArray(this.appTermList)) {
                 this.appTermList.forEach((item: AppTerm | AppTermList) => {
@@ -227,7 +227,9 @@ export class GlobalAppTermListComponent extends MessageFromGrid<IGridRow> implem
                     } as IGridRow);
                 });
             }
-            this.gridOptions.api.setRowData(gridData);
+            // this.gridOptions.api.setRowData(gridData);
+            this.gridApi.updateGridOptions({rowData: gridData});
+            
             this.gridDataNeedsSet = false;
         }
     }

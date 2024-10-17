@@ -1,6 +1,6 @@
 import { Component, OnInit, Inject } from '@angular/core';
 import { MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA, MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog';
-import { GridOptions, SelectionChangedEvent, ColDef, GridReadyEvent } from 'ag-grid-community';
+import { GridApi, GridOptions, SelectionChangedEvent, ColDef, GridReadyEvent } from 'ag-grid-community';
 import { BedesTermSearchService } from '../../../services/bedes-term-search/bedes-term-search.service';
 import { BedesSearchResult } from '@bedes-common/models/bedes-search-result/bedes-search-result';
 import { BedesConstrainedList, BedesTerm } from '@bedes-common/models/bedes-term';
@@ -37,6 +37,7 @@ export class BedesTermSearchDialogComponent implements OnInit {
     private gridInitialized = false;
     private gridDataNeedsRefresh = false;
     public gridOptions: GridOptions;
+    private gridApi: GridApi | null = null;
     public rowData: Array<BedesTerm | BedesConstrainedList>;
     public gridData = new Array<ISearchResultRow>();
     public tableContext: any;
@@ -167,14 +168,18 @@ export class BedesTermSearchDialogComponent implements OnInit {
             rowSelection: 'multiple',
             columnDefs: this.buildColumnDefs(),
             onGridReady: (event: GridReadyEvent) => {
+                this.gridApi = event.api;
                 this.gridInitialized = true;
+
                 if (this.gridDataNeedsRefresh) {
                     this.setGridData();
                 }
                 else {
-                    event.api.setRowData([]);
+                    // event.api.setRowData([]);
+                    this.gridApi.updateGridOptions({rowData: []});
                 }
-                event.api.checkGridSize();
+                // event.api.checkGridSize();
+                this.gridApi.sizeColumnsToFit();
             },
             onFirstDataRendered(params) {
                 params.api.sizeColumnsToFit();
@@ -299,7 +304,8 @@ export class BedesTermSearchDialogComponent implements OnInit {
                     });
                 }
             });
-            this.gridOptions.api.setRowData(gridData);
+            // this.gridOptions.api.setRowData(gridData);
+            this.gridApi.updateGridOptions({rowData: gridData});
             this.gridData = gridData;
             this.gridDataNeedsRefresh = false;
         }

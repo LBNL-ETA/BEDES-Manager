@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { Subject } from 'rxjs';
 import { AgGridAngular } from 'ag-grid-angular';
-import { GridOptions, ColDef } from 'ag-grid-community';
+import { GridApi, GridReadyEvent, GridOptions, ColDef } from 'ag-grid-community';
 import { BedesConstrainedList, BedesTerm } from '@bedes-common/models/bedes-term';
 import { SupportListService } from '../../../services/support-list/support-list.service';
 import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
@@ -42,6 +42,7 @@ export class SelectedTermsTableComponent implements OnInit, OnDestroy {
     agGrid: AgGridAngular;
     // grid options
     public gridOptions: GridOptions;
+    private gridApi: GridApi | null = null;
     public tableContext: any;
     private gridInitialized = false;
     private gridDataNeedsRefresh = false;
@@ -145,8 +146,10 @@ export class SelectedTermsTableComponent implements OnInit, OnDestroy {
             },
             enableRangeSelection: true,
             columnDefs: this.buildColumnDefs(),
-            onGridReady: () => {
+            onGridReady: (event: GridReadyEvent) => {
+                this.gridApi = event.api;
                 this.gridInitialized = true;
+
                 if (this.gridDataNeedsRefresh) {
                     this.setGridData();
                 }
@@ -165,7 +168,7 @@ export class SelectedTermsTableComponent implements OnInit, OnDestroy {
             {
                 headerName: 'Name',
                 field: 'name',
-                cellRendererFramework: TableCellItemNameComponent
+                cellRenderer: TableCellItemNameComponent
             },
             {
                 headerName: 'Description', field: 'description'
@@ -217,7 +220,7 @@ export class SelectedTermsTableComponent implements OnInit, OnDestroy {
      * Set's the grid data.
      */
     public setGridData(): void {
-        if (this.gridInitialized && this.gridDataNeedsRefresh && this.gridOptions.api) {
+        if (this.gridInitialized && this.gridDataNeedsRefresh && this.gridApi) {
             const results = new Array<IGridRow>();
             if  (this.compositeTerm) {
                 this.compositeTerm.items.forEach((item: CompositeTermDetail) => {
@@ -235,7 +238,8 @@ export class SelectedTermsTableComponent implements OnInit, OnDestroy {
                     });
                 });
             }
-            this.gridOptions.api.setRowData(results);
+            // this.gridOptions.api.setRowData(results);
+            this.gridApi.updateGridOptions({rowData: results});
             this.gridDataNeedsRefresh = false;
         }
     }

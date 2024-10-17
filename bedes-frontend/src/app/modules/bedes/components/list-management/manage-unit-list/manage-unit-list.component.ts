@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { AgGridAngular } from 'ag-grid-angular';
-import { GridOptions, ColDef, ValueGetterParams, SelectionChangedEvent } from 'ag-grid-community';
+import { GridApi, GridReadyEvent, GridOptions, ColDef, ValueGetterParams, SelectionChangedEvent } from 'ag-grid-community';
 import { SupportListService } from '../../../services/support-list/support-list.service';
 import { BedesUnit } from '@bedes-common/models/bedes-unit/bedes-unit';
 import { Subject } from 'rxjs';
@@ -18,6 +18,7 @@ export class ManageUnitListComponent implements OnInit {
     @ViewChild('agGrid') agGrid: AgGridAngular;
     // grid options
     public gridOptions: GridOptions;
+    private gridApi: GridApi | null = null;
     public selectedUnit: BedesUnit | undefined;
     public isReplacing = false;
 
@@ -67,7 +68,8 @@ export class ManageUnitListComponent implements OnInit {
             getRowNodeId: (data: any) => {
                 return data.id;
             },
-            onGridReady: () => {
+            onGridReady: (event: GridReadyEvent) => {
+                this.gridApi = event.api;
                 this.assignGridData(this.unitList);
             },
             onFirstDataRendered(params) {
@@ -81,8 +83,9 @@ export class ManageUnitListComponent implements OnInit {
     }
 
     private assignGridData(data: Array<BedesUnit>): void {
-        if (this.gridOptions && this.gridOptions.api && data) {
-            this.gridOptions.api.setRowData(data);
+        if (this.gridOptions && this.gridApi && data) {
+            // this.gridOptions.api.setRowData(data);
+            this.gridApi.updateGridOptions({rowData: data});
         }
     }
 

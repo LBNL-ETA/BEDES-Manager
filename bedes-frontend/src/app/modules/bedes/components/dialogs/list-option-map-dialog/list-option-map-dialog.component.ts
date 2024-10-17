@@ -1,6 +1,6 @@
 import { Component, OnInit, Inject } from '@angular/core';
 import { MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA, MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog';
-import { GridOptions, SelectionChangedEvent, ColDef } from 'ag-grid-community';
+import { GridApi, GridReadyEvent, GridOptions, SelectionChangedEvent, ColDef } from 'ag-grid-community';
 import { BedesConstrainedList, BedesTerm } from '@bedes-common/models/bedes-term';
 import { IListOptionMapDialogData } from './list-option-map-dialog-data.interface';
 import { BedesTermOption } from '@bedes-common/models/bedes-term-option/bedes-term-option';
@@ -18,6 +18,7 @@ export class ListOptionMapDialogComponent implements OnInit {
     private gridInitialized = false;
     private gridDataNeedsRefresh = false;
     public gridOptions: GridOptions;
+    private gridApi: GridApi | null = null;
     public rowData: Array<BedesTermOption>;
     public tableContext: any;
 
@@ -65,8 +66,10 @@ export class ListOptionMapDialogComponent implements OnInit {
             enableRangeSelection: true,
             rowSelection: 'single',
             columnDefs: this.buildColumnDefs(),
-            onGridReady: () => {
+            onGridReady: (event: GridReadyEvent) => {
                 this.gridInitialized = true;
+                this.gridApi = event.api;
+
                 if (this.gridDataNeedsRefresh) {
                     this.setGridData();
                 }
@@ -116,11 +119,12 @@ export class ListOptionMapDialogComponent implements OnInit {
     }
 
     private setGridData() {
-        if (this.gridInitialized && this.gridDataNeedsRefresh) {
+        if (this.gridInitialized && this.gridDataNeedsRefresh && this.gridApi) {
             const gridData = this.term.options.filter((item: BedesTermOption) => {
                 return !this.shouldExcludeOption(item);
             });
-            this.gridOptions.api.setRowData(gridData);
+            // this.gridOptions.api.setRowData(gridData);
+            this.gridApi.updateGridOptions({rowData: gridData});
             this.gridDataNeedsRefresh = false;
         }
     }
