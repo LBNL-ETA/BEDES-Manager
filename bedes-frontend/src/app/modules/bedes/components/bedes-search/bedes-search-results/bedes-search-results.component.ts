@@ -140,7 +140,7 @@ export class BedesSearchResultsComponent implements OnInit {
                 this.gridInitialized = true;
                 this.gridApi = event.api;
 
-                if (this.gridApi &&  this.gridOptions && this.gridOptions.api && this.searchResults && !this.initialized) {
+                if (this.gridOptions && this.gridApi && this.searchResults && !this.initialized) {
                     this.setGridData();
                 }
             },
@@ -197,7 +197,7 @@ export class BedesSearchResultsComponent implements OnInit {
     }
 
     private setGridData() {
-        if (this.gridOptions && this.gridOptions.api && this.searchResults && this.gridInitialized) {
+        if (this.gridOptions && this.gridApi && this.searchResults && this.gridInitialized) {
             const gridData = this.searchResults.map((searchResult: BedesSearchResult) => {
                 return <ISearchResultRow>{
                     name: searchResult.name,

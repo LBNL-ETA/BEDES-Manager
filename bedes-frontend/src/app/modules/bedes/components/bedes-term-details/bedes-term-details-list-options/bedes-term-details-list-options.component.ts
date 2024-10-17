@@ -6,7 +6,7 @@ import { SupportListService } from '../../../services/support-list/support-list.
 import { BedesUnit } from '@bedes-common/models/bedes-unit/bedes-unit';
 import { BedesDataType } from '@bedes-common/models/bedes-data-type';
 import { AgGridAngular } from 'ag-grid-angular';
-import { GridOptions, ColDef, ValueGetterParams, SelectionChangedEvent } from 'ag-grid-community';
+import { GridApi, GridReadyEvent, GridOptions, ColDef, ValueGetterParams, SelectionChangedEvent } from 'ag-grid-community';
 import { Subject, BehaviorSubject } from 'rxjs';
 import { BedesTermOption } from '@bedes-common/models/bedes-term-option/bedes-term-option';
 import { BedesTermListOptionService } from '../../../services/bedes-term-list-option/bedes-term-list-option.service';
@@ -26,6 +26,7 @@ export class BedesTermDetailsListOptionsComponent implements OnInit {
     agGrid: AgGridAngular;
     // grid options
     public gridOptions: GridOptions;
+    private gridApi: GridApi | null = null;
     private gridInitialized = false;
 
     public term: BedesTerm | BedesConstrainedList | undefined;
@@ -104,8 +105,13 @@ export class BedesTermDetailsListOptionsComponent implements OnInit {
             rowDragManaged: true,
             animateRows: true,
             columnDefs: this.buildColumnDefs(),
-            onGridReady: () => {
-                this.setGridData();
+            onGridReady: (event: GridReadyEvent) => {
+                this.gridInitialized = true;
+                this.gridApi = event.api;
+
+                if (this.gridApi && this.gridOptions) {
+                    this.setGridData();
+                }
             },
             onFirstDataRendered(params) {
                 params.api.sizeColumnsToFit();
@@ -129,12 +135,16 @@ export class BedesTermDetailsListOptionsComponent implements OnInit {
     }
 
     private setGridData(): void {
-        if (this.gridOptions && this.gridOptions.api && this.term) {
+        if (this.gridOptions && this.gridApi && this.term) {
             if (this.term instanceof BedesConstrainedList) {
-                this.gridOptions.api.setRowData(this.term.options);
+                // this.gridOptions.api.setRowData(this.term.options);
+
+                this.gridApi.updateGridOptions({rowData: this.term.options});
+
             }
             else {
-                this.gridOptions.api.setRowData([]);
+                // this.gridOptions.api.setRowData([]);
+                this.gridApi.updateGridOptions({rowData: []});
             }
             this.gridInitialized = true;
         }
