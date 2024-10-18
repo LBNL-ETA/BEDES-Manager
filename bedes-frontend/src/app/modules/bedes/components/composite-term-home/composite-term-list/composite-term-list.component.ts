@@ -216,7 +216,7 @@ export class CompositeTermListComponent extends MessageFromGrid<IGridRow> implem
             onGridReady: (event: GridReadyEvent) => {
                 this.gridApi = event.api;
                 this.gridInitialized = true;
-                if (this.gridOptions && this.gridOptions.api) {
+                if (this.gridOptions && this.gridApi) {
                     this.setGridData();
                 }
             },
@@ -242,7 +242,7 @@ export class CompositeTermListComponent extends MessageFromGrid<IGridRow> implem
                 field: 'ref.name',
                 checkboxSelection: true,
                 headerCheckboxSelection: true,
-                cellRendererFramework: TableCellNavComponent,
+                cellRenderer: TableCellNavComponent,
                 cellStyle: {
                 }
             },
@@ -257,7 +257,7 @@ export class CompositeTermListComponent extends MessageFromGrid<IGridRow> implem
             {
                 headerName: '',
                 width: 50,
-                cellRendererFramework: TableCellDeleteComponent,
+                cellRenderer: TableCellDeleteComponent,
                 cellStyle: {
                     top: '9%',
                 }
@@ -269,7 +269,7 @@ export class CompositeTermListComponent extends MessageFromGrid<IGridRow> implem
      * Populates the grid with the data from the applicationList.
      */
     private setGridData() {
-        if (this.gridInitialized && this.gridDataNeedsSet && this.gridOptions.api) {
+        if (this.gridInitialized && this.gridDataNeedsSet && this.gridApi) {
             const gridData = new Array<IGridRow>();
             if (Array.isArray(this.termList)) {
                 this.termList.forEach((item: BedesCompositeTermShort) => {
@@ -282,7 +282,8 @@ export class CompositeTermListComponent extends MessageFromGrid<IGridRow> implem
                     });
                 })
             }
-            this.gridOptions.api.setRowData(gridData);
+            // this.gridOptions.api.setRowData(gridData);
+            this.gridApi.updateGridOptions({rowData: gridData});
             this.gridDataNeedsSet = false;
         }
     }

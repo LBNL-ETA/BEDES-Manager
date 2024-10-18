@@ -7,7 +7,7 @@ import { RequestStatus } from '../../../enums';
 import { Router } from '@angular/router';
 import { BedesTermService } from '../../../services/bedes-term/bedes-term.service';
 import { AgGridAngular } from 'ag-grid-angular';
-import { GridOptions, ColDef, SelectionChangedEvent } from 'ag-grid-community';
+import { GridApi, GridReadyEvent, GridOptions, ColDef, SelectionChangedEvent } from 'ag-grid-community';
 import { SupportListService } from '../../../services/support-list/support-list.service';
 import { BedesUnit } from '@bedes-common/models/bedes-unit/bedes-unit';
 import { BedesDataType } from '@bedes-common/models/bedes-data-type';
@@ -35,6 +35,7 @@ export class SelectTermsTableComponent implements OnInit, OnDestroy {
     @ViewChild('agGrid') agGrid: AgGridAngular;
     // grid options
     public gridOptions: GridOptions;
+    private gridApi: GridApi | null = null;
     private gridInitialized = false;
     public rowData: Array<BedesTerm | BedesConstrainedList>;
     // lists
@@ -100,8 +101,9 @@ export class SelectTermsTableComponent implements OnInit, OnDestroy {
             rowSelection: 'multiple',
             suppressRowClickSelection: true,
             columnDefs: this.buildColumnDefs(),
-            onGridReady: () => {
+            onGridReady: (event: GridReadyEvent) => {
                 this.gridInitialized = true;
+                this.gridApi = event.api;
             },
             onFirstDataRendered(params) {
                 params.api.sizeColumnsToFit();
@@ -129,7 +131,8 @@ export class SelectTermsTableComponent implements OnInit, OnDestroy {
         // remove all items from the selectedTerms array
         this.selectedTerms.splice(0, this.selectTerms.length)
         // deSelect the grid rows
-        this.gridOptions.api.deselectAll();
+        // this.gridOptions.api.deselectAll(); Alok: deprecated
+        this.gridApi.deselectAll();
     }
 
     /**
@@ -142,7 +145,7 @@ export class SelectTermsTableComponent implements OnInit, OnDestroy {
             .subscribe((results: Array<BedesSearchResult>) => {
                 // TODO: this needs to return bedes terms and options only, not composite terms
                 this.searchResults = results;
-                if (this.gridOptions.api) {
+                if (this.gridApi) {
                     // this.gridOptions.api.setRowData(this.buildGridData());
                     this.setGridData();
                 }
@@ -202,7 +205,7 @@ export class SelectTermsTableComponent implements OnInit, OnDestroy {
      * Build the data for populating the grid.
      */
     private setGridData(): void {
-        if (this.gridOptions && this.gridOptions.api && this.searchResults && this.gridInitialized) {
+        if (this.gridOptions && this.gridApi && this.searchResults && this.gridInitialized) {
             // remove existing composite terms
             const filteredData = this.searchResults.filter((d) => d.resultObjectType !== SearchResultType.CompositeTerm);
             const gridData = filteredData.map((searchResult: BedesSearchResult) => {
@@ -216,7 +219,8 @@ export class SelectTermsTableComponent implements OnInit, OnDestroy {
                     searchResultTypeName: getResultTypeName(searchResult.resultObjectType)
                 }
             });
-            this.gridOptions.api.setRowData(gridData);
+            // this.gridOptions.api.setRowData(gridData);
+            this.gridApi.updateGridOptions({rowData: gridData});
         }
     }
 

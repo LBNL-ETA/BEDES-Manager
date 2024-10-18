@@ -230,7 +230,7 @@ export class ApplicationListComponent extends MessageFromGrid<IAppRow> implement
                 field: 'ref.name',
                 // checkboxSelection: true
                 // minWidth: 250,
-                cellRendererFramework: TableCellNavComponent,
+                cellRenderer: TableCellNavComponent,
                 cellStyle: {
                 },
             },
@@ -245,7 +245,7 @@ export class ApplicationListComponent extends MessageFromGrid<IAppRow> implement
             {
                 headerName: '',
                 width: 50,
-                cellRendererFramework: TableCellDeleteComponent,
+                cellRenderer: TableCellDeleteComponent,
                 cellStyle: {
                     top: '9%',
                 },
@@ -269,7 +269,8 @@ export class ApplicationListComponent extends MessageFromGrid<IAppRow> implement
                 });
             })
             this.gridDataNeedsRefresh = false;
-            this.gridApi.setRowData(gridData);
+            // this.gridApi.setRowData(gridData);
+            this.gridApi.updateGridOptions({rowData: gridData});
         }
     }
 
@@ -279,7 +280,8 @@ export class ApplicationListComponent extends MessageFromGrid<IAppRow> implement
      */
     public quickFilterChange(event: any): void {
         if (this.gridApi) {
-            this.gridApi.setQuickFilter(event.target.value);
+            // this.gridApi.setQuickFilter(event.target.value);
+            this.gridApi.setGridOption('quickFilterText', event.target.value);
         }
     }
 

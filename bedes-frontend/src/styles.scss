@@ -1,5 +1,5 @@
 /* You can add global styles to this file, and also import other style files */
-@use '@angular/material' as mat;
+@use "@angular/material" as mat;
 /**
 *   Global Style Sheet
 *   Do not import this file from components
@@ -21,9 +21,9 @@
 @import "./styles/bedes-container";
 @import "./styles/bedes-header";
 
-@import "~ag-grid-community/dist/styles/ag-grid.css";
-@import "~ag-grid-community/dist/styles/ag-theme-material.css";
-@import "~ag-grid-community/dist/styles/ag-theme-balham.css";
+@import "ag-grid-community/styles/ag-grid.css";
+@import "ag-grid-community/styles/ag-theme-material.css";
+@import "ag-grid-community/styles/ag-theme-balham.css";
 
 body {
     display: flex;
@@ -59,11 +59,11 @@ footer.bedes-footer {
 .dialog-waiting .mat-dialog-container {
     overflow: visible;
     background: rgba(255, 255, 255, 0);
-    box-shadow:none;
+    box-shadow: none;
 }
 
 .dialog-no-padding .mat-dialog-container {
-    padding:0;
+    padding: 0;
 }
 
 .dialog-content-flex .mat-dialog-container {
@@ -74,39 +74,39 @@ footer.bedes-footer {
 .dialog-waiting .mat-dialog-container {
     overflow: visible;
     background: rgba(255, 255, 255, 0);
-    box-shadow:none;
+    box-shadow: none;
 }
 
 // Color classes
 .color-primary {
-  background-color: mat.get-color-from-palette($custom-primary);
-//   color: white;
+    background-color: mat.get-color-from-palette($custom-primary);
+    //   color: white;
 }
 
 .color-accent {
-  background-color: mat.get-color-from-palette($custom-accent);
-//   color: white;
+    background-color: mat.get-color-from-palette($custom-accent);
+    //   color: white;
 }
 
 .color-warn {
     background-color: mat.get-color-from-palette($custom-warn);
-  //   color: white;
-  }
+    //   color: white;
+}
 
 .color-success {
-  background-color: mat.get-color-from-palette($custom-success);
+    background-color: mat.get-color-from-palette($custom-success);
 }
 
 .color-danger {
-  background-color: mat.get-color-from-palette($custom-danger);
+    background-color: mat.get-color-from-palette($custom-danger);
 }
 
 .color-accent-200 {
-  background-color: mat.get-color-from-palette($custom-accent, 200);
-//   color: white;
+    background-color: mat.get-color-from-palette($custom-accent, 200);
+    //   color: white;
 }
 
-.font-color-primary{
+.font-color-primary {
     color: mat.get-color-from-palette($custom-primary);
 }
 
@@ -119,10 +119,10 @@ footer.bedes-footer {
 }
 
 .font-color-warn {
-  color: mat.get-color-from-palette($custom-warn);
+    color: mat.get-color-from-palette($custom-warn);
 }
 .font-color-danger {
-  color: mat.get-color-from-palette($custom-danger);
+    color: mat.get-color-from-palette($custom-danger);
 }
 
 .border-color-warn {
@@ -131,7 +131,7 @@ footer.bedes-footer {
 }
 
 .font-color-success {
-  color: mat.get-color-from-palette($custom-success);
+    color: mat.get-color-from-palette($custom-success);
 }
 .border-color-success {
     color: mat.get-color-from-palette($custom-success);
@@ -175,10 +175,9 @@ div.alert-accent {
     color: mat.get-color-from-palette($custom-accent, 700);
 }
 
-.mat-card:not([class*='mat-elevation-z']) {
+.mat-card:not([class*="mat-elevation-z"]) {
     box-shadow: none;
 }
-
 
 // Cards
 // .card {
@@ -194,17 +193,17 @@ div.alert-accent {
 
 mat-card.bedes-card {
     @include mat.elevation(5);
-    margin:0;
+    margin: 0;
     margin-bottom: 0;
-    padding:0;
+    padding: 0;
     box-shadow: 0;
 }
 
 mat-card.bedes-content-card {
     @include mat.elevation(0);
-    margin:0;
+    margin: 0;
     margin-bottom: 0;
-    padding:0;
+    padding: 0;
     box-shadow: 0;
 }
 
@@ -218,16 +217,19 @@ mat-card.bedes-content-card {
 //   @include mat-elevation(2, #e91e63, 0.8);
 // }
 
-
 mat-card.bedes-card mat-card-header {
-    display:block;
+    display: block;
     padding: 13px;
 
     .mat-card-header-text {
         margin: 0;
         mat-card-title {
             margin: 0;
-            h1,h2,h3,h4,h5 {
+            h1,
+            h2,
+            h3,
+            h4,
+            h5 {
                 margin: 0;
                 color: white;
             }
@@ -236,7 +238,7 @@ mat-card.bedes-card mat-card-header {
 }
 
 mat-card.bedes-content-card mat-card-header {
-    display:block;
+    display: block;
     padding: 13px;
     // background-color: lightgray;
 
@@ -244,7 +246,11 @@ mat-card.bedes-content-card mat-card-header {
         margin: 0;
         mat-card-title {
             margin: 0;
-            h1,h2,h3,h4,h5 {
+            h1,
+            h2,
+            h3,
+            h4,
+            h5 {
                 margin: 0;
                 color: black;
             }
@@ -252,13 +258,12 @@ mat-card.bedes-content-card mat-card-header {
     }
 }
 
-
-mat-card.bedes-card mat-card-header.color-primary  {
+mat-card.bedes-card mat-card-header.color-primary {
     background-color: mat.get-color-from-palette($custom-primary);
     color: mat.get-color-from-palette($custom-primary, lighter-contrast);
 }
 
-mat-card.bedes-card mat-card-header.color-accent  {
+mat-card.bedes-card mat-card-header.color-accent {
     background-color: mat.get-color-from-palette($custom-accent);
     color: mat.get-color-from-palette($custom-accent, lighter-contrast);
 }
@@ -288,11 +293,11 @@ mat-card mat-card-content.bedes-content-bordered {
 }
 
 mat-card.bedes-card mat-card-actions {
-    margin:0;
+    margin: 0;
     padding: 1rem;
 }
 
-mat-card.bedes-card>.mat-card-actions:last-child {
+mat-card.bedes-card > .mat-card-actions:last-child {
     margin-bottom: 0;
     padding-bottom: 1rem;
 }
@@ -309,11 +314,11 @@ mat-card.bedes-content-card mat-card-content {
 }
 
 mat-card.bedes-content-card mat-card-actions {
-    margin:0;
+    margin: 0;
     padding: 1rem;
 }
 
-mat-card.bedes-content-card>.mat-card-actions:last-child {
+mat-card.bedes-content-card > .mat-card-actions:last-child {
     margin-bottom: 0;
     padding-bottom: 1rem;
 }
@@ -323,8 +328,7 @@ mat-card.bedes-content-card {
     border: 1px mat.get-color-from-palette($custom-primary) solid;
 }
 
-
 // expansion panel
 mat-expansion-panel mat-expansion-panel-header {
-    background-color: mat.get-color-from-palette($custom-accent, 200)
+    background-color: mat.get-color-from-palette($custom-accent, 200);
 }

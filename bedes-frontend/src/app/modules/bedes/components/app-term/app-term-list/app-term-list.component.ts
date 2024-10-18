@@ -3,7 +3,7 @@ import { BedesConstrainedList, BedesTerm } from '@bedes-common/models/bedes-term
 import { takeUntil, map, tap, catchError } from 'rxjs/operators';
 import { Subject, Observable, forkJoin, of } from 'rxjs';
 import { Router, ActivatedRoute } from '@angular/router';
-import { GridOptions, SelectionChangedEvent, ColDef } from 'ag-grid-community';
+import { GridApi, GridOptions, SelectionChangedEvent, ColDef } from 'ag-grid-community';
 import { MappingApplication } from '@bedes-common/models/mapping-application';
 import { ApplicationService } from '../../../services/application/application.service';
 import { AppTerm, AppTermList, IAppTerm } from '@bedes-common/models/app-term';
@@ -51,6 +51,7 @@ export class AppTermListComponent extends MessageFromGrid<IAppRow> implements On
     private unitList: Array<BedesUnit>;
     // ag-grid
     public gridOptions: GridOptions;
+    private gridApi: GridApi | null = null;
     public rowData: Array<BedesTerm | BedesConstrainedList>;
     public tableContext: any;
     // Error messages
@@ -129,7 +130,7 @@ export class AppTermListComponent extends MessageFromGrid<IAppRow> implements On
         .subscribe((termList: Array<AppTerm | AppTermList>) => {
             this.appTermList = termList;
             this.gridDataNeedsSet = true;
-            this.setGridData();
+            this.setGridData(this.gridApi);
         });
     }
 
@@ -178,10 +179,12 @@ export class AppTermListComponent extends MessageFromGrid<IAppRow> implements On
             },
             enableRangeSelection: true,
             columnDefs: this.buildColumnDefs(),
-            onGridReady: () => {
+            onGridReady: (params) => {
                 this.gridInitialized = true;
-                if (this.gridOptions && this.gridOptions.api && this.gridDataNeedsSet) {
-                    this.setGridData();
+                this.gridApi = params.api;
+
+                if (this.gridOptions && this.gridApi && this.gridDataNeedsSet) {
+                    this.setGridData(this.gridApi);
                 }
             },
             onFirstDataRendered(params) {
@@ -264,7 +267,7 @@ export class AppTermListComponent extends MessageFromGrid<IAppRow> implements On
             {
                 headerName: 'Application Term Name',
                 field: 'ref.name',
-                cellRendererFramework: TableCellNavComponent,
+                cellRenderer: TableCellNavComponent,
                 cellStyle: {
                 }
             },
@@ -283,7 +286,7 @@ export class AppTermListComponent extends MessageFromGrid<IAppRow> implements On
             {
                 headerName: '',
                 width: 50,
-                cellRendererFramework: TableCellDeleteComponent,
+                cellRenderer: TableCellDeleteComponent,
                 cellStyle: {
                     top: '9%',
                 }
@@ -294,8 +297,8 @@ export class AppTermListComponent extends MessageFromGrid<IAppRow> implements On
     /**
      * Populates the grid with the data from the appTermList
      */
-    private setGridData() {
-        if (this.gridInitialized && this.gridDataNeedsSet && this.gridOptions.api) {
+    private setGridData(api: GridApi) {
+        if (this.gridInitialized && this.gridDataNeedsSet && this.gridApi) {
             // const gridData = this.applicationList;
             const gridData = new Array<IAppRow>();
             const isAppOwner = this.currentUser.isApplicationOwner(this.app);
@@ -326,7 +329,7 @@ export class AppTermListComponent extends MessageFromGrid<IAppRow> implements On
                     isEditable: isAppOwner
                 });
             })
-            this.gridOptions.api.setRowData(gridData);
+            api.updateGridOptions({rowData: gridData});
             this.gridDataNeedsSet = false;
         }
     }
