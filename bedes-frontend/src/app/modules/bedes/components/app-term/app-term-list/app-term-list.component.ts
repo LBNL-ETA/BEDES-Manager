@@ -183,7 +183,7 @@ export class AppTermListComponent extends MessageFromGrid<IAppRow> implements On
                 this.gridInitialized = true;
                 this.gridApi = params.api;
 
-                if (params.api && this.gridOptions && this.gridOptions.api && this.gridDataNeedsSet) {
+                if (this.gridOptions && this.gridApi && this.gridDataNeedsSet) {
                     this.setGridData(this.gridApi);
                 }
             },
@@ -298,7 +298,7 @@ export class AppTermListComponent extends MessageFromGrid<IAppRow> implements On
      * Populates the grid with the data from the appTermList
      */
     private setGridData(api: GridApi) {
-        if (this.gridInitialized && this.gridDataNeedsSet && this.gridOptions.api) {
+        if (this.gridInitialized && this.gridDataNeedsSet && this.gridApi) {
             // const gridData = this.applicationList;
             const gridData = new Array<IAppRow>();
             const isAppOwner = this.currentUser.isApplicationOwner(this.app);

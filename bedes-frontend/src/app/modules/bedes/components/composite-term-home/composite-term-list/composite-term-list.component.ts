@@ -269,7 +269,7 @@ export class CompositeTermListComponent extends MessageFromGrid<IGridRow> implem
      * Populates the grid with the data from the applicationList.
      */
     private setGridData() {
-        if (this.gridInitialized && this.gridDataNeedsSet && this.gridOptions.api) {
+        if (this.gridInitialized && this.gridDataNeedsSet && this.gridApi) {
             const gridData = new Array<IGridRow>();
             if (Array.isArray(this.termList)) {
                 this.termList.forEach((item: BedesCompositeTermShort) => {

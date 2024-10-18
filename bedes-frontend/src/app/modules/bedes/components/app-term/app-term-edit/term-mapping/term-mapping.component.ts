@@ -208,7 +208,7 @@ export class TermMappingComponent implements OnInit {
                 this.gridInitialized = true;
                 this.gridApi = params.api;
 
-                if (params.api && this.gridOptions && this.gridOptions.api && this.gridDataNeedsSet) {
+                if (this.gridOptions && this.gridApi && this.gridDataNeedsSet) {
                     this.setGridData(this.gridApi);
                 }
             },

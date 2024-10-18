@@ -145,7 +145,7 @@ export class SelectTermsTableComponent implements OnInit, OnDestroy {
             .subscribe((results: Array<BedesSearchResult>) => {
                 // TODO: this needs to return bedes terms and options only, not composite terms
                 this.searchResults = results;
-                if (this.gridOptions.api) {
+                if (this.gridApi) {
                     // this.gridOptions.api.setRowData(this.buildGridData());
                     this.setGridData();
                 }
