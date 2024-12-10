@@ -35,7 +35,7 @@ function containsSpecialCharacters(str: string) {
 /**
  * Handler for processing the AppTerm csv file download.
  * @param request The Express.Request object.
- * @param response 
+ * @param response
  * @returns comma separated string
  */
 export async function appTermExportHandler(request: Request, response: Response): Promise<any> {
@@ -88,7 +88,7 @@ export async function appTermExportHandler(request: Request, response: Response)
             // Temp variables
             let bedesTerm: any = {};
             appTermName = results[i]._name;
-            
+
             // Replace the double quote with more quotes!
             appTermName = appTermName.replace(/"/g, '""');
 
@@ -114,25 +114,29 @@ export async function appTermExportHandler(request: Request, response: Response)
 
             if (results[i]._termTypeId == TermType.ConstrainedList) {
                 // Sort list options by their ID
-                (<IAppTermList>results[i])._listOptions!.sort((a,b) => (a._id! > b._id!) ? 1 : -1);
+                if (Array.isArray((<IAppTermList>results[i])._listOptions)) {
+                    (<IAppTermList>results[i])._listOptions!.sort((a, b) => (a._id! > b._id!) ? 1 : -1);
 
-                for (let j = 0; j < (<IAppTermList>results[i])._listOptions!.length; j += 1) {
-                    if (j == (<IAppTermList>results[i])._listOptions!.length - 1) {
-                        bedesConstrainedListMapping += (<IAppTermList>results[i])._listOptions![j]._name + ' = ';
-                        bedesConstrainedListMapping += (<IAppTermList>results[i])._listOptions![j]._mapping?._bedesOptionName ?? '';
-                        bedesConstrainedListOptionUUID += (<IAppTermList>results[i])._listOptions![j]._mapping?._bedesTermOptionUUID ?? '' ;
-                    } else {
-                        bedesConstrainedListMapping += (<IAppTermList>results[i])._listOptions![j]._name + ' = ';
-                        bedesConstrainedListMapping += ((<IAppTermList>results[i])._listOptions![j]._mapping?._bedesOptionName ?? '') + delimiter;
-                        bedesConstrainedListOptionUUID += ((<IAppTermList>results[i])._listOptions![j]._mapping?._bedesTermOptionUUID ?? '') + delimiter;
+                    for (let j = 0; j < (<IAppTermList>results[i])._listOptions!.length; j += 1) {
+                        if (j == (<IAppTermList>results[i])._listOptions!.length - 1) {
+                            bedesConstrainedListMapping += (<IAppTermList>results[i])._listOptions![j]._name + ' = ';
+                            bedesConstrainedListMapping += (<IAppTermList>results[i])._listOptions![j]._mapping?._bedesOptionName ?? '';
+                            bedesConstrainedListOptionUUID += (<IAppTermList>results[i])._listOptions![j]._mapping?._bedesTermOptionUUID ?? '';
+                        } else {
+                            bedesConstrainedListMapping += (<IAppTermList>results[i])._listOptions![j]._name + ' = ';
+                            bedesConstrainedListMapping += ((<IAppTermList>results[i])._listOptions![j]._mapping?._bedesOptionName ?? '') + delimiter;
+                            bedesConstrainedListOptionUUID += ((<IAppTermList>results[i])._listOptions![j]._mapping?._bedesTermOptionUUID ?? '') + delimiter;
+                        }
                     }
-                }
-                bedesConstrainedListMapping = "\"" + bedesConstrainedListMapping;
-                bedesConstrainedListMapping += "\"";
 
-                bedesConstrainedListOptionUUID = "\"" + bedesConstrainedListOptionUUID;
-                bedesConstrainedListOptionUUID += "\"";
-                bedesConstrainedListOptionUUID = bedesConstrainedListOptionUUID.replace('/\n$/', '');
+                } else {
+                    logger.warn(
+                        `_listOptions is missing or not an array for term: ${results[i]._id}:${results[i]._name}`
+                    );
+                }
+                bedesConstrainedListMapping = `"${bedesConstrainedListMapping}"`;
+                bedesConstrainedListOptionUUID = `"${bedesConstrainedListOptionUUID}"`;
+                bedesConstrainedListOptionUUID = bedesConstrainedListOptionUUID.replace(/\n$/, '');
             }
 
             if (results[i]._mapping) {
